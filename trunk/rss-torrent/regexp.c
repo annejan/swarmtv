@@ -24,6 +24,9 @@
 
 #include "logfile.h"
 
+// Number of output vectoritems
+#define   OVECSIZE 10
+
 /*
  * Split options
  * When options come in as <name>:<value> split them 
@@ -35,7 +38,7 @@ int splitnameval(char *input,char **name, char **value)
   pcre *p;
   const char *errmsg;
   int   errpos;
-  int   ovector[100];
+  int   ovector[OVECSIZE];
   int   rc;
   int   i;
 
@@ -60,7 +63,7 @@ int splitnameval(char *input,char **name, char **value)
       0,                    /* start at offset 0 in the subject */
       0,                    /* default options */
       ovector,              /* output vector for substring information */
-      sizeof(ovector));           /* number of elements in the output vector */
+      OVECSIZE);           /* number of elements in the output vector */
   if (rc < 0) {
     switch (rc) {
       case PCRE_ERROR_NOMATCH:
