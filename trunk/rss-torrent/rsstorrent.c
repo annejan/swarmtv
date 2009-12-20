@@ -64,7 +64,7 @@
 /*
  * optstring what options do we allow
  */
-static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:";
+static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:";
 
 /*
  * Bit of a hack.. but needed for cleanup
@@ -93,10 +93,11 @@ void printhelp(void)
           "-s <name:value>  : Set RSS source (default filter type rsstorrent) .\n"
           "-t <value>       : Set RSS source filter type. (use with -s)\n"
           "-F <name:url>    : Set download filter (no default duplicate filter).\n"
+          "-p <name>        : Print in shell format.\n"
           "-T <value>       : Check duplicate filter. (use with -F) \n"
-          "-d <name>        : delete filter.\n"
+          "-d <name>        : delete filter, name 'all' to delete all filters.\n"
           "-S               : List sources.\n"
-          "-D <name>        : delete rss sourse.\n"
+          "-D <name>        : delete rss source.\n"
           "-r               : Run in daemon mode.\n"
           "-n               : no detach when in daemon mode.\n"
           "-m <text>        : Send testmail notification.\n"
@@ -251,6 +252,8 @@ int main(int argc, char **argv){
         filter=calloc(1, strlen(optarg)+1);
         strcpy(filter, optarg);
         break;
+      case 'p': // print filter en shell format
+        printshellfilter(db, argv[0], optarg);
       case 't': // set source filter type
         if( filtertype != NULL) {
           fprintf(stderr, "Warning: ignoring second doublefilter parameter.\n");
@@ -268,10 +271,21 @@ int main(int argc, char **argv){
 
         break;
       case 'd': // delete filter
-        delfilter(db, optarg);
-        if(rc == 0) {
-          printf("Delete source: %s succesfull\n", optarg);
-        } 
+        if(!strcmp(optarg, "all")) {
+          rc = delallfilters(db);
+          if(rc == 0) {
+            printf("Delete all filters succesfull\n");
+          } else {
+            fprintf(stderr, "Deletion of all filters failed\n");
+          }
+        } else {
+          rc = delfilter(db, optarg);
+          if(rc == 0) {
+            printf("Delete filter: %s succesfull\n", optarg);
+          } else {
+            fprintf(stderr, "Delete filter: %s failed\n", optarg);
+          }
+        }
         break;
       case 's': // set rss source
         if(source!=NULL) {

@@ -42,3 +42,10 @@ int dosingletextquery(sqlite3 *db, const char *query, unsigned char const **text
  */
 int printquery(sqlite3 *db, const char *query);
 
+/*
+ * Prints columns from query to standard out.
+ * third argumnt is the number of rows returned.
+ * return 0 when okay
+ * return -1 on error
+ */
+int printquery(sqlite3 *db, const char *query);

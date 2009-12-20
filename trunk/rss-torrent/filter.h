@@ -33,6 +33,12 @@ int getfilter(sqlite3 *db, char *prop, char **url);
  */
 void printfilters(sqlite3 *db);
 
+/*
+ * Del all filters.
+ * Deletes all filters from filtertable.
+ * On succes 0 is returned.
+ */
+int delallfilters(sqlite3 *db);
 
 /*
  * del source item
@@ -63,4 +69,9 @@ int changefilter(sqlite3 *db, const char *name, const char *filter);
  * (For now only rsstorrent.com format)
  */
 int filterdownload(sqlite3 *db, char * name, char * url, char * filter, MemoryStruct *rssfile);
+
+/*
+ * Print filter in a way it could be modified and reentered
+ */
+void printshellfilter(sqlite3 *db, char *appname, char *filtername);
 

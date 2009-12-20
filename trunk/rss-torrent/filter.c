@@ -70,6 +70,73 @@ void printfilters(sqlite3 *db)
 }
 
 /*
+ * Del all filters.
+ * Deletes all filters from filtertable.
+ * On succes 0 is returned.
+ */
+int delallfilters(sqlite3 *db)
+{
+  sqlite3_stmt  *ppStmt;
+  const char    *pzTail;
+  char          *zErrMsg = 0;
+  int           rc;
+
+  /*
+   * Init query
+   */
+  const char* query = "delete from 'filters'";
+
+  /*
+   * Prepare the sqlite statement
+   */
+  rc = sqlite3_prepare_v2(
+      db,                 /* Database handle */
+      query,              /* SQL statement, UTF-8 encoded */
+      strlen(query),      /* Maximum length of zSql in bytes. */
+      &ppStmt,            /* OUT: Statement handle */
+      &pzTail             /* OUT: Pointer to unused portion of zSql */
+      );
+  if( rc!=SQLITE_OK ){
+    writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d",  __FILE__, __LINE__);
+    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+    sqlite3_free(zErrMsg);
+    return -1;
+  }
+
+  /*
+   * Evaluate the result.
+   */
+  rc = sqlite3_step(ppStmt);
+  if( rc!=SQLITE_DONE ) {
+    writelog(LOG_ERROR, "Could not delete all filters %s:%d", __FILE__, __LINE__);
+    //return -1;
+  }
+
+  /*
+   * Free statement
+   */
+  rc = sqlite3_finalize(ppStmt);
+  if( rc!=SQLITE_OK ){
+    writelog(LOG_ERROR, "Finalize failed in %s at line %d.!", __FILE__, __LINE__);
+    exit(1);
+  }
+
+
+  /*
+   * If the number of rows modified = 0 the configitem was not found.
+   */
+  rc = sqlite3_changes(db);
+  if(rc == 0) {
+    return -1;
+  }
+
+  /*
+   * All gone well.
+   */
+  return 0;
+}
+
+/*
  * del filter item
  * When allready existing -1 is returned.
  * On succes 0 is returned.
@@ -356,14 +423,12 @@ int filterdownload(sqlite3 *db, char *name, char *url, char *filter, MemoryStruc
    */
   if(strcmp(filter, "rsstorrent") == 0) {
     //printf("Found a file for filter %s\n", filter);
-    //int rsstorrentfilter(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssfile);
     rc = rsstorrentfilter(db, name, url, filter, rssfile); 
     return 0;
   }
 
   if(strcmp(filter, "eztv") == 0) {
     //printf("Found a file for filter %s\n", filter);
-    //int rsstorrentfilter(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssfile);
     rc = eztvfilter(db, name, url, filter, rssfile); 
     return 0;
   }
@@ -373,4 +438,88 @@ int filterdownload(sqlite3 *db, char *name, char *url, char *filter, MemoryStruc
    */
   writelog(LOG_ERROR, "No filter found '%s', ignoring file %s:%d", filter, __FILE__, __LINE__);
   return -1;
+}
+
+/*
+ * Print filter in a way it could be modified and reentered
+ */
+void printshellfilter(sqlite3 *db, char *appname, char *filtername)
+{
+  sqlite3_stmt  *ppStmt;
+  const char    *pzTail;
+  int           rc;
+  int           cols;
+  char          *zErrMsg = 0;
+  const unsigned char *filterstring;
+  const unsigned char *nodoublestring;
+
+  char *query =  "select filter, nodouble from 'filters' where name=?1";
+
+  // Get filter from filters
+
+  /*
+   * Prepare the sqlite statement
+   */
+  rc = sqlite3_prepare_v2(
+      db,                 /* Database handle */
+      query,            /* SQL statement, UTF-8 encoded */
+      strlen(query),    /* Maximum length of zSql in bytes. */
+      &ppStmt,             /* OUT: Statement handle */
+      &pzTail              /* OUT: Pointer to unused portion of zSql */
+      );
+  if( rc!=SQLITE_OK ){
+    writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
+    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+    sqlite3_free(zErrMsg);
+    return;
+  }
+
+  /*
+   * bind property and value to the query
+   *
+   */
+  rc = sqlite3_bind_text(ppStmt, 1, filtername, -1, SQLITE_TRANSIENT);
+  if( rc!=SQLITE_OK ){
+    writelog(LOG_ERROR, "sqlite3_bind_text failed on name %s:%d" __FILE__, __LINE__);  
+    return;
+  }
+
+  /*
+   * Get number of columns
+   * int sqlite3_column_count(sqlite3_stmt *pStmt);
+   */
+  cols = sqlite3_column_count(ppStmt);
+
+  /*
+   * Execute query.
+   */
+  rc = sqlite3_step(ppStmt);
+  if(rc == SQLITE_DONE) {
+    printf("Filter with name '%s' not found\n", filtername);
+    return;
+  }
+
+  /*
+   * Get Values
+   */
+  filterstring = sqlite3_column_text(ppStmt, 0);
+  nodoublestring = sqlite3_column_text(ppStmt, 1);
+
+  /*
+   * Print the shell line 
+   */
+  printf ( "#%s \\\n -F \"%s:%s\" \\\n -T \"%s\"\n", 
+    appname, filtername,  filterstring, nodoublestring);
+
+  /*
+   * Done with query, finalizing.
+   */
+  sqlite3_finalize(ppStmt);
+
+  /*
+   * All gone well
+   */
+  return;
+  
+  // print filter shell line 
 }

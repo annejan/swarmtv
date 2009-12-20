@@ -1,4 +1,13 @@
 #! /usr/bin/env bash
+DBFILE="./rss.db"
+
+# When a database exists, delete and recreate
+if [ -e $DBFILE ]
+then
+  echo "Found old db '$DBFILE' file, removing it."
+  rm $DBFILE
+fi
+
 
 # creating a new database file
 

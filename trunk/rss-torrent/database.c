@@ -242,7 +242,7 @@ int printquery(sqlite3 *db, const char *query)
    * int sqlite3_column_count(sqlite3_stmt *pStmt);
    */
   cols = sqlite3_column_count(ppStmt);
-  
+
 
   /*
    * loop until the end of the dataset is found

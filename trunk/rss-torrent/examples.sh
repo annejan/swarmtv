@@ -8,6 +8,11 @@ if [ ! -e ./rsstorrent ]; then
   exit
 fi 
 
+# Cleaning database
+echo "Delete all filters."
+./rsstorrent -d all
+echo "Done."
+
 # INSERT INTO "sources" (name, url, filter) VALUES( "rsstorrents", "http://rsstorrents.com/rss.php?cat=8", "rsstorrent"); 
 echo "Inserting sources."
 ./rsstorrent -s "Eztv:http://www.ezrss.it/feed/" -t "eztv"
