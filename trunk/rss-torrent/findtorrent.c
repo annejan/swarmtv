@@ -313,7 +313,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
   free(conttype);
 
   // DEBUG
-  printf("Mime-type: '%s'\n", filetype);
+  //printf("Mime-type: '%s'\n", filetype);
 
   /*
    * When lib magic finds a torrent, return 1 and set buffer + url
@@ -339,7 +339,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
    * When recursion = 0 
    * We are not interested in other content then torrents, so returning 0
    */
-  printf("Recurse = %d\n", recurse);
+  //printf("Recurse = %d\n", recurse);
   if(recurse <= 0) {
     return 0;
   }
@@ -381,7 +381,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
       resolvrel(url, linkaddr, &fulllink);
 
       if(strlen(fulllink) == 0) {
-        printf("url: '%s' linkaddr: '%s' fulllink: '%s'\n", url, linkaddr, fulllink);
+        writelog(LOG_DEBUG, "url: '%s' linkaddr: '%s' fulllink: '%s'", url, linkaddr, fulllink);
       }
 
       switch(*fulllink){
@@ -421,7 +421,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
     }
   }
 
-  printf("Nothing found at '%s'\n", url);
+  writelog(LOG_NORMAL, "Nothing found at '%s'", url);
 
   /*
    * Clean up
@@ -444,7 +444,7 @@ int findtorrentwrite(char *url, char *name)
   char            *torurl = NULL;
   MemoryStruct    *buffer = NULL;
 
-  printf("Writing '%s' to '%s'\n", url, name);
+  writelog(LOG_DEBUG, "Writing torrent '%s' to file '%s'\n", url, name);
 
   /*
    * Allocating structure

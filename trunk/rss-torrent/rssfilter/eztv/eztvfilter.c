@@ -453,7 +453,7 @@ static int titleregexp(char *regexp, unsigned char *title, unsigned char** name,
   cleanupstring((char*) *name);
 
   writelog(LOG_DEBUG, "number of strings found '%d', title '%s' season '%d' episode '%d'", rc, *name, *season, *episode);
-  //printf("Regexp '%s'\nNumber of strings found '%d', title '%s' season '%s' episode '%s'\n", regexp, rc, *name, seasonstr, episodestr);
+  //printf("Title '%s'\nRegexp '%s'\nNumber of strings found '%d', title '%s' season '%s' episode '%s'\n", title, regexp, rc, *name, seasonstr, episodestr);
 
   /*
    * convert seeds and peers
@@ -502,7 +502,7 @@ static int disecttitle(unsigned char *title, unsigned char** name, int *season, 
   /*
    * Try the 01x23 notation, this is common.
    */
-  rc = titleregexp("^(.*)([0-9][0-9]?)[xX]([0-9][0-9]?)", title, name, season, episode);
+  rc = titleregexp("^(.*[^0-9])([0-9][0-9]?)[xX]([0-9][0-9]?)", title, name, season, episode);
   if(rc == 0) {
     writelog(LOG_DEBUG, "Found title match at specific regexp %s:%d", __FILE__, __LINE__);
     return 0;
@@ -657,12 +657,21 @@ int eztvfilter(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *r
       writelog(LOG_DEBUG, "No pubdatestr found");
     }
     writelog(LOG_DEBUG, "pubdatestr: %s", pubdatestr);
-    
+
     /*
      * Get node op enclosure
      * toenclosure
      */
     encnode = getxpathnode(BAD_CAST toenclosure, xpathCtx );
+
+    rc = disecttitle(title, &cuttitle, &season, &episode);
+    if(rc != 0) {
+      /*
+       * When an error occures ignore record
+       */
+      writelog(LOG_ERROR, "name failed: %s\n", title);
+      continue;
+    }
 
     /*
      * split the strings
@@ -673,15 +682,6 @@ int eztvfilter(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *r
        * When an error occures ignore record
        */
       writelog(LOG_ERROR, "description failed: %s\n", description);
-      continue;
-    }
-
-    rc = disecttitle(title, &cuttitle, &season, &episode);
-    if(rc != 0) {
-      /*
-       * When an error occures ignore record
-       */
-      writelog(LOG_ERROR, "name failed: %s\n", title);
       continue;
     }
 
