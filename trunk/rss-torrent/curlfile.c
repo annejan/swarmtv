@@ -46,7 +46,7 @@ static void *myrealloc(void *ptr, size_t size)
   if(ptr)
     return realloc(ptr, size);
   else
-    return malloc(size);
+    return calloc(size, 1);
 }
 
 static size_t WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
@@ -88,7 +88,8 @@ int downloadtobuffer(char *url, MemoryStruct *chunk)
 
   chunk->memory=NULL; /* we expect realloc(NULL, size) to work */ 
   chunk->size = 0;    /* no data at this point */ 
-
+  chunk->header=NULL; /* header is empty */
+  chunk->headersize=0;  /* headersize is 0 */
 
   /* init the curl session */ 
   curl_handle = curl_easy_init();
