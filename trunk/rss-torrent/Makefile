@@ -1,9 +1,9 @@
 CFLAGS=-g -c -Wall -I /usr/include/libxml2 -I. 
-LDFLAGS=-lsqlite3 -lpcre -lcurl -lxml2 -lesmtp
+LDFLAGS=-lsqlite3 -lpcre -lcurl -lxml2 -lesmtp -lmagic
 
 all: rsstorrent
 	
-rsstorrent: rsstorrent.o database.o config.o regexp.o source.o filter.o runloop.o curlfile.o rssfilter/rsstorrent/rsstorrentfilter.o rssfilter/eztv/eztvfilter.o torrentdb.o torrentdownload.o logfile.o daemonize.o mailmsg.o
+rsstorrent: rsstorrent.o database.o config.o regexp.o source.o filter.o runloop.o curlfile.o rssfilter/rsstorrent/rsstorrentfilter.o rssfilter/eztv/eztvfilter.o torrentdb.o torrentdownload.o logfile.o daemonize.o mailmsg.o findtorrent.o mymagic.o
 
 clean:
 	@rm *.o rsstorrent rssfilter/*/*.o

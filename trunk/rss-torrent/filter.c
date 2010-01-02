@@ -354,7 +354,7 @@ int changefilter(sqlite3 *db, const char *name, const char *filter)
       );
   if( rc!=SQLITE_OK ){
     writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
-    writelog(LOG_ERROR, "SQL error: %s\n", zErrMsg);
+    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
     sqlite3_free(zErrMsg);
     return -1;
   }

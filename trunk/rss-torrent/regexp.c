@@ -26,6 +26,7 @@
 
 // Number of output vectoritems
 #define   OVECSIZE 10
+#define   MATCHSIZE 20
 
 /*
  * Split options
@@ -143,3 +144,132 @@ void cleanupstring(char *string)
   }
 }
 
+/*
+ * Simple routine to compare a string to a regexp
+ */
+int comregexp(char *regexp, char *string)
+{
+  pcre *p;
+  const char *errmsg;
+  int   errpos;
+  int   ovector[MATCHSIZE];
+  int   rc;
+  int   outval = -1;
+
+  /*
+   * Compile the regexp te split the two strings.
+   */
+  p = pcre_compile(regexp, 0, &errmsg, &errpos, 0);
+  if (p == NULL) {
+    /* should not happen, because init1 has already tested and set to NULL on error */
+    //writelog(LOG_ERROR, "Ouch! Can't compile regular expression: %s (char %i) %s:%d",
+    //    errmsg, errpos, __FILE__, __LINE__);
+  }
+
+  /*
+   * execute regexp
+   */
+  rc = pcre_exec (
+      p,                   /* the compiled pattern */
+      0,                    /* no extra data - pattern was not studied */
+      string,                  /* the string to match */
+      strlen(string),          /* the length of the string */
+      0,                    /* start at offset 0 in the subject */
+      0,                    /* default options */
+      ovector,              /* output vector for substring information */
+      MATCHSIZE);           /* number of elements in the output vector */
+  /*
+   * handle output
+   */
+  switch (rc) {
+    case 0:
+      outval = 1;
+      break;
+    case PCRE_ERROR_NOMATCH:
+      outval = 0;
+      break;
+
+    default:
+      fprintf(stderr, "Error evaluating password!\n");
+      //writelog(LOG_ERROR, "Error while matching: %d %s:%d", rc, __FILE__, __LINE__);
+      break;
+  }
+
+  /*
+   * Clean up !
+   */
+  pcre_free(p);
+
+  return outval;
+}
+
+/*
+ * This routine returns a string pointing to the first captured string.
+ */
+int capturefirstmatch(char *regexp, int flag, char *string, char **match)
+{
+  pcre *p;
+  const char *errmsg;
+  int   errpos;
+  int   ovector[MATCHSIZE];
+  int   rc;
+  int   i;
+
+  /*
+   * Compile the regexp te split the two strings.
+   */
+  p = pcre_compile(regexp, 0, &errmsg, &errpos, 0);
+  if (p == NULL) {
+    /* should not happen, because init1 has already tested and set to NULL on error */
+    //writelog(LOG_ERROR, "Ouch! Can't compile regular expression: %s (char %i) %s:%d",
+    //    errmsg, errpos, __FILE__, __LINE__);
+    fprintf(stderr, "Ouch! Can't compile regular expression: %s (char %i) %s:%d", errmsg, errpos, __FILE__, __LINE__);
+    return -1;
+  }
+
+  /*
+   * execute regexp
+   */
+  rc = pcre_exec (
+      p,                    /* the compiled pattern */
+      0,                    /* no extra data - pattern was not studied */
+      string,                /* the string to match */
+      strlen(string),        /* the length of the string */
+      0,                    /* start at offset 0 in the subject */
+      flag,                 /* default options */
+      ovector,              /* output vector for substring information */
+      MATCHSIZE);     /* number of elements in the output vector */
+  if (rc < 0) {
+    switch (rc) {
+      case PCRE_ERROR_NOMATCH:
+        //writelog(LOG_ERROR, "String could not be split. %s:%d", __FILE__, __LINE__);
+        //fprintf(stderr, "No match found '%s'. %s:%d", regexp, __FILE__, __LINE__);
+        break;
+
+      default:
+        fprintf(stderr, "Error in regexp matching '%s'. %s:%d\n", regexp, __FILE__, __LINE__);
+        //writelog(LOG_ERROR, "Error while matching: %d %s:%d", rc, __FILE__, __LINE__);
+        break;
+    }
+    free(p);
+    return rc;
+  }
+
+  /*
+   * extract both strings.
+   */
+  i = 1;
+  *match = calloc(1, ovector[2*i+1]-ovector[2*i]+1);
+  sprintf(*match, "%.*s", ovector[2*i+1] - ovector[2*i], string + ovector[2*i]);
+
+  //printf("o'%s' r'%s' b%d e%d s%d v'%s'\n", string, regexp,  ovector[2*i], ovector[2*i+1], ovector[2*i+1]-ovector[2*i], *match);
+
+  /*
+   * Get the 2 strings and put them in the output strings.
+   * Both need to be freed afterwards
+   */
+
+  pcre_free(p);
+
+  return 0;
+}

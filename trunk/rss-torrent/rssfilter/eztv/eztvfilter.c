@@ -181,7 +181,7 @@ static int disectdate(char *date, time_t *pubdate)
     /*
      * When all else fails it's a safe bet to set the date to 'now'
      */
-    writelog(LOG_NORMAL, "Converting date '%s' failed, used 'now' as substitute.\n", date);
+    writelog(LOG_NORMAL, "Converting date '%s' failed, used 'now' as substitute.", date);
     now = time ( NULL );
     localtime_r ( &now, &pubtm );
 

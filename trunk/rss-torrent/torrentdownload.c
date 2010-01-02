@@ -29,6 +29,7 @@
 #include "torrentdb.h"
 #include "logfile.h"
 #include "mailmsg.h"
+#include "findtorrent.h"
 
 /*
  * Max message and subject lenght for notification email
@@ -286,7 +287,8 @@ static void dodownload(sqlite3 *db, char *link, char *title, int season, int epi
    */
   snprintf(filename, 150, "%s/%sS%dE%dR%s.torrent", path, title, season, episode, pubdate); 
 
-  downloadtofile(link, filename);
+  //downloadtofile(link, filename);
+  findtorrentwrite(link, filename);
 
   free(path);
 }

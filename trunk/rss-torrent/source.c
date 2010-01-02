@@ -56,7 +56,7 @@ void printsources(sqlite3 *db)
    * header
    */
   printf("#############\n");
-  printf("Filters.\n");
+  printf("Sources\n");
   printf("Name : url : filter\n");
   printf("#############\n");
 

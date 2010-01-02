@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #include <curl/curl.h>
 #include <curl/types.h>
@@ -23,6 +24,12 @@
 
 //#include "logfile.h"
 #include "curlfile.h"
+#include "regexp.h"
+#include "logfile.h"
+
+#define REGEXPSIZE 40
+
+#define HEADEREOL  "\r\n"
 
 /*
  * realloc 
@@ -185,8 +192,7 @@ int downloadtofile(char *url, char *path)
 
     if(CURLE_OK != res) {
       /* we failed */ 
-      fprintf(stderr, "curl told us %d\n", res);
-      //writelog(LOG_ERROR, "curl told us %d %s:%d", res, __FILE__, __LINE__);
+      writelog(LOG_ERROR, "curl told us %d %s:%d", res, __FILE__, __LINE__);
       rc = -1; // Set Error 
     }
   }
@@ -212,3 +218,103 @@ void freedownload(MemoryStruct *chunk)
   return;
 }
 
+/*
+ * extract from HTTP-header
+ * This method extracts a given field from the http-header.
+ * The pointer returned contains the value.
+ * after use free the returned string
+ */
+int getheadersvalue(char *name, char **value, MemoryStruct *chunk)
+{
+  char *header=NULL;
+  char *latest=NULL;
+  char *token=NULL;
+  char regexp[REGEXPSIZE+1];
+  int rc=0;
+
+  /* 
+   * Init vars
+   */
+  memset(regexp, 0, REGEXPSIZE+1);
+  *value=NULL;
+
+  /*
+   * Copy the inputbuffer to tempbuffer.
+   */
+  header = calloc(1, strlen(chunk->header)+1);
+  strcpy(header, chunk->header);
+
+  /*
+   * Create regexp for getting header
+   */
+  snprintf(regexp, REGEXPSIZE, "^ *%s ?: ?(.*)", name);
+
+  /*
+   * Use strtok to split the header, and match line by line
+   */
+  token = strtok_r(header, HEADEREOL, &latest);
+  while(token != NULL) {
+    // Get the first match from the header
+    rc =  capturefirstmatch(regexp, 0, token, value);
+    if(rc == 0) {
+      writelog(LOG_DEBUG, "Found '%s'->'%s'", token, *value);
+      // found !
+      break;
+    }
+    
+    // just to be sure
+    free(*value);
+
+    // Next token
+    token = strtok_r(NULL, HEADEREOL, &latest);
+  }
+
+  /*
+   * Cleanup.
+   */
+  free(header);
+
+  // Return the value
+  return rc;
+}
+
+/*
+ * Write retrieved buffer to file.
+ */
+int writebuffer(char *filename, MemoryStruct *buffer) 
+{
+  FILE  *file;
+  int   rc;
+  int   cur_char;
+
+  writelog(LOG_DEBUG,"Writing to : '%s' lenght '%ld' %s:%d", filename, buffer->size, __FILE__, __LINE__);
+
+  /*
+   * Save file to test.torrent
+   */
+  file = fopen(filename, "w+"); 
+  if(file == NULL) {
+    writelog(LOG_ERROR, "Could not open file : '%s'", strerror(errno));
+    return -1;
+  }
+
+  /* not very optimized, but coping for writing small files. */
+  for (cur_char = 0; cur_char < buffer->size; ++cur_char) {
+    rc = fputc(*(buffer->memory + cur_char), file);
+    if(rc == EOF) {
+      writelog(LOG_ERROR, "Could not write to file");
+      fclose(file);
+      return -1;
+    }
+  }
+
+  /*
+   * close filedescriptor 
+   */
+  fclose(file);
+
+  /*
+   * success !
+   */
+  return 0;
+}

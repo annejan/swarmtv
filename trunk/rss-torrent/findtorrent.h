@@ -18,27 +18,18 @@
  *  Program written by Paul Honig 2009
  */
 
+/*
+ * This is a recursive function.
+ * It scans for torrent files, and will return the first one it encounteres.
+ * Note this might not be the correct torrent at all :)
+ * A counter prevents the recursing from getting out of hand.
+ * The torrent wil be contained in torbuffer.
+ * The url the torrent was found in torrenturl.
+ * Don't forget to free buffer and torrenturl !
+ */
+int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recurse);
 
 /*
- * Split options
- * When options come in as <name>:<value> split them 
- * the first ':' found is the one plitting name and value
- * When the splitting failed '-1' is returned
+ * Finds and writes torrent to file
  */
-int splitnameval(char *input, char **name, char **value);
-
-
-/*
- * Cleanup strings from XML
- */
-void cleanupstring(char *string);
-
-/*
- * Simple routine to compare a string to a regexp
- */
-int comregexp(char *regexp, char *string);
-
-/*
- * This routine returns a string pointing to the first captured string.
- */
-int capturefirstmatch(char *regexp, int flag, char *string, char **match);
+int findtorrentwrite(char *url, char *name);

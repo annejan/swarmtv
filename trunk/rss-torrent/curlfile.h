@@ -22,6 +22,14 @@
 #define CURLFILE
 
 /*
+ *  * HTTP header defines
+ *   * Not complete by a long shot, just what I need for now.
+ *    */
+#define HTTP_CONTENTTYPE  "Content-Type"
+#define HTTP_LENGHT       "Content-Length"
+#define HTTP_SERVER       "Server"
+
+/*
  * Struct holding file info
  */
 struct FtpFile {
@@ -54,5 +62,18 @@ void freedownload(MemoryStruct *chunk);
  * Download to file.
  */
 int downloadtofile(char *url, char *path);
+
+/*
+ * extract from HTTP-header
+ * This method extracts a given field from the http-header.
+ * The pointer returned contains the value.
+ * after use free the returned string
+ */
+int getheadersvalue(char *name, char **value, MemoryStruct *chunk);
+
+/*
+ * Write retrieved buffer to file.
+ */
+int writebuffer(char *filename, MemoryStruct *buffer);
 
 #endif

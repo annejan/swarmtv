@@ -20,25 +20,20 @@
 
 
 /*
- * Split options
- * When options come in as <name>:<value> split them 
- * the first ':' found is the one plitting name and value
- * When the splitting failed '-1' is returned
+ * Initialize the magic 
  */
-int splitnameval(char *input, char **name, char **value);
+int initmagic();
 
 
 /*
- * Cleanup strings from XML
+ * This routine determines the filetype and returns a string describing the filetype.
+ * Don't forget to free the filtetype string after use.
  */
-void cleanupstring(char *string);
+int getcontenttype(char *buffer, size_t size, char **filetype);
+
 
 /*
- * Simple routine to compare a string to a regexp
+ * Close the magic context
  */
-int comregexp(char *regexp, char *string);
+int magicclose(void);
 
-/*
- * This routine returns a string pointing to the first captured string.
- */
-int capturefirstmatch(char *regexp, int flag, char *string, char **match);
