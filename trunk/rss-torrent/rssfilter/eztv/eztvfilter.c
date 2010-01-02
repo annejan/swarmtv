@@ -39,6 +39,7 @@
  * Unknown type
  */
 #define UNKNOWNTYPE "unknown"
+#define OVECTSIZE   15
 
 /*
  * Xpath queries.
@@ -368,13 +369,8 @@ static int disectdescription(unsigned char *desc, unsigned char** showname, unsi
   return 0;
 }
 
-
-/*
- * Disect the name field from the xml.
- * return the components.
- * Make sure to free the name, season string after use.
- */
-static int disecttitle(unsigned char *title, unsigned char** name, int *season, int *episode) {
+static int titleregexp(char *regexp, unsigned char *title, unsigned char** name, int *season, int *episode)
+{
   /*
    * Example description.
    * Category: Anime, Seeds: 20, Peers: 103, Size: 353.3 MBs
@@ -384,7 +380,7 @@ static int disecttitle(unsigned char *title, unsigned char** name, int *season, 
   pcre *p;
   const char *errmsg;
   int   errpos;
-  int   ovector[10];
+  int   ovector[OVECTSIZE];
   int   rc;
   int   i;
   char *seasonstr;
@@ -396,7 +392,7 @@ static int disecttitle(unsigned char *title, unsigned char** name, int *season, 
    * try :
    * ^(.*)(([sS]([0-9][0-9]?)))?[eE]([0-9][0-9]?))?   name, season, episode
    */
-  p = pcre_compile("^(.*)[sS]([0-9][0-9]?)[eE]([0-9][0-9]?)", 0, &errmsg, &errpos, 0);
+  p = pcre_compile((char*) regexp, 0, &errmsg, &errpos, 0);
   if (p == NULL) {
     /* should not happen, because init1 has already tested and set to NULL on error */
     writelog(LOG_ERROR, "Ouch! Can't compile regular expression: %s (char %i)", errmsg, errpos);
@@ -417,21 +413,21 @@ static int disecttitle(unsigned char *title, unsigned char** name, int *season, 
       0,                    /* start at offset 0 in the subject */
       0,                    /* default options */
       ovector,              /* output vector for substring information */
-      sizeof(ovector));           /* number of elements in the output vector */
+      OVECTSIZE);           /* number of elements in the output vector */
   if (rc < 0) {
     switch (rc) {
       case PCRE_ERROR_NOMATCH:
-        writelog(LOG_DEBUG, "Using whole string as title '%s'\n", title);
+        writelog(LOG_DEBUG, "Using whole string as title '%s'", title);
         *name = calloc(1, strlen((char*)title)+1);
         strcpy((char*) *name, (char*) title);
         break;
 
       default:
-        writelog(LOG_ERROR, "Error while matching: %d %s:%d\n", rc, __FILE__, __LINE__);
+        writelog(LOG_ERROR, "Error while matching: %d %s:%d", rc, __FILE__, __LINE__);
         exit(1);
     }
     free(p);
-    return 0;
+    return -1;
   }
 
 
@@ -456,7 +452,8 @@ static int disecttitle(unsigned char *title, unsigned char** name, int *season, 
   *episode = atoi(episodestr);
   cleanupstring((char*) *name);
 
-  writelog(LOG_DEBUG, "number of strings found %d, title %s season %d episode %d\n", rc, *name, *season, *episode);
+  writelog(LOG_DEBUG, "number of strings found '%d', title '%s' season '%d' episode '%d'", rc, *name, *season, *episode);
+  //printf("Regexp '%s'\nNumber of strings found '%d', title '%s' season '%s' episode '%s'\n", regexp, rc, *name, seasonstr, episodestr);
 
   /*
    * convert seeds and peers
@@ -469,6 +466,65 @@ static int disecttitle(unsigned char *title, unsigned char** name, int *season, 
   free(seasonstr);
   free(episodestr);
   pcre_free(p);
+
+  return 0;
+}
+
+/*
+ * Disect the name field from the xml.
+ * return the components.
+ * Make sure to free the name, season string after use.
+ */
+static int disecttitle(unsigned char *title, unsigned char** name, int *season, int *episode) 
+{
+  /*
+   * Example description.
+   * Category: Anime, Seeds: 20, Peers: 103, Size: 353.3 MBs
+   * extract: Category, seeds, peers, size
+   * execute regexp /Category: ([^,]*), Seeds: ([^,]*), Peers: ([^,]*), Size: (.*)$/
+   */
+  int   rc;
+
+  if(title == NULL) {
+    writelog(LOG_ERROR, "NULL pointer passed for title %s:%d", __FILE__, __LINE__);
+    return -1;
+  }
+
+  /*
+   * Try the S01E23 notation, this is common.
+   */
+  rc = titleregexp("^(.*)[sS]([0-9][0-9]?)[eE]([0-9][0-9]?)", title, name, season, episode);
+  if(rc == 0) {
+    writelog(LOG_DEBUG, "Found title match at specific regexp %s:%d", __FILE__, __LINE__);
+    return 0;
+  }
+
+  /*
+   * Try the 01x23 notation, this is common.
+   */
+  rc = titleregexp("^(.*)([0-9][0-9]?)[xX]([0-9][0-9]?)", title, name, season, episode);
+  if(rc == 0) {
+    writelog(LOG_DEBUG, "Found title match at specific regexp %s:%d", __FILE__, __LINE__);
+    return 0;
+  }
+
+  /*
+   * Try a more generic match on anything that has an S followed by 2 seperate numbers
+   */
+  rc = titleregexp("^([^0-9]+)[Ss][[:space:]]*([0-9][0-9]?)[^0-9]+([0-9][0-9]?)[^0-9]*$", title, name, season, episode);
+  if(rc == 0) {
+    writelog(LOG_DEBUG, "Found title match at generic regexp %s:%d", __FILE__, __LINE__);
+    return 0;
+  }
+
+  /*
+   * Try a more generic match on anything that has 2 seperate numbers
+   */
+  rc = titleregexp("^([^0-9]+)([0-9][0-9]?)[^0-9]+([0-9][0-9]?)[^0-9]*$", title, name, season, episode);
+  if(rc == 0) {
+    writelog(LOG_DEBUG, "Found title match at generic regexp %s:%d", __FILE__, __LINE__);
+    return 0;
+  }
 
   return 0;
 }
