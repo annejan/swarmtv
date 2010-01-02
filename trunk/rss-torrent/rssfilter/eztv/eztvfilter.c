@@ -89,6 +89,7 @@ static int getxpathstring(const xmlChar * str, xmlXPathContextPtr ctxt, unsigned
    * When no results are found fail.
    */
   if( xpathObj->nodesetval->nodeNr == 0) {
+    xmlXPathFreeObject(xpathObj);
     return -1;
   }
 
@@ -417,9 +418,6 @@ static int titleregexp(char *regexp, unsigned char *title, unsigned char** name,
   if (rc < 0) {
     switch (rc) {
       case PCRE_ERROR_NOMATCH:
-        writelog(LOG_DEBUG, "Using whole string as title '%s'", title);
-        *name = calloc(1, strlen((char*)title)+1);
-        strcpy((char*) *name, (char*) title);
         break;
 
       default:
@@ -525,6 +523,13 @@ static int disecttitle(unsigned char *title, unsigned char** name, int *season, 
     writelog(LOG_DEBUG, "Found title match at generic regexp %s:%d", __FILE__, __LINE__);
     return 0;
   }
+
+  /*
+   * when none match we use the whole string as title
+   */
+  writelog(LOG_DEBUG, "Using whole string as title '%s'", title);
+  *name = calloc(1, strlen((char*)title)+1);
+  strcpy((char*) *name, (char*) title);
 
   return 0;
 }
