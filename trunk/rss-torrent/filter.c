@@ -228,6 +228,15 @@ int addfilter(sqlite3 *db, const char *name, const char *filter, const char *dou
   int         changes;
 
   /*
+   * No filters can be added that have the name all.
+   */
+  if(strcmp(name, "all") == 0){
+    writelog(LOG_NORMAL, "No filter can be added with name all");
+    fprintf(stderr, "No filter can be added with name 'all'\n");
+    return -1;
+  }
+
+  /*
    * Init query
    */
   const char* query = "INSERT INTO 'filters' (name, filter, nodouble) VALUES(?1, ?2, ?3)";

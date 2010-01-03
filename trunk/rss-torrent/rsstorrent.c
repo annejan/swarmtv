@@ -364,6 +364,7 @@ int main(int argc, char **argv){
       }
     }
 
+    free(filter);
     free(name);
     free(value);
   }
