@@ -91,7 +91,7 @@ void printhelp(void)
           "-S               : List sources.\n"
           "-D <name>        : Delete RSS source.\n"
           "-r               : Run in daemon mode.\n"
-          "-q               : Test filter (together with -f & -T).\n"
+          "-q               : Test filter (together with -F & -T).\n"
           "-n               : Don't detach from console.\n"
           "-m <text>        : Send testmail notification.\n"
           "-h               : Print this help.\n"
