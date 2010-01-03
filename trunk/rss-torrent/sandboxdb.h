@@ -15,18 +15,23 @@
  *  Please refer to the LICENSE.txt file that comes along with this source file
  *  or to http://www.gnu.org/licenses/gpl.txt for a full version of the license.
  *
- *  Program written by Paul Honig 2009
+ *  Program written by Paul Honig 2010
  */
 
-
-/*
- * Get the filters from the database.
- * apply the filters.
- * then download the results.
- */
-int downloadtorrents(sqlite3 *db);
+typedef struct {
+  sqlite3* db;
+  char *filename;
+} sandboxdb;
 
 /*
- * Apply the filters from the query.
+ * Create copy of database
+ * and create a sqlite3 pointer to the database copy.
  */
-void applyfilter(sqlite3 *db, char *name, char *filter, char* nodouble, int simulate);
+sandboxdb *createsandbox(char *sourcedbname, char *sandboxdbname);
+
+/*
+ * Close the database.
+ * delete the sandboxed database.
+ */
+int closesandbox(sandboxdb *db);
+

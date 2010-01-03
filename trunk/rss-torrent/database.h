@@ -19,6 +19,11 @@
  */
 
 /*
+ * path to database file.
+ */
+#define  DBFILE "./rss.db"
+
+/*
  * Open database, and add regexp functionality.
  */
 int initdatabase(
@@ -37,6 +42,12 @@ int initdatabase(
 int dosingletextquery(sqlite3 *db, const char *query, unsigned char const **text);
 
 /*
+ * Execute a query
+ * Don't expect any output back
+ */
+int executequery(sqlite3 *db, const char *query);
+
+/*
  * Prints columns from query to standard out.
  * third argumnt is the number of rows returned.
  */
@@ -49,3 +60,4 @@ int printquery(sqlite3 *db, const char *query);
  * return -1 on error
  */
 int printquery(sqlite3 *db, const char *query);
+

@@ -39,11 +39,8 @@
 #include "logfile.h"
 #include "daemonize.h"
 #include "mailmsg.h"
-
-/*
- * path to database file.
- */
-#define  DBFILE "./rss.db"
+#include "sandboxdb.h"
+#include "testfilter.h"
 
 /*
  * Default timeout when no -i is provided
@@ -56,15 +53,9 @@
 #define OVECCOUNT 3
 
 /*
- * const char *test_query = "select * from tbl1 where two > ? ;";
- */
-//const char *test_query = "select * from tbl1 JOIN tbl2 WHERE tbl1.two = tbl2.key AND tbl1.one REGEXP 'e$'";
-//const char *test_query = "select value from config where prop = 'logfile'";
-
-/*
  * optstring what options do we allow
  */
-static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:";
+static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:q";
 
 /*
  * Bit of a hack.. but needed for cleanup
@@ -78,6 +69,7 @@ typedef struct {
   int loopsec;
   int run;
   int nodetach;
+  int testfilt;
 } opts_struct;
 
 /*
@@ -99,13 +91,15 @@ void printhelp(void)
           "-S               : List sources.\n"
           "-D <name>        : Delete RSS source.\n"
           "-r               : Run in daemon mode.\n"
+          "-q               : Test filter (together with -f & -T).\n"
           "-n               : Don't detach from console.\n"
           "-m <text>        : Send testmail notification.\n"
           "-h               : Print this help.\n"
           "\n"
           "Flags to be used together.\n"
-          "-F <name:value> -T <value> : Set download filter and diplicate check\n"
-          "-s <name:url> -t <value>   : set RSS source and filter\n"
+          "-F <name:value> -T <value>     : Set download filter and diplicate check\n"
+          "-q -F <name:value> -T <value>  : Test download filter and diplicate check\n"
+          "-s <name:url> -t <value>       : set RSS source and filter\n"
           "################\n\n");
 }
 
@@ -261,6 +255,9 @@ int main(int argc, char **argv){
         }
         filtertype=calloc(1, strlen(optarg)+1);
         strcpy(filtertype, optarg);
+      case 'q': // set filtertest flag
+        opts.testfilt=1;
+        break;
       case 'T': // set duplicate filter
         if( doublefilter != NULL) {
           fprintf(stderr, "Warning: ignoring second filtertype parameter.\n");
@@ -345,13 +342,26 @@ int main(int argc, char **argv){
 
   if(filter != NULL) {
     splitnameval(filter, &name, &value);
-    rc = addfilter(db, name, value, doublefilter);
-    if(rc == 0) {
-      printf("new filter : %s\n"
-             "filter : %s\n"
-             "nodouble filter : %s\n"
-             "Was added succesfully\n",
-             name, value, doublefilter);
+    if(opts.testfilt == 0) { // add filter
+      rc = addfilter(db, name, value, doublefilter);
+      if(rc == 0) {
+        printf("new filter : %s\n"
+            "filter : %s\n"
+            "nodouble filter : %s\n"
+            "Was added succesfully\n",
+            name, value, doublefilter);
+      }
+
+    } 
+    else { // test the filters
+      rc =  dofiltertest(value, doublefilter);
+      if(rc != 0) {
+        printf("new filter : %s\n"
+            "filter : %s\n"
+            "nodouble filter : %s\n"
+            "Test failed\n",
+            name, value, doublefilter);
+      }
     }
 
     free(name);

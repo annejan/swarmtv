@@ -274,7 +274,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
    */
   memset(&buffer, 0, sizeof(MemoryStruct));
 
-  printf("Scan url: '%s'\n", url);
+  writelog(LOG_DEBUG, "Scan url: '%s'\n", url);
 
   /*
    * Make sure no garbage is in here

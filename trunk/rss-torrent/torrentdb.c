@@ -283,7 +283,7 @@ void nonewtorrents(sqlite3 *db)
 
   const char *query = "UPDATE newtorrents SET new='N' WHERE new='Y'";
 
-  writelog(LOG_NORMAL,"New torrents are marked old now !");
+  writelog(LOG_DEBUG,"New torrents are marked old now !");
 
   /*
    * Prepare the sqlite statement

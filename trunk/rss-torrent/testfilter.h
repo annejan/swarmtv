@@ -15,18 +15,11 @@
  *  Please refer to the LICENSE.txt file that comes along with this source file
  *  or to http://www.gnu.org/licenses/gpl.txt for a full version of the license.
  *
- *  Program written by Paul Honig 2009
+ *  Program written by Paul Honig 2010
  */
-
 
 /*
- * Get the filters from the database.
- * apply the filters.
- * then download the results.
+ * Do filter test
+ * show first 10 matches
  */
-int downloadtorrents(sqlite3 *db);
-
-/*
- * Apply the filters from the query.
- */
-void applyfilter(sqlite3 *db, char *name, char *filter, char* nodouble, int simulate);
+int dofiltertest(char *filter, char *nodouble);

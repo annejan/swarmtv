@@ -38,8 +38,9 @@
 
 /*
  * Apply the filters from the query.
+ * when simulate is set !=0 no actual downloads are performed
  */
-static void applyfilter(sqlite3 *db, char *name, char *filter, char *nodouble);
+void applyfilter(sqlite3 *db, char *name, char *filter, char* nodouble, int simulate);
 
 /*
  * Test for double downloads.
@@ -103,7 +104,7 @@ int downloadtorrents(sqlite3 *db)
     /*
      * call apply filter
      */
-    applyfilter(db, name, filter, nodouble);
+    applyfilter(db, name, filter, nodouble, 0);
   }
 
   /*
@@ -183,8 +184,9 @@ static int testdouble(sqlite3 *db, char *nodouble, char *link, int season, int e
 
 /*
  * Apply the filters from the query.
+ * when simulate is set !=0 no actual downloads are performed
  */
-static void applyfilter(sqlite3 *db, char *name, char *filter, char* nodouble)
+void applyfilter(sqlite3 *db, char *name, char *filter, char* nodouble, int simulate)
 {
   sqlite3_stmt  *ppStmt;
   const char    *pzTail;
@@ -243,7 +245,9 @@ static void applyfilter(sqlite3 *db, char *name, char *filter, char* nodouble)
          * When enabled send an email.
          */
         snprintf(message, MAXMSGLEN, "Downloading %s S%dE%d", title, season, episode);
-        sendrssmail(db, message, message);
+        if(simulate == 0) {
+          sendrssmail(db, message, message);
+        }
         
         /*
          * Add a torrent to the downloaded table.
@@ -252,8 +256,11 @@ static void applyfilter(sqlite3 *db, char *name, char *filter, char* nodouble)
 
         /*
          * call apply filter
+         * when in a sandbox simulate = 1, no downloads are done.
          */
-        dodownload(db, link, title, season, episode, pubdate);
+        if(simulate == 0) {
+          dodownload(db, link, title, season, episode, pubdate);
+        }
       } else {
         writelog(LOG_DEBUG, "%s Season %d Episode %d is a duplicate %s:%d", title, episode, season, __FILE__, __LINE__);
       }
