@@ -30,6 +30,7 @@
 #include "sandboxdb.h"
 #include "logfile.h"
 #include "database.h"
+#include "filesystem.h"
 
 /*
  * Create a filecopy of the database.
@@ -38,22 +39,37 @@ static int copyfile(char *outfile, char *infile)
 {
   int inF, ouF;
   char line[512];
+  char *fullinfile=NULL;
+  char *fulloutfile=NULL;
   int bytes;
   int rc;
+
+  completepath(outfile, &fulloutfile);
+  completepath(infile, &fullinfile);
 
   /*
    * Open input and output file.
    */
-  if((inF = open(infile, O_RDONLY)) == -1) {
+  if((inF = open(fullinfile, O_RDONLY)) == -1) {
     writelog(LOG_ERROR, "Could not open read file '%s' %s:%d", infile, __FILE__, __LINE__);
+    free(fulloutfile);
+    free(fullinfile);
     return -1;
   }
 
-  if((ouF = open(outfile, O_WRONLY | O_CREAT, S_IRWXU )) == -1) {
+  if((ouF = open(fulloutfile, O_WRONLY | O_CREAT, S_IRWXU )) == -1) {
     writelog(LOG_ERROR, "Could not open write file '%s' %s:%d", outfile, __FILE__, __LINE__);
     close(inF);
+    free(fulloutfile);
+    free(fullinfile);
     return -1;
   }
+
+  /*
+   * free temp filenames
+   */
+  free(fulloutfile);
+  free(fullinfile);
 
   /*
    * Do the copying
