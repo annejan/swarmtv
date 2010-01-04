@@ -35,6 +35,8 @@
 #include "torrentdb.h"
 #include "logfile.h"
 
+#define   OVECTSIZE 15
+
 /*
  * Xpath queries.
  */
@@ -162,13 +164,19 @@ static int disectdescription(unsigned char *desc, unsigned char** category, int 
   pcre *p;
   const char *errmsg;
   int   errpos;
-  int   ovector[10];
+  int   ovector[OVECTSIZE];
   int   rc;
   int   i;
   char  *sizechar;
   char  *peerschar;
   char  *seedschar;
 
+  /*
+   * Sanity checks
+   */
+  if(desc == NULL){
+    return -1;
+  }
 
   /*
    * Compile the regexp to split the description
@@ -190,7 +198,7 @@ static int disectdescription(unsigned char *desc, unsigned char** category, int 
       0,                    /* start at offset 0 in the subject */
       0,                    /* default options */
       ovector,              /* output vector for substring information */
-      sizeof(ovector));           /* number of elements in the output vector */
+      OVECTSIZE);           /* number of elements in the output vector */
   if (rc < 0) {
     switch (rc) {
       case PCRE_ERROR_NOMATCH:
@@ -296,7 +304,7 @@ static int disecttitle(unsigned char *title, unsigned char** name, int *season, 
   pcre *p;
   const char *errmsg;
   int   errpos;
-  int   ovector[10];
+  int   OVECTSIZE;
   int   rc;
   int   i;
   char *seasonstr;
@@ -329,7 +337,7 @@ static int disecttitle(unsigned char *title, unsigned char** name, int *season, 
       0,                    /* start at offset 0 in the subject */
       0,                    /* default options */
       ovector,              /* output vector for substring information */
-      sizeof(ovector));           /* number of elements in the output vector */
+      OVECTSIZE);           /* number of elements in the output vector */
   if (rc < 0) {
     switch (rc) {
       case PCRE_ERROR_NOMATCH:

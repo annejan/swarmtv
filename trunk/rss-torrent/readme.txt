@@ -14,15 +14,20 @@ torrents. (http://libtorrent.rakshasa.no)
 
 Build this program :
 
+# cmake .
 # make
 
 To create database
 
-# make db
+# ./createdb.sh
 
 To create some example filters and sources in the database
 
-# make examples
+# ./examples.sh
+
+When you want to install rsstorrent
+
+# make install
 
 For examples look at the examples.sh file
 
