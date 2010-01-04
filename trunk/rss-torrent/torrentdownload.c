@@ -30,6 +30,7 @@
 #include "logfile.h"
 #include "mailmsg.h"
 #include "findtorrent.h"
+#include "filesystem.h"
 
 /*
  * Max message and subject lenght for notification email
@@ -273,6 +274,47 @@ void applyfilter(sqlite3 *db, char *name, char *filter, char* nodouble, int simu
   rc = sqlite3_finalize(ppStmt);
 }
 
+/*
+ * Test torrentdir
+ */
+int testtorrentdir(sqlite3 *db)
+{
+  int rc;
+  char *path = NULL;
+  char *fullpath = NULL;
+
+  /*
+   * get path to put torrent in
+   */
+  configgetproperty(db, CONF_TORRENTDIR, &path);
+  completepath(path, &fullpath);
+  
+  /*
+   * Test if the directory exists
+   */
+  rc = fsexists(fullpath);
+  if(rc != 0) {
+    writelog(LOG_ERROR, "Torrent directory '%s' does not exist!", path);
+  }
+
+  /*
+   * Test if the directry is writable to us
+   */
+  if(rc == 0) {
+    rc |= testwrite(fullpath);
+    if(rc != 0) {
+      writelog(LOG_ERROR, "Torrent directory '%s' is not writable!", path);
+    }
+  }
+
+  /*
+   * Cleanup
+   */
+  free(path);
+  free(fullpath);
+
+  return rc;
+}
 
 /*
  * Do download.
@@ -282,21 +324,29 @@ static void dodownload(sqlite3 *db, char *link, char *title, int season, int epi
 {
   char filename[151];
   char *path = NULL;
+  char *fullpath = NULL;
 
   
   /*
    * get path to put torrent in
    */
   configgetproperty(db, CONF_TORRENTDIR, &path);
+  completepath(path, &fullpath);
 
   /*
    * Create filename.
    */
-  snprintf(filename, 150, "%s/%sS%dE%dR%s.torrent", path, title, season, episode, pubdate); 
+  snprintf(filename, 150, "%s/%sS%dE%dR%s.torrent", fullpath, title, season, episode, pubdate); 
 
-  //downloadtofile(link, filename);
+  /*
+   * download
+   */
   findtorrentwrite(link, filename);
 
+  /*
+   * Cleanup
+   */
   free(path);
+  free(fullpath);
 }
 

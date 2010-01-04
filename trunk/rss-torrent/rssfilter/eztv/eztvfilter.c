@@ -570,7 +570,7 @@ int eztvfilter(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *r
    */
   doc = xmlReadMemory(rssfile->memory, rssfile->size, url, NULL, 0);
   if (doc == NULL) {
-    writelog(LOG_ERROR, "Failed to parse document %s:%d\n", __FILE__, __LINE__);
+    writelog(LOG_ERROR, "Failed to parse document name '%s' filter %s %s:%d\n", name, filter, __FILE__, __LINE__);
     return -1;
   }
   root_element = xmlDocGetRootElement(doc);

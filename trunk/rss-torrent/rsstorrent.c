@@ -41,6 +41,12 @@
 #include "mailmsg.h"
 #include "sandboxdb.h"
 #include "testfilter.h"
+#include "torrentdownload.h"
+
+/*
+ * Program version
+ */
+#define PROGVERSION "0.4"
 
 /*
  * Default timeout when no -i is provided
@@ -79,16 +85,16 @@ void printhelp(void)
 {
   printf( "################\n"
           "-v               : Print version.\n"
-          "-c               : Print config Items and there values.\n"
-          "-C <name:value>  : Set a config value.\n"
+          "-c               : List config Items and there values.\n"
           "-f               : List filters.\n"
+          "-S               : List sources.\n"
+          "-p <name>        : Print filter in shell format.\n"
+          "-C <name:value>  : Set a config value.\n"
           "-s <name:value>  : Set RSS source (default filter type 'eztv') .\n"
           "-t <value>       : Set RSS source filter type. (use with -s)\n"
           "-F <name:url>    : Set download filter (empty default duplicate filter).\n"
-          "-p <name>        : Print in shell format.\n"
-          "-T <value>       : Check duplicate filter. (use with -F) \n"
+          "-T <value>       : Set duplicate filter. (use with -F) \n"
           "-d <name>        : Delete filter, name 'all' to delete all filters.\n"
-          "-S               : List sources.\n"
           "-D <name>        : Delete RSS source.\n"
           "-r               : Run in daemon mode.\n"
           "-q               : Test filter (together with -F & -T).\n"
@@ -219,8 +225,8 @@ int main(int argc, char **argv){
   while( opt != -1 && stopop == 0) {
     switch( opt ) {
       case 'v':
-        printf("RSSTorrent by Paul Honig 2009\n");
-        printf("Version 0.2 BETA\n");
+        printf("RSSTorrent by Paul Honig 2009-2010\n");
+        printf("Version %s \n", PROGVERSION);
         break;
       case 'c':
         printconfigitems(db);
@@ -373,29 +379,36 @@ int main(int argc, char **argv){
    * When then run option is provided call the main loop
    */
   if(opts.run == 1) {
-
     /*
-     * Fork to background when nodetach is 0
+     * Test if torrent directory is writable
      */
-    if(opts.nodetach == 0) {
-      printf("Forking to background.\n");
-      daemonize();
+    rc = testtorrentdir(db);
+    if(rc != 0) {
+      writelog(LOG_ERROR, "Torrent directry not usable exiting.");
+      fprintf(stderr, "Torrent directry is not usable, please look in log to find out why!\n");
     } else {
-      printf("No forking, running on shell.\n");
+      /*
+       * Fork to background when nodetach is 0
+       */
+      if(opts.nodetach == 0) {
+        printf("Forking to background.\n");
+        daemonize();
+      } else {
+        printf("No forking, running on shell.\n");
+      }
+
+      /*
+       * Check and lock lockfile
+       */
+      configgetproperty(db, CONF_LOCKFILE, &lockpath);
+      lockfile(lockpath);
+      free(lockpath);
+
+      /*
+       * Call main loop here.
+       */
+      runloop(db);
     }
-
-    /*
-     * Check and lock lockfile
-     */
-    configgetproperty(db, CONF_LOCKFILE, &lockpath);
-    lockfile(lockpath);
-    free(lockpath);
-    
-    /*
-     * Call main loop here.
-     */
-    runloop(db);
-
   }
 
 

@@ -18,21 +18,24 @@
  *  Program written by Paul Honig 2009
  */
 
+/*
+ * Complete path
+ * when the first char of filename is a ~ it gets replaced by 
+ * the path to the homedir
+ * free destpath afterwards
+ */
+void completepath(const char *origpath, char **destpath);
 
 /*
- * Get the filters from the database.
- * apply the filters.
- * then download the results.
+ * Test if a file or directory exists
+ * return 0 when found, -1 if not found
  */
-int downloadtorrents(sqlite3 *db);
+int fsexists(char *path);
 
 /*
- * Apply the filters from the query.
+ * Test if a directory is writable
+ * This is done by creating a testfile named "test.file",
+ * and deleting it afterwards.
  */
-void applyfilter(sqlite3 *db, char *name, char *filter, char* nodouble, int simulate);
-
-/*
- * Test torrentdir
- */
-int testtorrentdir(sqlite3 *db);
+int testwrite(const char *path);
 

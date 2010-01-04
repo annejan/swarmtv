@@ -21,7 +21,7 @@
 /*
  * path to database file.
  */
-#define  DBFILE "./rss.db"
+#define  DBFILE "~/.rss.db"
 
 /*
  * Open database, and add regexp functionality.

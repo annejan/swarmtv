@@ -83,16 +83,6 @@ void printconfigitems(sqlite3 *db)
 }
 
 /*
- * Print description of option.
- */
-void printconfigdescription(char *prop)
-{
- // select prop, descr from config where prop=$1
- 
-
-}
-
-/*
  * Set config item
  * When not found -1 is returned.
  * On succes 0 is returned.

@@ -25,8 +25,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
-
-
+#include "filesystem.h"
 
 /*
  * Fork process to daemon.
@@ -78,8 +77,14 @@ void lockfile (const char *lockpath)
 {
   int  lfp;
   char str[10];
+  char *fullpath=NULL;
 
-  lfp=open(lockpath, O_RDWR|O_CREAT, 0640);
+  completepath(lockpath, &fullpath);
+
+  lfp=open(fullpath, O_RDWR|O_CREAT, 0640);
+
+  free(fullpath);
+
   if (lfp<0){
     fprintf(stderr, "Can not open lockfile\n");
     exit(1); /* can not open */

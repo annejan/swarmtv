@@ -50,7 +50,7 @@ void print_recipient_status (smtp_recipient_t recipient,
 int authinteract (auth_client_request_t request, char **result, int fields,
     void *arg);
 int tlsinteract (char *buf, int buflen, int rwflag, void *arg);
-void event_cb (smtp_session_t session, int event_no, void *arg, ...);
+void event_cb (int event_no, void *arg, ...);
 void usage (void);
 void version (void);
 
@@ -389,7 +389,7 @@ handle_invalid_peer_certificate(long vfy_result)
   return 1; /* Accept the problem */
 }
 
-void event_cb (smtp_session_t session, int event_no, void *arg,...)
+void event_cb (int event_no, void *arg,...)
 {
   va_list alist;
   int *ok;

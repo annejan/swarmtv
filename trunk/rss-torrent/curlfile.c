@@ -284,9 +284,9 @@ int getheadersvalue(char *name, char **value, MemoryStruct *chunk)
  */
 int writebuffer(char *filename, MemoryStruct *buffer) 
 {
-  FILE  *file;
-  int   rc;
-  int   cur_char;
+  FILE          *file;
+  int           rc;
+  unsigned int  cur_char;
 
   writelog(LOG_DEBUG,"Writing to : '%s' lenght '%ld' %s:%d", filename, buffer->size, __FILE__, __LINE__);
 

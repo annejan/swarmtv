@@ -25,6 +25,7 @@
 #include <sqlite3.h>
 
 #include "config.h"
+#include "filesystem.h"
 
 #define LOG_DEBUG   1
 #define LOG_NORMAL  2
@@ -90,7 +91,13 @@ int initlogdb(sqlite3 *db)
  */
 int initlog(char *logpath)
 {
-  log = fopen(logpath,"a");
+  char *fullpath=NULL;
+
+  completepath(logpath, &fullpath);
+
+  log = fopen(fullpath,"a+");
+
+  free(fullpath);
 
   /*
    * Return code.
@@ -165,4 +172,5 @@ void closelog()
    * Closing logfile.
    */
   fclose(log);
+  //free(fullpath);
 }

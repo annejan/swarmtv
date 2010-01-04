@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 2.6)
 project (rsstorrent C)
 
 # Compiler directives
-add_definitions( `xml2-config --cflags` -Wall -g)
+add_definitions( `xml2-config --cflags` -Wall -W -g)
 link_libraries(curl xml2 magic pcre esmtp sqlite3)
 include_directories(.)
 
@@ -14,9 +14,10 @@ include_directories(.)
 SET(RSSFILTERS rssfilter/eztv/eztvfilter rssfilter/rsstorrent/rsstorrentfilter)
 
 # All other sources
-SET(SRC ${RSSFILTERS} rsstorrent.c database.c config.c regexp.c source.c
-  filter.c runloop.c curlfile.c torrentdb.c torrentdownload.c logfile.c
-  daemonize.c mailmsg.c findtorrent.c mymagic.c sandboxdb.c testfilter.c)
+SET(SRC ${RSSFILTERS} rsstorrent database config regexp source
+  filter runloop curlfile torrentdb torrentdownload logfile
+  daemonize mailmsg findtorrent mymagic sandboxdb testfilter
+  filesystem)
 
 # We install to /usr/local/bin
 INSTALL(PROGRAMS rsstorrent DESTINATION /usr/local/bin)

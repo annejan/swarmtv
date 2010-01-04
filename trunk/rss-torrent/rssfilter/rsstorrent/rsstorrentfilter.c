@@ -417,7 +417,7 @@ int rsstorrentfilter(sqlite3 *db, char *name, char *url, char *filter, MemoryStr
    */
   doc = xmlReadMemory(rssfile->memory, rssfile->size, url, NULL, 0);
   if (doc == NULL) {
-    fprintf(stderr, "Failed to parse document\n");
+    fprintf(stderr, "Failed to parse document name %s filter %s \n", name, filter);
     return -1;
   }
   root_element = xmlDocGetRootElement(doc);

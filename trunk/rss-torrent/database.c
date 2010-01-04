@@ -1,10 +1,32 @@
+/*
+ *  This program is free software; you can redistribute it and/or modify
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ *  Please refer to the LICENSE.txt file that comes along with this source file
+ *  or to http://www.gnu.org/licenses/gpl.txt for a full version of the license.
+ *
+ *  Program written by Paul Honig 2009
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 #include <pcre.h>
 #include <sqlite3.h>
 
 #include "logfile.h"
+#include "filesystem.h"
 
 /*
  * This function implement pcre functionality to the queries.
@@ -94,17 +116,27 @@ int initdatabase(
 {
   int rc; /* return code */
   char       *zErrMsg = 0;
-
+  char       *dbpath = NULL;
+  
+  /*
+   * Complete the filename is it contains a ~ as homedir
+   */
+  completepath(filename, &dbpath);
   
   /*
    * Open the sqlite database.
    */
-  rc = sqlite3_open(filename, ppDb);
+  rc = sqlite3_open(dbpath, ppDb);
   if( rc ){
     fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(*ppDb));
     sqlite3_close(*ppDb);
     return !SQLITE_OK;
   }
+
+  /*
+   * free dbpath
+   */
+  free(dbpath);
 
   /* 
    * Add regexp function.
