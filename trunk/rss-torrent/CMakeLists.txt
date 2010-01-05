@@ -39,7 +39,7 @@ ADD_CUSTOM_TARGET(uninstall
 # Make database
 ADD_CUSTOM_COMMAND(
     OUTPUT examplescript
-    COMMAND echo examplescript ${rsstorrent_SOURCE_DIR} `pwd`
+    COMMAND ${rsstorrent_SOURCE_DIR}/examples.sh
     )
 
 ADD_CUSTOM_TARGET( examples DEPENDS examplescript)
@@ -47,8 +47,8 @@ ADD_CUSTOM_TARGET( examples DEPENDS examplescript)
 
 ADD_CUSTOM_COMMAND(
     OUTPUT dbscript
-    COMMAND echo dscript ${rsstorrent_SOURCE_DIR} `pwd`
+    COMMAND ${rsstorrent_SOURCE_DIR}/createdb.sh
     )
 
-ADD_CUSTOM_TARGET( database DEPENDS dbscript)
+ADD_CUSTOM_TARGET( db DEPENDS dbscript)
 
