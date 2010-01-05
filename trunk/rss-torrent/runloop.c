@@ -120,8 +120,9 @@ static void dowork(sqlite3 *db){
 
 /*
  * Main loop, dispatches tasks
+ * When onetime != 0 run once then exit
  */
-int runloop(sqlite3 *db)
+int runloop(sqlite3 *db, int onetime)
 {
   int rc;
   int timewait;
@@ -152,6 +153,13 @@ int runloop(sqlite3 *db)
     writelog(LOG_NORMAL,"Checking for new torrents to download.");
     downloadtorrents(db);
 
+    /*
+     * Run once.
+     */
+    if(onetime != 0) {
+      break;
+    }
+
     writelog(LOG_NORMAL,"Refresh done, sleeping %d seconds.", timeleft); 
 
     /*
@@ -160,5 +168,8 @@ int runloop(sqlite3 *db)
     sleep(timeleft); 
   } 
 
-  // Never come here
+  /*
+   * done.
+   */
+  return 0;
 }

@@ -253,7 +253,7 @@ void applyfilter(sqlite3 *db, char *name, char *filter, char* nodouble, int simu
         /*
          * Add a torrent to the downloaded table.
          */
-        adddownloaded(db, title, link, pubdate, category, season, episode);
+        adddownloaded(db, title, link, pubdate, category, season, episode, simulate);
 
         /*
          * call apply filter

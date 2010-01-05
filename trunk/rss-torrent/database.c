@@ -236,6 +236,66 @@ int dosingletextquery(sqlite3 *db, const char *query, const unsigned char **text
 }
 
 /*
+ * Test a query
+ * Don't expect any output back
+ * returns 1 on 1 row returned
+ * return 0 on no rows returned
+ * returns -1 on error
+ */
+int testquery(sqlite3 *db, const char *query) 
+{
+  sqlite3_stmt *ppStmt=NULL;
+  const char *pzTail=NULL;
+  int         rc=0;
+  int         retval=0; 
+  int         step_rc=0;
+  char       *zErrMsg = 0;
+
+  /*
+   * Prepare the sqlite statement
+   */
+  rc = sqlite3_prepare_v2(
+      db,                 /* Database handle */
+      query,            /* SQL statement, UTF-8 encoded */
+      strlen(query),    /* Maximum length of zSql in bytes. */
+      &ppStmt,             /* OUT: Statement handle */
+      &pzTail              /* OUT: Pointer to unused portion of zSql */
+      );
+  if( rc!=SQLITE_OK ){
+    writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
+    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+    sqlite3_free(zErrMsg);
+    retval=-1;
+  }
+
+  /* 
+   * Get the first value discard the others.
+   */
+  if(retval == 0){
+    step_rc = sqlite3_step(ppStmt);
+    switch(step_rc){
+      case SQLITE_ROW:
+        retval=1;
+        break;
+      case SQLITE_DONE:
+        retval=0;
+        break;
+      default:
+        writelog(LOG_ERROR, "sqlite3_step, %d %s:%d", step_rc, __FILE__, __LINE__);
+        writelog(LOG_ERROR, "in statement : \'%s\'", query);
+        retval=-1;
+    }
+  }
+
+  /*
+   * Done with query, finalizing.
+   */
+  rc = sqlite3_finalize(ppStmt);
+
+  return retval;
+}
+
+/*
  * Execute a query
  * Don't expect any output back
  */

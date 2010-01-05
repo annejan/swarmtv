@@ -21,7 +21,7 @@
 /*
  * path to database file.
  */
-#define  DBFILE "~/.rss.db"
+#define  DBFILE "~/.rsstorrent/rss.db"
 
 /*
  * Open database, and add regexp functionality.
@@ -40,6 +40,15 @@ int initdatabase(
  * make sure to free text after use
  */
 int dosingletextquery(sqlite3 *db, const char *query, unsigned char const **text);
+
+/*
+ * Test a query
+ * Don't expect any output back
+ * returns 1 on 1 row returned
+ * return 0 on no rows returned
+ * returns -1 on error
+ */
+int testquery(sqlite3 *db, const char *query);
 
 /*
  * Execute a query

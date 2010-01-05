@@ -33,21 +33,6 @@
 #define  MAXLENGHT 400
 
 /*
- * Get value of a config object.
- */
-int getfilter(sqlite3 *db, char *prop, char **url) 
-{
-  char  query[MAXLENGHT+1];
-  int   rc;
-
-  snprintf(query, MAXLENGHT, "select 'filter' from 'filters' where 'name' = '%s'", prop);
-
-  rc =  dosingletextquery(db, query, (unsigned char const**) url);
-
-  return rc;
-}
-
-/*
  * Print all available config items to the screen.
  * format varname : value
  * All from database
@@ -214,6 +199,30 @@ int delfilter(sqlite3 *db, const char *name)
 }
 
 /*
+ * Check Filter
+ * When the filter exists, return 1
+ * else 0
+ */
+static int checkfilter(sqlite3 *db, const char *name)
+{
+  int rc;
+  char query[MAXLENGHT+1];
+
+  /*
+   * Build query (the unsafe way)
+   */
+  memset(query, 0, MAXLENGHT+1);
+  snprintf(query, MAXLENGHT, "select * from filters where name='%s'", name);
+
+  /*
+   * execute query
+   */
+  rc = testquery(db, query);
+
+  return rc;
+}
+
+/*
  * Add filter item
  * When allready existing -1 is returned.
  * On succes 0 is returned.
@@ -226,6 +235,7 @@ int addfilter(sqlite3 *db, const char *name, const char *filter, const char *dou
   char       *zErrMsg = 0;
   const char *locdouble; // holds pointer to doublefilter or empty
   int         changes;
+  char        query[MAXLENGHT+1];
 
   /*
    * No filters can be added that have the name all.
@@ -237,9 +247,24 @@ int addfilter(sqlite3 *db, const char *name, const char *filter, const char *dou
   }
 
   /*
-   * Init query
+   * Init query, to an insert when not found, to a update when existing
    */
-  const char* query = "INSERT INTO 'filters' (name, filter, nodouble) VALUES(?1, ?2, ?3)";
+  memset(query, 0, MAXLENGHT+1);
+  rc = checkfilter(db, name);
+  switch(rc) {
+    case 0:
+      strncpy(query, "INSERT INTO 'filters' (name, filter, nodouble) VALUES(?1, ?2, ?3)", MAXLENGHT);
+      break;
+    case 1:
+      writelog(LOG_NORMAL, "filter '%s' exists, updating.", name);
+      printf("filter '%s' exists, updating.\n", name);
+      strncpy(query, "UPDATE 'filters' SET filter=?2, nodouble=?3 WHERE name=?1", MAXLENGHT);
+      break;
+    default:
+      writelog(LOG_ERROR, "Filter table corrupt !! %s:%d", __FILE__, __LINE__);
+      fprintf(stderr, "Filter table in database corrupt!\n");
+      return -1;
+  }
 
   /*
    * Debug
@@ -261,6 +286,7 @@ int addfilter(sqlite3 *db, const char *name, const char *filter, const char *dou
       );
   if( rc!=SQLITE_OK ){
     writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
+    writelog(LOG_ERROR, "Filter '%s' does not compile.", query);
     writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
     sqlite3_free(zErrMsg);
     return -1;
@@ -325,90 +351,6 @@ int addfilter(sqlite3 *db, const char *name, const char *filter, const char *dou
    * When no changes, return -1
    */
   if(changes == 0) {
-    return -1;
-  }
-
-  /*
-   * All gone well.
-   */
-  return 0;
-}
-
-/*
- * Change filter item
- * When not found -1 is returned.
- * On succes 0 is returned.
- */
-int changefilter(sqlite3 *db, const char *name, const char *filter)
-{
-  sqlite3_stmt *ppStmt;
-  const char *pzTail;
-  int         rc;
-  char       *zErrMsg = 0;
-
-  /*
-   * Init query
-   */
-  const char* query = "update filters set value=?1 where config.prop=?2";
-
-  /*
-   * Prepare the sqlite statement
-   */
-  rc = sqlite3_prepare_v2(
-      db,                 /* Database handle */
-      query,              /* SQL statement, UTF-8 encoded */
-      strlen(query),      /* Maximum length of zSql in bytes. */
-      &ppStmt,            /* OUT: Statement handle */
-      &pzTail             /* OUT: Pointer to unused portion of zSql */
-      );
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
-    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
-    sqlite3_free(zErrMsg);
-    return -1;
-  }
-
-  /*
-   * bind property and value to the query
-   *
-   */
-  rc = sqlite3_bind_text(ppStmt, 1, filter, -1, SQLITE_TRANSIENT);
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_bind_text failed on url %s:%d", __FILE__, __LINE__);  
-    return -1;
-  }
-  rc = sqlite3_bind_text(ppStmt, 2, name, -1, SQLITE_TRANSIENT);
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_bind_text failed on name %s:%d", __FILE__, __LINE__);  
-    return -1;
-  }
-
-  /*
-   * Evaluate the result.
-   */
-  rc = sqlite3_step(ppStmt);
-  if( rc!=SQLITE_DONE ) {
-    writelog(LOG_ERROR, "sqlite3_step %s:%d", __FILE__, __LINE__);
-    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
-    sqlite3_free(zErrMsg);
-    return -1;
-  }
-
-  /*
-   * Free statement
-   */
-  rc = sqlite3_finalize(ppStmt);
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "Finalize failed in %s at line %d.!", __FILE__, __LINE__);
-    exit(1);
-  }
-
-
-  /*
-   * If the number of rows modified = 0 the configitem was not found.
-   */
-  rc = sqlite3_changes(db);
-  if(rc == 0) {
     return -1;
   }
 

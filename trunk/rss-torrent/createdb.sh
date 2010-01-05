@@ -1,5 +1,6 @@
 #! /usr/bin/env bash
-DBFILE=~/.rss.db
+RSSDIR=~/.rsstorrent
+DBFILE=$RSSDIR/rss.db
 
 # When a database exists, delete and recreate
 if [ -e $DBFILE ]
@@ -8,6 +9,10 @@ then
   rm $DBFILE
 fi
 
+if [ ! -d $RSSDIR ]; then 
+  echo "Basedir ${RSSDIR} not found, creating."
+  mkdir ${RSSDIR}
+fi
 
 # creating a new database file
 
@@ -35,8 +40,8 @@ echo "Creating config table."
 sqlite3 $DBFILE <<SQL_ENTRY_TAG_4
 create table config (id INTEGER PRIMARY KEY, prop TEXT UNIQUE, value TEXT, descr TEXT);
 INSERT INTO "config" (prop, value, descr) VALUES("torrentdir", "~/torrents", "Path the downloaded torrents are placed in.");
-INSERT INTO "config" (prop, value, descr) VALUES("logfile", "~/rsstorrent.log", "Path to logfile.");
-INSERT INTO "config" (prop, value, descr) VALUES("lockfile", "~/.rsstorrent.lock", "Path to lockfile.");
+INSERT INTO "config" (prop, value, descr) VALUES("logfile", "${RSSDIR}/rsstorrent.log", "Path to logfile.");
+INSERT INTO "config" (prop, value, descr) VALUES("lockfile", "${RSSDIR}/lockfile.pid", "Path to lockfile.");
 INSERT INTO "config" (prop, value, descr) VALUES("refresh", "3600", "Seconds between refreshes.");
 INSERT INTO "config" (prop, value, descr) VALUES("default_filter", "eztv", "The default rss filter to add to new rss sources.");
 INSERT INTO "config" (prop, value, descr) VALUES("smtp_enable", "N", "'Y' is send email notifications on new download, 'N' is don't.");

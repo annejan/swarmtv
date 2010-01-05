@@ -54,7 +54,7 @@ int addnewtorrent(sqlite3 *db,
                 "VALUES (?1, ?2, date(?3, 'unixepoch'), ?4, ?5, ?6, ?7, ?8, ?9, 'Y')";
   
   // DEBUG
-  writelog(LOG_DEBUG, "############"
+  writelog(LOG_DEBUG, "############\n"
       "title:    %s\n"
       "link:     %s\n"
       "pubdate:  %s\n"
@@ -63,7 +63,7 @@ int addnewtorrent(sqlite3 *db,
       "episode:  %d\n"
       "seeds:    %d\n"
       "peers:    %d\n"
-      "size:     %ld\n",
+      "size:     %ln",
       title, link, ctime(&pubdate), category, season, episode, seeds, peers, size);
 
   /*
@@ -161,7 +161,8 @@ int adddownloaded(sqlite3 *db,
                char *pubdate,
                char *category,
                int  season,
-               int  episode)
+               int  episode,
+               int  simulate)
 {
   sqlite3_stmt  *ppStmt;
   const char    *pzTail;
@@ -175,15 +176,19 @@ int adddownloaded(sqlite3 *db,
                 "VALUES (?1, ?2, ?3, ?4, ?5, ?6,  datetime(?7, 'unixepoch', 'localtime'))";
   
 
-  // DEBUG
-  writelog(LOG_NORMAL, "##### Download #######"
+  /*
+   * Do not log downloading when we are testing filters.
+   */
+  if(simulate == 0){
+  writelog(LOG_NORMAL, "##### Download #######\n"
       "title:    %s\n"
       "link:     %s\n"
       "pubdate:  %s\n"
       "category: %s\n"
       "season:   %d\n"
-      "episode:  %d\n",
+      "episode:  %d",
       title, link, pubdate, category, season, episode);
+  }
 
   /*
    *  create table newtorrents (id INTEGER PRIMARY KEY,title TEXT, link TEXT UNIQUE, pubdate DATE,

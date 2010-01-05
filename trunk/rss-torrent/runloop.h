@@ -21,5 +21,5 @@
 /*
  * Main loop, dispatches tasks
  */
-int runloop(sqlite3    *db);
+int runloop(sqlite3 *db, int onetime);
 

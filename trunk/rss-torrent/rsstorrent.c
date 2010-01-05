@@ -61,7 +61,7 @@
 /*
  * optstring what options do we allow
  */
-static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:q";
+static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qR";
 
 /*
  * Bit of a hack.. but needed for cleanup
@@ -76,6 +76,7 @@ typedef struct {
   int run;
   int nodetach;
   int testfilt;
+  int onetime;
 } opts_struct;
 
 /*
@@ -97,6 +98,7 @@ void printhelp(void)
           "-d <name>        : Delete filter, name 'all' to delete all filters.\n"
           "-D <name>        : Delete RSS source.\n"
           "-r               : Run in daemon mode.\n"
+          "-R               : Run once, then exit.\n"
           "-q               : Test filter (together with -F & -T).\n"
           "-n               : Don't detach from console.\n"
           "-m <text>        : Send testmail notification.\n"
@@ -106,6 +108,7 @@ void printhelp(void)
           "-F <name:value> -T <value>     : Set download filter and diplicate check\n"
           "-q -F <name:value> -T <value>  : Test download filter and diplicate check\n"
           "-s <name:url> -t <value>       : set RSS source and filter\n"
+          "-r -R                          : run once then exit for use in crontab\n"
           "################\n\n");
 }
 
@@ -311,6 +314,9 @@ int main(int argc, char **argv){
       case 'r': // run as daemon 
         opts.run = 1;
         break;
+      case 'R': // run as daemon 
+        opts.onetime = 1;
+        break;
       case 'n': // no detach
         opts.nodetach = 1;
         break;
@@ -388,9 +394,11 @@ int main(int argc, char **argv){
       fprintf(stderr, "Torrent directry is not usable, please look in log to find out why!\n");
     } else {
       /*
-       * Fork to background when nodetach is 0
+       * Fork to background 
+       * when nodetach is 0
+       * when not running once
        */
-      if(opts.nodetach == 0) {
+      if(opts.nodetach == 0 && opts.onetime == 0) {
         printf("Forking to background.\n");
         daemonize();
       } else {
@@ -407,7 +415,7 @@ int main(int argc, char **argv){
       /*
        * Call main loop here.
        */
-      runloop(db);
+      runloop(db, opts.onetime);
     }
   }
 

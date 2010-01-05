@@ -28,7 +28,7 @@
 #include "torrentdb.h"
 #include "torrentdownload.h"
 
-#define  DBSANDBOX "./sandbox.db"
+#define  DBSANDBOX "~/.rsstorrent/sandbox.db"
 
 /*
  * Copy content to downloaded

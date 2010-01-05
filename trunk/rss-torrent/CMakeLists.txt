@@ -36,3 +36,19 @@ ADD_CUSTOM_TARGET(uninstall
     "${CMAKE_COMMAND}" -P
     "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
 
+# Make database
+ADD_CUSTOM_COMMAND(
+    OUTPUT examplescript
+    COMMAND echo examplescript ${rsstorrent_SOURCE_DIR} `pwd`
+    )
+
+ADD_CUSTOM_TARGET( examples DEPENDS examplescript)
+
+
+ADD_CUSTOM_COMMAND(
+    OUTPUT dbscript
+    COMMAND echo dscript ${rsstorrent_SOURCE_DIR} `pwd`
+    )
+
+ADD_CUSTOM_TARGET( database DEPENDS dbscript)
+

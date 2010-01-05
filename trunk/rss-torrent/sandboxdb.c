@@ -139,7 +139,10 @@ sandboxdb *createsandbox(char *sourcedbname, char *sandboxdbname)
  */
 int closesandbox(sandboxdb *sandbox)
 {
-  int rc=0;
+  int   rc=0;
+  char *fullpath=NULL;
+
+  completepath(sandbox->filename, &fullpath);
 
   /*
    * Close the sqlite database.
@@ -150,7 +153,7 @@ int closesandbox(sandboxdb *sandbox)
   /*
    * Delete file
    */
-  rc = remove(sandbox->filename);
+  rc = remove(fullpath);
   if(rc != 0) {
     writelog(LOG_ERROR, "Removing sandbox db file '%s' failed %s:%d", sandbox->filename, __FILE__, __LINE__);
   }
@@ -161,6 +164,7 @@ int closesandbox(sandboxdb *sandbox)
   free(sandbox->filename);
   free(sandbox);
 
+  free(fullpath);
   return 0;
 }
 

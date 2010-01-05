@@ -41,7 +41,8 @@ int adddownloaded(sqlite3 *db,
                char *pubdate,
                char *category,
                int  season,
-               int  episode);
+               int  episode,
+               int  simulate);
 
 /*
  * When Torrents are prosessed, they are no longer new
