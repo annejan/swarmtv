@@ -24,7 +24,9 @@
 #include <sys/types.h>
 #include <pcre.h>
 #include <sqlite3.h>
+#include <stdarg.h>
 
+#include "database.h"
 #include "logfile.h"
 #include "filesystem.h"
 
@@ -235,6 +237,7 @@ int dosingletextquery(sqlite3 *db, const char *query, const unsigned char **text
   return step_rc;
 }
 
+#if 0
 /*
  * Test a query
  * Don't expect any output back
@@ -294,19 +297,39 @@ int testquery(sqlite3 *db, const char *query)
 
   return retval;
 }
+#endif
 
 /*
  * Execute a query
- * Don't expect any output back
+ * query, format, arguments 
+ * format string accepts 
+ * d = int , s = string, f = double, NULL pointer when no arguments.
+ * returns 1 on 1 row returned
+ * return 0 on no rows returned
+ * returns -1 on error
  */
-int executequery(sqlite3 *db, const char *query) 
+int executequery(sqlite3 *db, const char *query, char *fmt, ...) 
 {
   sqlite3_stmt *ppStmt=NULL;
   const char *pzTail=NULL;
+  va_list     ap;
   int         rc=0;
   int         retval=0; 
   int         step_rc=0;
   char       *zErrMsg = 0;
+  char        *s=NULL;
+  int          d=0;
+  double       f=0.0;
+  //char         c=' ';
+  int          count=0;
+  int          changes=0;
+
+  /*
+   * fmt pointer to NULL is do not substitutes
+   */
+  if(fmt == NULL){
+    fmt = "";
+  }
 
   /*
    * Prepare the sqlite statement
@@ -325,17 +348,96 @@ int executequery(sqlite3 *db, const char *query)
     retval=-1;
   }
 
+  /*
+   * Handle the arguments
+   */
+  va_start(ap, fmt);
+  while (*fmt != '\0' && retval == 0){
+    count++; // next item
+    switch(*fmt++) {
+      case 's':            /* string */
+        s = va_arg(ap, char *);
+        rc = sqlite3_bind_text(ppStmt, count, s, -1, SQLITE_TRANSIENT);
+        if( rc!=SQLITE_OK ){
+          writelog(LOG_ERROR, "sqlite3_bind_text failed on argument '%d'\n'%s'\n'%s' %s:%d", 
+              count, query, fmt, __FILE__, __LINE__);  
+          writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+          sqlite3_free(zErrMsg);
+          retval=-1;
+        }
+        break;
+      case 'd':            /* int */
+        d = va_arg(ap, int);
+        rc = sqlite3_bind_int(ppStmt, count, d);
+        if( rc!=SQLITE_OK ){
+          writelog(LOG_ERROR, "sqlite3_bind_int failed on argument '%d'\n'%s'\n'%s' %s:%d",
+              count, query, fmt, __FILE__, __LINE__);  
+          writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+          sqlite3_free(zErrMsg);
+          retval=-1;
+        }
+        break;
+      case 'f':            /* int */
+        f = va_arg(ap, double);
+        rc = sqlite3_bind_double(ppStmt, count, f);
+        if( rc!=SQLITE_OK ){
+          writelog(LOG_ERROR, "sqlite3_bind_double failed on argument '%d'\n'%s'\n'%s' %s:%d",
+              count, query, fmt, __FILE__, __LINE__);  
+          writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+          sqlite3_free(zErrMsg);
+          retval=-1;
+        }
+        break;
+#if 0
+      case 'c':            
+        /* 
+         * Need a cast here since va_arg only takes fully promoted types 
+         */
+        c = (char) va_arg(ap, int);
+        rc = sqlite3_bind_int(ppStmt, 1, d, -1, SQLITE_TRANSIENT);
+        if( rc!=SQLITE_OK ){
+          writelog(LOG_ERROR, "sqlite3_bind_text failed on url %s:%d", __FILE__, __LINE__);  
+          //return -1;
+        }
+        break;
+#endif
+      default:
+        writelog(LOG_ERROR, "Unknown format '%c' on position '%d'\nQuery: '%s'\nFmt: '%s'",
+          *fmt, count, query, fmt);
+        retval=-1;
+    }
+  }
+  va_end(ap);
+
   /* 
    * Get the first value discard the others.
    */
   if(retval == 0){
     step_rc = sqlite3_step(ppStmt);
-      
-    if(step_rc != SQLITE_ROW && step_rc != SQLITE_DONE) 
-    {
-      writelog(LOG_ERROR, "sqlite3_step, %d %s:%d", step_rc, __FILE__, __LINE__);
-      writelog(LOG_ERROR, "in statement : \'%s\'", query);
-      retval=-1;
+    switch(step_rc){
+      case SQLITE_ROW:
+        retval=ROWS_FOUND;
+        break;
+      case SQLITE_DONE:
+        retval=ROWS_EMPTY;
+        break;
+      case SQLITE_CONSTRAINT:
+        retval=ROWS_CONSTRAINT; 
+        break;
+      default:
+        writelog(LOG_ERROR, "sqlite3_step, %d %s:%d", step_rc, __FILE__, __LINE__);
+        writelog(LOG_ERROR, "in statement : \'%s\'", query);
+        retval=ROWS_ERROR;
+    }
+  }
+
+  /*
+   * If rows were changes return ROWS_CHANGED
+   */
+  if(retval == 0){
+    changes = sqlite3_changes(db);
+    if(changes > 0){
+      retval=ROWS_CHANGED;
     }
   }
 

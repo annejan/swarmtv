@@ -44,10 +44,7 @@ int addnewtorrent(sqlite3 *db,
                int  peers,
                size_t size)
 {
-  sqlite3_stmt  *ppStmt;
-  const char    *pzTail;
   int           rc;
-  char          *zErrMsg = 0;
 
 
   char *query = "INSERT INTO newtorrents (title, link, pubdate, category, season, episode, seeds, peers, size, new) "
@@ -67,82 +64,20 @@ int addnewtorrent(sqlite3 *db,
       title, link, ctime(&pubdate), category, season, episode, seeds, peers, size);
 
   /*
-   *  create table newtorrents (id INTEGER PRIMARY KEY,title TEXT, link TEXT UNIQUE, pubdate DATE,
-   *  category TEXT, season INTEGER, episode INTEGER, seeds INTEGER, peers INTEGER, size INTEGER, new TEXT);
-   *
-   * title:     WWE.Raw.09.28.09.DSR.XviD-XWT.avi  [1/2]
-   * link:     http://www.rsstorrents.com/detail.php?id=387360
-   * pubdate:  1254178800
-   * category: TVShows
-   * season:   0
-   * episode:  2
-   * seeds:    0
-   * peers:    0
-   * size:     781229980
-   * sleep for 299s.
-   *
-   * INSERT INTO newtorrent ( title, link, pubdate, category, season, episode, seeds, peers, size, new) 
-   * VALUES ( 'WWE.Raw.09.28.09.DSR.XviD-XWT.avi', 'http://www.rsstorrents.com/detail.php?id=387360',
-   *          datetime(1254178800), 'TVShows', '0', '2', '0', '0', '781229980', 'Y');
-   *
-   * INSERT INTO newtorrent ( title, link, pubdate, category, season, episode, seeds, peers, size, new)
-   * VALUES ( \1, \2, datetime(\3), \4, \5, \6, \7, \8, \9, 'Y' );
+   * execute query
    */
-  /*
-   * Prepare the sqlite statement
-   */
-  rc = sqlite3_prepare_v2(
-      db,                 /* Database handle */
-      query,            /* SQL statement, UTF-8 encoded */
-      strlen(query),    /* Maximum length of zSql in bytes. */
-      &ppStmt,             /* OUT: Statement handle */
-      &pzTail              /* OUT: Pointer to unused portion of zSql */
-      );
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_prepare_v2 returned %d %s:%d", rc, __FILE__, __LINE__);
-    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
-    sqlite3_free(zErrMsg);
-    return -1;
-  }
-
-  /*
-   * Bind value's
-   */
-  // int sqlite3_bind_int(sqlite3_stmt*, int, int);
-  // int sqlite3_bind_text(sqlite3_stmt*, int, const char*, int n, void(*)(void*));
-  rc = sqlite3_bind_text(ppStmt, 1, title, -1, SQLITE_TRANSIENT);
-  rc = sqlite3_bind_text(ppStmt, 2, link,  -1, SQLITE_TRANSIENT);
-  rc = sqlite3_bind_int(ppStmt, 3, pubdate);
-  rc = sqlite3_bind_text(ppStmt, 4, category, -1, SQLITE_TRANSIENT);
-  rc = sqlite3_bind_int(ppStmt, 5, season);
-  rc = sqlite3_bind_int(ppStmt, 6, episode);
-  rc = sqlite3_bind_int(ppStmt, 7, seeds);
-  rc = sqlite3_bind_int(ppStmt, 8, peers);
-  rc = sqlite3_bind_int(ppStmt, 9, size);
-
-  /*
-   * execute query, when failed return -1
-   */
-  rc = sqlite3_step(ppStmt);
+  rc = executequery(db, query, "ssdsddddd", title, link, pubdate, category, season, episode, seeds, peers, size);
   switch(rc) {
-    case SQLITE_DONE:
+    case ROWS_EMPTY:
+    case ROWS_CHANGED:
       // print nothing all is okay
       break;
-    case SQLITE_CONSTRAINT:
+    case ROWS_CONSTRAINT:
       writelog(LOG_DEBUG, "Torrent allready in DB"); 
       break;
     default:
       writelog(LOG_ERROR, "SQL statement failed %d! %s:%d", rc, __FILE__, __LINE__);
       exit(1);
-  }
-
-  /*
-   * Done with query, finalizing.
-   */
-  rc = sqlite3_finalize(ppStmt);
-  if(rc != SQLITE_OK && rc != SQLITE_CONSTRAINT) {
-    writelog(LOG_ERROR, "Finalize failed %d! %s:%d", rc, __FILE__, __LINE__);
-    exit(1);
   }
 
   /*
@@ -155,7 +90,7 @@ int addnewtorrent(sqlite3 *db,
 /*
  * Add a torrent to the downloaded table.
  */
-int adddownloaded(sqlite3 *db,
+void adddownloaded(sqlite3 *db,
                char *title,
                char *link,
                char *pubdate,
@@ -164,116 +99,43 @@ int adddownloaded(sqlite3 *db,
                int  episode,
                int  simulate)
 {
-  sqlite3_stmt  *ppStmt;
-  const char    *pzTail;
   int           rc;
-  char          *zErrMsg = 0;
   time_t        now;
-
-
 
   char *query = "INSERT INTO downloaded (title, link, pubdate, category, season, episode, date) "
                 "VALUES (?1, ?2, ?3, ?4, ?5, ?6,  datetime(?7, 'unixepoch', 'localtime'))";
-  
 
   /*
    * Do not log downloading when we are testing filters.
    */
   if(simulate == 0){
-  writelog(LOG_NORMAL, "##### Download #######\n"
-      "title:    %s\n"
-      "link:     %s\n"
-      "pubdate:  %s\n"
-      "category: %s\n"
-      "season:   %d\n"
-      "episode:  %d",
-      title, link, pubdate, category, season, episode);
+    writelog(LOG_NORMAL, "##### Download #######\n"
+        "title:    %s\n"
+        "link:     %s\n"
+        "pubdate:  %s\n"
+        "category: %s\n"
+        "season:   %d\n"
+        "episode:  %d",
+        title, link, pubdate, category, season, episode);
   }
-
-  /*
-   *  create table newtorrents (id INTEGER PRIMARY KEY,title TEXT, link TEXT UNIQUE, pubdate DATE,
-   *  category TEXT, season INTEGER, episode INTEGER, seeds INTEGER, peers INTEGER, size INTEGER, new TEXT);
-   *
-   * title:     WWE.Raw.09.28.09.DSR.XviD-XWT.avi  [1/2]
-   * link:     http://www.rsstorrents.com/detail.php?id=387360
-   * pubdate:  1254178800
-   * category: TVShows
-   * season:   0
-   * episode:  2
-   * seeds:    0
-   * peers:    0
-   * size:     781229980
-   * sleep for 299s.
-   *
-   * INSERT INTO newtorrent ( title, link, pubdate, category, season, episode, seeds, peers, size, new) 
-   * VALUES ( 'WWE.Raw.09.28.09.DSR.XviD-XWT.avi', 'http://www.rsstorrents.com/detail.php?id=387360',
-   *          datetime(1254178800), 'TVShows', '0', '2', '0', '0', '781229980', 'Y');
-   *
-   * INSERT INTO newtorrent ( title, link, pubdate, category, season, episode, seeds, peers, size, new)
-   * VALUES ( \1, \2, datetime(\3), \4, \5, \6, \7, \8, \9, 'Y' );
-   */
-  /*
-   * Prepare the sqlite statement
-   */
-  rc = sqlite3_prepare_v2(
-      db,                 /* Database handle */
-      query,            /* SQL statement, UTF-8 encoded */
-      strlen(query),    /* Maximum length of zSql in bytes. */
-      &ppStmt,             /* OUT: Statement handle */
-      &pzTail              /* OUT: Pointer to unused portion of zSql */
-      );
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_prepare_v2 returned %d %s:%d", rc, __FILE__, __LINE__);
-    writelog(LOG_ERROR, "On query: %s", query);
-    sqlite3_free(zErrMsg);
-    return -1;
-  }
-
-  /*
-   * Bind value's
-   */
-  // int sqlite3_bind_int(sqlite3_stmt*, int, int);
-  // int sqlite3_bind_text(sqlite3_stmt*, int, const char*, int n, void(*)(void*));
-  now = time(NULL);
-  rc = sqlite3_bind_text(ppStmt, 1, title, -1, SQLITE_TRANSIENT);
-  rc = sqlite3_bind_text(ppStmt, 2, link,  -1, SQLITE_TRANSIENT);
-  rc = sqlite3_bind_text(ppStmt, 3, pubdate, -1, SQLITE_TRANSIENT);
-  rc = sqlite3_bind_text(ppStmt, 4, category, -1, SQLITE_TRANSIENT);
-  rc = sqlite3_bind_int(ppStmt, 5, season);
-  rc = sqlite3_bind_int(ppStmt, 6, episode);
-  rc = sqlite3_bind_int(ppStmt, 7, now);
 
   /*
    * execute query, when failed return -1
    */
-  rc = sqlite3_step(ppStmt);
+  rc = executequery(db, query, "ssssddd", title, link, pubdate, category, season, episode, now); 
   switch(rc) {
-    case SQLITE_DONE:
+    case ROWS_EMPTY:
+    case ROWS_CHANGED:
       // print nothing all is okay
       break;
-    case SQLITE_CONSTRAINT:
-      writelog(LOG_ERROR, "Torrent '%s' allready downloaded %s:%d", link, __FILE__, __LINE__); 
+    case ROWS_CONSTRAINT:
+      writelog(LOG_ERROR, "Torrent '%s' allready downloaded, please check no double filters for '%s'. %s:%d", link, title, __FILE__, __LINE__); 
       break;
     default:
       writelog(LOG_ERROR, "SQL statement failed %d! %s:%d", rc, __FILE__, __LINE__);
       exit(1);
   }
-
-  /*
-   * Done with query, finalizing.
-   */
-  rc = sqlite3_finalize(ppStmt);
-  if(rc != SQLITE_OK && rc != SQLITE_CONSTRAINT) {
-    writelog(LOG_ERROR, "Finalize failed %d! %s:%d", rc, __FILE__, __LINE__);
-    exit(1);
-  }
-
-  /*
-   * no errors
-   */
-  return 0;
 } 
-
 
 /*
  * When Torrents are prosessed, they are no longer new
@@ -281,49 +143,16 @@ int adddownloaded(sqlite3 *db,
  */
 void nonewtorrents(sqlite3 *db)
 {
-  sqlite3_stmt  *ppStmt;
-  const char    *pzTail;
   int           rc;
-  char          *zErrMsg = 0;
 
   const char *query = "UPDATE newtorrents SET new='N' WHERE new='Y'";
 
   writelog(LOG_DEBUG,"New torrents are marked old now !");
 
-  /*
-   * Prepare the sqlite statement
-   */
-  rc = sqlite3_prepare_v2(
-      db,                 /* Database handle */
-      query,            /* SQL statement, UTF-8 encoded */
-      strlen(query),    /* Maximum length of zSql in bytes. */
-      &ppStmt,             /* OUT: Statement handle */
-      &pzTail              /* OUT: Pointer to unused portion of zSql */
-      );
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_prepare_v2 returned %d %s:%d", rc, __FILE__, __LINE__);
-    writelog(LOG_ERROR, "On query: %s", query);
-    sqlite3_free(zErrMsg);
-    return;
-  }
-
-  /*
-   * execute query.
-   */
-  rc = sqlite3_step(ppStmt);
-  if(rc != SQLITE_DONE){
+  rc = executequery(db, query, NULL); 
+  if(rc == SQLITE_ERROR){
       writelog(LOG_ERROR, "SQL statement failed %d! %s:%d", rc, __FILE__, __LINE__);
       exit(1);
-  }
-
-
-  /*
-   * Done with query, finalizing.
-   */
-  rc = sqlite3_finalize(ppStmt);
-  if(rc != SQLITE_OK && rc != SQLITE_CONSTRAINT) {
-    writelog(LOG_ERROR, "Finalize failed %d! %s:%d", rc, __FILE__, __LINE__);
-    exit(1);
   }
 
   /*

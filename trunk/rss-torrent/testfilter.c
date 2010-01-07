@@ -43,8 +43,8 @@ static int createdownloaded(sandboxdb *sandbox, char *filter, char *nodouble)
   /*
    * Clean downloaded.
    */
-  rc = executequery(sandbox->db, delquery);
-  if(rc != 0){
+  rc = executequery(sandbox->db, delquery, NULL);
+  if(rc == ROWS_ERROR){
     writelog(LOG_ERROR, "Deleting downloaded failed %s:%d", __FILE__, __LINE__);
     return -1;
   }
@@ -63,17 +63,19 @@ static int createdownloaded(sandboxdb *sandbox, char *filter, char *nodouble)
 static int setnewtorrentflags(sandboxdb *sandbox)
 {
   int   rc=0;
+  int   retval=0;
   char *query = "UPDATE newtorrents SET new='Y'";  
 
   /*
    * do query
    */
-  rc = executequery(sandbox->db, query);
-  if(rc != 0){
+  rc = executequery(sandbox->db, query, NULL);
+  if(rc != ROWS_CHANGED){
     writelog(LOG_ERROR, "Setting of new flag failed %s:%d", __FILE__, __LINE__);
+    retval=-1;
   }
 
-  return rc;
+  return retval;
 }
 
 /*

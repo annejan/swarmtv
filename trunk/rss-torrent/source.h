@@ -43,10 +43,3 @@ int addsource(sqlite3 *db, const char *name, const char *url, char *filtertype);
  * On succes 0 is returned.
  */
 int delsource(sqlite3 *db, const char *name);
-
-/*
- * Change source item
- * When not found -1 is returned.
- * On succes 0 is returned.
- */
-int changesource(sqlite3 *db, const char *name, const char *url);

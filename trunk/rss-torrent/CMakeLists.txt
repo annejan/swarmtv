@@ -11,7 +11,10 @@ include_directories(.)
 
 
 # RSS filter sources go here
-SET(RSSFILTERS rssfilter/eztv/eztvfilter rssfilter/rsstorrent/rsstorrentfilter)
+SET(RSSFILTERS 
+rssfilter/eztv/eztvfilter 
+rssfilter/rsstorrent/rsstorrentfilter)
+
 
 # All other sources
 SET(SRC ${RSSFILTERS} rsstorrent database config regexp source

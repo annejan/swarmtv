@@ -61,9 +61,6 @@ void printfilters(sqlite3 *db)
  */
 int delallfilters(sqlite3 *db)
 {
-  sqlite3_stmt  *ppStmt;
-  const char    *pzTail;
-  char          *zErrMsg = 0;
   int           rc;
 
   /*
@@ -71,54 +68,26 @@ int delallfilters(sqlite3 *db)
    */
   const char* query = "delete from 'filters'";
 
+  printf("Attempting to delete all filters \n");
+
   /*
-   * Prepare the sqlite statement
+   * Execute query
+   * When name is all, delete all filters.
    */
-  rc = sqlite3_prepare_v2(
-      db,                 /* Database handle */
-      query,              /* SQL statement, UTF-8 encoded */
-      strlen(query),      /* Maximum length of zSql in bytes. */
-      &ppStmt,            /* OUT: Statement handle */
-      &pzTail             /* OUT: Pointer to unused portion of zSql */
-      );
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d",  __FILE__, __LINE__);
-    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
-    sqlite3_free(zErrMsg);
-    return -1;
+  rc = executequery(db, query, NULL);
+  switch(rc) {
+    case(ROWS_CHANGED):
+      return 0;
+      break;
+    case(ROWS_EMPTY):
+      printf("No filters left, delete all did nothing %s:%d\n", __FILE__, __LINE__);
+      writelog(LOG_ERROR, "No filters left, delete all did nothing %s:%d", __FILE__, __LINE__);
+      return -1;
+      break;
+    default: 
+      writelog(LOG_ERROR, "Query error during delallfilters %s:%d",  __FILE__, __LINE__);
+      return -1;
   }
-
-  /*
-   * Evaluate the result.
-   */
-  rc = sqlite3_step(ppStmt);
-  if( rc!=SQLITE_DONE ) {
-    writelog(LOG_ERROR, "Could not delete all filters %s:%d", __FILE__, __LINE__);
-    //return -1;
-  }
-
-  /*
-   * Free statement
-   */
-  rc = sqlite3_finalize(ppStmt);
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "Finalize failed in %s at line %d.!", __FILE__, __LINE__);
-    exit(1);
-  }
-
-
-  /*
-   * If the number of rows modified = 0 the configitem was not found.
-   */
-  rc = sqlite3_changes(db);
-  if(rc == 0) {
-    return -1;
-  }
-
-  /*
-   * All gone well.
-   */
-  return 0;
 }
 
 /*
@@ -128,74 +97,33 @@ int delallfilters(sqlite3 *db)
  */
 int delfilter(sqlite3 *db, const char *name)
 {
-  sqlite3_stmt *ppStmt;
-  const char *pzTail;
-  int         rc;
-  char       *zErrMsg = 0;
+  int         rc=0;
 
   /*
    * Init query
    */
   const char* query = "delete from 'filters' where name=?1";
 
+  printf("Attempting to delete filter '%s'\n", name);
+
   /*
-   * Prepare the sqlite statement
+   * Execute query
+   * When name is all, delete all filters.
    */
-  rc = sqlite3_prepare_v2(
-      db,                 /* Database handle */
-      query,              /* SQL statement, UTF-8 encoded */
-      strlen(query),      /* Maximum length of zSql in bytes. */
-      &ppStmt,            /* OUT: Statement handle */
-      &pzTail             /* OUT: Pointer to unused portion of zSql */
-      );
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d",  __FILE__, __LINE__);
-    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
-    sqlite3_free(zErrMsg);
-    return -1;
+  rc = executequery(db, query, "s", name);
+  switch(rc) {
+    case(ROWS_CHANGED):
+      return 0;
+      break;
+    case(ROWS_EMPTY):
+      fprintf(stderr, "Could not deletei filter '%s' %s:%di\n", name,  __FILE__, __LINE__);
+      writelog(LOG_ERROR, "Could not delete filter '%s' %s:%d", name,  __FILE__, __LINE__);
+      return -1;
+      break;
+    default: 
+      writelog(LOG_ERROR, "Query error during delfilter %s:%d",  __FILE__, __LINE__);
+      return -1;
   }
-
-  /*
-   * bind property and value to the query
-   *
-   */
-  rc = sqlite3_bind_text(ppStmt, 1, name, -1, SQLITE_TRANSIENT);
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_bind_text failed on name %s:%d" __FILE__, __LINE__);  
-    //return -1;
-  }
-
-  /*
-   * Evaluate the result.
-   */
-  rc = sqlite3_step(ppStmt);
-  if( rc!=SQLITE_DONE ) {
-    writelog(LOG_ERROR, "Could not delete filter: %s %s:%d", name, __FILE__, __LINE__);
-    //return -1;
-  }
-
-  /*
-   * Free statement
-   */
-  rc = sqlite3_finalize(ppStmt);
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "Finalize failed in %s at line %d.!", __FILE__, __LINE__);
-    exit(1);
-  }
-
-
-  /*
-   * If the number of rows modified = 0 the configitem was not found.
-   */
-  rc = sqlite3_changes(db);
-  if(rc == 0) {
-    return -1;
-  }
-
-  /*
-   * All gone well.
-   */
-  return 0;
 }
 
 /*
@@ -206,18 +134,13 @@ int delfilter(sqlite3 *db, const char *name)
 static int checkfilter(sqlite3 *db, const char *name)
 {
   int rc;
-  char query[MAXLENGHT+1];
 
-  /*
-   * Build query (the unsafe way)
-   */
-  memset(query, 0, MAXLENGHT+1);
-  snprintf(query, MAXLENGHT, "select * from filters where name='%s'", name);
+  char *query = "select * from filters where name=?1";
 
   /*
    * execute query
    */
-  rc = testquery(db, query);
+  rc = executequery(db, query, "s", name);
 
   return rc;
 }
@@ -229,19 +152,15 @@ static int checkfilter(sqlite3 *db, const char *name)
  */
 int addfilter(sqlite3 *db, const char *name, const char *filter, const char *doublefilter)
 {
-  sqlite3_stmt *ppStmt;
-  const char *pzTail;
   int         rc;
-  char       *zErrMsg = 0;
   const char *locdouble; // holds pointer to doublefilter or empty
-  int         changes;
   char        query[MAXLENGHT+1];
 
   /*
    * No filters can be added that have the name all.
    */
   if(strcmp(name, "all") == 0){
-    writelog(LOG_NORMAL, "No filter can be added with name all");
+    writelog(LOG_NORMAL, "No filter can be added with name 'all'");
     fprintf(stderr, "No filter can be added with name 'all'\n");
     return -1;
   }
@@ -273,25 +192,6 @@ int addfilter(sqlite3 *db, const char *name, const char *filter, const char *dou
   writelog(LOG_NORMAL, "filter : %s", filter);
   writelog(LOG_NORMAL, "nodouble filter : %s", doublefilter);
 
-
-  /*
-   * Prepare the sqlite statement
-   */
-  rc = sqlite3_prepare_v2(
-      db,                 /* Database handle */
-      query,              /* SQL statement, UTF-8 encoded */
-      strlen(query),      /* Maximum length of zSql in bytes. */
-      &ppStmt,            /* OUT: Statement handle */
-      &pzTail             /* OUT: Pointer to unused portion of zSql */
-      );
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
-    writelog(LOG_ERROR, "Filter '%s' does not compile.", query);
-    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
-    sqlite3_free(zErrMsg);
-    return -1;
-  }
-
   /*
    * if no 'no double' filter is provided insert an empty string
    */
@@ -302,55 +202,12 @@ int addfilter(sqlite3 *db, const char *name, const char *filter, const char *dou
   }
 
   /*
-   * bind property and value to the query
-   *
+   * Execute query to add filter
+   * When no rows are changed return error.
    */
-  rc = sqlite3_bind_text(ppStmt, 1, name, -1, SQLITE_TRANSIENT);
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_bind_text failed on url %s:%d", __FILE__, __LINE__);  
-    //return -1;
-  }
-  rc = sqlite3_bind_text(ppStmt, 2, filter, -1, SQLITE_TRANSIENT);
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_bind_text failed on name %s:%d", __FILE__, __LINE__);  
-    //return -1;
-  }
-  rc = sqlite3_bind_text(ppStmt, 3, doublefilter, -1, SQLITE_TRANSIENT);
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_bind_text failed on doublefilter %s:%d", __FILE__, __LINE__);  
-    //return -1;
-  }
-
-  /*
-   * Evaluate the result.
-   */
-  rc = sqlite3_step(ppStmt);
-  if( rc!=SQLITE_DONE ) {
-    writelog(LOG_ERROR, "Could not add filter: %s, filter: %s %s:%d", name, filter, __FILE__, __LINE__);
-    //fprintf(stderr, "sqlite3_step\n");
-    //fprintf(stderr, "SQL error: %s\n", zErrMsg);
-    sqlite3_free(zErrMsg);
-    //return -1;
-  }
-
-  /*
-   * If the number of rows modified = 0 the configitem was not found.
-   */
-  changes = sqlite3_changes(db);
-
-  /*
-   * Free statement
-   */
-  rc = sqlite3_finalize(ppStmt);
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "Finalize failed in %s at line %d.!", __FILE__, __LINE__);
-    exit(1);
-  }
-
-  /*
-   * When no changes, return -1
-   */
-  if(changes == 0) {
+  rc = executequery(db, query, "sss", name, filter, doublefilter);
+  if(rc != ROWS_CHANGED) {
+    writelog(LOG_ERROR, "No rows changed, inserting filter failed. %s:%d", __FILE__, __LINE__);
     return -1;
   }
 
@@ -427,7 +284,6 @@ void printshellfilter(sqlite3 *db, char *appname, char *filtername)
 
   /*
    * bind property and value to the query
-   *
    */
   rc = sqlite3_bind_text(ppStmt, 1, filtername, -1, SQLITE_TRANSIENT);
   if( rc!=SQLITE_OK ){

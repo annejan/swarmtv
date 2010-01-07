@@ -35,7 +35,7 @@ int addnewtorrent(sqlite3 *db,
 /*
  * Add a torrent to the downloaded table.
  */
-int adddownloaded(sqlite3 *db,
+void adddownloaded(sqlite3 *db,
                char *title,
                char *link,
                char *pubdate,

@@ -88,7 +88,7 @@ void printhelp(void)
           "-v               : Print version.\n"
           "-c               : List config Items and there values.\n"
           "-f               : List filters.\n"
-          "-S               : List sources.\n"
+          "-S               : List RSS sources.\n"
           "-p <name>        : Print filter in shell format.\n"
           "-C <name:value>  : Set a config value.\n"
           "-s <name:value>  : Set RSS source (default filter type 'eztv') .\n"
@@ -347,8 +347,6 @@ int main(int argc, char **argv){
    */
   if(source != NULL) {
     splitnameval(source, &name, &value);
-    printf("Adding:%s, url:%s, filtertype:%s\n", name, value, filtertype);
-    writelog(LOG_NORMAL, "Adding:%s, url:%s, filtertype:%s", name, value, filtertype);
     addsource(db, name, value, filtertype);
   }
 
@@ -390,8 +388,8 @@ int main(int argc, char **argv){
      */
     rc = testtorrentdir(db);
     if(rc != 0) {
-      writelog(LOG_ERROR, "Torrent directry not usable exiting.");
-      fprintf(stderr, "Torrent directry is not usable, please look in log to find out why!\n");
+      writelog(LOG_ERROR, "Torrent directory not usable exiting.");
+      fprintf(stderr, "Torrent directory is not usable, please look in log to find out why!\n");
     } else {
       /*
        * Fork to background 

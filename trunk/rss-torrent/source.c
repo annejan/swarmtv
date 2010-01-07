@@ -31,21 +31,6 @@
 #define  MAXLENGHT 400
 
 /*
- * Get value of a config object.
- */
-int getsource(sqlite3 *db, char *prop, char **url) 
-{
-  char  query[MAXLENGHT+1];
-  int   rc;
-
-  snprintf(query, MAXLENGHT, "select url from source where name = '%s'", prop);
-
-  rc =  dosingletextquery(db, query, (unsigned char const**) url);
-
-  return rc;
-}
-
-/*
  * Print all available config items to the screen.
  * format varname : value
  * All from database
@@ -75,73 +60,33 @@ void printsources(sqlite3 *db)
  */
 int delsource(sqlite3 *db, const char *name)
 {
-  sqlite3_stmt *ppStmt;
-  const char *pzTail;
   int         rc;
-  char       *zErrMsg = 0;
 
   /*
    * Init query
    */
-  const char* query = "delete from 'sources' where name=?1";
+  const char* query = "DELETE FROM 'sources' WHERE name=?1";
 
   /*
-   * Prepare the sqlite statement
+   * Execute query
+   * When name is all, delete all filters.
    */
-  rc = sqlite3_prepare_v2(
-      db,                 /* Database handle */
-      query,              /* SQL statement, UTF-8 encoded */
-      strlen(query),      /* Maximum length of zSql in bytes. */
-      &ppStmt,            /* OUT: Statement handle */
-      &pzTail             /* OUT: Pointer to unused portion of zSql */
-      );
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
-    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
-    sqlite3_free(zErrMsg);
-    return -1;
+  rc = executequery(db, query, "s", name);
+  switch(rc) {
+    case(ROWS_CHANGED):
+      printf("Source '%s' deleted.\n", name);
+      writelog(LOG_NORMAL, "Source '%s' deleted. %s:%d", name, __FILE__, __LINE__);
+      return 0;
+      break;
+    case(ROWS_EMPTY):
+      printf("Source '%s' not found, could not delete.\n", name);
+      writelog(LOG_NORMAL, "Source '%s' not found, could not delete. %s:%d", name, __FILE__, __LINE__);
+      return -1;
+      break;
+    default: 
+      writelog(LOG_ERROR, "Query error during deletesource '%s':%d",  __FILE__, __LINE__);
+      return -1;
   }
-
-  /*
-   * bind property and value to the query
-   *
-   */
-  rc = sqlite3_bind_text(ppStmt, 1, name, -1, SQLITE_TRANSIENT);
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_bind_text failed on name %s:%d", __FILE__, __LINE__);  
-    //return -1;
-  }
-
-  /*
-   * Evaluate the result.
-   */
-  rc = sqlite3_step(ppStmt);
-  if( rc!=SQLITE_DONE ) {
-    printf("Could not delete source: %s\n", name);
-  }
-
-  /*
-   * Free statement
-   */
-  rc = sqlite3_finalize(ppStmt);
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "Finalize failed in %s at line %d.!", __FILE__, __LINE__);
-    exit(1);
-  }
-
-
-  /*
-   * If the number of rows modified = 0 the configitem was not found.
-   */
-  rc = sqlite3_changes(db);
-  if(rc == 0) {
-    return -1;
-  }
-
-  /*
-   * All gone well.
-   */
-  return 0;
 }
 
 /*
@@ -151,10 +96,7 @@ int delsource(sqlite3 *db, const char *name)
  */
 int addsource(sqlite3 *db, const char *name, const char *url, char *filtertype)
 {
-  sqlite3_stmt *ppStmt;
-  const char *pzTail;
   int         rc;
-  char       *zErrMsg = 0;
   char       *localfilter;
 
   /*
@@ -172,43 +114,14 @@ int addsource(sqlite3 *db, const char *name, const char *url, char *filtertype)
     localfilter = calloc(1, strlen(filtertype));
     strcpy(localfilter, filtertype);
   }
+  
+  printf("Adding:%s, url:%s, filtertype:%s\n", name, url, filtertype);
+  writelog(LOG_NORMAL, "Adding:%s, url:%s, filtertype:%s", name, url, filtertype);
 
   /*
-   * Prepare the sqlite statement
+   * Execute query
    */
-  rc = sqlite3_prepare_v2(
-      db,                 /* Database handle */
-      query,              /* SQL statement, UTF-8 encoded */
-      strlen(query),      /* Maximum length of zSql in bytes. */
-      &ppStmt,            /* OUT: Statement handle */
-      &pzTail             /* OUT: Pointer to unused portion of zSql */
-      );
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
-    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
-    sqlite3_free(zErrMsg);
-    return -1;
-  }
-
-  /*
-   * bind property and value to the query
-   *
-   */
-  rc = sqlite3_bind_text(ppStmt, 1, url, -1, SQLITE_TRANSIENT);
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_bind_text failed on url %s:%d", __FILE__, __LINE__);  
-    //return -1;
-  }
-  rc = sqlite3_bind_text(ppStmt, 2, name, -1, SQLITE_TRANSIENT);
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_bind_text failed on name %s:%d", __FILE__, __LINE__);  
-    //return -1;
-  }
-  rc = sqlite3_bind_text(ppStmt, 3, localfilter, -1, SQLITE_TRANSIENT);
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_bind_text failed on filtertype %s:%d", __FILE__, __LINE__);  
-    //return -1;
-  }
+  rc = executequery(db, query, "sss", url, name, localfilter);
 
   /*
    * free filtertype.
@@ -216,121 +129,22 @@ int addsource(sqlite3 *db, const char *name, const char *url, char *filtertype)
   free(localfilter);
 
   /*
-   * Evaluate the result.
+   * Act on addfilter
    */
-  rc = sqlite3_step(ppStmt);
-  if( rc!=SQLITE_DONE ) {
-    printf("Could not add source: %s, url: %s\n", name, url);
-    //fprintf(stderr, "sqlite3_step\n");
-    //fprintf(stderr, "SQL error: %s\n", zErrMsg);
-    sqlite3_free(zErrMsg);
-    //return -1;
+  switch(rc) {
+    case(ROWS_CHANGED):
+      printf("Source '%s' added succesfully.\n", name);
+      writelog(LOG_NORMAL, "Source '%s' added succesfully. %s:%d", name, __FILE__, __LINE__);
+      return 0;
+      break;
+    case(ROWS_CONSTRAINT):
+    case(ROWS_EMPTY):
+      fprintf(stderr, "Could not add source '%s', does the source allready exist?\n", name);
+      writelog(LOG_ERROR, "Could not add source '%s'. %s:%d", name, __FILE__, __LINE__);
+      return -1;
+      break;
+    default: 
+      writelog(LOG_ERROR, "Query error during addsource '%s'. %s:%d", name,  __FILE__, __LINE__);
+      return -1;
   }
-
-  /*
-   * Free statement
-   */
-  rc = sqlite3_finalize(ppStmt);
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "Finalize failed in %s at line %d.!", __FILE__, __LINE__);
-    exit(1);
-  }
-
-
-  /*
-   * If the number of rows modified = 0 the configitem was not found.
-   */
-  rc = sqlite3_changes(db);
-  if(rc == 0) {
-    return -1;
-  }
-
-  /*
-   * All gone well.
-   */
-  return 0;
-}
-
-/*
- * Change source item
- * When not found -1 is returned.
- * On succes 0 is returned.
- */
-int changesource(sqlite3 *db, const char *name, const char *url)
-{
-  sqlite3_stmt *ppStmt;
-  const char *pzTail;
-  int         rc;
-  char       *zErrMsg = 0;
-
-  /*
-   * Init query
-   */
-  const char* query = "update source set value=?1 where config.prop=?2";
-
-  /*
-   * Prepare the sqlite statement
-   */
-  rc = sqlite3_prepare_v2(
-      db,                 /* Database handle */
-      query,              /* SQL statement, UTF-8 encoded */
-      strlen(query),      /* Maximum length of zSql in bytes. */
-      &ppStmt,            /* OUT: Statement handle */
-      &pzTail             /* OUT: Pointer to unused portion of zSql */
-      );
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_prepare_v2");
-    writelog(LOG_ERROR, "SQL error: %s %s:%d", zErrMsg, __FILE__, __LINE__);
-    sqlite3_free(zErrMsg);
-    return -1;
-  }
-
-  /*
-   * bind property and value to the query
-   *
-   */
-  rc = sqlite3_bind_text(ppStmt, 1, url, -1, SQLITE_TRANSIENT);
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_bind_text failed on url %s:%d", __FILE__, __LINE__);  
-    return -1;
-  }
-  rc = sqlite3_bind_text(ppStmt, 2, name, -1, SQLITE_TRANSIENT);
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_bind_text failed on name %s:%d", __FILE__, __LINE__);  
-    return -1;
-  }
-
-  /*
-   * Evaluate the result.
-   */
-  rc = sqlite3_step(ppStmt);
-  if( rc!=SQLITE_DONE ) {
-    writelog(LOG_ERROR, "sqlite3_step %s:%d", __FILE__, __LINE__);
-    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
-    sqlite3_free(zErrMsg);
-    return -1;
-  }
-
-  /*
-   * Free statement
-   */
-  rc = sqlite3_finalize(ppStmt);
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "Finalize failed in %s at line %d.!", __FILE__, __LINE__);
-    exit(1);
-  }
-
-
-  /*
-   * If the number of rows modified = 0 the configitem was not found.
-   */
-  rc = sqlite3_changes(db);
-  if(rc == 0) {
-    return -1;
-  }
-
-  /*
-   * All gone well.
-   */
-  return 0;
 }

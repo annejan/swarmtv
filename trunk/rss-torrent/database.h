@@ -24,6 +24,20 @@
 #define  DBFILE "~/.rsstorrent/rss.db"
 
 /*
+ * Return values for executequery
+ * ROWS_ERROR error occured
+ * ROWS_EMPTY no rows found or changed
+ * ROWS_FOUND select found rows
+ * ROWS_CHANGED insert or update changed rows
+ */
+#define ROWS_ERROR      -1
+#define ROWS_EMPTY      0
+#define ROWS_FOUND      1
+#define ROWS_CHANGED    2  
+#define ROWS_CONSTRAINT 3  
+
+
+/*
  * Open database, and add regexp functionality.
  */
 int initdatabase(
@@ -41,6 +55,7 @@ int initdatabase(
  */
 int dosingletextquery(sqlite3 *db, const char *query, unsigned char const **text);
 
+#if 0
 /*
  * Test a query
  * Don't expect any output back
@@ -48,13 +63,14 @@ int dosingletextquery(sqlite3 *db, const char *query, unsigned char const **text
  * return 0 on no rows returned
  * returns -1 on error
  */
-int testquery(sqlite3 *db, const char *query);
+int testquery(sqlite3 *db, const char *query, char *fmt, ...);
+#endif
 
 /*
  * Execute a query
  * Don't expect any output back
  */
-int executequery(sqlite3 *db, const char *query);
+int executequery(sqlite3 *db, const char *query, char *fmt, ...);
 
 /*
  * Prints columns from query to standard out.
