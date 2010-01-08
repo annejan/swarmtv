@@ -19,6 +19,12 @@
  */
 
 /*
+ * The levels the htmlextrator will recurse to find the torrent.
+ * Please do not set above 2 because the resolvetime will be looong.
+ */
+#define RECURSE     1
+
+/*
  * This is a recursive function.
  * It scans for torrent files, and will return the first one it encounteres.
  * Note this might not be the correct torrent at all :)

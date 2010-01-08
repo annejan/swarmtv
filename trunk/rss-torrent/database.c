@@ -388,19 +388,6 @@ int executequery(sqlite3 *db, const char *query, char *fmt, ...)
           retval=-1;
         }
         break;
-#if 0
-      case 'c':            
-        /* 
-         * Need a cast here since va_arg only takes fully promoted types 
-         */
-        c = (char) va_arg(ap, int);
-        rc = sqlite3_bind_int(ppStmt, 1, d, -1, SQLITE_TRANSIENT);
-        if( rc!=SQLITE_OK ){
-          writelog(LOG_ERROR, "sqlite3_bind_text failed on url %s:%d", __FILE__, __LINE__);  
-          //return -1;
-        }
-        break;
-#endif
       default:
         writelog(LOG_ERROR, "Unknown format '%c' on position '%d'\nQuery: '%s'\nFmt: '%s'",
           *fmt, count, query, fmt);

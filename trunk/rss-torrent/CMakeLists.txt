@@ -20,7 +20,7 @@ rssfilter/rsstorrent/rsstorrentfilter)
 SET(SRC ${RSSFILTERS} rsstorrent database config regexp source
   filter runloop curlfile torrentdb torrentdownload logfile
   daemonize mailmsg findtorrent mymagic sandboxdb testfilter
-  filesystem)
+  filesystem tbl torrentparse)
 
 # We install to /usr/local/bin
 INSTALL(PROGRAMS rsstorrent DESTINATION /usr/local/bin)

@@ -34,6 +34,8 @@
 #include "regexp.h"
 #include "torrentdb.h"
 #include "logfile.h"
+#include "config.h"
+#include "torrentparse.h"
 
 /*
  * Unknown type
@@ -534,6 +536,49 @@ static int disecttitle(unsigned char *title, unsigned char** name, int *season, 
   return 0;
 }
 
+/*
+ * Check if torrent size is correct
+ * When the torrent is below the threshold set in config,
+ * the torrent is downloaded and the size is used from there.
+ * This is added because the piratebaf includes the size of the
+ * torrents not the content in there rss.
+ */
+static int checksize(sqlite3 *db, size_t *size, char *url)
+{
+  int retval=0;
+  int rc=0;
+  int threshold=0;
+  torprops *props;
+
+  /*
+   * check against threshold
+   */
+  configgetint(db, "min_size", &threshold);
+  if(*size > (size_t)threshold){
+    return 0;
+  }
+
+  writelog(LOG_DEBUG, "'%s' smaller then min_size, downloading to check.", url);
+
+  /*
+   * Get torrent info
+   */
+  rc = gettorrentinfo(url, &props);
+  if(rc != 0){
+    writelog(LOG_ERROR, "Getting torrent info failed for '%s'.", url);
+    retval=-1;
+  } else {
+    *size = props->size;
+  }
+
+  /*
+   * Free struct
+   */
+  freetorprops(props);
+
+  return retval;
+}
+
 
 /*
  * filter to handle incomming files from http://www.rsstorrents.com
@@ -706,6 +751,15 @@ int eztvfilter(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *r
       writelog(LOG_ERROR, "enclosure failed: %s\n", description);
       continue;
     }
+
+    /*
+     * Check if torrent size is correct
+     * When the torrent is below the threshold set in config,
+     * the torrent is downloaded and the size is used from there.
+     * This is added because the piratebaf includes the size of the 
+     * torrents not the content in there rss.
+     */
+    rc = checksize(db, &size, (char*) link);
 
     /*
      * Add gatered data to the database avoiding duplicates.

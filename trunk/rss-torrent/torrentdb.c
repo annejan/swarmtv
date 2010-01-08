@@ -106,6 +106,11 @@ void adddownloaded(sqlite3 *db,
                 "VALUES (?1, ?2, ?3, ?4, ?5, ?6,  datetime(?7, 'unixepoch', 'localtime'))";
 
   /*
+   * The time is now, now is the time
+   */
+  now = time(NULL);
+
+  /*
    * Do not log downloading when we are testing filters.
    */
   if(simulate == 0){

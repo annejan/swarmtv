@@ -30,6 +30,7 @@
 #include "mymagic.h"
 #include "curlfile.h"
 #include "logfile.h"
+#include "findtorrent.h"
 
 /*
  * MIME strings 
@@ -43,12 +44,6 @@
 
 #define NODOWN_EXT  "\\.(gif|png|jpg|js|(r|c)ss|xml|jsf|exe|html|php)$"
 #define NODOWN_TEXT  "(/faq/|/forum/|/login/|/showlist/|calendar|php[^?]|news)"
-
-/*
- * The levels the htmlextrator will recurse to find the torrent.
- * Please do not set above 2 because the resolvetime will be looong.
- */
-#define RECURSE     1
 
 /*
  * This function returns 1 when the file matches one of the uniteresting formatting.
@@ -304,6 +299,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
     rc = getcontenttype(buffer.memory, buffer.size, &filetype);
     if(rc != 0) {
       fprintf(stderr, "%s: Error during determining content type.\n", url);      
+      freedownload(&buffer);
       return 0;
     }
   }
@@ -355,6 +351,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
     html =  htmlReadDoc((unsigned char*)(buffer.memory), "", NULL, 
         HTML_PARSE_NOWARNING | HTML_PARSE_NOERROR | HTML_PARSE_NOBLANKS | HTML_PARSE_RECOVER);
     if(html == NULL) {
+      freedownload(&buffer);
       fprintf(stderr, "%s: failed to create reader\n", url);      
       exit(1);
     }
@@ -409,7 +406,6 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
         free(fulllink);
         xmlXPathFreeObject(allas);
         free(filetype);
-        freedownload(&buffer);
         return 1;
       }
 
@@ -447,13 +443,8 @@ int findtorrentwrite(char *url, char *name)
   writelog(LOG_DEBUG, "Writing torrent '%s' to file '%s'\n", url, name);
 
   /*
-   * Allocating structure
+   * Get the buffer and url to the torrent in there
    */
-  buffer = calloc(1, sizeof(MemoryStruct));
-
-  /*
-   *    * Get the buffer and url to the torrent in there
-   *       */
   rc = findtorrent(url, &torurl, &buffer, RECURSE);
   if(rc == 0) {
     writelog(LOG_ERROR, "Torrent not found in %s", url);
@@ -470,7 +461,7 @@ int findtorrentwrite(char *url, char *name)
   }
 
   /*
-   * Save file to testtorrent.torrent
+   * Save file to name
    */
   if(rv == 0) {
     rc = writebuffer(name, buffer);
@@ -485,6 +476,7 @@ int findtorrentwrite(char *url, char *name)
    */
   free(torurl);
   freedownload(buffer);
+  free(buffer);
 
   return rv;
 }
