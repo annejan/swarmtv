@@ -39,7 +39,6 @@ static void setintstate(bencstate *state, long value){
    * no key ? nothing to do here
    */
   if(state->prevtype != 'k') {
-    printf("%c\n", state->prevtype);
     return;
   }
 
@@ -105,8 +104,6 @@ static int tbl_string(void *ctx, char *value, size_t length)
    */
   string = calloc(1, length+1);
   strncpy(string, value, length);
-
-  //printf("Parsed char*: %s\n", string);
 
   free(string);
 	return 0;
