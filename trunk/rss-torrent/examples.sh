@@ -16,6 +16,7 @@ echo "Done."
 # INSERT INTO "sources" (name, url, filter) VALUES( "rsstorrents", "http://rsstorrents.com/rss.php?cat=8", "rsstorrent"); 
 echo "Inserting sources."
 ./rsstorrent -s "Eztv:http://www.ezrss.it/feed/" -t "eztv"
+./rsstorrent -s "The Piratebay:http://rss.thepiratebay.org/205" -t "eztv"
 echo "Done."
 
 echo "Insert filters."
