@@ -174,8 +174,9 @@ int initdatabase(
  * the value returned must be a TEXT value.
  * the returned value will be put into text
  * make sure to free text after use
+ * passing NULL to the fmt argument means no arguments.
  */
-int dosingletextquery(sqlite3 *db, const char *query, const unsigned char **text) 
+int dosingletextquery(sqlite3 *db, const unsigned char **text, const char *query, char *fmt, ...) 
 {
   sqlite3_stmt *ppStmt;
   const char *pzTail;
@@ -183,6 +184,19 @@ int dosingletextquery(sqlite3 *db, const char *query, const unsigned char **text
   int         step_rc;
   char       *zErrMsg = 0;
   const unsigned char  *temptext;
+  va_list     ap;
+  int         retval=0;
+  int         count=0;
+  char        *s=NULL;
+  int          d=0;
+  double       f=0.0;
+
+  /*
+   * NULL = no arguments.
+   */
+  if(fmt == NULL) {
+    fmt = "";
+  }
 
   /*
    * Prepare the sqlite statement
@@ -198,95 +212,92 @@ int dosingletextquery(sqlite3 *db, const char *query, const unsigned char **text
     writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
     writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
     sqlite3_free(zErrMsg);
+    retval = -1;
+  }
+
+  /*
+   * Handle the arguments
+   */
+  if(retval == 0) {
+    va_start(ap, fmt);
+    while (*fmt != '\0' && retval == 0){
+      count++; // next item
+      switch(*fmt++) {
+        case 's':            /* string */
+          s = va_arg(ap, char *);
+          rc = sqlite3_bind_text(ppStmt, count, s, -1, SQLITE_TRANSIENT);
+          if( rc!=SQLITE_OK ){
+            writelog(LOG_ERROR, "sqlite3_bind_text failed on argument '%d'\n'%s'\n'%s' %s:%d", 
+                count, query, fmt, __FILE__, __LINE__);  
+            writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+            sqlite3_free(zErrMsg);
+            retval=-1;
+          }
+          break;
+        case 'd':            /* int */
+          d = va_arg(ap, int);
+          rc = sqlite3_bind_int(ppStmt, count, d);
+          if( rc!=SQLITE_OK ){
+            writelog(LOG_ERROR, "sqlite3_bind_int failed on argument '%d'\n'%s'\n'%s' %s:%d",
+                count, query, fmt, __FILE__, __LINE__);  
+            writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+            sqlite3_free(zErrMsg);
+            retval=-1;
+          }
+          break;
+        case 'f':            /* int */
+          f = va_arg(ap, double);
+          rc = sqlite3_bind_double(ppStmt, count, f);
+          if( rc!=SQLITE_OK ){
+            writelog(LOG_ERROR, "sqlite3_bind_double failed on argument '%d'\n'%s'\n'%s' %s:%d",
+                count, query, fmt, __FILE__, __LINE__);  
+            writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+            sqlite3_free(zErrMsg);
+            retval=-1;
+          }
+          break;
+        default:
+          writelog(LOG_ERROR, "Unknown format '%c' on position '%d'\nQuery: '%s'\nFmt: '%s'",
+              *fmt, count, query, fmt);
+          retval=-1;
+      }
+    }
+    va_end(ap);
   }
 
   /* 
    * Get the first value discard the others.
    */
-  step_rc = sqlite3_step(ppStmt);
-    
-  switch(step_rc){
-  case SQLITE_ROW:
+  if(retval == 0) {
     /*
-     * context to output
+     * Execute query
      */
-    temptext = sqlite3_column_text(ppStmt, 0);
-
-    /*
-     * Move result to premanent own location.
-     */
-    *text = (unsigned char *) calloc(strlen((char *)temptext)+1, 1);
-    strcpy((char*) *text,(char*) temptext);
-
-    break;
-  default:
-    writelog(LOG_ERROR, "sqlite3_step, %d %s:%d", step_rc, __FILE__, __LINE__);
-    writelog(LOG_ERROR, "in statement : \'%s\'", query);
-
-    *text=NULL;
-    break;
-  }
-
-
-
-  /*
-   * Done with query, finalizing.
-   */
-  rc = sqlite3_finalize(ppStmt);
-
-  return step_rc;
-}
-
-#if 0
-/*
- * Test a query
- * Don't expect any output back
- * returns 1 on 1 row returned
- * return 0 on no rows returned
- * returns -1 on error
- */
-int testquery(sqlite3 *db, const char *query) 
-{
-  sqlite3_stmt *ppStmt=NULL;
-  const char *pzTail=NULL;
-  int         rc=0;
-  int         retval=0; 
-  int         step_rc=0;
-  char       *zErrMsg = 0;
-
-  /*
-   * Prepare the sqlite statement
-   */
-  rc = sqlite3_prepare_v2(
-      db,                 /* Database handle */
-      query,            /* SQL statement, UTF-8 encoded */
-      strlen(query),    /* Maximum length of zSql in bytes. */
-      &ppStmt,             /* OUT: Statement handle */
-      &pzTail              /* OUT: Pointer to unused portion of zSql */
-      );
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
-    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
-    sqlite3_free(zErrMsg);
-    retval=-1;
-  }
-
-  /* 
-   * Get the first value discard the others.
-   */
-  if(retval == 0){
     step_rc = sqlite3_step(ppStmt);
+
     switch(step_rc){
       case SQLITE_ROW:
-        retval=1;
+        /*
+         * context to output
+         */
+        temptext = sqlite3_column_text(ppStmt, 0);
+
+        /*
+         * Move result to premanent own location.
+         */
+        *text = (unsigned char *) calloc(strlen((char *)temptext)+1, 1);
+        strcpy((char*) *text,(char*) temptext);
+
         break;
       case SQLITE_DONE:
-        retval=0;
+        *text=NULL;
         break;
       default:
         writelog(LOG_ERROR, "sqlite3_step, %d %s:%d", step_rc, __FILE__, __LINE__);
         writelog(LOG_ERROR, "in statement : \'%s\'", query);
+
+        *text=NULL;
         retval=-1;
+        break;
     }
   }
 
@@ -297,7 +308,6 @@ int testquery(sqlite3 *db, const char *query)
 
   return retval;
 }
-#endif
 
 /*
  * Execute a query

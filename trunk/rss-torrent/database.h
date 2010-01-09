@@ -53,7 +53,7 @@ int initdatabase(
  * the returned value will be put into text
  * make sure to free text after use
  */
-int dosingletextquery(sqlite3 *db, const char *query, unsigned char const **text);
+int dosingletextquery(sqlite3 *db, const unsigned char **text, const char *query, char *fmt, ...);
 
 #if 0
 /*

@@ -36,6 +36,7 @@
 #include "logfile.h"
 #include "config.h"
 #include "torrentparse.h"
+#include "database.h"
 
 /*
  * Unknown type
@@ -537,6 +538,54 @@ static int disecttitle(unsigned char *title, unsigned char** name, int *season, 
 }
 
 /*
+ * Checks if a link was present in the database
+ * returns 1 on presense, arg size holds size
+ * returns 0 on not present.
+ */
+static int linkpresent(sqlite3 *db, char *url, long *size)
+{
+  int    retval=0;
+  char   *sizestring;
+  char   *query;
+  int    rc;
+  
+  /*
+   * Try to fetch size associated with link.
+   */
+  query="select size from newtorrents where link=?1";
+
+  /*
+   * Check if the torrent has been downloaded before
+   */
+  rc = dosingletextquery(db, (unsigned char const**) &sizestring, query, "s", url); 
+  if(rc == -1) {
+    /*
+     * When this goes wrong we are fubar
+     */
+    writelog(LOG_ERROR, "Query on newtorrenttable failed! %s:%d", __FILE__, __LINE__);
+    exit(1);
+  }
+  /*
+   * Did we find something ?
+   */
+  if(sizestring == NULL) {
+    /*
+     * Nothing
+     */
+    *size=0;
+    retval=-1;
+  } else {
+    /*
+     * Found a size
+     */
+    *size=atol(sizestring);
+  }
+  free(sizestring);
+
+  return retval;
+}
+
+/*
  * Check if torrent size is correct
  * When the torrent is below the threshold set in config,
  * the torrent is downloaded and the size is used from there.
@@ -547,14 +596,24 @@ static int checksize(sqlite3 *db, size_t *size, char *url)
 {
   int retval=0;
   int rc=0;
-  int threshold=0;
+  long threshold=0;
+  long foundsize=0;
   torprops *props;
 
   /*
    * check against threshold
    */
-  configgetint(db, "min_size", &threshold);
+  configgetlong(db, "min_size", &threshold);
   if(*size > (size_t)threshold){
+    return 0;
+  }
+
+  /*
+   * Check if link is present in database, when it is use that size.
+   */
+  rc = linkpresent(db, url, &foundsize);
+  if(rc == 0) {
+    *size = foundsize; 
     return 0;
   }
 

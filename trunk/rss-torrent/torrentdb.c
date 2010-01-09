@@ -66,7 +66,7 @@ int addnewtorrent(sqlite3 *db,
   /*
    * execute query
    */
-  rc = executequery(db, query, "ssdsddddd", title, link, pubdate, category, season, episode, seeds, peers, size);
+  rc = executequery(db, query, "ssdsddddf", title, link, pubdate, category, season, episode, seeds, peers, (double)size);
   switch(rc) {
     case ROWS_EMPTY:
     case ROWS_CHANGED:

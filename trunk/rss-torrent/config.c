@@ -34,14 +34,18 @@
  */
 int configgetproperty(sqlite3 *db, char *prop, char **value) 
 {
-  char  query[MAXLENGHT+1];
-  int   rc;
+  char  *query;
+  int   rc=0;
+  
+  query="select value from config where prop = ?1";
 
-  snprintf(query, MAXLENGHT, "select value from config where prop = '%s'", prop);
+  rc =  dosingletextquery(db, (unsigned char const**) value, query, "s", prop);
+  if(rc == 0){
+    return 0;
+  } 
+  writelog(LOG_ERROR, "Config value '%s' not found!", prop);
 
-  rc =  dosingletextquery(db, query, (unsigned char const**) value);
-
-  return rc;
+  return -1;
 }
 
 /*
@@ -50,14 +54,36 @@ int configgetproperty(sqlite3 *db, char *prop, char **value)
 int configgetint(sqlite3 *db, char *prop, int *number) 
 {
   char *value;
-  int rc;
+  int rc=0;
 
   rc = configgetproperty(db, prop,(char**) &value);
-  *number = atoi(value);
+  if(rc == 0){
+    *number = atoi(value);
+    free(value);
+    return 0;
+  }
+  writelog(LOG_ERROR, "Config value '%s' not found!", prop);
 
-  free(value);
+  return -1;
+}
 
-  return rc;
+/*
+ * Get value of a config object.
+ */
+int configgetlong(sqlite3 *db, char *prop, long *number) 
+{
+  char *value;
+  int rc=0;
+
+  rc = configgetproperty(db, prop,(char**) &value);
+  if(rc == 0){
+    *number = atol(value);
+    free(value);
+    return 0;
+  }
+  writelog(LOG_ERROR, "Config value '%s' not found!", prop);
+
+  return -1;
 }
 
 /*
@@ -89,10 +115,10 @@ void printconfigitems(sqlite3 *db)
  */
 int setconfigitem(sqlite3 *db, const char *prop, const char *value)
 {
-  sqlite3_stmt *ppStmt;
-  const char *pzTail;
-  int         rc;
-  char       *zErrMsg = 0;
+  sqlite3_stmt  *ppStmt=NULL;
+  const char    *pzTail=NULL;
+  int           rc=0;
+  char          *zErrMsg=NULL;
 
   /*
    * Init query

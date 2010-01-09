@@ -58,3 +58,8 @@ int setconfigitem(sqlite3 *db, char *prop, char *value);
  */
 int configgetint(sqlite3 *db, char *prop, int *number);
 
+/*
+ * Get value of a config object.
+ */
+int configgetlong(sqlite3 *db, char *prop, long *number);
+
