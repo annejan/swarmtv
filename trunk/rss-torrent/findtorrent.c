@@ -282,7 +282,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
    */
   rc = downloadtobuffer( url, &buffer);
   if(rc != 0) {
-    fprintf(stderr, "%s: failed to open\n", url);      
+    writelog(LOG_NORMAL,  "%s: Failed to download.\n", url);
     return 0;
   }
 
@@ -446,7 +446,7 @@ int findtorrentwrite(char *url, char *name)
    * Get the buffer and url to the torrent in there
    */
   rc = findtorrent(url, &torurl, &buffer, RECURSE);
-  if(rc == 0) {
+  if(rc != 1) {
     writelog(LOG_ERROR, "Torrent not found in %s", url);
     rv=-1;
   }
