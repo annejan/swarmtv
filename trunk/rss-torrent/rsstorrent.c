@@ -86,7 +86,7 @@ void printhelp(void)
 {
   printf( "################\n"
           "-v               : Print version.\n"
-          "-c               : List config Items and there values.\n"
+          "-c               : List config Items and their values.\n"
           "-f               : List filters.\n"
           "-S               : List RSS sources.\n"
           "-p <name>        : Print filter in shell format.\n"
