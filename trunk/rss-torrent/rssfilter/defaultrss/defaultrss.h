@@ -21,4 +21,4 @@
 /*
  * filter to handle incomming files from http://www.rsstorrents.com
  */
-int eztvfilter(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssfile);
+int defaultrss(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssfile);

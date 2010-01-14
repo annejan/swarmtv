@@ -28,7 +28,7 @@
 #include "database.h"
 #include "logfile.h"
 #include "rssfilter/rsstorrent/rsstorrentfilter.h"
-#include "rssfilter/eztv/eztvfilter.h"
+#include "rssfilter/defaultrss/defaultrss.h"
 
 #define  MAXLENGHT 400
 
@@ -235,9 +235,9 @@ int filterdownload(sqlite3 *db, char *name, char *url, char *filter, MemoryStruc
     return 0;
   }
 
-  if(strcmp(filter, "eztv") == 0) {
+  if(strcmp(filter, "defaultrss") == 0) {
     //printf("Found a file for filter %s\n", filter);
-    rc = eztvfilter(db, name, url, filter, rssfile); 
+    rc = defaultrss(db, name, url, filter, rssfile); 
     return 0;
   }
 

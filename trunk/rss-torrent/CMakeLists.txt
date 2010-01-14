@@ -12,7 +12,7 @@ include_directories(.)
 
 # RSS filter sources go here
 SET(RSSFILTERS 
-rssfilter/eztv/eztvfilter 
+rssfilter/defaultrss/defaultrss
 rssfilter/rsstorrent/rsstorrentfilter)
 
 

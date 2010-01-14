@@ -642,7 +642,7 @@ static int checksize(sqlite3 *db, size_t *size, char *url)
 /*
  * filter to handle incomming files from http://www.rsstorrents.com
  */
-int eztvfilter(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssfile)
+int defaultrss(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssfile)
 {
   xmlDocPtr           doc = NULL; /* the resulting document tree */
   xmlNode             *root_element = NULL;
