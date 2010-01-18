@@ -43,7 +43,7 @@ INSERT INTO "config" (prop, value, descr) VALUES("torrentdir", "~/torrents", "Pa
 INSERT INTO "config" (prop, value, descr) VALUES("logfile", "${RSSDIR}/rsstorrent.log", "Path to logfile.");
 INSERT INTO "config" (prop, value, descr) VALUES("lockfile", "${RSSDIR}/lockfile.pid", "Path to lockfile.");
 INSERT INTO "config" (prop, value, descr) VALUES("refresh", "3600", "Seconds between refreshes.");
-INSERT INTO "config" (prop, value, descr) VALUES("default_filter", "eztv", "The default rss filter to add to new rss sources.");
+INSERT INTO "config" (prop, value, descr) VALUES("default_filter", "defaultrss", "The default rss filter to add to new rss sources.");
 INSERT INTO "config" (prop, value, descr) VALUES("smtp_enable", "N", "'Y' is send email notifications on new download, 'N' is don't.");
 INSERT INTO "config" (prop, value, descr) VALUES("smtp_to", "foo@bar.nl", "Host to send the notifications to.");
 INSERT INTO "config" (prop, value, descr) VALUES("smtp_from", "user@somehost.nl", "The from email-address in the mail headers.");

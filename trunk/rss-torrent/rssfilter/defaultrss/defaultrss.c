@@ -331,7 +331,8 @@ static int disectdescription(unsigned char *desc, unsigned char** showname, unsi
     /*
      * Get the different settings and return set them
      */
-    if(!strcmp("Show Name", name)) {
+    if(!strcmp("Show Name", name) || 
+      !strcmp("Filename", name)) {
       *showname=calloc(strlen(value)+1, 1);
       strcpy((char*) *showname, value);
       writelog(LOG_DEBUG, "Showname: %s\n", *showname);
@@ -342,7 +343,8 @@ static int disectdescription(unsigned char *desc, unsigned char** showname, unsi
      // strcpy((char*) *order, value);
       //printf("Order: %s\n", *order);
     }
-    else if(!strcmp("Episode Title", name)) {
+    else if(!strcmp("Episode Title", name) || 
+            !strcmp("Show Title", name)) {
       *episodetitle=calloc(strlen(value)+1, 1);
       strcpy((char*) *episodetitle, value);
       writelog(LOG_DEBUG, "Episode title: %s\n", *episodetitle);
@@ -358,7 +360,7 @@ static int disectdescription(unsigned char *desc, unsigned char** showname, unsi
     else if(!strcmp("Episode Date", name)) {
       disectdate(value, episodedate);
     } else {
-      writelog(LOG_ERROR, "description attribute '%s' : '%s'='%s' not known.\n", token, name, value);
+      writelog(LOG_ERROR, "description attribute '%s' : '%s'='%s' not known.", token, name, value);
     }
     
     token = strtok (NULL, ";");
