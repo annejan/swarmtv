@@ -273,3 +273,104 @@ int capturefirstmatch(char *regexp, int flag, char *string, char **match)
 
   return 0;
 }
+
+/*
+ * Extract username and password from url
+ * Accepts passwords in the url https://<user>:<password>@<host>:<port>/<path>
+ * returns 0 on no username/passwd
+ * When returning 1 cleanurl and userpass are both set, and should be freed after use.
+ */
+int getusernamepassword(char *url, char **cleanurl, char **userpass)
+{
+  pcre 		*p=NULL;
+  int   	ovector[OVECSIZE];
+  const char *errmsg=NULL;
+  int   	errpos=0;
+	char 		*regexp="^(https?://)([^:]+:[^@]+)@(.*)$";
+	char 		*protocol=NULL;
+	char 		*hostpath=NULL;
+	int 		i=0;
+	size_t	urlsize=0;	
+	int			rc=0;
+
+	/*
+	 * Init input variables.
+	 */
+	*cleanurl=NULL;
+	*userpass=NULL;
+
+  /*
+   * Compile the regexp te split the two strings.
+   */
+  p = pcre_compile(regexp, 0, &errmsg, &errpos, 0);
+  if (p == NULL) {
+    /* should not happen, because init1 has already tested and set to NULL on error */
+    fprintf(stderr, "Ouch! Can't compile regular expression: %s (char %i) %s:%d",
+        errmsg, errpos, __FILE__, __LINE__);
+		return -1;
+  }
+
+  /*
+   * execute regexp
+   */
+  rc = pcre_exec (
+      p,                   	/* the compiled pattern */
+      0,                    /* no extra data - pattern was not studied */
+      url,                  /* the string to match */
+      strlen(url),          /* the length of the string */
+      0,                    /* start at offset 0 in the subject */
+      0,                    /* default options */
+      ovector,              /* output vector for substring information */
+      OVECSIZE);           	/* number of elements in the output vector */
+
+	/*
+	 * No match is return 0
+	 */
+  if (rc < 0) {
+    switch (rc) {
+      case PCRE_ERROR_NOMATCH:
+				/*
+				 * no username/password match
+				 */
+				pcre_free(p);
+				return 0;
+        break;
+      default:
+        writelog(LOG_ERROR, "Error while matching url. %d %s:%d", rc, __FILE__, __LINE__);
+        break;
+    }
+    free(p);
+    return -1;
+  }
+
+	/*
+	 * Match, get url and userpass
+	 */
+  i = 1;
+  protocol = calloc(1, ovector[2*i+1]-ovector[2*i]+1);
+  sprintf(protocol, "%.*s", ovector[2*i+1] - ovector[2*i], url + ovector[2*i]);
+  i = 2;
+  *userpass = calloc(1, ovector[2*i+1]-ovector[2*i]+1);
+  sprintf(*userpass, "%.*s", ovector[2*i+1] - ovector[2*i], url + ovector[2*i]);
+  i = 3;
+  hostpath = calloc(1, ovector[2*i+1]-ovector[2*i]+1);
+  sprintf(hostpath, "%.*s", ovector[2*i+1] - ovector[2*i], url + ovector[2*i]);
+
+	/*
+	 * Set cleanurl and userpass
+	 * return 1
+	 */
+	urlsize = strlen(protocol) + strlen(hostpath) + 1;
+  *cleanurl = calloc(1, urlsize);
+	snprintf(*cleanurl, urlsize, "%s%s", protocol, hostpath);
+
+	/*
+	 * free tempstuff
+	 */
+	pcre_free(p);
+	free(protocol);
+	free(hostpath);
+	
+	return 1;
+}
+

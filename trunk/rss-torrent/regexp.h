@@ -42,3 +42,12 @@ int comregexp(char *regexp, char *string);
  * This routine returns a string pointing to the first captured string.
  */
 int capturefirstmatch(char *regexp, int flag, char *string, char **match);
+
+/*
+ * Extract username and password from url
+ * Accepts passwords in the url https://<user>:<password>@<host>:<port>/<path>
+ * returns 0 on no username/passwd
+ * When returning 1 cleanurl and userpass are both set, and should be freed.
+ */
+int getusernamepassword(char *url, char **cleanurl, char **userpass);
+

@@ -82,20 +82,46 @@ static size_t WriteHeaderCallback(void *ptr, size_t size, size_t nmemb, void *da
  */
 int downloadtobuffer(char *url, MemoryStruct *chunk)
 {
-  CURL *curl_handle;
-  int rc;
-  char errorBuffer[CURL_ERROR_SIZE];
+  CURL *curl_handle=NULL;
+  int 	rc=0;
+	char *realurl=NULL;
+	char *cleanurl=NULL;
+	char *userpass=NULL;
+  char 	errorBuffer[CURL_ERROR_SIZE];
 
   chunk->memory=NULL; /* we expect realloc(NULL, size) to work */ 
   chunk->size = 0;    /* no data at this point */ 
   chunk->header=NULL; /* header is empty */
   chunk->headersize=0;  /* headersize is 0 */
 
+	/*
+	 * Determine if the url holdes usernames and passwords.
+	 */
+	rc = getusernamepassword(url, &cleanurl, &userpass);
+	switch(rc) {
+		case 0:
+			/*
+			 * No password
+			 */
+			realurl=calloc(1, sizeof(url)+1);
+			strncpy(realurl, url, sizeof(url));
+			break;
+		case 1:
+			/*
+			 * Password found 
+			 */
+      writelog(LOG_ERROR, "URL matching failed. %s:%d", __FILE__, __LINE__);
+			return -1;
+		default:
+			realurl=cleanurl;
+			break;
+	}
+
   /* init the curl session */ 
   curl_handle = curl_easy_init();
 
   /* specify URL to get */ 
-  curl_easy_setopt(curl_handle, CURLOPT_URL, url);
+  curl_easy_setopt(curl_handle, CURLOPT_URL, realurl);
 
   /* send all data to this function  */ 
   curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
@@ -116,6 +142,12 @@ int downloadtobuffer(char *url, MemoryStruct *chunk)
   /* Set generate errorstring */
   curl_easy_setopt(curl_handle, CURLOPT_ERRORBUFFER, errorBuffer);
 
+	/* If a username and password is set add it to the options */
+	if(userpass != NULL) {
+		curl_easy_setopt(curl_handle, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+		curl_easy_setopt(curl_handle, CURLOPT_USERPWD, userpass);
+	}
+
   /* get it! */ 
   rc = curl_easy_perform(curl_handle);
 
@@ -132,6 +164,12 @@ int downloadtobuffer(char *url, MemoryStruct *chunk)
    * allocated data block, and nothing has yet deallocated that data. So when
    * you're done with it, you should free() it as a nice application.
    */ 
+
+	/*
+	 * Cleanup
+	 */
+	free(realurl);
+	free(userpass);
 
   return rc;
 }
