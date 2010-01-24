@@ -9,18 +9,14 @@ add_definitions( `xml2-config --cflags` -Wall -W -g)
 link_libraries(curl xml2 magic pcre esmtp sqlite3)
 include_directories(.)
 
-
-# RSS filter sources go here
-SET(RSSFILTERS 
-rssfilter/defaultrss/defaultrss
-rssfilter/rsstorrent/rsstorrentfilter)
-
-
 # All other sources
-SET(SRC ${RSSFILTERS} rsstorrent database config regexp source
+SET(SRC rsstorrent database config regexp source
   filter runloop curlfile torrentdb torrentdownload logfile
   daemonize mailmsg findtorrent mymagic sandboxdb testfilter
   filesystem tbl torrentparse)
+
+# Subdirectories
+INCLUDE(rssfilter/filters.cmake)
 
 # We install to /usr/local/bin
 INSTALL(PROGRAMS rsstorrent DESTINATION /usr/local/bin)
