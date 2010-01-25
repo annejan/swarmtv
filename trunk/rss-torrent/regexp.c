@@ -25,7 +25,7 @@
 #include "logfile.h"
 
 // Number of output vectoritems
-#define   OVECSIZE 10
+#define   OVECSIZE 20
 #define   MATCHSIZE 20
 
 /*

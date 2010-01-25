@@ -19,34 +19,12 @@
  */
 
 /*
- * Add a torrent to the newtorrents table.
+ * Examines the tweet, and splits it into 
+ * name
+ * link
+ * season
+ * episode
+ * returns 0 on succes -1 on fail.
  */
-int addnewtorrent(sqlite3 *db,
-               char *title,
-               char *link,
-               time_t pubdate,
-               char *category,
-               int  season,
-               int  episode,
-               int  seeds,
-               int  peers,
-               size_t size);
-
-/*
- * Add a torrent to the downloaded table.
- */
-void adddownloaded(sqlite3 *db,
-               char *title,
-               char *link,
-               char *pubdate,
-               char *category,
-               int  season,
-               int  episode,
-               int  simulate);
-
-/*
- * When Torrents are prosessed, they are no longer new
- * this method removes the new flag
- */
-void nonewtorrents(sqlite3 *db);
+int splittext(char *text, char **name, char **link, int *season, int *episode);
 

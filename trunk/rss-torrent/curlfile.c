@@ -103,17 +103,24 @@ int downloadtobuffer(char *url, MemoryStruct *chunk)
 			/*
 			 * No password
 			 */
-			realurl=calloc(1, sizeof(url)+1);
-			strncpy(realurl, url, sizeof(url));
+			realurl=calloc(1, strlen(url)+1);
+			strncpy(realurl, url, strlen(url));
+			writelog(LOG_DEBUG, "realurl			: %s\n", realurl);
 			break;
 		case 1:
 			/*
 			 * Password found 
 			 */
-      writelog(LOG_ERROR, "URL matching failed. %s:%d", __FILE__, __LINE__);
-			return -1;
+			writelog(LOG_DEBUG, "passwd_url			: %s\n", url);
+			writelog(LOG_DEBUG, "userpass				: %s\n", userpass);
+			writelog(LOG_DEBUG, "cleanurl				: %s\n", cleanurl);
+
 		default:
+			/*
+			 * Any other case
+			 */
 			realurl=cleanurl;
+			cleanurl=NULL;
 			break;
 	}
 
@@ -137,7 +144,7 @@ int downloadtobuffer(char *url, MemoryStruct *chunk)
 
   /* some servers don't like requests that are made without a user-agent
    *      field, so we provide one */ 
-  curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+  curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "rss-torrent");
 
   /* Set generate errorstring */
   curl_easy_setopt(curl_handle, CURLOPT_ERRORBUFFER, errorBuffer);

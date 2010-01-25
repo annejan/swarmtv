@@ -19,34 +19,23 @@
  */
 
 /*
- * Add a torrent to the newtorrents table.
+ * Tweet data
  */
-int addnewtorrent(sqlite3 *db,
-               char *title,
-               char *link,
-               time_t pubdate,
-               char *category,
-               int  season,
-               int  episode,
-               int  seeds,
-               int  peers,
-               size_t size);
+typedef struct {
+	char *text;
+	char *createdate;
+} tweetdata;
 
 /*
- * Add a torrent to the downloaded table.
+ * Data we like to pass to the callback routines.
  */
-void adddownloaded(sqlite3 *db,
-               char *title,
-               char *link,
-               char *pubdate,
-               char *category,
-               int  season,
-               int  episode,
-               int  simulate);
+typedef struct {
+	sqlite3 	*db;
+	tweetdata tweet;
+} twitterdata;
 
 /*
- * When Torrents are prosessed, they are no longer new
- * this method removes the new flag
+ * Filter to handle incomming files from a Twitter timeline
  */
-void nonewtorrents(sqlite3 *db);
+int twitter(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssfile);
 

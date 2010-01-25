@@ -19,34 +19,20 @@
  */
 
 /*
- * Add a torrent to the newtorrents table.
+ * Structure holding the callback the parser calls.
+ * When a callbackpointer is NULL, no function is called.
  */
-int addnewtorrent(sqlite3 *db,
-               char *title,
-               char *link,
-               time_t pubdate,
-               char *category,
-               int  season,
-               int  episode,
-               int  seeds,
-               int  peers,
-               size_t size);
+typedef struct {
+	void *data; // Store use data in this struct.
+	int (*newtweet)(void *data); // Called on the start of parsing a record
+	int (*gettext)(void *data, char *string); // Called the the twittertext is found
+	int (*getcreatedate)(void *data, char *string); // Called when createdate is found
+	int (*endtweet)(void *data); // Called on the start of parsing a record
+	int (*donetweet)(void *data); // Called on the start of parsing a record
+} twitparse_callback;
 
 /*
- * Add a torrent to the downloaded table.
+ * filter to handle incomming files from http://www.rsstorrents.com
  */
-void adddownloaded(sqlite3 *db,
-               char *title,
-               char *link,
-               char *pubdate,
-               char *category,
-               int  season,
-               int  episode,
-               int  simulate);
-
-/*
- * When Torrents are prosessed, they are no longer new
- * this method removes the new flag
- */
-void nonewtorrents(sqlite3 *db);
+int twitparse(twitparse_callback *call, char *url, MemoryStruct *buffer);
 

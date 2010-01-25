@@ -29,6 +29,7 @@
 #include "logfile.h"
 #include "rssfilter/rsstorrent/rsstorrentfilter.h"
 #include "rssfilter/defaultrss/defaultrss.h"
+#include "rssfilter/twitter/twitter.h"
 
 #define  MAXLENGHT 400
 
@@ -238,6 +239,12 @@ int filterdownload(sqlite3 *db, char *name, char *url, char *filter, MemoryStruc
   if(strcmp(filter, "defaultrss") == 0) {
     //printf("Found a file for filter %s\n", filter);
     rc = defaultrss(db, name, url, filter, rssfile); 
+    return 0;
+  }
+
+  if(strcmp(filter, "twitter") == 0) {
+    //printf("Found a file for filter %s\n", filter);
+    rc = twitter(db, name, url, filter, rssfile); 
     return 0;
   }
 

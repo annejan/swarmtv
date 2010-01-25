@@ -19,34 +19,8 @@
  */
 
 /*
- * Add a torrent to the newtorrents table.
+ * Gets the timestring.
+ * Exports time_t value
+ * Allways returns 0, returnvalue not used yet.
  */
-int addnewtorrent(sqlite3 *db,
-               char *title,
-               char *link,
-               time_t pubdate,
-               char *category,
-               int  season,
-               int  episode,
-               int  seeds,
-               int  peers,
-               size_t size);
-
-/*
- * Add a torrent to the downloaded table.
- */
-void adddownloaded(sqlite3 *db,
-               char *title,
-               char *link,
-               char *pubdate,
-               char *category,
-               int  season,
-               int  episode,
-               int  simulate);
-
-/*
- * When Torrents are prosessed, they are no longer new
- * this method removes the new flag
- */
-void nonewtorrents(sqlite3 *db);
-
+int disectdate(char *date, time_t *pubdate);
