@@ -238,12 +238,14 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
         break;
       case 'p': // print filter en shell format
         printshellfilter(db, argv[0], optarg);
+				break;
       case 't': // set source filter type
         if( opts->filtertype != NULL) {
           fprintf(stderr, "Warning: ignoring second doublefilter parameter.\n");
           break;
         }
 				alloccopy(&(opts->filtertype), optarg, strlen(optarg));
+				break;
       case 'q': // set filtertest flag
         opts->testfilt=1;
         break;
