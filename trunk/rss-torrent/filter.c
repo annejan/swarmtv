@@ -27,7 +27,6 @@
 #include "curlfile.h"
 #include "database.h"
 #include "logfile.h"
-#include "rssfilter/rsstorrent/rsstorrentfilter.h"
 #include "rssfilter/defaultrss/defaultrss.h"
 #include "rssfilter/twitter/twitter.h"
 
@@ -230,12 +229,6 @@ int filterdownload(sqlite3 *db, char *name, char *url, char *filter, MemoryStruc
   /*
    * compare the filter string and pass the downloaded file to the correct filtering routine.
    */
-  if(strcmp(filter, "rsstorrent") == 0) {
-    //printf("Found a file for filter %s\n", filter);
-    rc = rsstorrentfilter(db, name, url, filter, rssfile); 
-    return 0;
-  }
-
   if(strcmp(filter, "defaultrss") == 0) {
     //printf("Found a file for filter %s\n", filter);
     rc = defaultrss(db, name, url, filter, rssfile); 
