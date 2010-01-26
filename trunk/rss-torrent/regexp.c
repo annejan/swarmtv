@@ -29,6 +29,28 @@
 #define   MATCHSIZE 20
 
 /*
+ * This function copies and allocates the destination memory.
+ * don't forget to free the destination after use.
+ */
+int alloccopy(char **dest, char *src, size_t size)
+{
+	/*
+	 * Allocate the memory
+	 */
+	*dest=calloc(1, size+1);
+
+	/*
+	 * Copy the string to it.
+	 */
+	memcpy(*dest, src, size);
+
+	/*
+	 * Return 0 on succes, otherwise one-zero
+	 */
+	return !*dest;
+}
+
+/*
  * Split options
  * When options come in as <name>:<value> split them 
  * the first ':' found is the one plitting name and value

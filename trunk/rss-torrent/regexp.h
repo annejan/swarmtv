@@ -18,6 +18,11 @@
  *  Program written by Paul Honig 2009
  */
 
+/*
+ * This function copies and allocates the destination memory.
+ * don't forget to free the destination after use.
+ */
+int alloccopy(char **dest, char *src, size_t size);
 
 /*
  * Split options
@@ -26,7 +31,6 @@
  * When the splitting failed '-1' is returned
  */
 int splitnameval(char *input, char **name, char **value);
-
 
 /*
  * Cleanup strings from XML
