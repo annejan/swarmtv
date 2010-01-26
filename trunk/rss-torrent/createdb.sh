@@ -48,7 +48,7 @@ INSERT INTO "config" (prop, value, descr) VALUES("smtp_enable", "N", "'Y' is sen
 INSERT INTO "config" (prop, value, descr) VALUES("smtp_to", "foo@bar.nl", "Host to send the notifications to.");
 INSERT INTO "config" (prop, value, descr) VALUES("smtp_from", "user@somehost.nl", "The from email-address in the mail headers.");
 INSERT INTO "config" (prop, value, descr) VALUES("smtp_host", "smtp.foobar.nl:25", "The STMP server used to send the notifications.");
-INSERT INTO "config" (prop, value, descr) VALUES("min_size", "4000000", "When size is smaller then this, download torrent en double check.");
+INSERT INTO "config" (prop, value, descr) VALUES("min_size", "4000000", "When size is smaller then this, download torrent and check.");
 SQL_ENTRY_TAG_4
 echo "Done."
 
