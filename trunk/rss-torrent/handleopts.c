@@ -42,7 +42,7 @@
 /*
  * optstring what options do we allow
  */
-static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qR";
+static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:";
 
 /*
  * Long opts
@@ -72,6 +72,13 @@ static const struct option optLong[] =
 	{"nodetach", 							no_argument, 			 0, 'n'},
 	{"test-mail", 						required_argument, 0, 'm'},
 	{"help", 									no_argument, 			 0, 'h'},
+	{"add-simple", 						required_argument, 0, 'e'},
+	{"title",									required_argument, 0, 'E'},
+	{"max-size", 							required_argument, 0, 'O'},
+	{"min-size", 							required_argument, 0, 'o'},
+	{"nodup", 							  required_argument, 0, 'u'},
+	{"from-season", 				  required_argument, 0, 'g'},
+	{"from-episode", 				  required_argument, 0, 'G'},
 	{0, 0, 0, 0}
 };
 
@@ -104,6 +111,14 @@ static void printhelp(void)
 					"\nSQL Download filters\n"
           "add-sql-filter   -F <name:url>    : Set download filter (empty default duplicate filter).\n"  
           "nodup-sql-filter -T <value>       : Set no duplicate filter. (use with -F) \n"  
+					"\nSimple Download filters\n"
+					"add-simple       -e <value>       : Add a simple download filter\n"
+					"title						-E <value>			 : Title expression\n"
+					"max-size					-O <value>       : Maximal size of downloaded torrent\n"
+					"min-size					-o <value>			 : Minimal size of downloaded torrent\n"
+					"nodup						-u <value>			 : No duplicate filter type (unique, newer, link, none)\n"
+					"from-season			-g <value>			 : Season number to start downloading from.\n"
+					"from-episode			-G <value>			 : Episode number to start downloading from.\n"							 
 					"\n"
           "Flags to be used together.\n"  
           "-F <name:value> -T <value>        : Set download filter and diplicate check\n"  
@@ -172,29 +187,77 @@ static int verifyarguments(opts_struct *opts)
 {
 	int retval=0;
 
-	// source and filter 
+	/*
+	 * source and filter 
+	 */
 	if(opts->source && opts->filter){
 		fprintf(stderr, "Error, you can not use add filter and add source in the same command line.\n");
 		retval=-1;
 	}
-	// run and source
+	/*
+	 * run and source
+	 */
 	if(opts->run && opts->source){
 		fprintf(stderr, "Error, you can not use run and add source in the same command line.\n");
 		retval=-1;
 	}
-	// run and filter
+	/*
+	 * run and filter
+	 */
 	if(opts->run && opts->filter){
 		fprintf(stderr, "Error, you can not use add filter and run in the same command line.\n");
 		retval=-1;
 	}
-	// filtertype no filter
-	if(opts->filtertype && !(opts->filter)){
+	/*
+	 * sourcefilter no filter
+	 */
+	if(opts->sourcefilter && !(opts->filter)){
 		fprintf(stderr, "Error, you provided a filter type but no filter.\n");
 		retval=-1;
 	}
-	// doublefilter no filter
+	/*
+	 * doublefilter no filter
+	 */
 	if(opts->doublefilter && !(opts->filter)){
 		fprintf(stderr, "Error, you provided a 'no double filter' but no filter.\n");
+		retval=-1;
+	}
+
+	/*
+	 * Simple filter and sql filter are not allowed in the same commandline
+	 */
+	if( opts->filter && opts->simplename ) {
+		fprintf(stderr, "Error, you cannot add an sql and simple filter in one line.\n");
+		retval=-1;
+	}
+	
+	/*
+	 * Simple filter arguments are not allowed without the add filter argument
+	 */
+	if( !opts->simplename && 
+			(opts->simpletitle || 
+			 opts->simplemaxsize || 
+			 opts->simpleminsize ||
+			 opts->simplenodup ||
+			 opts->simpleseason ||
+			 opts->simpleepisode)) {
+		fprintf(stderr, "Error, you can not use simple filter argument without adding a simple filter.\n");
+		retval=-1;
+	}
+
+	/*
+	 * No dup is mandatory when adding a simple filter.
+	 */
+	if(opts->simplename && !opts->simplenodup) {
+		fprintf(stderr, "Error, When entering a simple filter a noduplicate filter is mandatory.\n");
+		retval=-1;
+	}
+
+	/*
+	 * Nodetach and ontime should be used together with run
+	 */
+	if(!opts->run && (opts->nodetach || opts->onetime)) {
+		fprintf(stderr, "Error, run options can only be used together with the run command.\n");
 		retval=-1;
 	}
 
@@ -240,18 +303,18 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
         printshellfilter(db, argv[0], optarg);
 				break;
       case 't': // set source filter type
-        if( opts->filtertype != NULL) {
+        if( opts->sourcefilter != NULL) {
           fprintf(stderr, "Warning: ignoring second doublefilter parameter.\n");
           break;
         }
-				alloccopy(&(opts->filtertype), optarg, strlen(optarg));
+				alloccopy(&(opts->sourcefilter), optarg, strlen(optarg));
 				break;
       case 'q': // set filtertest flag
         opts->testfilt=1;
         break;
       case 'T': // set duplicate filter
         if( opts->doublefilter != NULL) {
-          fprintf(stderr, "Warning: ignoring second filtertype parameter.\n");
+          fprintf(stderr, "Warning: ignoring second sourcefilter parameter.\n");
           break;
         }
 				alloccopy(&(opts->doublefilter), optarg, strlen(optarg));
@@ -289,6 +352,55 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
         sendrssmail(db, optarg, optarg);
         stopop = 1; // no more
         break;
+      case 'e': // Add simple filter
+        if( opts->simplename != NULL) {
+          fprintf(stderr, "Warning: ignoring second simple filter addition.\n");
+          break;
+        }
+				alloccopy(&(opts->simplename), optarg, strlen(optarg));
+        break;
+      case 'E': // Add title-filter argument
+        if( opts->simpletitle != NULL) {
+          fprintf(stderr, "Warning: ignoring second simple filter addition.\n");
+          break;
+        }
+				alloccopy(&(opts->simpletitle), optarg, strlen(optarg));
+        break;
+      case 'O': // Add 'max size' argument
+        if( opts->simplemaxsize != NULL) {
+          fprintf(stderr, "Warning: ignoring second 'max size' argument.\n");
+          break;
+        }
+				alloccopy(&(opts->simplemaxsize), optarg, strlen(optarg));
+        break;
+      case 'o': // Add 'min size' argument
+        if( opts->simpleminsize != NULL) {
+          fprintf(stderr, "Warning: ignoring second 'min size' argument.\n");
+          break;
+        }
+				alloccopy(&(opts->simpleminsize), optarg, strlen(optarg));
+        break;
+      case 'u': // Add 'min size' argument
+        if( opts->simplenodup != NULL) {
+          fprintf(stderr, "Warning: ignoring second nodup argument.\n");
+          break;
+        }
+				alloccopy(&(opts->simplenodup), optarg, strlen(optarg));
+        break;
+      case 'g': // Add 'min size' argument
+        if( opts->simpleseason != NULL) {
+          fprintf(stderr, "Warning: ignoring second 'from season' argument.\n");
+          break;
+        }
+				alloccopy(&(opts->simpleseason), optarg, strlen(optarg));
+        break;
+      case 'G': // Add 'min size' argument
+        if( opts->simpleepisode != NULL) {
+          fprintf(stderr, "Warning: ignoring second 'from episode' argument.\n");
+          break;
+        }
+				alloccopy(&(opts->simpleepisode), optarg, strlen(optarg));
+        break;
       case 'h':   /* fall-through is intentional */
       case '?':
         /*
@@ -323,7 +435,7 @@ void handlemultiple(sqlite3 *db, opts_struct *opts)
 	 */
 	if(opts->source != NULL) {
 		splitnameval(opts->source, &name, &value);
-		addsource(db, name, value, opts->filtertype);
+		addsource(db, name, value, opts->sourcefilter);
 	}
 
 	/*
@@ -370,6 +482,7 @@ void handlemultiple(sqlite3 *db, opts_struct *opts)
 
 /*
  * Frees all allocated data from the opts struct.
+ * The struct itself is not freed, you have to do that yourself.
  */
 static void freeopts(opts_struct *opts)
 {
@@ -377,9 +490,16 @@ static void freeopts(opts_struct *opts)
 	 * Free all strings.
 	 */
 	free(opts->filter);
-	free(opts->filtertype);
+	free(opts->sourcefilter);
 	free(opts->doublefilter);
 	free(opts->source);
+	free(opts->simplename);
+	free(opts->simpletitle);
+	free(opts->simplemaxsize);
+	free(opts->simpleminsize);	
+	free(opts->simplenodup);	
+	free(opts->simpleseason);		
+	free(opts->simpleepisode);	
 
 	/*
 	 * NULL the whole struct
@@ -436,14 +556,11 @@ void handleopts(sqlite3 *db, int argc, char *argv[])
 {
 	int 				rc=0;
   opts_struct opts; 
-	//char       	*name=NULL;
-	//char       	*value=NULL;
 
   /*
    * init opts struct
    */
   memset(&opts, 0, sizeof(opts_struct));
-  opts.loopsec=DEFAULTSEC;  // set timeout to default 
 
   /*
    * When no arguments are given.

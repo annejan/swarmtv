@@ -21,7 +21,7 @@
 /*
  * Program version
  */
-#define PROGVERSION "0.6"
+#define PROGVERSION "0.6b"
 
 /*
  * Default timeout when no -i is provided
@@ -32,15 +32,21 @@
  * options for after the getopt loop.
  */
 typedef struct {
-  int loopsec;
-  int run;
-  int nodetach;
-  int testfilt;
-  int onetime;
-	char *filter;
-	char *filtertype;
-	char *doublefilter;
-	char *source;
+  int run;							// run 
+  int nodetach;					// run in forground 
+  int testfilt;					// Only test the filter
+  int onetime;					// run once then exit
+	char *sourcefilter; 	// source filter 
+	char *source;					// source
+	char *filter;					// sql downloadfilter
+	char *doublefilter;		// sql no duplicate filter
+	char *simplename;			// Simple filter name
+	char *simpletitle;		// Simple title regexp
+	char *simplemaxsize;	// Simple max size
+	char *simpleminsize;	// Simple minimal size
+	char *simplenodup;	// Simple no double filter type
+	char *simpleseason;		// From what season to download
+	char *simpleepisode;	// From episode
 } opts_struct;
 
 void handleopts(sqlite3 *db, int argc, char *argv[]);
