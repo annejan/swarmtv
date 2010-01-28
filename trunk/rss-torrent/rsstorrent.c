@@ -87,8 +87,8 @@ void Signal_Handler(int sig) /* signal handler function */
  * Temporary main function.
  */
 int main(int argc, char **argv){
-  sqlite3    *db;
-  int         rc;
+  sqlite3    *db=NULL;
+  int         rc=0;
 
 	/*
 	 * Handle signals the nice way.

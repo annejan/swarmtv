@@ -116,7 +116,7 @@ int initdatabase(
     const char *filename,   /* Database filename (UTF-8) */
     sqlite3   **ppDb)       /* OUT: SQLite db handle */
 {
-  int rc; /* return code */
+  int         rc=0; /* return code */
   char       *zErrMsg = 0;
   char       *dbpath = NULL;
   

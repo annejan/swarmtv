@@ -96,30 +96,30 @@ static void printhelp(void)
           "test             -q               : Test filter (together with -F & -T).\n"  
           "test-mail        -m <text>        : Send testmail notification.\n"  
           "version          -v               : Print version.\n"  
-					"\nConfig settings\n"
+          "\nConfig settings\n"
           "list-config      -c               : List config Items and their values.\n"  
           "set-config       -C <name:value>  : Set a config value.\n"  
-					"\nSource\n"
+          "\nSource\n"
           "add-source       -s <name:value>  : Set RSS source (default filter type 'defaultrss') .\n"  
           "delete-source    -D <name>        : Delete RSS source.\n"  
           "list-sources     -S               : List RSS sources.\n"  
           "source-filter    -t <value>       : Set RSS source filter type. (use with -s)\n"  
-					"\nDownload filters\n"
+          "\nDownload filters\n"
           "delete-filter    -d <name>        : Delete filter, name 'all' to delete all filters.\n"  
           "list-filters     -f               : List filters.\n"  
           "filter-shell     -p <name>        : Print filter in shell format.\n"  
-					"\nSQL Download filters\n"
+          "\nSQL Download filters\n"
           "add-sql-filter   -F <name:url>    : Set download filter (empty default duplicate filter).\n"  
           "nodup-sql-filter -T <value>       : Set no duplicate filter. (use with -F) \n"  
-					"\nSimple Download filters\n"
-					"add-simple       -e <value>       : Add a simple download filter\n"
-					"title						-E <value>			 : Title expression\n"
-					"max-size					-O <value>       : Maximal size of downloaded torrent\n"
-					"min-size					-o <value>			 : Minimal size of downloaded torrent\n"
-					"nodup						-u <value>			 : No duplicate filter type (unique, newer, link, none)\n"
-					"from-season			-g <value>			 : Season number to start downloading from.\n"
-					"from-episode			-G <value>			 : Episode number to start downloading from.\n"							 
-					"\n"
+          "\nSimple Download filters\n"
+          "add-simple       -e <value>       : Add a simple download filter\n"
+          "title            -E <value>       : Title expression\n"
+          "max-size         -O <value>       : Maximal size of downloaded torrent\n"
+          "min-size         -o <value>       : Minimal size of downloaded torrent\n"
+          "nodup            -u <value>       : No duplicate filter type (unique, newer, link, none)\n"
+          "from-season      -g <value>       : Season number to start downloading from.\n"
+          "from-episode     -G <value>       : Episode number to start downloading from.\n"               
+          "\n"
           "Flags to be used together.\n"  
           "-F <name:value> -T <value>        : Set download filter and diplicate check\n"  
           "-q -F <name:value> -T <value>     : Test download filter and diplicate check\n"  
@@ -504,7 +504,7 @@ static void freeopts(opts_struct *opts)
 	/*
 	 * NULL the whole struct
 	 */ 
-  memset(&opts, 0, sizeof(opts_struct));
+  memset(opts, 0, sizeof(opts_struct));
 }
 
 /*
