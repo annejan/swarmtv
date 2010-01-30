@@ -19,14 +19,24 @@
  */
 
 #include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
 #include <pcre.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "logfile.h"
+#include "regexp.h"
 
 // Number of output vectoritems
 #define   OVECSIZE 20
 #define   MATCHSIZE 20
+
+/*
+ * Used for unitconversion see humantosize and sizetohuman
+ */
+static const char* units[]    = {"B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
+static const char* unitmatch  = "BKMGTPEZY";
 
 /*
  * This function copies and allocates the destination memory.
@@ -394,5 +404,162 @@ int getusernamepassword(char *url, char **cleanurl, char **userpass)
 	free(hostpath);
 	
 	return 1;
+}
+
+/*
+ * buf must be a pre-allocated buffer with size BUFSIZE+1
+ * returns the char * to the converted string.
+ */
+char* sizetohuman(size_t size/*in bytes*/, char *buf) 
+{
+  int i = 0;
+  double tempsize;
+
+  tempsize = size;
+
+  while (tempsize / 1024 > 1) {
+    tempsize /= 1024;
+    i++;
+  }
+  snprintf(buf, BUFSIZE, "%.*f %s", i, (double) tempsize, units[i]);
+  return buf;
+}
+
+/*
+ * buf must be a pre-allocated buffer with size BUFSIZE+1
+ * returns 0 and -1 on error
+ * size in bytes is returned in argument size
+ */
+int humantosize(char *buf, size_t *size) 
+{
+  char    upcasenum[BUFSIZE+1];
+  char    *unit=NULL;
+  int     i=0;
+  double  tempsize=0.0;
+  int     power=0;
+
+  /*
+   * When buf or size = NULL, return -1
+   */
+  if( buf == NULL || size == NULL){
+    writelog(LOG_ERROR, "Invalid pointer passed to humantosize function. %s:%d", __FILE__, __LINE__);
+    return -1;
+  }
+
+  /*
+   * Initialize stuff
+   */
+  memset(upcasenum, 0, BUFSIZE+1);
+  strncpy(upcasenum, buf, BUFSIZE);
+
+  /*
+   * transform the humanreadable string to a power of 1024
+   */
+  for( i = 0; upcasenum[ i ]; i++) 
+  {
+    upcasenum[ i ] = toupper( upcasenum[ i ] );
+  }
+
+  /*
+   * returns a pointer to the first occurrence in string s1 of any character from string s2, or a null pointer if no character from s2 exists in s1
+   */
+  unit = strpbrk(upcasenum, unitmatch);
+
+  /*
+   * Get size 
+   */
+  tempsize = atof(upcasenum);
+  
+  /*
+   * when no unit is found use a power of 1024^0
+   * Otherwise calculate number of bytes
+   */
+  if(unit != NULL){
+    /*
+     * Calculate the number of bytes out.
+     */
+    while(*(unitmatch + power) != '\0'){
+      if(*unit == *(unitmatch + power)) {
+        break;
+      }
+      power++;
+    }
+  }
+
+  /*
+   * Calulate response
+   */
+  *size = tempsize * powl(1024, power);
+
+  return 0;
+}
+
+/*
+ * Credits to Gilles Kohl for providing the base code.
+ *
+ * strrepl: Replace OldStr by NewStr in string Str.
+ *
+ * The empty string ("") is found at the beginning of every string.
+ *
+ * Returns:  0  When replace succesful
+ *          -1  When no replace was done
+ *
+ * **Str must not be on strack, because it gets reallocced.
+ */ 
+int strrepl(char **Str, char *OldStr, char *NewStr)
+{
+  size_t OldLen;
+  size_t NewLen;
+  size_t TotalNew;
+  char *p, *q;
+
+  /*
+   * When not found return origional string
+   */
+  if(NULL == (p = strstr(*Str, OldStr)))
+  {
+    return -1;
+  }
+  
+  /*
+   * Calculate the size of the new string
+   */
+  OldLen = strlen(OldStr);
+  NewLen = strlen(NewStr);
+  TotalNew = (strlen(*Str) + NewLen - OldLen + 1);
+  
+  /*
+   * Alloc space for new string
+   */
+  if(TotalNew > strlen(*Str)){
+    *Str=realloc(*Str, TotalNew);
+    Str[TotalNew]='\0';
+  }
+
+  /*
+   * Build new string
+   */
+  memmove(q = p+NewLen, p+OldLen, strlen(p+OldLen)+1);
+  memcpy(p, NewStr, NewLen);
+  return 0;
+}
+
+
+/*
+ * Replacel all occurences of OldStr te NewStr in Str
+ * returns 0 
+ */
+int strreplall(char **Str, char *OldStr, char *NewStr)
+{
+  int rc = 0;
+
+  while(rc == 0) {
+    rc = strrepl(Str, OldStr, NewStr);
+  }
+  
+  /*
+   * return last value
+   */
+  return 0;
 }
 

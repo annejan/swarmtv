@@ -26,7 +26,9 @@
 #include "curlfile.h"
 #include "config.h"
 #include "filter.h"
+#include "handleopts.h"
 #include "torrentdownload.h"
+#include "simplefilter.h"
 #include "logfile.h"
 
 #define true (1==1)
@@ -95,7 +97,6 @@ static void dowork(sqlite3 *db){
       /*
        * Filter the stuff and add it to the database.
        */
-      //int filterdownload(char * name, char * url, char * filter,  &rssfile);
       rc = filterdownload(db, name, url, filter, &rssfile);
       if(rc != 0) {
         writelog(LOG_ERROR, "Filtering failed for %s : %s %s:%d", name, url, __FILE__, __LINE__);
@@ -114,9 +115,8 @@ static void dowork(sqlite3 *db){
   /*
    * For every source download and filter it.
    */
-
-
 }
+
 
 /*
  * Main loop, dispatches tasks
@@ -152,6 +152,7 @@ int runloop(sqlite3 *db, int onetime)
 
     writelog(LOG_NORMAL,"Checking for new torrents to download.");
     downloadtorrents(db);
+    downloadsimple(db);
 
     /*
      * Run once.

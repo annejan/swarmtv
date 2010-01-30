@@ -47,6 +47,7 @@ typedef struct {
 	char *simplenodup;	// Simple no double filter type
 	char *simpleseason;		// From what season to download
 	char *simpleepisode;	// From episode
+  char *simpledel;      // Name of simple filter to delete
 } opts_struct;
 
 void handleopts(sqlite3 *db, int argc, char *argv[]);

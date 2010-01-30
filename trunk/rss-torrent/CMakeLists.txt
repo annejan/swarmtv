@@ -13,7 +13,7 @@ include_directories(.)
 SET(SRC rsstorrent database config regexp source
   filter runloop curlfile torrentdb torrentdownload logfile
   daemonize mailmsg findtorrent mymagic sandboxdb testfilter
-  filesystem tbl torrentparse handleopts)
+  filesystem tbl torrentparse handleopts simplefilter)
 
 # Subdirectories
 INCLUDE(rssfilter/filters.cmake)

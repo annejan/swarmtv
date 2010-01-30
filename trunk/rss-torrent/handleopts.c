@@ -38,11 +38,12 @@
 #include "testfilter.h"
 #include "torrentdownload.h"
 #include "handleopts.h"
+#include "simplefilter.h"
 
 /*
  * optstring what options do we allow
  */
-static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:";
+static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:";
 
 /*
  * Long opts
@@ -72,6 +73,9 @@ static const struct option optLong[] =
 	{"nodetach", 							no_argument, 			 0, 'n'},
 	{"test-mail", 						required_argument, 0, 'm'},
 	{"help", 									no_argument, 			 0, 'h'},
+  {"list-simple", 				  no_argument,       0, 'J'},
+	{"print-simple", 					required_argument, 0, 'P'},
+	{"del-simple", 						required_argument, 0, 'j'},
 	{"add-simple", 						required_argument, 0, 'e'},
 	{"title",									required_argument, 0, 'E'},
 	{"max-size", 							required_argument, 0, 'O'},
@@ -112,6 +116,9 @@ static void printhelp(void)
           "add-sql-filter   -F <name:url>    : Set download filter (empty default duplicate filter).\n"  
           "nodup-sql-filter -T <value>       : Set no duplicate filter. (use with -F) \n"  
           "\nSimple Download filters\n"
+          "list-simple      -J               : List the simple filters\n"
+          "print-simple     -P <value>       : Print simple filter\n"
+          "del-simple       -j <value>       : Delete a simple download filter\n"
           "add-simple       -e <value>       : Add a simple download filter\n"
           "title            -E <value>       : Title expression\n"
           "max-size         -O <value>       : Maximal size of downloaded torrent\n"
@@ -352,6 +359,21 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
         sendrssmail(db, optarg, optarg);
         stopop = 1; // no more
         break;
+      case 'J': // List simple filter
+        listsimple(db);
+        stopop = 1; // no more
+        break;
+      case 'P': // Print A simple filter in shell format
+        printsimple(db, optarg);
+        stopop =1; // no more
+        break;
+      case 'j': // Del simple filter
+        rc = delsimple(db, optarg);
+        if(rc == 0) {
+          printf("Deletion of simple filters '%s' Successfull.\n", optarg);
+        }
+        stopop =1; // no more
+        break;
       case 'e': // Add simple filter
         if( opts->simplename != NULL) {
           fprintf(stderr, "Warning: ignoring second simple filter addition.\n");
@@ -473,9 +495,20 @@ void handlemultiple(sqlite3 *db, opts_struct *opts)
     }
   }
 
-	/*
-	 * Cleanup
-	 */
+  /*
+   * When add simple filter is set
+   * Call routine here.
+   */
+  if(opts->simplename != NULL) {
+    rc = addsimplefilter(db, opts);
+    if(rc != 0){
+      fprintf(stderr, "Adding filter failed.");
+    }
+  }
+
+  /*
+   * Cleanup
+   */
 	free(name);
 	free(value);
 }

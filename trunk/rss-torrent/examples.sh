@@ -19,7 +19,7 @@ echo "Inserting sources."
 ./rsstorrent -s "The Piratebay:http://rss.thepiratebay.org/205" -t "defaultrss"
 echo "Done."
 
-echo "Insert filters."
+echo "Insert SQL filters."
 ./rsstorrent -F "DollHouse:select link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^[Dd]ollhouse') AND size < '400000000' AND new = 'Y'" \
   -T "SELECT title FROM downloaded WHERE link=?1 OR (season>=?2 AND episode>=?3 AND title REGEXP('^[Dd]ollhouse'))"
 ./rsstorrent -F "House:select link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^[hH]ouse') AND size < '400000000' AND new = 'Y'" \
@@ -34,4 +34,9 @@ echo "Insert filters."
   -T "SELECT title FROM downloaded WHERE link=?1 OR (season>=?2 AND episode>=?3 AND title REGEXP('^[dD]irty [jJ]obs'))"
 ./rsstorrent -F "Lost:select link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^[Ll]ost') AND size < '400000000' AND new = 'Y'" \
   -T "SELECT title FROM downloaded WHERE link=?1 OR (season>=?2 AND episode>=?3 AND title REGEXP('^[Ll]ost'))"
+echo "Done."
+
+
+echo "Insert Simple filters."
+ ./rsstorrent --add-simple House --title "^[Hh]ouse" --minsize="200mb" --maxsize="700mb" --nodup="newer"
 echo "Done."

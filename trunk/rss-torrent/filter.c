@@ -116,7 +116,7 @@ int delfilter(sqlite3 *db, const char *name)
       return 0;
       break;
     case(ROWS_EMPTY):
-      fprintf(stderr, "Could not deletei filter '%s' %s:%di\n", name,  __FILE__, __LINE__);
+      fprintf(stderr, "Could not delete filter '%s' %s:%di\n", name,  __FILE__, __LINE__);
       writelog(LOG_ERROR, "Could not delete filter '%s' %s:%d", name,  __FILE__, __LINE__);
       return -1;
       break;

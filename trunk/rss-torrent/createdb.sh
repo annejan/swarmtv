@@ -36,6 +36,12 @@ create table filters (id INTEGER PRIMARY KEY, name TEXT UNIQUE, filter TEXT, nod
 SQL_ENTRY_TAG_3
 echo "done."
 
+echo "Creating filters table."
+sqlite3 $DBFILE <<SQL_ENTRY_TAG_3
+create table simplefilters (id INTEGER PRIMARY KEY, name TEXT UNIQUE, title TEXT, maxsize INTEGER DEFAULT 0, minsize INTEGER DEFAULT 0, nodup TEXT NOT NULL, fromseason INTEGER DEFAULT 0, fromepisode INTEGER DEFAULT0 );
+SQL_ENTRY_TAG_3
+echo "done."
+
 echo "Creating config table."
 sqlite3 $DBFILE <<SQL_ENTRY_TAG_4
 create table config (id INTEGER PRIMARY KEY, prop TEXT UNIQUE, value TEXT, descr TEXT);

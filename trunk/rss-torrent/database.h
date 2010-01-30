@@ -55,20 +55,14 @@ int initdatabase(
  */
 int dosingletextquery(sqlite3 *db, const unsigned char **text, const char *query, char *fmt, ...);
 
-#if 0
 /*
- * Test a query
- * Don't expect any output back
+ * Execute a query
+ * query, format, arguments 
+ * format string accepts 
+ * d = int , s = string, f = double, NULL pointer when no arguments.
  * returns 1 on 1 row returned
  * return 0 on no rows returned
  * returns -1 on error
- */
-int testquery(sqlite3 *db, const char *query, char *fmt, ...);
-#endif
-
-/*
- * Execute a query
- * Don't expect any output back
  */
 int executequery(sqlite3 *db, const char *query, char *fmt, ...);
 
