@@ -38,5 +38,5 @@ echo "Done."
 
 
 echo "Insert Simple filters."
- ./rsstorrent --add-simple House --title "^[Hh]ouse" --minsize="200mb" --maxsize="700mb" --nodup="newer"
+ ./rsstorrent --add-simple="House" --title="^[Hh]ouse" --min-size="200mb" --max-size="700mb" --nodup="newer"
 echo "Done."
