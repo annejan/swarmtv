@@ -176,6 +176,7 @@ static int createsimpledownloaded(sandboxdb *sandbox, opts_struct *filter)
   int 	rc=0;
 	char 	*nodupsql=NULL;
   char 	*delquery="DELETE FROM downloaded";
+  char 	*delsimplequery="DELETE FROM simplefilters";
 
   /*
    * Clean downloaded.
@@ -183,6 +184,15 @@ static int createsimpledownloaded(sandboxdb *sandbox, opts_struct *filter)
   rc = executequery(sandbox->db, delquery, NULL);
   if(rc == ROWS_ERROR){
     writelog(LOG_ERROR, "Deleting downloaded failed %s:%d", __FILE__, __LINE__);
+    return -1;
+  }
+
+	/*
+	 * Empty simple filters in sandbox
+	 */
+  rc = executequery(sandbox->db, delsimplequery, NULL);
+  if(rc == ROWS_ERROR){
+    writelog(LOG_ERROR, "Deleting simplefilters failed %s:%d", __FILE__, __LINE__);
     return -1;
   }
 

@@ -121,6 +121,9 @@ static int findnodup(char *name, char *title, char **nodup)
    */
   strrepl(nodup, "REPLACE_TITLE", title);
 
+	/*
+	 * All done.
+	 */
   return 0;
 }
 
@@ -138,7 +141,7 @@ static int validearguments(opts_struct *opts)
   /*
    * Validate nodup argument
    */
-  rc = findnodup(opts->simplenodup, "test", &nodup);
+  rc = findnodup(opts->simplenodup, opts->simpletitle, &nodup);
   free(nodup);
   if(rc == -1) {
     writelog(LOG_ERROR, "Nodup name '%s' is not valid. %s:%d", opts->simplenodup, __FILE__, __LINE__);
