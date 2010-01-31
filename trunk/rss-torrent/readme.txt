@@ -34,7 +34,12 @@ For examples look at the examples.sh file
 Adding sources:
 
 Example
-./rsstorrent -s "Eztv:http://www.ezrss.it/feed/" -t "eztv"
+
+rss source
+./rsstorrent -s "Eztv:http://www.ezrss.it/feed/" -t "defaultrss"
+
+Twitter
+./rsstorrent -s "Twitter://<username>:<password>@twitter.com/statuses/friends_timeline.xml" -t "twitter"
 
 The first option -s tells rsstorrent to expect an <name>:<url> combination.
 the first ':' that is found in the sctring is the delimiter, any ':''s after that are included in the url
@@ -77,10 +82,32 @@ season INTEGER            - The season number
 episode INTEGER           - The episode number
 date DATE                 - The Date the torrent was downloaded
 
-Adding filters:
+Adding simple filters:
 
-Filters are used to get the content you want, and avoid duplicate downloads.
-Filters are made up from 2 parts, the filters part that filters out the
+In order to filter series without writing your own SQL, you can use simple
+filters. The filters consits of the following keywords.
+add-simple 	: Add a simple filter, as an argument provide the name of the filter.
+title				: The regexp for things that HAVE to be in the title.
+exclude			: The regexp for things that MUST NOT be in the title.
+max-size		: The maximal size of the torrent content.
+min-size		: The minimal size of the torrent content.
+nodup				: The Kind of duplicate avoiding filter we want (will be explained below)
+from-season	:	From which season to download.
+from-episode: From which episode in that season to download.	
+
+When adding a simple filter a title and nodup value are manitory.
+Settings that are not needed may be ommitted.
+
+nodup filters :
+none		: No filtering at al
+link		:	No torrents with the same url get downloaded.
+unique	:	No torrents with the same season and episodenumber get downloaded.
+newer		:	Only newer torrents get downloaded.
+
+Adding SQL filters:
+
+SQL Filters are used to get the content you want, and avoid duplicate downloads.
+SQL Filters are made up from 2 parts, the filters part that filters out the
 candidates for download. And the avoid duplicates part, that looks if a match
 the filters has already found isn't downloaded before. 
 Both filterparts are sqlite queries, you can create them as you like, 

@@ -122,6 +122,7 @@ static void printhelp(void)
           "del-simple       -j <value>       : Delete a simple download filter\n"
           "add-simple       -e <value>       : Add a simple download filter\n"
           "title            -E <value>       : Title expression\n"
+          "exclude          -N <value>       : Exclude expression\n"
           "max-size         -O <value>       : Maximal size of downloaded torrent\n"
           "min-size         -o <value>       : Minimal size of downloaded torrent\n"
           "nodup            -u <value>       : No duplicate filter type (unique, newer, link, none)\n"
