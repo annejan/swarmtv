@@ -34,7 +34,7 @@
  * This function implement pcre functionality to the queries.
  * called every time sqlite crosses an regexp.
  */
-static void regexpfunc(sqlite3_context *db, int num, sqlite3_value **sqlite3_value){
+static void genregexpfunc(sqlite3_context *db, int num, sqlite3_value **sqlite3_value, int opt){
   int   rc;
   const char *var1;
   const char *var2;
@@ -63,7 +63,7 @@ static void regexpfunc(sqlite3_context *db, int num, sqlite3_value **sqlite3_val
   /*
    * Compile regular expression
    */
-  re = pcre_compile( var1, 0 /* default options */, &error, 
+  re = pcre_compile( var1, opt, &error, 
       &errOffset, NULL); 
   if (re == NULL) { 
     writelog(LOG_ERROR, "Regexp compilation failed at " 
@@ -108,6 +108,28 @@ static void regexpfunc(sqlite3_context *db, int num, sqlite3_value **sqlite3_val
    */
   sqlite3_result_int(db, match);
 }
+
+
+/*
+ * This function implement pcre functionality to the queries.
+ * called every time sqlite crosses an regexp.
+ */
+static void regexpfunc(sqlite3_context *db, int num, sqlite3_value **sqlite3_value)
+{
+	genregexpfunc(db, num, sqlite3_value, 0);
+}
+
+
+/*
+ * This function implement pcre functionality to the queries.
+ * called every time sqlite crosses an regexp.
+ * This function matches case insensative.
+ */
+static void iregexpfunc(sqlite3_context *db, int num, sqlite3_value **sqlite3_value)
+{
+	genregexpfunc(db, num, sqlite3_value, PCRE_CASELESS);
+}
+
 
 /*
  * Open database, and add regexp functionality.
@@ -154,6 +176,23 @@ int initdatabase(
       NULL,           // 
       NULL
       );
+  if( rc!=SQLITE_OK ){
+    fprintf(stderr, "sqlite3_create_function\n");
+    fprintf(stderr, "SQL error: %s\n", zErrMsg);
+    sqlite3_free(zErrMsg);
+    return !SQLITE_OK;
+  }
+
+  rc = sqlite3_create_function(
+      *ppDb,
+      "iregexp",       // name of the function
+      2,              // number of arguments
+      SQLITE_UTF8,    // Kind of encoding we expect
+      NULL,
+      iregexpfunc,     // function to call 
+      NULL,           // 
+      NULL
+			);
   if( rc!=SQLITE_OK ){
     fprintf(stderr, "sqlite3_create_function\n");
     fprintf(stderr, "SQL error: %s\n", zErrMsg);

@@ -38,6 +38,7 @@
 #define NODUP_UNIQUE_NAME   "unique"
 #define NODUP_NEWER_NAME    "newer"
 
+#if 0
 /*
  * Nodup filters are defined here
  */
@@ -51,6 +52,26 @@
  */
 static char *sqlfilter="SELECT link, title, pubdate, category, season, episode FROM newtorrents WHERE "
 		"title REGEXP(?1) AND "
+		"(size < ?2 OR ?2 = 0) AND "
+		"(size > ?3 OR ?3 = 0) AND "
+		"(season >= ?4 OR ?4 = 0) AND "
+		"(season > ?4 OR episode >= ?5 OR ?5 = 0) AND "
+		"new = 'Y'";
+#endif
+
+/*
+ * Nodup filters are defined here
+ */
+#define NODUP_NONE    ""
+#define NODUP_LINK    "SELECT title FROM downloaded WHERE link=?1"
+#define NODUP_UNIQUE  "SELECT title FROM downloaded WHERE link=?1 OR (season=?2 AND episode=?3 AND IREGEXP('REPLACE_TITLE', title))"
+#define NODUP_NEWER   "SELECT title FROM downloaded WHERE link=?1 OR (season>=?2 AND episode>=?3 AND IREGEXP('REPLACE_TITLE', title))"
+
+/*
+ * Filter that is used to convert the simple filter into SQL.
+ */
+static char *sqlfilter="SELECT link, title, pubdate, category, season, episode FROM newtorrents WHERE "
+		"IREGEXP(?1, title) AND "
 		"(size < ?2 OR ?2 = 0) AND "
 		"(size > ?3 OR ?3 = 0) AND "
 		"(season >= ?4 OR ?4 = 0) AND "
@@ -335,8 +356,6 @@ int delsimple(sqlite3 *db, const char *name)
    * Init query
    */
   const char* query = "delete from 'simplefilters' where name=?1";
-
-  printf("Attempting to delete filter '%s'\n", name);
 
   /*
    * Execute query

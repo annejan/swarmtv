@@ -506,25 +506,28 @@ void handlemultiple(sqlite3 *db, opts_struct *opts)
 		if(opts->testfilt == 0) { 
 			rc = addsimplefilter(db, opts);
 			if(rc != 0){
-				fprintf(stderr, "Adding filter failed.");
+				fprintf(stderr, "Adding filter failed.\n");
+			} else {
+				printf("Filter '%s' added succesfully.\n", 
+						opts->simplename);
 			}
 		}
 
 		/*
 		 * Test simple filter
 		 */
-    if(opts->testfilt != 0) { 
+		if(opts->testfilt != 0) { 
 			rc = dosimpletest(opts);
-      if(rc != 0) {
-        printf("new filter : '%s' Test failed\n",
-            opts->simplename);
-      }
-    }
+			if(rc != 0) {
+				printf("new filter : '%s' Test failed\n",
+						opts->simplename);
+			}
+		}
 	}
 
 	/*
-   * Cleanup
-   */
+	 * Cleanup
+	 */
 	free(name);
 	free(value);
 }
@@ -553,7 +556,7 @@ static void freeopts(opts_struct *opts)
 	/*
 	 * NULL the whole struct
 	 */ 
-  memset(opts, 0, sizeof(opts_struct));
+	memset(opts, 0, sizeof(opts_struct));
 }
 
 /*
@@ -562,7 +565,7 @@ static void freeopts(opts_struct *opts)
 static void runmode(sqlite3 *db, opts_struct *opts)
 {
 	int 		rc=0;
-  char    *lockpath=NULL;
+	char    *lockpath=NULL;
 
 	/*
 	 * Test if torrent directory is writable
@@ -604,19 +607,19 @@ static void runmode(sqlite3 *db, opts_struct *opts)
 void handleopts(sqlite3 *db, int argc, char *argv[])
 {
 	int 				rc=0;
-  opts_struct opts; 
+	opts_struct opts; 
 
-  /*
-   * init opts struct
-   */
-  memset(&opts, 0, sizeof(opts_struct));
+	/*
+	 * init opts struct
+	 */
+	memset(&opts, 0, sizeof(opts_struct));
 
-  /*
-   * When no arguments are given.
-   */
-  if(argc == 1) {
-    printhelp();
-  }
+	/*
+	 * When no arguments are given.
+	 */
+	if(argc == 1) {
+		printhelp();
+	}
 
 	/*
 	 * Parse all options, calling simple actions directly.
@@ -643,8 +646,8 @@ void handleopts(sqlite3 *db, int argc, char *argv[])
 		}
 	}
 
-  /*
-   * Free allocated strings
-   */
-  freeopts(&opts);
+	/*
+	 * Free allocated strings
+	 */
+	freeopts(&opts);
 }
