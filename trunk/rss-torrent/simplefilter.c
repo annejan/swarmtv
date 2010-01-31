@@ -43,8 +43,19 @@
  */
 #define NODUP_NONE    ""
 #define NODUP_LINK    "SELECT title FROM downloaded WHERE link=?1"
-#define NODUP_UNIQUE  "SELECT title FROM downloaded WHERE link=?1 OR (season=?2 AND episode>=3 AND title REGEXP('REPLACE_TITLE'))"
-#define NODUP_NEWER   "SELECT title FROM downloaded WHERE link=?1 OR (season=?2 AND episode>=3 AND title REGEXP('REPLACE_TITLE'))"
+#define NODUP_UNIQUE  "SELECT title FROM downloaded WHERE link=?1 OR (season=?2 AND episode=?3 AND title REGEXP('REPLACE_TITLE'))"
+#define NODUP_NEWER   "SELECT title FROM downloaded WHERE link=?1 OR (season>=?2 AND episode>=?3 AND title REGEXP('REPLACE_TITLE'))"
+
+/*
+ * Filter that is used to convert the simple filter into SQL.
+ */
+static char *sqlfilter="SELECT link, title, pubdate, category, season, episode FROM newtorrents WHERE "
+		"title REGEXP(?1) AND "
+		"(size < ?2 OR ?2 = 0) AND "
+		"(size > ?3 OR ?3 = 0) AND "
+		"(season >= ?4 OR ?4 = 0) AND "
+		"(season > ?4 OR episode >= ?5 OR ?5 = 0) AND "
+		"new = 'Y'";
 
 /*
  * name is name of the inodup filter 
@@ -185,7 +196,7 @@ static void freestructsimple(simplefilter_struct *simple)
  * returns    : 0 when added succesfully
  * returns    : -1 when adding failed
  */
-static int  insertsimplefilter(sqlite3 *db, simplefilter_struct *simple)
+static int insertsimplefilter(sqlite3 *db, simplefilter_struct *simple)
 {
   int rc=0;
 
@@ -193,7 +204,7 @@ static int  insertsimplefilter(sqlite3 *db, simplefilter_struct *simple)
    * Query and format used to insert the simple filter into the database
    */
   static char *query = "insert into 'simplefilters' (name, title, maxsize, minsize, nodup, fromseason, fromepisode) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)";
-  static char *fmt   = "ssddsdd";
+  static char *fmt   = "ssffsdd";
 
   /*
    * Call database execute query function
@@ -459,71 +470,16 @@ void printsimple(sqlite3 *db, char *filtername)
   sqlite3_finalize(ppStmt);
 }
 
-/*
- **** spool code
- */
-static int simplesql(char *title, double maxsize, double minsize, int season, int episode, char **sqlfilter)
-{
-  //int   rc;
-  char maxsizestring[BUFSIZE+1];
-  char minsizestring[BUFSIZE+1];
-  char seasonstring[BUFSIZE+1];
-  char episodestring[BUFSIZE+1];
-
-  /*
-   * Query prototype
-   */
-  char *protosimple="select link, title, pubdate, category, season, episode from newtorrents where "
-    "title REGEXP('REPLACE_TITLE') AND "
-    "(size < REPLACE_MAXSIZE OR REPLACE_MAXSIZE = 0) AND "
-    "(size > REPLACE_MINSIZE OR REPLACE_MINSIZE = 0) AND "
-    "(season >= REPLACE_SEASON OR REPLACE_SEASON = 0) AND "
-    "(season > REPLACE_SEASON OR episode >= REPLACE_EPISODE OR REPLACE_EPISODE = 0) AND "
-    "new = 'Y'";
-
-  /*
-   * Init
-   */
-  memset(maxsizestring, 0, BUFSIZE+1);
-  memset(minsizestring, 0, BUFSIZE+1);
-  memset(seasonstring,  0, BUFSIZE+1);
-  memset(episodestring, 0, BUFSIZE+1);
-
-  /*
-   * Copy protosimple to heap
-   */
-  alloccopy(sqlfilter, protosimple, strlen(protosimple));
-
-  /*
-   * convert doubles and ints into strings
-   */
-  snprintf(maxsizestring, BUFSIZE, "%lf", maxsize);
-  snprintf(minsizestring, BUFSIZE, "%lf", minsize);
-  snprintf(seasonstring, BUFSIZE, "%d", season);
-  snprintf(episodestring, BUFSIZE, "%d", episode);
-
-  /*
-   * Replace all strings in the protesimple to the actual values
-   */
-  strreplall(sqlfilter, "REPLACE_TITLE", title);
-  strreplall(sqlfilter, "REPLACE_MAXSIZE", maxsizestring);
-  strreplall(sqlfilter, "REPLACE_MINSIZE", minsizestring);
-  strreplall(sqlfilter, "REPLACE_SEASON", seasonstring);
-  strreplall(sqlfilter, "REPLACE_EPISODE", episodestring);
-
-  /*
-   * All gone well
-   */
-  return 0;
-}
-
 
 /*
  * Apply filters
  * Runs through all filters in simplefilters table.
  * Calls SQL filters routines for further handling.
+ * arguments :
+ * db pointer to db to use
+ * simultate 0 for real behaviour, 1 for simulation mode.
  */
-int downloadsimple(sqlite3 *db)
+int downloadsimple(sqlite3 *db, int simulate)
 {
   sqlite3_stmt  *ppStmt=NULL;
   const char    *pzTail=NULL;
@@ -533,25 +489,28 @@ int downloadsimple(sqlite3 *db)
   char          *name=NULL;
   char          *title=NULL;
   char          *nodup=NULL;
-  double        maxsize=0;
-  double        minsize=0;
+ 	double        maxsize=0.0;
+  double        minsize=0.0;
   int           season=0;
   int           episode=0;
-  char          *sqlfilter=NULL;
+  //char          *sqlfilter=NULL;
   char          *sqlnodup=NULL;
 
-  // id|name|title|maxsize|minsize|nodup|fromseason|fromepisode
-  const char *query = "select name, title, maxsize, minsize, nodup, fromseason, fromepisode from simplefilters";
 
-  /*
-   * Prepare the sqlite statement
-   */
-  rc = sqlite3_prepare_v2(
-      db,                 /* Database handle */
-      query,            /* SQL statement, UTF-8 encoded */
-      strlen(query),    /* Maximum length of zSql in bytes. */
-      &ppStmt,             /* OUT: Statement handle */
-      &pzTail              /* OUT: Pointer to unused portion of zSql */
+	/*
+	 * Query to retrieve filters from simplefilters table.
+	 */ 
+	char *query = "select name, title, maxsize, minsize, nodup, fromseason, fromepisode from simplefilters";
+
+	/*
+	 * Prepare the sqlite statement
+	 */
+	rc = sqlite3_prepare_v2(
+			db,                 /* Database handle */
+      query,            	/* SQL statement, UTF-8 encoded */
+      strlen(query),    	/* Maximum length of zSql in bytes. */
+      &ppStmt,            /* OUT: Statement handle */
+      &pzTail             /* OUT: Pointer to unused portion of zSql */
       );
   if( rc!=SQLITE_OK ){
     writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
@@ -564,11 +523,10 @@ int downloadsimple(sqlite3 *db)
    * loop until the end of the dataset is found
    */
   while( SQLITE_DONE != (step_rc = sqlite3_step(ppStmt))) {
-    sqlfilter=NULL;
     sqlnodup=NULL;
 
-    /*
-     * Get name and query of the filters
+		/*
+		 * Get name and query of the filters
      */
     name     = (char*) sqlite3_column_text(ppStmt, 0);
     title    = (char*) sqlite3_column_text(ppStmt, 1);
@@ -587,26 +545,22 @@ int downloadsimple(sqlite3 *db)
       writelog(LOG_ERROR, "Simple filter '%s' does not have a valid nodup value. %s:%d", name, __FILE__, __LINE__);
       continue;
     }
-    rc = simplesql(title, maxsize, minsize, season, episode, &sqlfilter);
-    if(rc != 0) {
-      free(sqlnodup);
-      free(sqlfilter);
-      writelog(LOG_ERROR, "Simple filter '%s' could not be formed into valid SQL. %s:%d", name, __FILE__, __LINE__);
-      continue;
-    }
 
-    //printf("sqlfilter: %s\n", sqlfilter);
-    //printf("sqlnodup : %s\n", sqlnodup);
+		/*
+		 * Log SQL used for handling filters.
+		 */
+		writelog(LOG_DEBUG, "%s : %s", name, sqlfilter);
+		writelog(LOG_DEBUG, "%s : %s", name, sqlnodup);
 
     /*
      * call apply filter
      */
-    applyfilter(db, name, sqlfilter, sqlnodup, 0);
+    applyfilter(db, name, sqlnodup, simulate, sqlfilter, 
+				"sffdd", title, maxsize, minsize, season, episode);
 
     /*
      * Cleanup
      */
-    free(sqlfilter);
     free(sqlnodup);
   }
 

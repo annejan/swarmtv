@@ -430,12 +430,12 @@ char* sizetohuman(size_t size/*in bytes*/, char *buf)
  * returns 0 and -1 on error
  * size in bytes is returned in argument size
  */
-int humantosize(char *buf, size_t *size) 
+int humantosize(char *buf, double *size) 
 {
   char    upcasenum[BUFSIZE+1];
   char    *unit=NULL;
   int     i=0;
-  double  tempsize=0.0;
+  long double  tempsize=0.0;
   int     power=0;
 
   /*
@@ -489,7 +489,7 @@ int humantosize(char *buf, size_t *size)
   /*
    * Calulate response
    */
-  *size = tempsize * powl(1024, power);
+  *size = (double) tempsize * pow(1024, power);
 
   return 0;
 }
@@ -545,6 +545,7 @@ int strrepl(char **Str, char *OldStr, char *NewStr)
 }
 
 
+#if 0
 /*
  * Replacel all occurences of OldStr te NewStr in Str
  * returns 0 
@@ -562,4 +563,4 @@ int strreplall(char **Str, char *OldStr, char *NewStr)
    */
   return 0;
 }
-
+#endif

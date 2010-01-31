@@ -68,7 +68,7 @@ char* sizetohuman(size_t size/*in bytes*/, char *buf);
  * returns 0
  * size in bytes is returned in argument size
  */
-int humantosize(char *buf, size_t *size); 
+int humantosize(char *buf, double *size); 
 
 /*
  * strrepl: Replace OldStr by NewStr in string Str.
@@ -82,9 +82,12 @@ int humantosize(char *buf, size_t *size);
  */ 
 int strrepl(char **Str, char *OldStr, char *NewStr);
 
+#if 0
+
 /*
  * Replacel all occurences of OldStr te NewStr in Str
  * returns 0 
  */
 int strreplall(char **Str, char *OldStr, char *NewStr);
+#endif
 

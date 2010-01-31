@@ -24,8 +24,8 @@
 typedef struct {
 	char *name;			// Simple filter name
 	char *title;		// Simple title regexp
-	size_t maxsize;	// Simple max size
-	size_t minsize;	// Simple minimal size
+	double maxsize;	// Simple max size
+	double minsize;	// Simple minimal size
 	char *nodup;	// Simple no double filter type
 	int fromseason;		// From what season to download
 	int fromepisode;	// From episode
@@ -60,5 +60,7 @@ int delsimple(sqlite3 *db, const char *name);
  * Apply filters
  * Runs through all filters in simplefilters table.
  * Calls SQL filters routines for further handling.
+ * simultate 0 for real behaviour, 1 for simulation mode.
  */
-int downloadsimple(sqlite3 *db);
+int downloadsimple(sqlite3 *db, int simulate);
+

@@ -23,3 +23,12 @@
  * show first 10 matches
  */
 int dofiltertest(char *filter, char *nodouble);
+
+/*
+ * Do filter test
+ * show first 10 matches
+ * Takes opts_struct * as argument.
+ * return 0 on succes, return -1 on failure.
+ */
+int dosimpletest(opts_struct *opts);
+

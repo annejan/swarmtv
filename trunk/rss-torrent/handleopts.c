@@ -35,9 +35,9 @@
 #include "daemonize.h"
 #include "mailmsg.h"
 #include "sandboxdb.h"
-#include "testfilter.h"
 #include "torrentdownload.h"
 #include "handleopts.h"
+#include "testfilter.h"
 #include "simplefilter.h"
 
 /*
@@ -499,14 +499,30 @@ void handlemultiple(sqlite3 *db, opts_struct *opts)
    * When add simple filter is set
    * Call routine here.
    */
-  if(opts->simplename != NULL) {
-    rc = addsimplefilter(db, opts);
-    if(rc != 0){
-      fprintf(stderr, "Adding filter failed.");
-    }
-  }
+	if(opts->simplename != NULL) {
+		/*
+		 * Add the simple filter 
+		 */
+		if(opts->testfilt == 0) { 
+			rc = addsimplefilter(db, opts);
+			if(rc != 0){
+				fprintf(stderr, "Adding filter failed.");
+			}
+		}
 
-  /*
+		/*
+		 * Test simple filter
+		 */
+    if(opts->testfilt != 0) { 
+			rc = dosimpletest(opts);
+      if(rc != 0) {
+        printf("new filter : '%s' Test failed\n",
+            opts->simplename);
+      }
+    }
+	}
+
+	/*
    * Cleanup
    */
 	free(name);

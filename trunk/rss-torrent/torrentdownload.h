@@ -28,8 +28,17 @@ int downloadtorrents(sqlite3 *db);
 
 /*
  * Apply the filters from the query.
+ * when simulate is set !=0 no actual downloads are performed
+ * arguments :
+ * db					: Sqlite3 pointer
+ * *name			: Filter name
+ * *nodouble	: SQL for the nodouble filter
+ * simulate		: When 1 simulation mode 0, no simualtion
+ * *filter		: Filter SQL 
+ * *fmt				:	Format of the arguments to insert into the filter sql 
+ * ...				:	Arguments for the filter SQL.
  */
-void applyfilter(sqlite3 *db, char *name, char *filter, char* nodouble, int simulate);
+void applyfilter(sqlite3 *db, char *name, char* nodouble, int simulate, char *filter, char *fmt, ...);
 
 /*
  * Test torrentdir

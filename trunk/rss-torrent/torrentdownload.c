@@ -41,7 +41,8 @@
  * Apply the filters from the query.
  * when simulate is set !=0 no actual downloads are performed
  */
-void applyfilter(sqlite3 *db, char *name, char *filter, char* nodouble, int simulate);
+//void applyfilter(sqlite3 *db, char *name, char *filter, char* nodouble, int simulate);
+void applyfilter(sqlite3 *db, char *name, char* nodouble, int simulate, char *filter, char *fmt, ...);
 
 /*
  * Test for double downloads.
@@ -105,7 +106,8 @@ int downloadtorrents(sqlite3 *db)
     /*
      * call apply filter
      */
-    applyfilter(db, name, filter, nodouble, 0);
+    applyfilter(db, name, nodouble, 0, filter, NULL);
+		//void applyfilter(sqlite3 *db, char *name, char* nodouble, int simulate, char *filter, char *fmt, ...)
   }
 
   /*
@@ -183,24 +185,46 @@ static int testdouble(sqlite3 *db, char *nodouble, char *link, int season, int e
   }
 }
 
+
 /*
  * Apply the filters from the query.
  * when simulate is set !=0 no actual downloads are performed
+ * arguments :
+ * db					: Sqlite3 pointer
+ * *name			: Filter name
+ * *nodouble	: SQL for the nodouble filter
+ * simulate		: When 1 simulation mode 0, no simualtion
+ * *filter		: Filter SQL 
+ * *fmt				:	Format of the arguments to insert into the filter sql 
+ * ...				:	Arguments for the filter SQL.
  */
-void applyfilter(sqlite3 *db, char *name, char *filter, char* nodouble, int simulate)
+void applyfilter(sqlite3 *db, char *name, char* nodouble, int simulate, char *filter, char *fmt, ...)
 {
-  sqlite3_stmt  *ppStmt;
-  const char    *pzTail;
-  int           rc;
-  int           step_rc;
-  char          *zErrMsg = 0;
-  char          *link;
-  char          *title;
-  char          *pubdate;
-  char          *category;
-  int           season;
-  int           episode;
+  sqlite3_stmt  *ppStmt=NULL;
+  const char    *pzTail=NULL;
+  int           rc=0;
+  int           step_rc=0;
+  char          *zErrMsg=NULL;
+  char          *link=NULL;
+  char          *title=NULL;
+  char          *pubdate=NULL;
+  char          *category=NULL;
+  int           season=0;
+  int           episode=0;
   char          message[MAXMSGLEN+1];
+  va_list     	ap;
+	int						retval=0;
+	int						count=0;
+  char     	   *s=NULL;
+  int       	  d=0;
+  double        f=0.0;
+
+  /*
+   * NULL = no arguments.
+   */
+  if(fmt == NULL) {
+    fmt = "";
+  }
 
   /*
    * Prepare the sqlite statement
@@ -217,8 +241,60 @@ void applyfilter(sqlite3 *db, char *name, char *filter, char* nodouble, int simu
     writelog(LOG_ERROR, "'%s'", filter);
     writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
     sqlite3_free(zErrMsg);
+		retval=-1;
   }
-  else {
+
+  /*
+   * Handle the arguments
+   */
+  if(retval == 0) {
+    va_start(ap, fmt);
+    while (*fmt != '\0' && retval == 0){
+      count++; // next item
+      switch(*fmt++) {
+        case 's':            /* string */
+          s = va_arg(ap, char *);
+          rc = sqlite3_bind_text(ppStmt, count, s, -1, SQLITE_TRANSIENT);
+          if( rc!=SQLITE_OK ){
+            writelog(LOG_ERROR, "sqlite3_bind_text failed on argument '%d'\n'%s'\n'%s' %s:%d", 
+                count, filter, fmt, __FILE__, __LINE__);  
+            writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+            sqlite3_free(zErrMsg);
+            retval=-1;
+          }
+          break;
+        case 'd':            /* int */
+          d = va_arg(ap, int);
+          rc = sqlite3_bind_int(ppStmt, count, d);
+          if( rc!=SQLITE_OK ){
+            writelog(LOG_ERROR, "sqlite3_bind_int failed on argument '%d'\n'%s'\n'%s' %s:%d",
+                count, filter, fmt, __FILE__, __LINE__);  
+            writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+            sqlite3_free(zErrMsg);
+            retval=-1;
+          }
+          break;
+        case 'f':            /* int */
+          f = va_arg(ap, double);
+          rc = sqlite3_bind_double(ppStmt, count, f);
+          if( rc!=SQLITE_OK ){
+            writelog(LOG_ERROR, "sqlite3_bind_double failed on argument '%d'\n'%s'\n'%s' %s:%d",
+                count, filter, fmt, __FILE__, __LINE__);  
+            writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+            sqlite3_free(zErrMsg);
+            retval=-1;
+          }
+          break;
+        default:
+          writelog(LOG_ERROR, "Unknown format '%c' on position '%d'\nQuery: '%s'\nFmt: '%s'",
+              *fmt, count, filter, fmt);
+          retval=-1;
+      }
+    }
+    va_end(ap);
+  }
+
+  if(retval == 0) {
 
     /*
      * Filters should allways first query for the link!

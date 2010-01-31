@@ -152,7 +152,7 @@ int runloop(sqlite3 *db, int onetime)
 
     writelog(LOG_NORMAL,"Checking for new torrents to download.");
     downloadtorrents(db);
-    downloadsimple(db);
+    downloadsimple(db, 0);
 
     /*
      * Run once.
