@@ -516,7 +516,8 @@ int strrepl(char **Str, char *OldStr, char *NewStr)
   /*
    * When not found return origional string
    */
-  if(NULL == (p = strstr(*Str, OldStr)))
+  p = strstr(*Str, OldStr);
+  if(NULL == p)
   {
     return -1;
   }

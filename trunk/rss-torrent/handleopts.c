@@ -220,7 +220,7 @@ static int verifyarguments(opts_struct *opts)
 	/*
 	 * sourcefilter no filter
 	 */
-	if(opts->sourcefilter && !(opts->filter)){
+	if(opts->sourcefilter && !(opts->source)){
 		fprintf(stderr, "Error, you provided a filter type but no filter.\n");
 		retval=-1;
 	}
