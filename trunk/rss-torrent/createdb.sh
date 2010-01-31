@@ -38,7 +38,7 @@ echo "done."
 
 echo "Creating filters table."
 sqlite3 $DBFILE <<SQL_ENTRY_TAG_3
-create table simplefilters (id INTEGER PRIMARY KEY, name TEXT UNIQUE, title TEXT, maxsize INTEGER DEFAULT 0, minsize INTEGER DEFAULT 0, nodup TEXT NOT NULL, fromseason INTEGER DEFAULT 0, fromepisode INTEGER DEFAULT0 );
+CREATE TABLE simplefilters (id INTEGER PRIMARY KEY, name TEXT UNIQUE, title TEXT, exclude TEXT, maxsize INTEGER DEFAULT 0, minsize INTEGER DEFAULT 0, nodup TEXT NOT NULL, fromseason INTEGER DEFAULT 0, fromepisode INTEGER DEFAULT0 );
 SQL_ENTRY_TAG_3
 echo "done."
 

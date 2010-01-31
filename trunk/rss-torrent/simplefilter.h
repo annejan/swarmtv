@@ -24,6 +24,7 @@
 typedef struct {
 	char *name;			// Simple filter name
 	char *title;		// Simple title regexp
+	char *exclude;	// Simple exclude regexp
 	double maxsize;	// Simple max size
 	double minsize;	// Simple minimal size
 	char *nodup;	// Simple no double filter type

@@ -76,6 +76,7 @@ static char *sqlfilter="SELECT link, title, pubdate, category, season, episode F
 		"(size > ?3 OR ?3 = 0) AND "
 		"(season >= ?4 OR ?4 = 0) AND "
 		"(season > ?4 OR episode >= ?5 OR ?5 = 0) AND "
+		"(NOT IREGEXP(?6, title) OR ?6 = '') AND "
 		"new = 'Y'";
 
 /*
@@ -121,9 +122,6 @@ static int findnodup(char *name, char *title, char **nodup)
    */
   strrepl(nodup, "REPLACE_TITLE", title);
 
-	/*
-	 * All done.
-	 */
   return 0;
 }
 
@@ -173,6 +171,11 @@ static int optstosimple(opts_struct *opts, simplefilter_struct *simple)
   } else {
     alloccopy(&(simple->title), "", 1);
   }
+  if(opts->simpleexclude != NULL) {
+    alloccopy(&(simple->exclude),  opts->simpleexclude,  strlen(opts->simpleexclude));
+  } else {
+    alloccopy(&(simple->exclude), "", 1);
+  }
 
   /*
    * Convert units 
@@ -206,6 +209,7 @@ static void freestructsimple(simplefilter_struct *simple)
    */
   free(simple->name);
   free(simple->title);
+  free(simple->exclude);
   free(simple->nodup);
 
   /*
@@ -227,8 +231,10 @@ static int insertsimplefilter(sqlite3 *db, simplefilter_struct *simple)
   /*
    * Query and format used to insert the simple filter into the database
    */
-  static char *query = "insert into 'simplefilters' (name, title, maxsize, minsize, nodup, fromseason, fromepisode) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)";
-  static char *fmt   = "ssffsdd";
+  static char *query = "insert into 'simplefilters' "
+		"(name, title, exclude, maxsize, minsize, nodup, fromseason, fromepisode) "
+		"VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)";
+  static char *fmt   = "sssffsdd";
 
   /*
    * Call database execute query function
@@ -236,6 +242,7 @@ static int insertsimplefilter(sqlite3 *db, simplefilter_struct *simple)
   rc = executequery(db, query, fmt, 
       simple->name,
       simple->title,
+			simple->exclude,
       simple->maxsize,
       simple->minsize,
       simple->nodup,
@@ -399,9 +406,10 @@ void printsimple(sqlite3 *db, char *filtername)
   const unsigned char *nodupstring;
   unsigned int        seasonint;
   unsigned int        episodeint;
+  const unsigned char *excludestring;
 
 
-  char *query =  "select title, maxsize, minsize, nodup, fromseason, fromepisode from 'simplefilters' where name=?1";
+  char *query =  "select title, maxsize, minsize, nodup, fromseason, fromepisode, exclude from 'simplefilters' where name=?1";
 
   /*
    * Prepare the sqlite statement
@@ -453,14 +461,22 @@ void printsimple(sqlite3 *db, char *filtername)
   nodupstring   = sqlite3_column_text(ppStmt,   3);
   seasonint     = sqlite3_column_int(ppStmt,    4);
   episodeint    = sqlite3_column_int(ppStmt,    5);
+  excludestring = sqlite3_column_text(ppStmt,   6);
 
   /*
    * Print the components that are set
    */
-  printf("rsstorrent --add-simple '%s' --nodup='%s' ", filtername, nodupstring); 
+  printf("rsstorrent --add-simple='%s' --nodup='%s' ", filtername, nodupstring); 
 
   if(strlen((char*)titlestring) > 0) {
     printf("--title='%s' ", titlestring);
+  }
+
+  /*
+   * Exclude
+   */
+  if(strlen((char*)excludestring) != 0){
+    printf("--exclude='%s' ", excludestring);
   }
 
   /*
@@ -510,19 +526,19 @@ int downloadsimple(sqlite3 *db, int simulate)
   char          *zErrMsg = 0;
   char          *name=NULL;
   char          *title=NULL;
+  char          *exclude=NULL;
   char          *nodup=NULL;
  	double        maxsize=0.0;
   double        minsize=0.0;
   int           season=0;
   int           episode=0;
-  //char          *sqlfilter=NULL;
   char          *sqlnodup=NULL;
 
 
 	/*
 	 * Query to retrieve filters from simplefilters table.
 	 */ 
-	char *query = "select name, title, maxsize, minsize, nodup, fromseason, fromepisode from simplefilters";
+	char *query = "select name, title, maxsize, minsize, nodup, fromseason, fromepisode, exclude from simplefilters";
 
 	/*
 	 * Prepare the sqlite statement
@@ -557,6 +573,7 @@ int downloadsimple(sqlite3 *db, int simulate)
     nodup    = (char*) sqlite3_column_text(ppStmt, 4);
     season   = sqlite3_column_int(ppStmt,    5);
     episode  = sqlite3_column_int(ppStmt,    6);
+    exclude  = (char*) sqlite3_column_text(ppStmt, 7);
 
     /*
      * Generate SQL-filter and SQL-nodup
@@ -578,7 +595,7 @@ int downloadsimple(sqlite3 *db, int simulate)
      * call apply filter
      */
     applyfilter(db, name, sqlnodup, simulate, sqlfilter, 
-				"sffdd", title, maxsize, minsize, season, episode);
+				"sffdds", title, maxsize, minsize, season, episode, exclude);
 
     /*
      * Cleanup

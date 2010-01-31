@@ -43,7 +43,7 @@
 /*
  * optstring what options do we allow
  */
-static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:";
+static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:";
 
 /*
  * Long opts
@@ -78,6 +78,7 @@ static const struct option optLong[] =
 	{"del-simple", 						required_argument, 0, 'j'},
 	{"add-simple", 						required_argument, 0, 'e'},
 	{"title",									required_argument, 0, 'E'},
+	{"exclude",								required_argument, 0, 'N'},
 	{"max-size", 							required_argument, 0, 'O'},
 	{"min-size", 							required_argument, 0, 'o'},
 	{"nodup", 							  required_argument, 0, 'u'},
@@ -380,6 +381,13 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
           break;
         }
 				alloccopy(&(opts->simplename), optarg, strlen(optarg));
+        break;
+      case 'N': // Add simple filter
+        if( opts->simpleexclude != NULL) {
+          fprintf(stderr, "Warning: ignoring second exclude addition.\n");
+          break;
+        }
+				alloccopy(&(opts->simpleexclude), optarg, strlen(optarg));
         break;
       case 'E': // Add title-filter argument
         if( opts->simpletitle != NULL) {

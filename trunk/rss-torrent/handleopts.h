@@ -42,6 +42,7 @@ typedef struct {
 	char *doublefilter;		// sql no duplicate filter
 	char *simplename;			// Simple filter name
 	char *simpletitle;		// Simple title regexp
+	char *simpleexclude;	// Simple exclude regexp
 	char *simplemaxsize;	// Simple max size
 	char *simpleminsize;	// Simple minimal size
 	char *simplenodup;	// Simple no double filter type
