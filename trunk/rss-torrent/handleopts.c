@@ -43,7 +43,7 @@
 /*
  * optstring what options do we allow
  */
-static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:";
+static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:kA";
 
 /*
  * Long opts
@@ -75,7 +75,9 @@ static const struct option optLong[] =
 	{"help", 									no_argument, 			 0, 'h'},
   {"list-simple", 				  no_argument,       0, 'J'},
 	{"print-simple", 					required_argument, 0, 'P'},
+	{"print-all-simple",			no_argument, 			 0, 'A'},
 	{"del-simple", 						required_argument, 0, 'j'},
+	{"del-all-simple", 				no_argument, 			 0, 'k'},
 	{"add-simple", 						required_argument, 0, 'e'},
 	{"title",									required_argument, 0, 'E'},
 	{"exclude",								required_argument, 0, 'N'},
@@ -119,7 +121,9 @@ static void printhelp(void)
           "\nSimple Download filters\n"
           "list-simple      -J               : List the simple filters\n"
           "print-simple     -P <value>       : Print simple filter\n"
+          "print-all-simple -A <value>       : Print all simple filters\n"
           "del-simple       -j <value>       : Delete a simple download filter\n"
+          "del-all-simple   -k               : Delete all simple filters\n"
           "add-simple       -e <value>       : Add a simple download filter\n"
           "title            -E <value>       : Title expression\n"
           "exclude          -N <value>       : Exclude expression\n"
@@ -369,10 +373,21 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
         printsimple(db, optarg);
         stopop =1; // no more
         break;
+      case 'A': // Print A simple filter in shell format
+        printallsimple(db);
+        stopop =1; // no more
+        break;
       case 'j': // Del simple filter
         rc = delsimple(db, optarg);
         if(rc == 0) {
           printf("Deletion of simple filters '%s' Successfull.\n", optarg);
+        }
+        stopop =1; // no more
+        break;
+      case 'k': // Del all simple filters
+        rc = delallsimple(db);
+        if(rc == 0) {
+          printf("Deletion of all simple filters Successfull.\n");
         }
         stopop =1; // no more
         break;

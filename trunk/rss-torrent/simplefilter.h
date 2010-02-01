@@ -51,6 +51,19 @@ void listsimple(sqlite3 *db);
 void printsimple(sqlite3 *db, char *filtername);
 
 /*
+ * Print filter in shell format
+ * Prints the names of the simple filters + a header.
+ */
+void printallsimple(sqlite3 *db);
+
+/*
+ *  * del filter item
+ *   * When the name is not found -1 is returned.
+ *    * On succes 0 is returned.
+ *     */
+int delallsimple(sqlite3 *db);
+
+/*
  * del filter item
  * When allready existing -1 is returned.
  * On succes 0 is returned.

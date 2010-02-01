@@ -38,27 +38,6 @@
 #define NODUP_UNIQUE_NAME   "unique"
 #define NODUP_NEWER_NAME    "newer"
 
-#if 0
-/*
- * Nodup filters are defined here
- */
-#define NODUP_NONE    ""
-#define NODUP_LINK    "SELECT title FROM downloaded WHERE link=?1"
-#define NODUP_UNIQUE  "SELECT title FROM downloaded WHERE link=?1 OR (season=?2 AND episode=?3 AND title REGEXP('REPLACE_TITLE'))"
-#define NODUP_NEWER   "SELECT title FROM downloaded WHERE link=?1 OR (season>=?2 AND episode>=?3 AND title REGEXP('REPLACE_TITLE'))"
-
-/*
- * Filter that is used to convert the simple filter into SQL.
- */
-static char *sqlfilter="SELECT link, title, pubdate, category, season, episode FROM newtorrents WHERE "
-		"title REGEXP(?1) AND "
-		"(size < ?2 OR ?2 = 0) AND "
-		"(size > ?3 OR ?3 = 0) AND "
-		"(season >= ?4 OR ?4 = 0) AND "
-		"(season > ?4 OR episode >= ?5 OR ?5 = 0) AND "
-		"new = 'Y'";
-#endif
-
 /*
  * Nodup filters are defined here
  */
@@ -78,6 +57,7 @@ static char *sqlfilter="SELECT link, title, pubdate, category, season, episode F
 		"(season > ?4 OR episode >= ?5 OR ?5 = 0) AND "
 		"(NOT IREGEXP(?6, title) OR ?6 = '') AND "
 		"new = 'Y'";
+
 
 /*
  * name is name of the inodup filter 
@@ -125,6 +105,7 @@ static int findnodup(char *name, char *title, char **nodup)
   return 0;
 }
 
+
 /*
  * Validate Arguments
  * takes opts_struct struct as argument
@@ -149,6 +130,7 @@ static int validearguments(opts_struct *opts)
 
   return retval;
 }
+
 
 /*
  * optstosimple
@@ -197,6 +179,7 @@ static int optstosimple(opts_struct *opts, simplefilter_struct *simple)
   return 0;
 }
 
+
 /*
  * Free simplefilter_struct content
  * returns nothing
@@ -217,6 +200,7 @@ static void freestructsimple(simplefilter_struct *simple)
    */
   memset(simple, 0, sizeof(simplefilter_struct));
 }
+
 
 /*
  * Add simple filter adds the filter to the database
@@ -259,6 +243,7 @@ static int insertsimplefilter(sqlite3 *db, simplefilter_struct *simple)
   }
 }
 
+
 /*
  * Check Filter
  * When the filter exists, return 1
@@ -277,6 +262,7 @@ static int checksimple(sqlite3 *db, const char *name)
 
   return rc;
 }
+
 
 /*
  * Add simple filter
@@ -353,6 +339,99 @@ void listsimple(sqlite3 *db)
   printf("#############\n");
 }
 
+
+/*
+ * del filter item
+ * When the name is not found -1 is returned.
+ * On succes 0 is returned.
+ */
+int delallsimple(sqlite3 *db)
+{
+  int         rc=0;
+
+  /*
+   * Init query
+   */
+  const char* query = "delete from 'simplefilters'";
+
+  /*
+   * Execute query
+   * When name is all, delete all filters.
+   */
+  rc = executequery(db, query, NULL);
+  switch(rc) {
+    case(ROWS_CHANGED):
+      return 0;
+      break;
+    case(ROWS_EMPTY):
+      fprintf(stderr, "No simplefilters in list.\n");
+      writelog(LOG_ERROR, "No simplefilters in list.\n");
+      return -1;
+      break;
+    default: 
+      writelog(LOG_ERROR, "Query error during delallfilter %s:%d",  __FILE__, __LINE__);
+      return -1;
+  }
+}
+
+/*
+ * Print all simple filters in shell format.
+ */
+void printallsimple(sqlite3 *db)
+{
+  sqlite3_stmt  *ppStmt=NULL;
+  const char    *pzTail=NULL;
+  int           rc=0;
+  int           step_rc=0;
+  int           cols=0;
+  char          *zErrMsg = 0;
+  int           count=0;
+  const unsigned char *text=NULL;
+
+	char *query="select name from simplefilters";
+
+  /*
+   * Prepare the sqlite statement
+   */
+  rc = sqlite3_prepare_v2(
+      db,                 /* Database handle */
+      query,            /* SQL statement, UTF-8 encoded */
+      strlen(query),    /* Maximum length of zSql in bytes. */
+      &ppStmt,             /* OUT: Statement handle */
+      &pzTail              /* OUT: Pointer to unused portion of zSql */
+      );
+  if( rc!=SQLITE_OK ){
+    writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
+    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+    sqlite3_free(zErrMsg);
+    return;
+  }
+
+  /*
+   * Get number of columns
+   * int sqlite3_column_count(sqlite3_stmt *pStmt);
+   */
+  cols = sqlite3_column_count(ppStmt);
+
+
+  /*
+   * loop until the end of the dataset is found
+   */
+  while( SQLITE_DONE != (step_rc = sqlite3_step(ppStmt))) {
+		/*
+		 * Print the content of the row
+		 */
+		text = sqlite3_column_text(ppStmt, count);
+		printsimple(db, (char*) text);
+	}
+
+	/*
+	 * Done with query, finalizing.
+	 */
+  rc = sqlite3_finalize(ppStmt);
+}
+
+
 /*
  * del filter item
  * When the name is not found -1 is returned.
@@ -386,6 +465,7 @@ int delsimple(sqlite3 *db, const char *name)
       return -1;
   }
 }
+
 
 /*
  * Print filter in shell format
@@ -613,3 +693,4 @@ int downloadsimple(sqlite3 *db, int simulate)
    */
   return 0;
 }
+
