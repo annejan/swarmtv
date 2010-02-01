@@ -287,7 +287,7 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
 	char        opt=0;
 	int 				stopop=0;
 	int 				optindex=0;
-	char       	*name=NULL;
+	//char       	*name=NULL;
 
   /*
    * Handle commandline options
@@ -333,7 +333,8 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
 				alloccopy(&(opts->doublefilter), optarg, strlen(optarg));
         break;
       case 'd': // delete filter
-				optdeletefilter(db, name);
+				optdeletefilter(db, optarg);
+        stopop = 1; // no more
         break;
       case 's': // set rss source
         if(opts->source!=NULL) {
