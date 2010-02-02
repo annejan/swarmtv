@@ -97,7 +97,7 @@ static void dowork(sqlite3 *db){
       /*
        * Filter the stuff and add it to the database.
        */
-      rc = filterdownload(db, name, url, filter, &rssfile);
+      rc = parserdownload(db, name, url, filter, &rssfile);
       if(rc != 0) {
         writelog(LOG_ERROR, "Filtering failed for %s : %s %s:%d", name, url, __FILE__, __LINE__);
       }

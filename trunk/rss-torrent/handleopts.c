@@ -62,7 +62,7 @@ static const struct option optLong[] =
 	{"filter-shell",  				required_argument, 0, 'p'},
 	{"set-config",  					required_argument, 0, 'C'},
 	{"add-source",   					required_argument, 0, 's'},
-	{"source-filter",   			required_argument, 0, 't'},
+	{"source-parser",   			required_argument, 0, 't'},
 	{"add-filter",   					required_argument, 0, 'F'},
 	{"duplicate-filter", 			required_argument, 0, 'T'},
 	{"delete-filter", 				required_argument, 0, 'd'},
@@ -107,10 +107,10 @@ static void printhelp(void)
           "list-config      -c               : List config Items and their values.\n"  
           "set-config       -C <name:value>  : Set a config value.\n"  
           "\nSource\n"
-          "add-source       -s <name:url>  : Set RSS source (default filter type 'defaultrss') .\n"  
+          "add-source       -s <name:url>    : Set RSS source (default parser type 'defaultrss') .\n"  
           "delete-source    -D <name>        : Delete RSS source.\n"  
           "list-sources     -S               : List RSS sources.\n"  
-          "source-filter    -t <type>        : Set RSS source filter type. (use with -s)\n"  
+          "source-parser    -t <type>        : Set RSS source parser type. (use with -s)\n"  
           "\nSQL Download filters\n"
           "delete-filter    -d <name>        : Delete filter, name 'all' to delete all filters.\n"  
           "list-filters     -f               : List filters.\n"  

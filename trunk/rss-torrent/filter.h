@@ -68,7 +68,7 @@ int changefilter(sqlite3 *db, const char *name, const char *filter);
  * This routine holdes the refferences to different kind of filters.
  * (For now only rsstorrent.com format)
  */
-int filterdownload(sqlite3 *db, char * name, char * url, char * filter, MemoryStruct *rssfile);
+int parserdownload(sqlite3 *db, char * name, char * url, char * filter, MemoryStruct *rssfile);
 
 /*
  * Print filter in a way it could be modified and reentered

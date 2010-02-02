@@ -5,7 +5,7 @@ directory for your torrent program to find them.
 When RSS information is downloaded, the usefull fields are extracted and
 inserted into an Sqlite database.
 The information that is stored in the Sqlite db is queried using SQL
-statements, called filters in RSS-torrent.
+statements, called parser in RSS-torrent.
 When a match is found on one of the filters, a second query against the table holding the downloaded torrents can be used to avoid duplicates.
 After both queries are passed, the torrent is downloaded into the "Torrent directory" specified in the config settings.
 A torrent client is set up to watch the directory, and pick up the torrent as soon as it arrives.
@@ -44,14 +44,14 @@ Twitter
 The first option -s tells rsstorrent to expect an <name>:<url> combination.
 the first ':' that is found in the sctring is the delimiter, any ':''s after that are included in the url
 
-The second option the -t selects what filter is to be used in order to convert the rss into database records in the 'newtorrents' table.
+The second option the -t selects what parser is to be used in order to convert the rss into database records in the 'newtorrents' table.
 
 Fields in database:
 
 The database within rss-torrent contains 2 tables that are important when
 filters are created. 
 The first table is the newtorrents table, this table
-contains all torrents that passed the filter from source RSSes. The use of the
+contains all torrents that passed the parser from source RSSes. The use of the
 table is to look for new programs to download.
 The second table is the downloaded table, all relevant information of the 
 torrent that is being passed to the torrent-program is stored here. The
@@ -122,7 +122,7 @@ Examples
 ./rsstorrent -F "DollHouse:select link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^[Dd]ollhouse') AND size < '400000000' AND new = 'Y'" \
   -T "SELECT title FROM downloaded WHERE link=?1 OR (season=?2 AND episode=?3 AND title REGEXP('^[Dd]ollhouse'))"
 
-The -F option expects "<name>:<filter query>" the name will be the name of the filter.
+The -F option expects "<name:filter query>" the name will be the name of the filter.
 The filter query selects the rows that match a query.
 the rows that are selected in the query are mendetory, the where clause is free to write your self.
 

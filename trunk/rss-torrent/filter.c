@@ -27,8 +27,8 @@
 #include "curlfile.h"
 #include "database.h"
 #include "logfile.h"
-#include "rssfilter/defaultrss/defaultrss.h"
-#include "rssfilter/twitter/twitter.h"
+#include "rssparser/defaultrss/defaultrss.h"
+#include "rssparser/twitter/twitter.h"
 
 #define  MAXLENGHT 400
 
@@ -80,14 +80,14 @@ int delallfilters(sqlite3 *db)
       return 0;
       break;
     case(ROWS_EMPTY):
-      printf("No filters left, delete all did nothing %s:%d\n", __FILE__, __LINE__);
-      writelog(LOG_ERROR, "No filters left, delete all did nothing %s:%d", __FILE__, __LINE__);
-      return -1;
-      break;
-    default: 
-      writelog(LOG_ERROR, "Query error during delallfilters %s:%d",  __FILE__, __LINE__);
-      return -1;
-  }
+			printf("No filters left, delete all did nothing %s:%d\n", __FILE__, __LINE__);
+			writelog(LOG_ERROR, "No filters left, delete all did nothing %s:%d", __FILE__, __LINE__);
+			return -1;
+			break;
+		default: 
+			writelog(LOG_ERROR, "Query error during delallfilters %s:%d",  __FILE__, __LINE__);
+			return -1;
+	}
 }
 
 /*
@@ -97,33 +97,33 @@ int delallfilters(sqlite3 *db)
  */
 int delfilter(sqlite3 *db, const char *name)
 {
-  int         rc=0;
+	int         rc=0;
 
-  /*
-   * Init query
-   */
-  const char* query = "delete from 'filters' where name=?1";
+	/*
+	 * Init query
+	 */
+	const char* query = "delete from 'filters' where name=?1";
 
-  printf("Attempting to delete filter '%s'\n", name);
+	printf("Attempting to delete filter '%s'\n", name);
 
-  /*
-   * Execute query
-   * When name is all, delete all filters.
-   */
-  rc = executequery(db, query, "s", name);
-  switch(rc) {
-    case(ROWS_CHANGED):
-      return 0;
-      break;
-    case(ROWS_EMPTY):
-      fprintf(stderr, "Could not delete filter '%s' %s:%di\n", name,  __FILE__, __LINE__);
-      writelog(LOG_ERROR, "Could not delete filter '%s' %s:%d", name,  __FILE__, __LINE__);
-      return -1;
-      break;
-    default: 
-      writelog(LOG_ERROR, "Query error during delfilter %s:%d",  __FILE__, __LINE__);
-      return -1;
-  }
+	/*
+	 * Execute query
+	 * When name is all, delete all filters.
+	 */
+	rc = executequery(db, query, "s", name);
+	switch(rc) {
+		case(ROWS_CHANGED):
+			return 0;
+			break;
+		case(ROWS_EMPTY):
+			fprintf(stderr, "Could not delete filter '%s' %s:%di\n", name,  __FILE__, __LINE__);
+			writelog(LOG_ERROR, "Could not delete filter '%s' %s:%d", name,  __FILE__, __LINE__);
+			return -1;
+			break;
+		default: 
+			writelog(LOG_ERROR, "Query error during delfilter %s:%d",  __FILE__, __LINE__);
+			return -1;
+	}
 }
 
 /*
@@ -133,16 +133,16 @@ int delfilter(sqlite3 *db, const char *name)
  */
 static int checkfilter(sqlite3 *db, const char *name)
 {
-  int rc;
+	int rc;
 
-  char *query = "select * from filters where name=?1";
+	char *query = "select * from filters where name=?1";
 
-  /*
-   * execute query
-   */
-  rc = executequery(db, query, "s", name);
+	/*
+	 * execute query
+	 */
+	rc = executequery(db, query, "s", name);
 
-  return rc;
+	return rc;
 }
 
 /*
@@ -152,34 +152,34 @@ static int checkfilter(sqlite3 *db, const char *name)
  */
 int addfilter(sqlite3 *db, const char *name, const char *filter, const char *doublefilter)
 {
-  int         rc;
-  const char *locdouble; // holds pointer to doublefilter or empty
-  char        query[MAXLENGHT+1];
+	int         rc;
+	const char *locdouble; // holds pointer to doublefilter or empty
+	char        query[MAXLENGHT+1];
 
-  /*
-   * No filters can be added that have the name all.
-   */
-  if(strcmp(name, "all") == 0){
-    writelog(LOG_NORMAL, "No filter can be added with name 'all'");
-    fprintf(stderr, "No filter can be added with name 'all'\n");
-    return -1;
-  }
+	/*
+	 * No filters can be added that have the name all.
+	 */
+	if(strcmp(name, "all") == 0){
+		writelog(LOG_NORMAL, "No filter can be added with name 'all'");
+		fprintf(stderr, "No filter can be added with name 'all'\n");
+		return -1;
+	}
 
-  /*
-   * Init query, to an insert when not found, to a update when existing
-   */
-  memset(query, 0, MAXLENGHT+1);
-  rc = checkfilter(db, name);
-  switch(rc) {
-    case 0:
-      strncpy(query, "INSERT INTO 'filters' (name, filter, nodouble) VALUES(?1, ?2, ?3)", MAXLENGHT);
-      break;
-    case 1:
-      writelog(LOG_NORMAL, "filter '%s' exists, updating.", name);
-      printf("filter '%s' exists, updating.\n", name);
-      strncpy(query, "UPDATE 'filters' SET filter=?2, nodouble=?3 WHERE name=?1", MAXLENGHT);
-      break;
-    default:
+	/*
+	 * Init query, to an insert when not found, to a update when existing
+	 */
+	memset(query, 0, MAXLENGHT+1);
+	rc = checkfilter(db, name);
+	switch(rc) {
+		case 0:
+			strncpy(query, "INSERT INTO 'filters' (name, filter, nodouble) VALUES(?1, ?2, ?3)", MAXLENGHT);
+			break;
+		case 1:
+			writelog(LOG_NORMAL, "filter '%s' exists, updating.", name);
+			printf("filter '%s' exists, updating.\n", name);
+			strncpy(query, "UPDATE 'filters' SET filter=?2, nodouble=?3 WHERE name=?1", MAXLENGHT);
+			break;
+		default:
       writelog(LOG_ERROR, "Filter table corrupt !! %s:%d", __FILE__, __LINE__);
       fprintf(stderr, "Filter table in database corrupt!\n");
       return -1;
@@ -222,7 +222,7 @@ int addfilter(sqlite3 *db, const char *name, const char *filter, const char *dou
  * This routine holdes the refferences to different kind of filters.
  * (For now only rsstorrent.com format)
  */
-int filterdownload(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssfile)
+int parserdownload(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssfile)
 {
   int rc;
 

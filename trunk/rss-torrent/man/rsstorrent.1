@@ -51,8 +51,8 @@ Delete RSS source.
 \-S \-\-list\-sources
 List RSS sources.
 .TP
-\-t \-\-source\-filter type
-Set RSS source filter type. 
+\-t \-\-source\-parser type
+Set RSS source parser type. 
 .TP
 \-d \-\-delete\-filter name
 Delete a SQL filter, use name 'all' to delete all SQL filters.
@@ -111,11 +111,12 @@ Episode number to start downloading from.
 .TP
 Add a RSS source provided by Eztv.
 .B rsstorrent 
-\-\-add\-source="Eztv:http://www.ezrss.it/feed/" \-\-source-filter="defaultrss"
+\-\-add\-source="Eztv:http://www.ezrss.it/feed/" \-\-source-parser="defaultrss"
 .TP
 Add a Twitter source using the Twitter API. (provide own account)
 .B rsstorrent
-\-\-add\-source="Twitter:https://<username>:<password>@twitter.com/statuses/friends_timeline.xml" \-\-source-filter="twitter"
+\-\-add\-source="Twitter:https://<username>:<password>@twitter.com/statuses/friends_timeline.xml"
+\-\-source-parser="twitter"
 .TP
 Add a simple filter, matching newer house episodes, excluding "House hunters international".
 .B rsstorrent
