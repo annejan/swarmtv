@@ -24,7 +24,7 @@
 #define CONF_TORRENTDIR "torrentdir"
 #define CONF_LOGFILE    "logfile"
 #define CONF_REFRESH    "refresh"
-#define CONF_DEFFILTER  "default_filter"
+#define CONF_DEFPARSER  "default_parser"
 #define CONF_LOCKFILE   "lockfile"
 #define CONF_SMTPTO     "smtp_to"
 #define CONF_SMTPFROM   "smtp_from"

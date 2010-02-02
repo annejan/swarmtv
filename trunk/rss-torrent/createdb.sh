@@ -36,7 +36,7 @@ create table filters (id INTEGER PRIMARY KEY, name TEXT UNIQUE, filter TEXT, nod
 SQL_ENTRY_TAG_3
 echo "done."
 
-echo "Creating filters table."
+echo "Creating simple filters table."
 sqlite3 $DBFILE <<SQL_ENTRY_TAG_3
 CREATE TABLE simplefilters (id INTEGER PRIMARY KEY, name TEXT UNIQUE, title TEXT, exclude TEXT, maxsize INTEGER DEFAULT 0, minsize INTEGER DEFAULT 0, nodup TEXT NOT NULL, fromseason INTEGER DEFAULT 0, fromepisode INTEGER DEFAULT0 );
 SQL_ENTRY_TAG_3
@@ -49,7 +49,7 @@ INSERT INTO "config" (prop, value, descr) VALUES("torrentdir", "~/torrents", "Pa
 INSERT INTO "config" (prop, value, descr) VALUES("logfile", "${RSSDIR}/rsstorrent.log", "Path to logfile.");
 INSERT INTO "config" (prop, value, descr) VALUES("lockfile", "${RSSDIR}/lockfile.pid", "Path to lockfile.");
 INSERT INTO "config" (prop, value, descr) VALUES("refresh", "3600", "Seconds between refreshes.");
-INSERT INTO "config" (prop, value, descr) VALUES("default_filter", "defaultrss", "The default rss filter to add to new rss sources.");
+INSERT INTO "config" (prop, value, descr) VALUES("default_parser", "defaultrss", "The default rss filter to add to new rss sources.");
 INSERT INTO "config" (prop, value, descr) VALUES("smtp_enable", "N", "'Y' is send email notifications on new download, 'N' is don't.");
 INSERT INTO "config" (prop, value, descr) VALUES("smtp_to", "foo@bar.nl", "Host to send the notifications to.");
 INSERT INTO "config" (prop, value, descr) VALUES("smtp_from", "user@somehost.nl", "The from email-address in the mail headers.");
@@ -60,7 +60,7 @@ echo "Done."
 
 echo "Creating urls table."
 sqlite3 $DBFILE <<SQL_ENTRY_TAG_5
-create table sources (id INTEGER PRIMARY KEY, name TEXT UNIQUE, url TEXT, filter TEXT);
+create table sources (id INTEGER PRIMARY KEY, name TEXT UNIQUE, url TEXT, parser TEXT);
 SQL_ENTRY_TAG_5
 echo "Done."
 

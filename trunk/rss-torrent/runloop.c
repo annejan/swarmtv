@@ -33,7 +33,7 @@
 
 #define true (1==1)
 
-const char *query="select name, url, filter from sources";
+const char *query="select name, url, parser from sources";
 
 /*
  * Do the main work here

@@ -42,10 +42,10 @@ void printsources(sqlite3 *db)
    */
   printf("#############\n");
   printf("Sources\n");
-  printf("Name : url : filter\n");
+  printf("Name : url : parser\n");
   printf("#############\n");
 
-  printquery(db, "select name, url, filter from sources");
+  printquery(db, "select name, url, parser from sources");
 
   /*
    * Footer
@@ -102,14 +102,14 @@ int addsource(sqlite3 *db, const char *name, const char *url, char *filtertype)
   /*
    * Init query
    */
-  const char* query = "INSERT INTO 'sources' (name, url, filter) VALUES(?2, ?1, ?3)";
+  const char* query = "INSERT INTO 'sources' (name, url, parser) VALUES(?2, ?1, ?3)";
 
 
   /*
    * When filtertype is not set use the default.
    */
   if(filtertype == NULL){
-    configgetproperty(db, CONF_DEFFILTER, &localfilter);
+    configgetproperty(db, CONF_DEFPARSER, &localfilter);
   } else {
     localfilter = calloc(1, strlen(filtertype));
     strcpy(localfilter, filtertype);
