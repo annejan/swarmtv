@@ -9,6 +9,10 @@ add_definitions( `xml2-config --cflags` -Wall -W -g)
 link_libraries(curl xml2 magic pcre esmtp sqlite3)
 include_directories(.)
 
+# Add manpage 
+SET(RSS_SRC man/rsstorrent.1)
+SET(RSS_MAN man/rsstorrent.1.gz)
+
 # All other sources
 SET(SRC rsstorrent database config regexp source
   filter runloop curlfile torrentdb torrentdownload logfile
@@ -18,14 +22,30 @@ SET(SRC rsstorrent database config regexp source
 # Subdirectories
 INCLUDE(rssfilter/filters.cmake)
 
+# Add executable
+  add_executable (
+  rsstorrent ${SRC} ${RSS_MAN}
+) 
+
+# Compression of the manuals
+FOREACH(man ${RSS_SRC})
+  ADD_CUSTOM_COMMAND(OUTPUT ${man}.gz
+      COMMAND gzip -c ${man} > ${man}.gz
+      DEPENDS ${man}
+      COMMENT
+      "Building
+      ${man}.gz")
+ENDFOREACH(man)
+
 # We install to /usr/local/bin
 INSTALL(PROGRAMS rsstorrent DESTINATION /usr/local/bin)
 
-# Add executable
-add_executable (
-  rsstorrent ${SRC}
-) 
+# Installation of the manuals
+  INSTALL(FILES man/rsstorrent.1.gz
+      DESTINATION "share/man/man1"
+      PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
 
+# Implement uninstall
 CONFIGURE_FILE(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
@@ -40,7 +60,7 @@ ADD_CUSTOM_TARGET(realclean
 		COMMAND rm -rf CMakeFiles )
 
 
-# Make database
+# Make database and add examples script
 ADD_CUSTOM_COMMAND(
     OUTPUT examplescript
     COMMAND ${rsstorrent_SOURCE_DIR}/examples.sh
