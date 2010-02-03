@@ -104,6 +104,10 @@ static int getxpathstring(const xmlChar * str, xmlXPathContextPtr ctxt, unsigned
   /*
    * Set pointer to contentstring in child
    */
+	if(node->children == NULL) {
+    xmlXPathFreeObject(xpathObj);
+		return -1;
+	}
   *string = BAD_CAST node->children->content;
 
   /*

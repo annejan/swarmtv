@@ -149,6 +149,9 @@ int downloadtobuffer(char *url, MemoryStruct *chunk)
   /* Set generate errorstring */
   curl_easy_setopt(curl_handle, CURLOPT_ERRORBUFFER, errorBuffer);
 
+  /* Set generate errorstring */
+  curl_easy_setopt(curl_handle, CURLOPT_ENCODING, "");
+
 	/* If a username and password is set add it to the options */
 	if(userpass != NULL) {
 		curl_easy_setopt(curl_handle, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
