@@ -31,9 +31,49 @@
 #include "simplefilter.h"
 #include "logfile.h"
 
+/*
+ * Parser includes
+ */
+#include "rssparser/defaultrss/defaultrss.h"
+#include "rssparser/twitter/twitter.h"
+
 #define true (1==1)
 
+/*
+ * Query to get sources to download.
+ */
 const char *query="select name, url, parser from sources";
+
+/*
+ * Apply a filter to the downloaded RSS code.
+ * This routine holdes the refferences to different kind of filters.
+ * (For now only rsstorrent.com format)
+ */
+static int parserdownload(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssfile)
+{
+  int rc;
+
+  /*
+   * compare the filter string and pass the downloaded file to the correct filtering routine.
+   */
+  if(strcmp(filter, "defaultrss") == 0) {
+    //printf("Found a file for filter %s\n", filter);
+    rc = defaultrss(db, name, url, filter, rssfile); 
+    return 0;
+  }
+
+  if(strcmp(filter, "twitter") == 0) {
+    //printf("Found a file for filter %s\n", filter);
+    rc = twitter(db, name, url, filter, rssfile); 
+    return 0;
+  }
+
+  /*
+   * When no filter found.
+   */
+  writelog(LOG_ERROR, "No filter found '%s', ignoring file %s:%d", filter, __FILE__, __LINE__);
+  return -1;
+}
 
 /*
  * Do the main work here
@@ -49,7 +89,7 @@ static void dowork(sqlite3 *db){
   char                    *zErrMsg = 0;
   char           *name;
   char           *url;
-  char           *filter;
+  char           *parser;
   MemoryStruct            rssfile;
 
   /*
@@ -85,19 +125,19 @@ static void dowork(sqlite3 *db){
      */
     name    = (char *) sqlite3_column_text(ppStmt, 0);
     url     = (char *) sqlite3_column_text(ppStmt, 1);
-    filter  = (char *) sqlite3_column_text(ppStmt, 2); 
+    parser  = (char *) sqlite3_column_text(ppStmt, 2); 
   
     rc = downloadtobuffer(url, &rssfile);
     if(rc == 0) {
       /*
        * Download succeded.
        */
-      writelog(LOG_NORMAL, "Download succeded for %s : %s", name, url);
+      writelog(LOG_DEBUG, "Download succeded for %s : %s", name, url);
 
       /*
        * Filter the stuff and add it to the database.
        */
-      rc = parserdownload(db, name, url, filter, &rssfile);
+      rc = parserdownload(db, name, url, parser, &rssfile);
       if(rc != 0) {
         writelog(LOG_ERROR, "Filtering failed for %s : %s %s:%d", name, url, __FILE__, __LINE__);
       }
@@ -113,7 +153,7 @@ static void dowork(sqlite3 *db){
    */
   rc = sqlite3_finalize(ppStmt);
   /*
-   * For every source download and filter it.
+   * For every source download and parse it.
    */
 }
 

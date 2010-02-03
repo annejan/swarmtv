@@ -27,8 +27,6 @@
 #include "curlfile.h"
 #include "database.h"
 #include "logfile.h"
-#include "rssparser/defaultrss/defaultrss.h"
-#include "rssparser/twitter/twitter.h"
 
 #define  MAXLENGHT 400
 
@@ -217,36 +215,6 @@ int addfilter(sqlite3 *db, const char *name, const char *filter, const char *dou
   return 0;
 }
 
-/*
- * Apply a filter to the downloaded RSS code.
- * This routine holdes the refferences to different kind of filters.
- * (For now only rsstorrent.com format)
- */
-int parserdownload(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssfile)
-{
-  int rc;
-
-  /*
-   * compare the filter string and pass the downloaded file to the correct filtering routine.
-   */
-  if(strcmp(filter, "defaultrss") == 0) {
-    //printf("Found a file for filter %s\n", filter);
-    rc = defaultrss(db, name, url, filter, rssfile); 
-    return 0;
-  }
-
-  if(strcmp(filter, "twitter") == 0) {
-    //printf("Found a file for filter %s\n", filter);
-    rc = twitter(db, name, url, filter, rssfile); 
-    return 0;
-  }
-
-  /*
-   * When no filter found.
-   */
-  writelog(LOG_ERROR, "No filter found '%s', ignoring file %s:%d", filter, __FILE__, __LINE__);
-  return -1;
-}
 
 /*
  * Print filter in a way it could be modified and reentered
