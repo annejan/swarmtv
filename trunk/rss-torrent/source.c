@@ -134,7 +134,7 @@ int addsource(sqlite3 *db, const char *name, const char *url, char *filtertype)
   switch(rc) {
     case(ROWS_CHANGED):
       printf("Source '%s' added succesfully.\n", name);
-      writelog(LOG_NORMAL, "Source '%s' added succesfully. %s:%d", name, __FILE__, __LINE__);
+      writelog(LOG_NORMAL, "Source '%s' added succesfully.", name);
       return 0;
       break;
     case(ROWS_CONSTRAINT):
