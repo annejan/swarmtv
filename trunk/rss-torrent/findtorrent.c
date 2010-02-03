@@ -27,7 +27,6 @@
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
 #include "regexp.h"
-#include "mymagic.h"
 #include "curlfile.h"
 #include "logfile.h"
 #include "findtorrent.h"
@@ -286,8 +285,6 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
     return 0;
   }
 
-  //printf("Header\n%*s\n", (int) buffer.headersize, buffer.header);
-
   /*
    * try to get the Content type from the header
    */
@@ -296,20 +293,14 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
     /*
      * No header found use, mime magic
      */
-    rc = getcontenttype(buffer.memory, buffer.size, &filetype);
-    if(rc != 0) {
-      fprintf(stderr, "%s: Error during determining content type.\n", url);      
-      freedownload(&buffer);
-      return 0;
-    }
+		fprintf(stderr, "%s: Error during determining content type.\n", url);      
+		freedownload(&buffer);
+		return 0;
   }
   else if(rc != 0) {
     printf("No header found and mimetype matching failed, rc = %d\n", rc);
   }
   free(conttype);
-
-  // DEBUG
-  //printf("Mime-type: '%s'\n", filetype);
 
   /*
    * When lib magic finds a torrent, return 1 and set buffer + url
@@ -335,7 +326,6 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
    * When recursion = 0 
    * We are not interested in other content then torrents, so returning 0
    */
-  //printf("Recurse = %d\n", recurse);
   if(recurse <= 0) {
     return 0;
   }

@@ -6,7 +6,7 @@ project (rsstorrent C)
 
 # Compiler directives
 add_definitions( `xml2-config --cflags` -Wall -W -g)
-link_libraries(curl xml2 magic pcre esmtp sqlite3)
+link_libraries(curl xml2 pcre esmtp sqlite3)
 include_directories(.)
 
 # Add manpage 
@@ -16,7 +16,7 @@ SET(RSS_MAN man/rsstorrent.1.gz)
 # All other sources
 SET(SRC rsstorrent database config regexp source
   filter runloop curlfile torrentdb torrentdownload logfile
-  daemonize mailmsg findtorrent mymagic sandboxdb testfilter
+  daemonize mailmsg findtorrent sandboxdb testfilter
   filesystem tbl torrentparse handleopts simplefilter)
 
 # Subdirectories
