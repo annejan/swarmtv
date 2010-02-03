@@ -120,7 +120,7 @@ int getnamelinkepisode(char *data, char **name, int *season, int *episode)
   int   	ovector[OVECSIZE];
   const char *errmsg=NULL;
   int   	errpos=0;
-	static char *dataregexp="(.*) ?[sS ]?([0-9]?[0-9])[eE ]?([0-9]?[0-9])";
+	static char *dataregexp="(.*) ?[sS ]([0-9]?[0-9])[eExX ]([0-9]?[0-9])";
 	char   	*seasonstr=NULL;
 	char		*episodestr=NULL;
 	int 		i=0;
