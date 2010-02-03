@@ -59,14 +59,14 @@ static const struct option optLong[] =
 	{"list-config",  					no_argument,       0, 'c'},
 	{"list-filters",					no_argument,       0, 'f'},
 	{"list-sources",					no_argument,       0, 'S'},
-	{"filter-shell",  				required_argument, 0, 'p'},
+	{"print-filter",  				required_argument, 0, 'p'},
 	{"set-config",  					required_argument, 0, 'C'},
 	{"add-source",   					required_argument, 0, 's'},
 	{"source-parser",   			required_argument, 0, 't'},
 	{"add-filter",   					required_argument, 0, 'F'},
 	{"duplicate-filter", 			required_argument, 0, 'T'},
-	{"delete-filter", 				required_argument, 0, 'd'},
-	{"delete-source", 				required_argument, 0, 'D'},
+	{"del-filter", 		    		required_argument, 0, 'd'},
+	{"del-source",    				required_argument, 0, 'D'},
 	{"run", 									no_argument, 			 0, 'r'},
 	{"once", 									no_argument, 			 0, 'R'},
 	{"test", 									no_argument, 			 0, 'q'},
@@ -108,13 +108,13 @@ static void printhelp(void)
           "set-config       -C <name:value>  : Set a config value.\n"  
           "\nSource\n"
           "add-source       -s <name:url>    : Set RSS source (default parser type 'defaultrss') .\n"  
-          "delete-source    -D <name>        : Delete RSS source.\n"  
+          "del-source       -D <name>        : Delete RSS source.\n"  
           "list-sources     -S               : List RSS sources.\n"  
           "source-parser    -t <type>        : Set RSS source parser type. (use with -s)\n"  
           "\nSQL Download filters\n"
-          "delete-filter    -d <name>        : Delete filter, name 'all' to delete all filters.\n"  
+          "del-filter       -d <name>        : Delete filter, name 'all' to delete all filters.\n"  
           "list-filters     -f               : List filters.\n"  
-          "filter-shell     -p <name>        : Print filter in shell format.\n"  
+          "print-filter     -p <name>        : Print filter in shell format.\n"  
           "add-sql-filter   -F <name:query>  : Set SQL download filter (use with -T).\n"  
           "nodup-sql-filter -T <query>       : Set SQL duplicate filter.\n"  
           "\nSimple Download filters\n"
@@ -132,12 +132,9 @@ static void printhelp(void)
           "from-season      -g <value>       : Season number to start downloading from.\n"
           "from-episode     -G <value>       : Episode number to start downloading from.\n"               
           "\n"
-          "Flags to be used together.\n"  
-          "-F <name:value> -T <value>        : Set download filter and diplicate check\n"  
-          "-q -F <name:value> -T <value>     : Test download filter and diplicate check\n"  
-          "-s <name:url> -t <value>          : set RSS source and filter\n"  
-          "-r -R                             : run once then exit for use in crontab\n"  
-          "\nThe long arguments need to be preceded with '--'\n"  
+          "For examples see man rsstorrent(1)\n"
+          "\n"
+          "The long arguments need to be preceded with '--'\n"  
           "Example: rsstorrent --help\n"  
           "################\n\n");  
 }

@@ -504,7 +504,7 @@ int humantosize(char *buf, double *size)
  * Returns:  0  When replace succesful
  *          -1  When no replace was done
  *
- * **Str must not be on strack, because it gets reallocced.
+ * **Str must not be on stack, because the memory block could be reallocced.
  */ 
 int strrepl(char **Str, char *OldStr, char *NewStr)
 {

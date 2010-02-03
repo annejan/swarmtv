@@ -179,7 +179,7 @@ int runloop(sqlite3 *db, int onetime)
     /*
      * work through the sources and process them
      */
-    writelog(LOG_NORMAL,"Downloading RSS feed(s)");
+    writelog(LOG_DEBUG,"Downloading RSS feed(s)");
     dowork(db);
  
     /*
@@ -188,10 +188,10 @@ int runloop(sqlite3 *db, int onetime)
     after = time(NULL);
     timeleft = timewait - (after - before);
     if(timeleft < 0) {
-      timeleft = 0;
+      timeleft = timewait;
     }
 
-    writelog(LOG_NORMAL,"Checking for new torrents to download.");
+    writelog(LOG_DEBUG,"Checking for new torrents to download.");
     downloadtorrents(db);
     downloadsimple(db, 0);
 

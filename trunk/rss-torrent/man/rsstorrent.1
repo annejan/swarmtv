@@ -45,7 +45,7 @@ Set config value.
 .TP
 \-s \-\-add\-source name:url
 .TP
-\-D \-\-delete\-source name
+\-D \-\-del\-source name
 Delete RSS source.
 .TP
 \-S \-\-list\-sources
@@ -54,13 +54,13 @@ List RSS sources.
 \-t \-\-source\-parser type
 Set RSS source parser type. 
 .TP
-\-d \-\-delete\-filter name
+\-d \-\-del\-filter name
 Delete a SQL filter, use name 'all' to delete all SQL filters.
 .TP
 \-f \-\-list\-filters
 List all SQL filters
 .TP
-\-p \-\-filter\-shell name
+\-p \-\-print\-filter name
 Print SQL filter in shell format.
 .TP
 \-F \-\-add\-sql\-filter name:query
@@ -107,6 +107,39 @@ Season number to start downloading from.
 .TP
 \-G \-\-from\-episode value
 Episode number to start downloading from.
+.SH CONFIG SETTING
+.PP
+.TP 
+.B torrentdir
+The directory the downloaded torrents get stored.
+.TP
+.B logfile
+The path to the logfile.
+.TP
+.B lockfile
+The path to the lockfile.
+.TP
+.B refresh
+The time between RSS downloads.
+.TP
+.B default_parser
+The default source parser to use when no parser is provided on the command line.
+.TP
+.B smtp_enable
+When a torrent is downloaded, send an email (set to value 'Y' to enable).
+.TP
+.B smtp_to
+The email address the email notification needs to be sended to.
+.TP
+.B smtp_from
+The from email-address in the mail headers.
+.TP
+.B smtp_host
+The STMP server and port used to send the notifications. (example: smtp.foobar.com:25)
+.TP
+.B min_size
+When the given size in the source is smaller then this number (in bytes), the torrent is downloaded to extract the size from there.
+.PP
 .SH EXAMPLES
 .TP
 Add a RSS source provided by Eztv.
@@ -156,6 +189,11 @@ Change RSS check frequency.
 .B rsstorrent
 \-\-set\-config="refresh:<seconds>"
 .TP
+Create a SQL filter.
+.B ./rsstorrent 
+\-F "DollHouse:select link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^[Dd]ollhouse') AND size < '400000000' AND new = 'Y'" \\
+.IP  
+\-T "SELECT title FROM downloaded WHERE link=?1 OR (season>=?2 AND episode>=?3 AND title REGEXP('^[Dd]ollhouse'))"
 .PP
 .SH EXIT STATUS
 When RSS-torrent runs in the shell, 0 is returned on normal exit, otherwise 1.
