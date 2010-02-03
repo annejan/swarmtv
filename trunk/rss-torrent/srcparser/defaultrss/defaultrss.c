@@ -496,7 +496,7 @@ static int disecttitle(unsigned char *title, unsigned char** name, int *season, 
   /*
    * Try the S01E23 notation, this is common.
    */
-  rc = titleregexp("^(.*)[sS]([0-9][0-9]?)[eE]([0-9][0-9]?)", title, name, season, episode);
+  rc = titleregexp("^(.*)[sS]([0-9][0-9]?) ?[eE] ?([0-9][0-9]?)", title, name, season, episode);
   if(rc == 0) {
     writelog(LOG_DEBUG, "Found title match at specific regexp %s:%d", __FILE__, __LINE__);
     return 0;
@@ -505,7 +505,7 @@ static int disecttitle(unsigned char *title, unsigned char** name, int *season, 
   /*
    * Try the 01x23 notation, this is common.
    */
-  rc = titleregexp("^(.*[^0-9])([0-9][0-9]?)[xX]([0-9][0-9]?)", title, name, season, episode);
+  rc = titleregexp("^(.*[^0-9])([0-9][0-9]?) ?[xX] ?([0-9][0-9]?)", title, name, season, episode);
   if(rc == 0) {
     writelog(LOG_DEBUG, "Found title match at specific regexp %s:%d", __FILE__, __LINE__);
     return 0;

@@ -116,11 +116,6 @@ int downloadtorrents(sqlite3 *db)
   rc = sqlite3_finalize(ppStmt);
 
   /*
-   * Torrents are no longer new
-   */
-  nonewtorrents(db);
-
-  /*
    * All gone well
    */
   return rc;
@@ -294,6 +289,7 @@ void applyfilter(sqlite3 *db, char *name, char* nodouble, int simulate, char *fi
     va_end(ap);
   }
 
+
   if(retval == 0) {
 
     /*
@@ -319,14 +315,6 @@ void applyfilter(sqlite3 *db, char *name, char* nodouble, int simulate, char *fi
        */
       if(testdouble(db, nodouble, link, season, episode) == 0) {
         /*
-         * When enabled send an email.
-         */
-        snprintf(message, MAXMSGLEN, "Downloading %s S%dE%d", title, season, episode);
-        if(simulate == 0) {
-          sendrssmail(db, message, message);
-        }
-        
-        /*
          * Add a torrent to the downloaded table.
          */
         adddownloaded(db, title, link, pubdate, category, season, episode, simulate);
@@ -336,14 +324,23 @@ void applyfilter(sqlite3 *db, char *name, char* nodouble, int simulate, char *fi
          * when in a sandbox simulate = 1, no downloads are done.
          */
         if(simulate == 0) {
+          /*
+           * Download torrent
+           */
           dodownload(db, link, title, season, episode, pubdate);
+          
+          /*
+           * Send email
+           */
+          snprintf(message, MAXMSGLEN, "Downloading %s S%dE%d", title, season, episode);
+          sendrssmail(db, message, message);
         }
       } else {
         writelog(LOG_DEBUG, "%s Season %d Episode %d is a duplicate %s:%d", title, episode, season, __FILE__, __LINE__);
       }
     }
-
   }
+
   /*
    * Done with query, finalizing.
    */

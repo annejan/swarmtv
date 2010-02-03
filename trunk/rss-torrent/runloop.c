@@ -30,6 +30,7 @@
 #include "torrentdownload.h"
 #include "simplefilter.h"
 #include "logfile.h"
+#include "torrentdb.h"
 
 /*
  * Parser includes
@@ -193,6 +194,11 @@ int runloop(sqlite3 *db, int onetime)
     writelog(LOG_NORMAL,"Checking for new torrents to download.");
     downloadtorrents(db);
     downloadsimple(db, 0);
+
+    /*
+     * Torrents are no longer new
+     */
+    nonewtorrents(db);
 
     /*
      * Run once.
