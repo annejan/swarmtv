@@ -34,8 +34,8 @@
 /*
  * Parser includes
  */
-#include "rssparser/defaultrss/defaultrss.h"
-#include "rssparser/twitter/twitter.h"
+#include "srcparser/defaultrss/defaultrss.h"
+#include "srcparser/twitter/twitter.h"
 
 #define true (1==1)
 

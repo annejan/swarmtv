@@ -20,7 +20,7 @@ SET(SRC rsstorrent database config regexp source
   filesystem tbl torrentparse handleopts simplefilter)
 
 # Subdirectories
-INCLUDE(rssparser/parsers.cmake)
+INCLUDE(srcparser/parsers.cmake)
 
 # Add executable
   add_executable (
