@@ -121,7 +121,7 @@ int main(int argc, char **argv){
     fprintf(stderr, "Can't open logfile!\n");
     exit(1);
   }
-  writelog(LOG_NORMAL, "Start rss-torrent");
+  writelog(LOG_DEBUG, "Start rss-torrent");
 
 	/*
 	 * Handle commandline options
