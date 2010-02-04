@@ -183,7 +183,7 @@ static int disectdate(char *date, time_t *pubdate)
   // When all failes use time 'now'
   rc = strptime(date, "%a, %d %b %Y %H:%M:%S", &pubtm);
   if(rc == NULL) {
-    writelog(LOG_DEBUG, "Converting date '%s'.\n", date);
+    writelog(LOG_DEBUG, "Converting date '%s'.", date);
     rc = strptime(date, "%Y-%m-%d", &pubtm);
   }
   if(rc == NULL) {
@@ -205,7 +205,7 @@ static int disectdate(char *date, time_t *pubdate)
    */
   *pubdate = mktime(&pubtm);
 
-  writelog(LOG_DEBUG, "Converted ctime: %s\n", ctime(pubdate));
+  writelog(LOG_DEBUG, "Converted ctime: %s", ctime(pubdate));
 
   /*
    * success
@@ -267,7 +267,7 @@ static int disectenclosure(xmlNode *encnode, size_t *torsize, unsigned char **ty
        * transform to size_t
        */
       *torsize = atol(attr);
-      writelog(LOG_DEBUG, "length : %s %ld\n", attr, *torsize);
+      writelog(LOG_DEBUG, "length : %s %ld", attr, *torsize);
     }
     else if(!strcmp(name, "type")) {
       /*
@@ -275,10 +275,10 @@ static int disectenclosure(xmlNode *encnode, size_t *torsize, unsigned char **ty
        */
       *type = calloc(strlen(attr)+1, 1);
       strcpy((char*)*type, attr);
-      writelog(LOG_DEBUG, "Type : '%s'\n", *type);
+      writelog(LOG_DEBUG, "Type : '%s'", *type);
     } 
     else {
-      writelog(LOG_ERROR, "unknown enclosuretype: '%s' : ,%s'\n", name, attr);
+      writelog(LOG_ERROR, "unknown enclosuretype: '%s' : ,%s'", name, attr);
     }
 
     prop = prop->next;
@@ -339,7 +339,7 @@ static int disectdescription(unsigned char *desc, unsigned char** showname, unsi
       !strcmp("Filename", name)) {
       *showname=calloc(strlen(value)+1, 1);
       strcpy((char*) *showname, value);
-      writelog(LOG_DEBUG, "Showname: %s\n", *showname);
+      writelog(LOG_DEBUG, "Showname: %s", *showname);
     }
     else if(!strcmp("Order", name)) {
       // Do nothing here no idea what order is supposed to do.
@@ -351,15 +351,15 @@ static int disectdescription(unsigned char *desc, unsigned char** showname, unsi
             !strcmp("Show Title", name)) {
       *episodetitle=calloc(strlen(value)+1, 1);
       strcpy((char*) *episodetitle, value);
-      writelog(LOG_DEBUG, "Episode title: %s\n", *episodetitle);
+      writelog(LOG_DEBUG, "Episode title: %s", *episodetitle);
     }
     else if(!strcmp("Season", name)) {
       *season = atoi(value);
-      writelog(LOG_DEBUG, "Season: %s %d\n", value, *season);
+      writelog(LOG_DEBUG, "Season: %s %d", value, *season);
     }
     else if(!strcmp("Episode", name)) {
       *episode = atoi(value);
-      writelog(LOG_DEBUG, "Episode: %s %d\n", value, *episode);
+      writelog(LOG_DEBUG, "Episode: %s %d", value, *episode);
     }
     else if(!strcmp("Episode Date", name)) {
       disectdate(value, episodedate);
@@ -680,7 +680,7 @@ int defaultrss(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *r
    */
   doc = xmlReadMemory(rssfile->memory, rssfile->size, url, NULL, 0);
   if (doc == NULL) {
-    writelog(LOG_ERROR, "Failed to parse document name '%s' filter %s %s:%d\n", name, filter, __FILE__, __LINE__);
+    writelog(LOG_ERROR, "Failed to parse document name '%s' filter %s %s:%d", name, filter, __FILE__, __LINE__);
     return -1;
   }
   root_element = xmlDocGetRootElement(doc);
@@ -688,7 +688,7 @@ int defaultrss(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *r
   /* Create xpath evaluation context */
   xpathCtx = xmlXPathNewContext(doc);
   if(xpathCtx == NULL) {
-    writelog(LOG_ERROR, "Error: unable to create new XPath context %s:%d\n", __FILE__, __LINE__);
+    writelog(LOG_ERROR, "Error: unable to create new XPath context %s:%d", __FILE__, __LINE__);
     xmlFreeDoc(doc); 
     return(-1);
   }
@@ -699,7 +699,7 @@ int defaultrss(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *r
   //xpathObj = xmlXPathEvalExpression(BAD_CAST toitems, xpathCtx);
   xpathObj = myXmlXPathEval(BAD_CAST toitems, xpathCtx);
   if(xpathObj == NULL) {
-    writelog(LOG_ERROR, "Error: unable to evaluate xpath expression \"%s\" %s:%d\n", toitems, __FILE__, __LINE__);
+    writelog(LOG_ERROR, "Error: unable to evaluate xpath expression \"%s\" %s:%d", toitems, __FILE__, __LINE__);
     xmlXPathFreeContext(xpathCtx); 
     xmlFreeDoc(doc); 
     return(-1);
@@ -759,13 +759,13 @@ int defaultrss(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *r
     if( rc < 0 ) {
       writelog(LOG_DEBUG, "No description found");
     }
-    writelog(LOG_DEBUG, "description: %s\n", description);
+    writelog(LOG_DEBUG, "description: %s", description);
 
     rc = getxpathstring(BAD_CAST tolink, xpathCtx, &link);
     if( rc < 0 ) {
       writelog(LOG_ERROR, "No link found");
     }
-    writelog(LOG_DEBUG, "link: %s\n", link);
+    writelog(LOG_DEBUG, "link: %s", link);
 
     rc = getxpathstring(BAD_CAST topubdate, xpathCtx, &pubdatestr);
     if( rc < 0 ) {
@@ -784,7 +784,7 @@ int defaultrss(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *r
       /*
        * When an error occures ignore record
        */
-      writelog(LOG_ERROR, "name failed: %s\n", title);
+      writelog(LOG_ERROR, "name failed: %s", title);
       continue;
     }
 
@@ -796,7 +796,7 @@ int defaultrss(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *r
       /*
        * When an error occures ignore record
        */
-      writelog(LOG_ERROR, "description failed: %s\n", description);
+      writelog(LOG_ERROR, "description failed: %s", description);
       continue;
     }
 
@@ -805,7 +805,7 @@ int defaultrss(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *r
       /*
        * When an error occures ignore record
        */
-      writelog(LOG_ERROR, "date failed: %s\n", description);
+      writelog(LOG_ERROR, "date failed: %s", description);
       continue;
     }
     rc = disectenclosure(encnode, &size, &type);
@@ -813,7 +813,7 @@ int defaultrss(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *r
       /*
        * When an error occures ignore record
        */
-      writelog(LOG_ERROR, "enclosure failed: %s\n", description);
+      writelog(LOG_ERROR, "enclosure failed: %s", description);
       continue;
     }
 

@@ -445,7 +445,7 @@ int findtorrentwrite(char *url, char *name)
    * Print to result
    */
   //int writelog(int level, char *str,...);
-  if(strcmp(url, torurl) != 0 && rv == 0) {
+  if(rv == 0 && strcmp(url, torurl) != 0) {
     writelog(LOG_NORMAL, "Origional url : %s", url);
     writelog(LOG_NORMAL, "Torrent url   : %s", torurl);
   }

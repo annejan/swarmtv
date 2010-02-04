@@ -75,12 +75,12 @@ int delsource(sqlite3 *db, const char *name)
   switch(rc) {
     case(ROWS_CHANGED):
       printf("Source '%s' deleted.\n", name);
-      writelog(LOG_NORMAL, "Source '%s' deleted. %s:%d", name, __FILE__, __LINE__);
+      writelog(LOG_NORMAL, "Source '%s' deleted.", name);
       return 0;
       break;
     case(ROWS_EMPTY):
       printf("Source '%s' not found, could not delete.\n", name);
-      writelog(LOG_NORMAL, "Source '%s' not found, could not delete. %s:%d", name, __FILE__, __LINE__);
+      writelog(LOG_NORMAL, "Source '%s' not found, could not delete.", name);
       return -1;
       break;
     default: 
