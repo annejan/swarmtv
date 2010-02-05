@@ -148,7 +148,7 @@ int sendmail(const char *host, const char *from, const char *to, const char *sub
   /*
    * Monitor for now
    */
-  smtp_set_monitorcb (session, monitor_cb, stdout, 1);
+  //smtp_set_monitorcb (session, monitor_cb, stdout, 1);
 
   /* Set the host running the SMTP server.  LibESMTP has a default port
      number of 587, however this is not widely deployed so the port
@@ -204,7 +204,7 @@ int sendmail(const char *host, const char *from, const char *to, const char *sub
   {
     char buf[128];
 
-    fprintf (stderr, "SMTP server problem %s\n",
+    writelog (LOG_ERROR, "SMTP server problem %s\n",
         smtp_strerror (smtp_errno (), buf, sizeof buf));
   }
   else
@@ -212,7 +212,7 @@ int sendmail(const char *host, const char *from, const char *to, const char *sub
     /* Report on the success or otherwise of the mail transfer.
     */
     status = smtp_message_transfer_status (message);
-    printf ("%d %s", status->code,
+    writelog(LOG_DEBUG, "%d %s", status->code,
         (status->text != NULL) ? status->text : "\n");
     smtp_enumerate_recipients (message, print_recipient_status, NULL);
   }
@@ -235,7 +235,7 @@ print_recipient_status (smtp_recipient_t recipient,
   const smtp_status_t *status;
 
   status = smtp_recipient_status (recipient);
-  printf ("%s: %d %s", mailbox, status->code, status->text);
+  writelog(LOG_DEBUG, "%s: %d %s", mailbox, status->code, status->text);
 }
 
 /* Callback function to read the message from a file.  Since libESMTP
@@ -385,7 +385,7 @@ handle_invalid_peer_certificate(long vfy_result)
     case X509_V_ERR_CERT_REJECTED:
       k="X509_V_ERR_CERT_REJECTED"; break;
   }
-  printf("SMTP_EV_INVALID_PEER_CERTIFICATE: %ld: %s\n", vfy_result, k);
+  writelog(LOG_DEBUG, "SMTP_EV_INVALID_PEER_CERTIFICATE: %ld: %s\n", vfy_result, k);
   return 1; /* Accept the problem */
 }
 
@@ -405,11 +405,12 @@ void event_cb (int event_no, void *arg,...)
     case SMTP_EV_WEAK_CIPHER: {
                                 int bits;
                                 bits = va_arg(alist, long); ok = va_arg(alist, int*);
-                                printf("SMTP_EV_WEAK_CIPHER, bits=%d - accepted.\n", bits);
+                                writelog(LOG_DEBUG, "SMTP_EV_WEAK_CIPHER, bits=%d - accepted.\n", bits);
                                 *ok = 1; break;
                               }
     case SMTP_EV_STARTTLS_OK:
-                             puts("SMTP_EV_STARTTLS_OK - TLS started here."); break;
+                             writelog(LOG_DEBUG, "SMTP_EV_STARTTLS_OK - TLS started here."); 
+                             break;
     case SMTP_EV_INVALID_PEER_CERTIFICATE: {
                                              long vfy_result;
                                              vfy_result = va_arg(alist, long); ok = va_arg(alist, int*);
@@ -418,21 +419,21 @@ void event_cb (int event_no, void *arg,...)
                                            }
     case SMTP_EV_NO_PEER_CERTIFICATE: {
                                         ok = va_arg(alist, int*); 
-                                        puts("SMTP_EV_NO_PEER_CERTIFICATE - accepted.");
+                                        writelog(LOG_DEBUG, "SMTP_EV_NO_PEER_CERTIFICATE - accepted.");
                                         *ok = 1; break;
                                       }
     case SMTP_EV_WRONG_PEER_CERTIFICATE: {
                                            ok = va_arg(alist, int*);
-                                           puts("SMTP_EV_WRONG_PEER_CERTIFICATE - accepted.");
+                                           writelog(LOG_DEBUG, "SMTP_EV_WRONG_PEER_CERTIFICATE - accepted.");
                                            *ok = 1; break;
                                          }
     case SMTP_EV_NO_CLIENT_CERTIFICATE: {
                                           ok = va_arg(alist, int*); 
-                                          puts("SMTP_EV_NO_CLIENT_CERTIFICATE - accepted.");
+                                          writelog(LOG_DEBUG, "SMTP_EV_NO_CLIENT_CERTIFICATE - accepted.");
                                           *ok = 1; break;
                                         }
     default:
-                                        printf("Got event: %d - ignored.\n", event_no);
+                                        writelog(LOG_DEBUG, "Got event: %d - ignored.\n", event_no);
   }
   va_end(alist);
 }
