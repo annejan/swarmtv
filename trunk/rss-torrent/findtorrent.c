@@ -268,7 +268,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
    */
   memset(&buffer, 0, sizeof(MemoryStruct));
 
-  writelog(LOG_DEBUG, "Scan url: '%s'\n", url);
+  writelog(LOG_DEBUG, "Scan url: '%s'", url);
 
   /*
    * Make sure no garbage is in here
@@ -281,7 +281,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
    */
   rc = downloadtobuffer( url, &buffer);
   if(rc != 0) {
-    writelog(LOG_NORMAL,  "%s: Failed to download.\n", url);
+    writelog(LOG_NORMAL,  "%s: Failed to download.", url);
     return 0;
   }
 
@@ -430,7 +430,7 @@ int findtorrentwrite(char *url, char *name)
   char            *torurl = NULL;
   MemoryStruct    *buffer = NULL;
 
-  writelog(LOG_DEBUG, "Writing torrent '%s' to file '%s'\n", url, name);
+  writelog(LOG_DEBUG, "Writing torrent '%s' to file '%s'", url, name);
 
   /*
    * Get the buffer and url to the torrent in there

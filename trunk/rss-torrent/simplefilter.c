@@ -44,7 +44,7 @@
 #define NODUP_NONE    ""
 #define NODUP_LINK    "SELECT title FROM downloaded WHERE link=?1"
 #define NODUP_UNIQUE  "SELECT title FROM downloaded WHERE link=?1 OR (season=?2 AND episode=?3 AND IREGEXP('REPLACE_TITLE', title))"
-#define NODUP_NEWER   "SELECT title FROM downloaded WHERE link=?1 OR (season>=?2 AND episode>=?3 AND IREGEXP('REPLACE_TITLE', title))"
+#define NODUP_NEWER   "SELECT title FROM downloaded WHERE link=?1 OR ((season=?2 AND episode>=?3) OR season>?2) AND IREGEXP('REPLACE_TITLE', title)"
 
 /*
  * Filter that is used to convert the simple filter into SQL.

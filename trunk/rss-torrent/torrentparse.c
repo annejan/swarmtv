@@ -180,7 +180,7 @@ static int parsetorrent(MemoryStruct *buffer, torprops **props)
    */
 	err = tbl_parse(&callbacks, state, buffer->memory, buffer->memory+buffer->size);
   if(err != TBL_E_NONE){
-    fprintf(stderr, "Error while parsing bencoded data.\n");
+    writelog(LOG_ERROR, "Error while parsing bencoded data.");
     return -1;
   }
 
