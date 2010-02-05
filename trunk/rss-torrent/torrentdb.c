@@ -29,6 +29,7 @@
 #include "database.h"
 #include "logfile.h"
 
+#define 	BUFSIZE 	20
 
 /*
  * Add a torrent to the newtorrent table.
@@ -164,4 +165,44 @@ void nonewtorrents(sqlite3 *db)
    * no errors
    */
   return;
+}
+
+/*
+ * Delete all newtorrents entris older the x days
+ * This function returns 0 on succes, -1 SQL on failure.
+ */
+int deloldnewtorents(sqlite3 *db, unsigned int days)
+{
+	char daystr[BUFSIZE+1];
+	int  rc=0;
+
+	/*
+	 * Query to delete old entries.
+	 */
+	char *query="DELETE from newtorrents where pubdate <  date('now', ?1)";
+
+	/*
+	 * Build string
+	 */
+	memset(daystr, 0, BUFSIZE+1);
+	snprintf(daystr, BUFSIZE, "-%d days", days);
+
+	/*
+	 * Execute query
+	 */
+	rc = executequery(db, query, "s", daystr);
+	if(rc == -1) {
+		return -1;
+	}
+	
+	/*
+	 * Log if we deleted old newtorrents records.
+	 */
+	if(rc == 1) {
+		writelog(LOG_DEBUG, "Deleted old torrents.");
+	} else {
+		writelog(LOG_DEBUG, "No newtorrent records have aged enough.");
+	}
+
+	return 0;
 }

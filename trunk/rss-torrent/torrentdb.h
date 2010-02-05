@@ -32,6 +32,7 @@ int addnewtorrent(sqlite3 *db,
                int  peers,
                size_t size);
 
+
 /*
  * Add a torrent to the downloaded table.
  */
@@ -44,9 +45,17 @@ void adddownloaded(sqlite3 *db,
                int  episode,
                int  simulate);
 
+
 /*
  * When Torrents are prosessed, they are no longer new
  * this method removes the new flag
  */
 void nonewtorrents(sqlite3 *db);
+
+
+/*
+ * Delete all newtorrents entris older the x days
+ * This function returns 0 on succes, -1 SQL on failure.
+ */
+int deloldnewtorents(sqlite3 *db, unsigned int days);
 

@@ -19,6 +19,7 @@
  */
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <sqlite3.h>
 #include <time.h>
 #include <string.h>
@@ -74,6 +75,35 @@ static int parserdownload(sqlite3 *db, char *name, char *url, char *filter, Memo
    */
   writelog(LOG_ERROR, "No filter found '%s', ignoring file %s:%d", filter, __FILE__, __LINE__);
   return -1;
+}
+
+/*
+ * Get the config value for the amount of time we want to retain data.
+ * Delete the older data.
+ */
+static void deleteold(sqlite3 *db)
+{
+	int rc;
+	int days;
+
+	/*
+	 * Get the config value.
+	 */
+	rc = configgetint(db, CONF_RETAIN, &days);
+	if(rc != 0) {
+		writelog(LOG_ERROR, "config value %s not set ! %s:%d", __FILE__, __LINE__);
+		exit(1);
+	}
+
+
+	/*
+	 * Delete the content.
+	 */
+	rc = deloldnewtorents(db, (unsigned int) days);
+	if(rc == -1) {
+		writelog(LOG_ERROR, "Database inconsistent, could not remove old newtorrent entries!", __FILE__, __LINE__);
+		exit(1);
+	}
 }
 
 /*
@@ -199,6 +229,7 @@ int runloop(sqlite3 *db, int onetime)
      * Torrents are no longer new
      */
     nonewtorrents(db);
+		deleteold(db);
 
     /*
      * Run once.
