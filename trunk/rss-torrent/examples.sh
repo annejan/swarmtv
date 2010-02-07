@@ -16,8 +16,8 @@ echo "Done."
 
 # INSERT INTO "sources" (name, url, filter) VALUES( "rsstorrents", "http://rsstorrents.com/rss.php?cat=8", "rsstorrent"); 
 echo "Inserting sources."
-  rsstorrent --add-source="Eztv:http://www.ezrss.it/feed/" --source-parser"defaultrss"
-  rsstorrent --add-source="The Piratebay:http://rss.thepiratebay.org/205" --source-parser"defaultrss"
+  rsstorrent --add-source="Eztv:http://www.ezrss.it/feed/" --source-parser="defaultrss"
+  rsstorrent --add-source="The Piratebay:http://rss.thepiratebay.org/205" --source-parser="defaultrss"
   rsstorrent --add-source="KickAssTorrents:http://www.kickasstorrents.com/tv/?rss=1" --source-parser="defaultrss"
 echo "Done."
 
