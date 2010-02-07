@@ -49,7 +49,7 @@ INSERT INTO "config" (prop, value, descr) VALUES("torrentdir", "~/torrents", "Pa
 INSERT INTO "config" (prop, value, descr) VALUES("logfile", "${RSSDIR}/rsstorrent.log", "Path to logfile.");
 INSERT INTO "config" (prop, value, descr) VALUES("lockfile", "${RSSDIR}/lockfile.pid", "Path to lockfile.");
 INSERT INTO "config" (prop, value, descr) VALUES("refresh", "3600", "Seconds between refreshes.");
-INSERT INTO "config" (prop, value, descr) VALUES("retain", "30", "The number of days feed information is stored.");
+INSERT INTO "config" (prop, value, descr) VALUES("retain", "30", "The number of days source information is retained.");
 INSERT INTO "config" (prop, value, descr) VALUES("default_parser", "defaultrss", "The default rss filter to add to new rss sources.");
 INSERT INTO "config" (prop, value, descr) VALUES("smtp_enable", "N", "'Y' is send email notifications on new download, 'N' is don't.");
 INSERT INTO "config" (prop, value, descr) VALUES("smtp_to", "foo@bar.nl", "Host to send the notifications to.");

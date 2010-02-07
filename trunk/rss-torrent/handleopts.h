@@ -21,7 +21,7 @@
 /*
  * Program version
  */
-#define PROGVERSION "0.6b"
+#define PROGVERSION "0.6"
 
 /*
  * Default timeout when no -i is provided

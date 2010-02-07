@@ -35,8 +35,12 @@
 
 /*
  * Get value of a config object.
- * When the property does not exist, *value is set to NULL
- * returncode is returncode of the sqlite query
+ * Make sure the free the value returned in the value pointer.
+ * arguments
+ * prop name of config property to retrieve
+ * value pointer to the pointer that is going to hold the retrieved value.
+ * returns
+ * 0 when the value was found, otherwise -1.
  */
 int configgetproperty(sqlite3 *db, char *prop, char **value);
 

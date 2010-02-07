@@ -173,14 +173,14 @@ static void optdeletefilter(sqlite3 *db, char *name)
 	if(!strcmp(name, "all")) {
 		rc = delallfilters(db);
 		if(rc == 0) {
-			printf("Delete all filters succesfull\n");
+			printf("Delete all filters succesful\n");
 		} else {
 			fprintf(stderr, "Deletion of all filters failed\n");
 		}
 	} else {
 		rc = delfilter(db, name);
 		if(rc == 0) {
-			printf("Delete filter: %s succesfull\n", name);
+			printf("Delete filter: %s succesful\n", name);
 		} else {
 			fprintf(stderr, "Delete filter: %s failed\n",  name);
 		}
@@ -274,6 +274,39 @@ static int verifyarguments(opts_struct *opts)
 }
 
 /*
+ * Uses the mail routine to send a testmail.
+ * Arguments :
+ * testxt, test message to send.
+ */
+static void testmail(sqlite3 *db, char *testtxt)
+{
+	int 	rc=0;
+	char *enable=NULL;
+
+	/*
+	 * Test if mail is enabled.
+	 */
+	rc = configgetproperty(db, CONF_SMTPENABLE, &enable);
+	if(strcmp(enable, "Y") != 0){
+		printf("Email notifications are not enabled.\n");
+		printf("Please enable them by putting value 'Y' in config value '%s'.\n", CONF_SMTPENABLE);
+		free(enable);
+		return;
+	}
+	free(enable);
+
+	/*
+	 * Test mail settings.
+	 */
+	rc = sendrssmail(db, testtxt, testtxt);
+	if(rc == 0) {
+		printf("Testmail sent successful!\n");
+	} else {
+		printf("Testmail sending failed!\n");
+	}
+}
+
+/*
  * handle Commandline options, setting up the structure for the complex 
  * arguments.
  */
@@ -346,7 +379,7 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
       case 'D': // delete rss source
         rc = delsource(db, optarg);
         if(rc == 0) {
-          printf("Delete source: %s succesfull\n", optarg);
+          printf("Delete source: %s succesful\n", optarg);
         } 
         break;
       case 'r': // run as daemon 
@@ -359,7 +392,7 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
         opts->nodetach = 1;
         break;
       case 'm': // Send test mail notification
-        sendrssmail(db, optarg, optarg);
+        testmail(db, optarg);
         stopop = 1; // no more
         break;
       case 'J': // List simple filter
@@ -377,14 +410,14 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
       case 'j': // Del simple filter
         rc = delsimple(db, optarg);
         if(rc == 0) {
-          printf("Deletion of simple filters '%s' Successfull.\n", optarg);
+          printf("Deletion of simple filters '%s' Successful.\n", optarg);
         }
         stopop =1; // no more
         break;
       case 'k': // Del all simple filters
         rc = delallsimple(db);
         if(rc == 0) {
-          printf("Deletion of all simple filters Successfull.\n");
+          printf("Deletion of all simple filters Successful.\n");
         }
         stopop =1; // no more
         break;

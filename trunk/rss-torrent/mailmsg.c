@@ -126,9 +126,12 @@ int sendrssmail(sqlite3 *db, const char *subject, const char *msgtxt)
  * to   : to address
  * subject : mailsubject
  * msgtext : message text
+ * returns :
+ * 0 on succes, else -1
  */
 int sendmail(const char *host, const char *from, const char *to, const char *subject, const char *msgtxt)
 {
+	int						 retval=0;
   smtp_session_t session;
   smtp_message_t message;
   smtp_recipient_t recipient;
@@ -198,33 +201,38 @@ int sendmail(const char *host, const char *from, const char *to, const char *sub
    */
   smtp_set_message_str(message, (char*) msgtxt);
 
-  /* Initiate a connection to the SMTP server and transfer the
-     message. */
+  /* 
+	 * Initiate a connection to the SMTP server and transfer the
+	 * message. 
+	 */
   if (!smtp_start_session (session))
   {
     char buf[128];
 
     writelog (LOG_ERROR, "SMTP server problem %s\n",
         smtp_strerror (smtp_errno (), buf, sizeof buf));
+		retval = -1;
   }
   else
   {
-    /* Report on the success or otherwise of the mail transfer.
-    */
+    /* 
+		 * Report on the success or otherwise of the mail transfer.
+		 */
     status = smtp_message_transfer_status (message);
     writelog(LOG_DEBUG, "%d %s", status->code,
         (status->text != NULL) ? status->text : "\n");
     smtp_enumerate_recipients (message, print_recipient_status, NULL);
   }
 
-  /* Free resources consumed by the program.
-  */
+  /* 
+	 * Free resources consumed by the program.
+	 */
   smtp_destroy_session (session);
   //auth_destroy_context (authctx);
   //fclose (fp);
   auth_client_exit ();
   //exit (0);
-  return 0;
+  return retval;
 }
 
 /* Callback to prnt the recipient status */
