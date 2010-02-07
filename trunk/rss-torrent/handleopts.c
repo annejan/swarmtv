@@ -218,6 +218,13 @@ static int verifyarguments(opts_struct *opts)
 		retval=-1;
 	}
 	/*
+	 * run and simple
+	 */
+	if(opts->run && opts->simplename){
+		fprintf(stderr, "Error, you can not use add simple and run in the same command line.\n");
+		retval=-1;
+	}
+	/*
 	 * sourcefilter no filter
 	 */
 	if(opts->sourcefilter && !(opts->source)){
@@ -245,6 +252,7 @@ static int verifyarguments(opts_struct *opts)
 	 */
 	if( !opts->simplename && 
 			(opts->simpletitle || 
+			 opts->simpleexclude || 
 			 opts->simplemaxsize || 
 			 opts->simpleminsize ||
 			 opts->simplenodup ||
