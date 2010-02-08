@@ -49,6 +49,9 @@ static void *myrealloc(void *ptr, size_t size)
     return calloc(size, 1);
 }
 
+/*
+ * Callback function to download content to memory
+ */
 static size_t WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
 {
   size_t realsize = size * nmemb;
@@ -63,6 +66,9 @@ static size_t WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *da
   return realsize;
 }
 
+/*
+ * Callback function to download header to memory
+ */
 static size_t WriteHeaderCallback(void *ptr, size_t size, size_t nmemb, void *data)
 {
   size_t realsize = size * nmemb;
@@ -185,7 +191,7 @@ int downloadtobuffer(char *url, MemoryStruct *chunk)
 }
 
 /*
- * Download callback
+ * Download callback to file.
  */
 static size_t curlfwrite(void *buffer, size_t size, size_t nmemb, void *stream)
 {
@@ -201,6 +207,10 @@ static size_t curlfwrite(void *buffer, size_t size, size_t nmemb, void *stream)
 
 /*
  * Download to file.
+ * arguments 
+ * url	Url to download from
+ * path	Path to store downloaded content in.
+ * return
  * return 0 on succes and -1 on failure.
  */
 int downloadtofile(char *url, char *path)
@@ -273,6 +283,12 @@ void freedownload(MemoryStruct *chunk)
  * This method extracts a given field from the http-header.
  * The pointer returned contains the value.
  * after use free the returned string
+ * Arguments
+ * name		Header value name.
+ * value	Pointer to store value in.
+ * chuck	Buffer to read header from.
+ * Return
+ * 0 on success, -1 on failure
  */
 int getheadersvalue(char *name, char **value, MemoryStruct *chunk)
 {
@@ -330,6 +346,11 @@ int getheadersvalue(char *name, char **value, MemoryStruct *chunk)
 
 /*
  * Write retrieved buffer to file.
+ * arguments
+ * filename		path to store file in
+ * buffer			Buffer holding information.
+ * return
+ * 0 on succes -1 on failure
  */
 int writebuffer(char *filename, MemoryStruct *buffer) 
 {
@@ -368,3 +389,4 @@ int writebuffer(char *filename, MemoryStruct *buffer)
    */
   return 0;
 }
+

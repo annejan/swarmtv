@@ -61,9 +61,13 @@ void version (void);
 int sendmail(const char *host, const char *from, const char *to, const char *subject, const char *msgtxt);
 
 /*
+ * Send email, using settings in the config database.
+ * Arguments
  * db       : pointer to sqlite3 database
  * subject  : pointer to mail subject
  * msqtext  : Message text for mail body
+ * returns
+ * 0 on success, -1 on error
  */
 int sendrssmail(sqlite3 *db, const char *subject, const char *msgtxt)
 {
@@ -176,18 +180,23 @@ int sendmail(const char *host, const char *from, const char *to, const char *sub
     smtp_auth_set_context (session, authctx);
 #endif
 
-  /* Set the reverse path for the mail envelope.  (NULL is ok)
-  */
+  /* 
+	 * Set the reverse path for the mail envelope.  (NULL is ok)
+	 */
   smtp_set_reverse_path (message, from);
 
-  /* RFC 2822 doesn't require recipient headers but a To: header would
-     be nice to have if not present. */
+  /* 
+	 * RFC 2822 doesn't require recipient headers but a To: header would
+   * be nice to have if not present. 
+	 */ 
   smtp_set_header (message, "From", from, from);
   smtp_set_header (message, "To", to, to);
   smtp_set_header (message, "Reply-To", "None", "None");
 
-  /* Set the Subject: header.  For no reason, we want the supplied subject
-     to override any subject line in the message headers. */
+  /* 
+	 * Set the Subject: header.  For no reason, we want the supplied subject
+   * to override any subject line in the message headers. 
+	 */
   smtp_set_header (message, "Subject", subject);
 
   /*
@@ -235,10 +244,14 @@ int sendmail(const char *host, const char *from, const char *to, const char *sub
   return retval;
 }
 
-/* Callback to prnt the recipient status */
-  void
-print_recipient_status (smtp_recipient_t recipient,
-    const char *mailbox, void *arg unused)
+/*
+ * Callback to prnt the recipient status 
+ * Argument
+ * recipient	
+ * mailbox		
+ */
+void print_recipient_status(smtp_recipient_t recipient,
+    												const char *mailbox, void *arg unused)
 {
   const smtp_status_t *status;
 
@@ -262,8 +275,7 @@ print_recipient_status (smtp_recipient_t recipient,
    */
 #define BUFLEN	8192
 
-  void
-monitor_cb (const char *buf, int buflen, int writing, void *arg)
+void monitor_cb (const char *buf, int buflen, int writing, void *arg)
 {
   FILE *fp = arg;
 
@@ -280,10 +292,10 @@ monitor_cb (const char *buf, int buflen, int writing, void *arg)
     putc ('\n', fp);
 }
 
-/* Callback to request user/password info.  Not thread safe. */
-  int
-authinteract (auth_client_request_t request, char **result, int fields,
-    void *arg unused)
+/* 
+ * Callback to request user/password info.  Not thread safe. 
+ */
+int authinteract (auth_client_request_t request, char **result, int fields, void *arg unused)
 {
   char prompt[64];
   static char resp[512];
@@ -320,8 +332,16 @@ authinteract (auth_client_request_t request, char **result, int fields,
   return 1;
 }
 
-  int
-tlsinteract (char *buf, int buflen, int rwflag unused, void *arg unused)
+
+/*
+ * Arguments
+ * buf
+ * buflen
+ * rwflag
+ * arg
+ * return
+ */
+int tlsinteract (char *buf, int buflen, int rwflag unused, void *arg unused)
 {
   char *pw;
   int len;
@@ -333,8 +353,12 @@ tlsinteract (char *buf, int buflen, int rwflag unused, void *arg unused)
   strcpy (buf, pw);
   return len;
 }
-  int
-handle_invalid_peer_certificate(long vfy_result)
+
+
+/*
+ * handles peer certificate
+ */
+int handle_invalid_peer_certificate(long vfy_result)
 {
   const char *k ="rare error";
   switch(vfy_result) {
@@ -397,7 +421,7 @@ handle_invalid_peer_certificate(long vfy_result)
   return 1; /* Accept the problem */
 }
 
-void event_cb (int event_no, void *arg,...)
+void event_cb(int event_no, void *arg,...)
 {
   va_list alist;
   int *ok;
@@ -445,5 +469,4 @@ void event_cb (int event_no, void *arg,...)
   }
   va_end(alist);
 }
-
 

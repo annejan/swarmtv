@@ -54,8 +54,13 @@ int configgetproperty(sqlite3 *db, char *prop, char **value)
   return -1;
 }
 
+
 /*
  * Get value of a config object.
+ * Arguments
+ * prop 	name of the propertie
+ * number the pointer the propvalie will be put in.
+ * return 0 when prop is found, -1 when not found.
  */
 int configgetint(sqlite3 *db, char *prop, int *number) 
 {
@@ -73,8 +78,14 @@ int configgetint(sqlite3 *db, char *prop, int *number)
   return -1;
 }
 
+
 /*
  * Get value of a config object.
+ * Arguments
+ * prop 	name of the propertie
+ * number the pointer the propvalie will be put in.
+ * return 
+ * 0 when prop is found, -1 when not found.
  */
 int configgetlong(sqlite3 *db, char *prop, long *number) 
 {
@@ -91,6 +102,7 @@ int configgetlong(sqlite3 *db, char *prop, long *number)
 
   return -1;
 }
+
 
 /*
  * Print all available config items to the screen.
@@ -114,8 +126,13 @@ void printconfigitems(sqlite3 *db)
   printf("\n#############\n");
 }
 
+
 /*
  * Set config item
+ * Arguments
+ * prop		propertie to set
+ * value	Value to set
+ * returns
  * When not found -1 is returned.
  * On succes 0 is returned.
  */
@@ -202,3 +219,4 @@ int setconfigitem(sqlite3 *db, const char *prop, const char *value)
    */
   return 0;
 }
+

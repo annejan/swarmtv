@@ -50,6 +50,8 @@ const char *query="select name, url, parser from sources";
  * Apply a filter to the downloaded RSS code.
  * This routine holdes the refferences to different kind of filters.
  * (For now only rsstorrent.com format)
+ * Return
+ * 0 when okay, on error -1
  */
 static int parserdownload(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssfile)
 {
@@ -80,6 +82,7 @@ static int parserdownload(sqlite3 *db, char *name, char *url, char *filter, Memo
 /*
  * Get the config value for the amount of time we want to retain data.
  * Delete the older data.
+ * Exits status 1 on error
  */
 static void deleteold(sqlite3 *db)
 {
@@ -108,6 +111,7 @@ static void deleteold(sqlite3 *db)
 
 /*
  * Do the main work here
+ * Download the feeds and pars them.
  */
 static void dowork(sqlite3 *db){
   /*
@@ -139,12 +143,6 @@ static void dowork(sqlite3 *db){
     sqlite3_free(zErrMsg);
     return;
   }
-
-  /*
-   * Get number of columns
-   * int sqlite3_column_count(sqlite3_stmt *pStmt);
-   */
-  //cols = sqlite3_column_count(ppStmt);
 
   /*
    * loop until the end of the dataset is found
@@ -183,15 +181,16 @@ static void dowork(sqlite3 *db){
    * Done with query, finalizing.
    */
   rc = sqlite3_finalize(ppStmt);
-  /*
-   * For every source download and parse it.
-   */
 }
 
 
 /*
  * Main loop, dispatches tasks
  * When onetime != 0 run once then exit
+ * Argument
+ * onetime when ! 0 runloop only runs one time.
+ * Returns
+ * 0 for now.
  */
 int runloop(sqlite3 *db, int onetime)
 {
@@ -204,6 +203,9 @@ int runloop(sqlite3 *db, int onetime)
   rc = configgetint(db, CONF_REFRESH, &timewait);
   writelog(LOG_NORMAL, "Starting daemon, refresh %ds", timewait);
 
+	/*
+	 * Keep running until...
+	 */
   while(true){
     before = time(NULL);
     /*
@@ -221,6 +223,9 @@ int runloop(sqlite3 *db, int onetime)
       timeleft = timewait;
     }
 
+		/*
+		 * Execute SQL and simple filters on new entries.
+		 */
     writelog(LOG_DEBUG,"Checking for new torrents to download.");
     downloadtorrents(db);
     downloadsimple(db, 0);

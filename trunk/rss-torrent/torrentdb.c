@@ -33,6 +33,17 @@
 
 /*
  * Add a torrent to the newtorrent table.
+ * Arguments
+ * title		Title of the torrent
+ * link			The url to the torrent
+ * pubdate	The date the torrent was published
+ * category	The category of the content
+ * season		Season
+ * episode	Episode
+ * seeds		Number of seeds
+ * size			Size of the content
+ * Returns
+ * 0 on succes, exits on -1 on failure
  */
 int addnewtorrent(sqlite3 *db,
                char *title,
@@ -90,6 +101,14 @@ int addnewtorrent(sqlite3 *db,
 
 /*
  * Add a torrent to the downloaded table.
+ * Arguments
+ * title			Title of the torrent 
+ * link				URL of the link just downloaded
+ * pubdate		The date the torrent was released
+ * category		Cathegory of the torrent content.
+ * season			Season number
+ * episode		Episode number
+ * simulate		0 to log addition, 1 adds anyway, but does not log at all.
  */
 void adddownloaded(sqlite3 *db,
                char *title,
@@ -100,8 +119,8 @@ void adddownloaded(sqlite3 *db,
                int  episode,
                int  simulate)
 {
-  int           rc;
-  time_t        now;
+  int           rci=0;
+  time_t        now=0;
 
   char *query = "INSERT INTO downloaded (title, link, pubdate, category, season, episode, date) "
                 "VALUES (?1, ?2, ?3, ?4, ?5, ?6,  datetime(?7, 'unixepoch', 'localtime'))";
@@ -170,6 +189,10 @@ void nonewtorrents(sqlite3 *db)
 /*
  * Delete all newtorrents entris older the x days
  * This function returns 0 on succes, -1 SQL on failure.
+ * Arguments
+ * days 	The number of days records get retained in the newtorrents table.
+ * returns
+ * -1 on error, 0 on succes
  */
 int deloldnewtorents(sqlite3 *db, unsigned int days)
 {
@@ -206,3 +229,4 @@ int deloldnewtorents(sqlite3 *db, unsigned int days)
 
 	return 0;
 }
+

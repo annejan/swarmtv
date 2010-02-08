@@ -44,6 +44,7 @@
 #define NODOWN_EXT  "\\.(gif|png|jpg|js|(r|c)ss|xml|jsf|exe|html|php)$"
 #define NODOWN_TEXT  "(/faq/|/forum/|/login/|/showlist/|calendar|php[^?]|news)"
 
+
 /*
  * This function returns 1 when the file matches one of the uniteresting formatting.
  * Else 0 is returned.
@@ -63,6 +64,7 @@ static int uninteresting(char *url)
    */
   return rc;
 }
+
 
 /*
  * This is an HTML document parser, that prints all <a href=".."/> values
@@ -109,6 +111,7 @@ void htmlcleanup(xmlXPathObjectPtr xpathObj)
   /* Cleanup of XPath data */
   xmlXPathFreeObject(xpathObj);
 }
+
 
 /*
  * Extract base name from url
@@ -160,6 +163,7 @@ static void getbasename(char *url, char **basename)
   //printf("Found basename :%s\n", *basename);
 }
 
+
 /*
  * Resolve relative path
  * when link is a relative link link is completed.
@@ -205,6 +209,7 @@ static void resolvrel(char *fullurl, char *link, char **fulllink)
   free(basename);
 }
 
+
 /*
  * Get value of href attribute from node
  */
@@ -233,6 +238,7 @@ static char *gethrefvalue(xmlNode *node)
    */
   return NULL;
 }
+
 
 /*
  * This is a recursive function.
@@ -420,6 +426,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
   return 0;
 }
 
+
 /*
  * Finds and writes torrent to file
  */
@@ -470,3 +477,4 @@ int findtorrentwrite(char *url, char *name)
 
   return rv;
 }
+

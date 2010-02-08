@@ -34,6 +34,9 @@
  * when the first char of filename is a ~ it gets replaced by 
  * the path to the homedir
  * free destpath afterwards
+ * Arguments
+ * origpath	The path containing '~' and stuff
+ * destpath	The path compleded and all
  */
 void completepath(const char *origpath, char **destpath)
 {
@@ -68,9 +71,14 @@ void completepath(const char *origpath, char **destpath)
   }
 }
 
+
 /*
  * Test if a file or directory exists
  * return 0 when found, -1 if not found
+ * Arguments
+ * path			
+ * returns
+ * 0 on success, -1 on error (or when not found).
  */
 int fsexists(const char *path) 
 {
@@ -89,6 +97,10 @@ int fsexists(const char *path)
  * Test if a directory is writable
  * This is done by creating a testfile named "test.file",
  * and deleting it afterwards.
+ * Arguments
+ * path		Path to file to be tested.
+ * Return
+ * 0 on succes, -1 on failure (not writable)
  */
 int testwrite(const char *path)
 {
@@ -133,3 +145,4 @@ int testwrite(const char *path)
     return -1;
   }
 }
+

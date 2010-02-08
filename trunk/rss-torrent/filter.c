@@ -218,6 +218,9 @@ int addfilter(sqlite3 *db, const char *name, const char *filter, const char *dou
 
 /*
  * Print filter in a way it could be modified and reentered
+ * Arguments 
+ * appname		The name of the executable
+ * filtername	The name of the filter to print. 	
  */
 void printshellfilter(sqlite3 *db, char *appname, char *filtername)
 {
@@ -236,47 +239,47 @@ void printshellfilter(sqlite3 *db, char *appname, char *filtername)
   /*
    * Prepare the sqlite statement
    */
-  rc = sqlite3_prepare_v2(
-      db,                 /* Database handle */
-      query,            /* SQL statement, UTF-8 encoded */
-      strlen(query),    /* Maximum length of zSql in bytes. */
-      &ppStmt,             /* OUT: Statement handle */
-      &pzTail              /* OUT: Pointer to unused portion of zSql */
-      );
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
-    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
-    sqlite3_free(zErrMsg);
-    return;
-  }
+	rc = sqlite3_prepare_v2(
+			db,                 /* Database handle */
+			query,            /* SQL statement, UTF-8 encoded */
+			strlen(query),    /* Maximum length of zSql in bytes. */
+			&ppStmt,             /* OUT: Statement handle */
+			&pzTail              /* OUT: Pointer to unused portion of zSql */
+			);
+	if( rc!=SQLITE_OK ){
+		writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
+		writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+		sqlite3_free(zErrMsg);
+		return;
+	}
 
-  /*
-   * bind property and value to the query
-   */
-  rc = sqlite3_bind_text(ppStmt, 1, filtername, -1, SQLITE_TRANSIENT);
-  if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_bind_text failed on name %s:%d" __FILE__, __LINE__);  
-    return;
-  }
+	/*
+	 * bind property and value to the query
+	 */
+	rc = sqlite3_bind_text(ppStmt, 1, filtername, -1, SQLITE_TRANSIENT);
+	if( rc!=SQLITE_OK ){
+		writelog(LOG_ERROR, "sqlite3_bind_text failed on name %s:%d" __FILE__, __LINE__);  
+		return;
+	}
 
-  /*
-   * Get number of columns
-   * int sqlite3_column_count(sqlite3_stmt *pStmt);
-   */
-  cols = sqlite3_column_count(ppStmt);
+	/*
+	 * Get number of columns
+	 * int sqlite3_column_count(sqlite3_stmt *pStmt);
+	 */
+	cols = sqlite3_column_count(ppStmt);
 
-  /*
-   * Execute query.
-   */
-  rc = sqlite3_step(ppStmt);
-  if(rc == SQLITE_DONE) {
-    printf("Filter with name '%s' not found\n", filtername);
-    return;
-  }
+	/*
+	 * Execute query.
+	 */
+	rc = sqlite3_step(ppStmt);
+	if(rc == SQLITE_DONE) {
+		printf("Filter with name '%s' not found\n", filtername);
+		return;
+	}
 
-  /*
-   * Get Values
-   */
+	/*
+	 * Get Values
+	 */
   filterstring = sqlite3_column_text(ppStmt, 0);
   nodoublestring = sqlite3_column_text(ppStmt, 1);
 
@@ -298,3 +301,4 @@ void printshellfilter(sqlite3 *db, char *appname, char *filtername)
   
   // print filter shell line 
 }
+

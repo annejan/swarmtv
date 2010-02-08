@@ -32,8 +32,14 @@
 #include "database.h"
 #include "filesystem.h"
 
+
 /*
  * Create a filecopy of the database.
+ * Arguments 
+ * outfile		Destination path
+ * infile			Source path
+ * returns
+ * 0 on success -1 on failure
  */
 static int copyfile(char *outfile, char *infile)
 {
@@ -94,9 +100,15 @@ static int copyfile(char *outfile, char *infile)
   return 0;
 }
 
+
 /*
  * Create copy of database
  * and create a sqlite3 pointer to the database copy.
+ * arguments
+ * sourcedbname		path to source database
+ * sandboxdbname	path to destination database
+ * return
+ * returns pointer to sandbox db.
  */
 sandboxdb *createsandbox(char *sourcedbname, char *sandboxdbname)
 {
@@ -133,9 +145,14 @@ sandboxdb *createsandbox(char *sourcedbname, char *sandboxdbname)
   return sandbox;
 }
 
+
 /*
  * Close the database.
  * delete the sandboxed database.
+ * Arguments
+ * Sandbox	Pointer the sandbox database
+ * Return
+ * 0 on succes otherwise -1
  */
 int closesandbox(sandboxdb *sandbox)
 {

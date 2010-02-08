@@ -57,10 +57,13 @@ static int testdouble(sqlite3 *db, char *nodouble, char *link, int season, int e
  */
 static void dodownload(sqlite3 *db, char *link, char *title, int season, int episode, char *pubdate);
 
+
 /*
  * Get the filters from the database.
  * apply the filters.
  * then download the results.
+ * return
+ * return 0 on succes, -1 on failure
  */
 int downloadtorrents(sqlite3 *db)
 {
@@ -120,6 +123,7 @@ int downloadtorrents(sqlite3 *db)
    */
   return rc;
 }
+
 
 /*
  * Test for double downloads.
@@ -347,12 +351,15 @@ void applyfilter(sqlite3 *db, char *name, char* nodouble, int simulate, char *fi
   rc = sqlite3_finalize(ppStmt);
 }
 
+
 /*
  * Test torrentdir
+ * returns 
+ * 0 on succes otherwise -1
  */
 int testtorrentdir(sqlite3 *db)
 {
-  int rc;
+  int rc=0;
   char *path = NULL;
   char *fullpath = NULL;
 
@@ -389,9 +396,16 @@ int testtorrentdir(sqlite3 *db)
   return rc;
 }
 
+
 /*
  * Do download.
  * take url, create name and call curl routine
+ * Arguments 
+ * link			Link to the download
+ * title		Document title
+ * season   Season number
+ * episode	Episode number
+ * pubdate	Date the torrent was published.
  */
 static void dodownload(sqlite3 *db, char *link, char *title, int season, int episode, char *pubdate) 
 {

@@ -214,6 +214,12 @@ int initdatabase(
  * the returned value will be put into text
  * make sure to free text after use
  * passing NULL to the fmt argument means no arguments.
+ * Arguments
+ * text
+ * query
+ * fmt
+ * return
+ * 0 on succes, -1 on failure
  */
 int dosingletextquery(sqlite3 *db, const unsigned char **text, const char *query, char *fmt, ...) 
 {
@@ -488,8 +494,11 @@ int executequery(sqlite3 *db, const char *query, char *fmt, ...)
 /*
  * Prints columns from query to standard out.
  * third argumnt is the number of rows returned.
- * return 0 when okay
- * return -1 on error
+ * Arguments
+ * query	query to print.
+ * Return
+ * return 0 when okay.
+ * return -1 on error.
  */
 int printquery(sqlite3 *db, const char *query)
 {
@@ -560,3 +569,4 @@ int printquery(sqlite3 *db, const char *query)
    */
   return rc;
 }
+
