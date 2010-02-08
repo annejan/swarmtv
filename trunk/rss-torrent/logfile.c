@@ -49,7 +49,6 @@
 #endif
 
 
-static FILE *log=NULL;
 
 int initlog(char *logpath);
 
@@ -91,11 +90,13 @@ int initlogdb(sqlite3 *db)
  */
 int initlog(char *logpath)
 {
+	FILE *log=NULL;
   char *fullpath=NULL;
 
   completepath(logpath, &fullpath);
 
   log = fopen(fullpath,"a+");
+	fclose(log);
 
   free(fullpath);
 
@@ -116,15 +117,6 @@ int writelog(int level, char *str,...)
   time_t now;
 
   if(level > LOG_LEVEL) {
-
-    /*
-     * log is null, file is not open.
-     */
-    if (log==NULL) {
-      fprintf(stderr, "Logfile not initialized!\n");
-      return -1;
-    }
-
     /*
      * What time is now ?
      */
@@ -135,28 +127,28 @@ int writelog(int level, char *str,...)
     /*
      * Build string
      */
-    fprintf(log,"%s ",s);
+    printf("%s ",s);
     switch(level) {
       case LOG_DEBUG:
-        fprintf(log,"(D)");
+        printf("(D)");
         break;
       case LOG_NORMAL:
-        fprintf(log,"(N)");
+        printf("(N)");
         break;
       case LOG_ERROR:
-        fprintf(log,"(E)");
+        printf("(E)");
         break;
     }
-    fprintf(log," : ");
+    printf(" : ");
 
     va_list arglist;
     va_start(arglist,str);
-    vfprintf(log,str,arglist);
+    vprintf(str,arglist);
     va_end(arglist);
-    fprintf(log," \n");
+    printf(" \n");
 
 
-    fflush(log);
+		fflush(stdout);
   }
 
   return 1;
@@ -171,6 +163,4 @@ void closelog()
   /*
    * Closing logfile.
    */
-  fclose(log);
-  //free(fullpath);
 }

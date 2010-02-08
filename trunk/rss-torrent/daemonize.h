@@ -22,7 +22,7 @@
 /*
  * Fork process to daemon.
  */
-void daemonize(void);
+void daemonize(char *path);
 
 /*
  * check Lockfile 

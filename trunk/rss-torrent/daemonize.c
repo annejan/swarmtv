@@ -30,7 +30,7 @@
 /*
  * Fork process to daemon.
  */
-void daemonize(void)
+void daemonize(char *path)
 {
   pid_t pid, sid;
 
@@ -64,10 +64,13 @@ void daemonize(void)
   //  exit(EXIT_FAILURE);
   //}
 
-  /* Redirect standard files to /dev/null */
+  /*
+	 * Redirect input files to /dev/null.
+	 * Redirect all else to given path.
+	 */
   freopen( "/dev/null", "r", stdin);
-  freopen( "/dev/null", "w", stdout);
-  //freopen( "/dev/null", "w", stderr);
+  freopen( path, "w", stdout);
+  freopen( path, "w", stderr);
 }
 
 /*

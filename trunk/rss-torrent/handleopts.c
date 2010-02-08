@@ -628,6 +628,8 @@ static void runmode(sqlite3 *db, opts_struct *opts)
 {
 	int 		rc=0;
 	char    *lockpath=NULL;
+	char		*logpath=NULL;
+	char		*logfullpath=NULL;
 
 	/*
 	 * Test if torrent directory is writable
@@ -644,7 +646,13 @@ static void runmode(sqlite3 *db, opts_struct *opts)
 		 */
 		if(opts->nodetach == 0 && opts->onetime == 0) {
 			printf("Forking to background.\n");
-			daemonize();
+			rc = configgetproperty(db, CONF_LOGFILE, &logpath);
+			if(rc == 0) {
+				completepath(logpath, &logfullpath);
+				daemonize(logpath);
+			} else {
+				daemonize("/dev/null");
+			}
 		} else {
 			printf("No forking, running on shell.\n");
 		}
@@ -655,6 +663,8 @@ static void runmode(sqlite3 *db, opts_struct *opts)
 		configgetproperty(db, CONF_LOCKFILE, &lockpath);
 		lockfile(lockpath);
 		free(lockpath);
+		free(logpath);
+		free(logfullpath);
 
 		/*
 		 * Call main loop here.
