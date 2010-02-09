@@ -30,25 +30,6 @@
 #define HTTP_SERVER       "Server"
 
 /*
- * Struct holding file info
- */
-struct FtpFile {
-  const char *filename;
-  FILE *stream;
-};
-
-/*
- * Struct holing pointer and size of downloaded file.
- */
-typedef struct{
-  char *memory;
-  size_t size;
-  char *header;
-  size_t headersize;
-} MemoryStruct; 
-
-
-/*
  * Download url and put the resulting data in chunk.
  */
 int downloadtobuffer(char *url, MemoryStruct *chunk);

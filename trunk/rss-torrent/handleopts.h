@@ -29,27 +29,7 @@
 #define  DEFAULTSEC 3600
 
 /*
- * options for after the getopt loop.
+ * Handles the arguments, and Calls the subroutines when needed.
  */
-typedef struct {
-  int run;							// run 
-  int nodetach;					// run in forground 
-  int testfilt;					// Only test the filter
-  int onetime;					// run once then exit
-	char *sourcefilter; 	// source filter 
-	char *source;					// source
-	char *filter;					// sql downloadfilter
-	char *doublefilter;		// sql no duplicate filter
-	char *simplename;			// Simple filter name
-	char *simpletitle;		// Simple title regexp
-	char *simpleexclude;	// Simple exclude regexp
-	char *simplemaxsize;	// Simple max size
-	char *simpleminsize;	// Simple minimal size
-	char *simplenodup;	// Simple no double filter type
-	char *simpleseason;		// From what season to download
-	char *simpleepisode;	// From episode
-  char *simpledel;      // Name of simple filter to delete
-} opts_struct;
-
 void handleopts(sqlite3 *db, int argc, char *argv[]);
 

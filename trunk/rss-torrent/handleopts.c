@@ -25,18 +25,20 @@
 #include <string.h>
 #include <sqlite3.h>
 
+#include "types.h"
 #include "database.h"
 #include "config.h"
 #include "regexp.h"
+#include "filesystem.h"
 #include "source.h"
 #include "filter.h"
-#include "runloop.h"
 #include "logfile.h"
 #include "daemonize.h"
 #include "mailmsg.h"
 #include "sandboxdb.h"
 #include "torrentdownload.h"
 #include "handleopts.h"
+#include "runloop.h"
 #include "testfilter.h"
 #include "simplefilter.h"
 
@@ -273,7 +275,7 @@ static int verifyarguments(opts_struct *opts)
 	/*
 	 * Nodetach and ontime should be used together with run
 	 */
-	if(!opts->run && (opts->nodetach || opts->onetime)) {
+	if(!opts->run && (opts->nodetach || opts->onetime == once)) {
 		fprintf(stderr, "Error, run options can only be used together with the run command.\n");
 		retval=-1;
 	}
@@ -393,8 +395,8 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
       case 'r': // run as daemon 
         opts->run = 1;
         break;
-      case 'R': // run as daemon 
-        opts->onetime = 1;
+      case 'R': // run once
+        opts->onetime = once;
         break;
       case 'n': // no detach
         opts->nodetach = 1;
@@ -644,7 +646,7 @@ static void runmode(sqlite3 *db, opts_struct *opts)
 		 * when nodetach is 0
 		 * when not running once
 		 */
-		if(opts->nodetach == 0 && opts->onetime == 0) {
+		if(opts->nodetach == 0 && opts->onetime == (LOOPMODE) loop) {
 			printf("Forking to background.\n");
 			rc = configgetproperty(db, CONF_LOGFILE, &logpath);
 			if(rc == 0) {

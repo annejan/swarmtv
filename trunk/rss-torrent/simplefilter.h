@@ -19,20 +19,6 @@
  */
 
 /*
- * Struct holding the values to add to the database
- */
-typedef struct {
-	char *name;			// Simple filter name
-	char *title;		// Simple title regexp
-	char *exclude;	// Simple exclude regexp
-	double maxsize;	// Simple max size
-	double minsize;	// Simple minimal size
-	char *nodup;	// Simple no double filter type
-	int fromseason;		// From what season to download
-	int fromepisode;	// From episode
-} simplefilter_struct;
-
-/*
  * Add simple filter
  * returns 0 on succes, else -1
  */
@@ -76,5 +62,5 @@ int delsimple(sqlite3 *db, const char *name);
  * Calls SQL filters routines for further handling.
  * simultate 0 for real behaviour, 1 for simulation mode.
  */
-int downloadsimple(sqlite3 *db, int simulate);
+int downloadsimple(sqlite3 *db, SIM simulate);
 

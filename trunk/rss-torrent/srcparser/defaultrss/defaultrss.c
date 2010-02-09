@@ -30,6 +30,7 @@
 #include <string.h>
 #include <time.h>
 
+#include "types.h"
 #include "curlfile.h"
 #include "regexp.h"
 #include "torrentdb.h"

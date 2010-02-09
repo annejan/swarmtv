@@ -24,6 +24,7 @@
 #include <sqlite3.h>
 #include <stdlib.h>
 
+#include "types.h"
 #include "curlfile.h"
 #include "logfile.h"
 #include "twitparse.h"

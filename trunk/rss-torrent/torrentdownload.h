@@ -38,7 +38,7 @@ int downloadtorrents(sqlite3 *db);
  * *fmt				:	Format of the arguments to insert into the filter sql 
  * ...				:	Arguments for the filter SQL.
  */
-void applyfilter(sqlite3 *db, char *name, char* nodouble, int simulate, char *filter, char *fmt, ...);
+void applyfilter(sqlite3 *db, char *name, char* nodouble, SIM simulate, char *filter, char *fmt, ...);
 
 /*
  * Test torrentdir

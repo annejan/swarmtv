@@ -17,12 +17,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <sqlite3.h>
 
 #include <curl/curl.h>
 #include <curl/types.h>
 #include <curl/easy.h>
 
-//#include "logfile.h"
+#include "types.h"
 #include "curlfile.h"
 #include "regexp.h"
 #include "logfile.h"

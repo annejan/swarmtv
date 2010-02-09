@@ -23,12 +23,13 @@
 #include <string.h>
 #include <sqlite3.h>
 
+#include "types.h"
 #include "logfile.h"
 #include "regexp.h"
 #include "handleopts.h"
 #include "database.h"
-#include "simplefilter.h"
 #include "torrentdownload.h"
+#include "simplefilter.h"
 
 /*
  * Nodup filternames
@@ -597,7 +598,7 @@ void printsimple(sqlite3 *db, char *filtername)
  * db pointer to db to use
  * simultate 0 for real behaviour, 1 for simulation mode.
  */
-int downloadsimple(sqlite3 *db, int simulate)
+int downloadsimple(sqlite3 *db, SIM simulate)
 {
   sqlite3_stmt  *ppStmt=NULL;
   const char    *pzTail=NULL;

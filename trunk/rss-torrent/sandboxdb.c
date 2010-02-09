@@ -27,6 +27,7 @@
 #include <fcntl.h>
 #include <sqlite3.h>
 
+#include "types.h"
 #include "sandboxdb.h"
 #include "logfile.h"
 #include "database.h"

@@ -21,11 +21,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sqlite3.h>
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include <libxml/HTMLparser.h>
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
+
+#include "types.h"
 #include "regexp.h"
 #include "curlfile.h"
 #include "logfile.h"
@@ -41,7 +44,7 @@
 
 #define XPATH_TO_A    "//a[@href]" 
 
-#define NODOWN_EXT  "\\.(gif|png|jpg|js|(r|c)ss|xml|jsf|exe|html|php)$"
+#define NODOWN_EXT  "\\.(gif|png|jpg|js|rss|css|xml|jsf|exe|html|php)$"
 #define NODOWN_TEXT  "(/faq/|/forum/|/login/|/showlist/|calendar|php[^?]|news)"
 
 

@@ -526,13 +526,13 @@ int strrepl(char **Str, char *OldStr, char *NewStr)
    */
   OldLen = strlen(OldStr);
   NewLen = strlen(NewStr);
-  TotalNew = (strlen(*Str) + NewLen - OldLen + 1);
+  TotalNew = (strlen(*Str) + NewLen - OldLen);
   
   /*
    * Alloc space for new string
    */
   if(TotalNew > strlen(*Str)){
-    *Str=realloc(*Str, TotalNew);
+    *Str=realloc(*Str, TotalNew + 1);
   }
 
   /*
@@ -540,7 +540,7 @@ int strrepl(char **Str, char *OldStr, char *NewStr)
    */
   memmove(q = p+NewLen, p+OldLen, strlen(p+OldLen)+1);
   memcpy(p, NewStr, NewLen);
-
+	
   return 0;
 }
 

@@ -23,13 +23,14 @@
 #include <time.h>
 #include <sqlite3.h>
 
+#include "types.h"
 #include "sandboxdb.h"
 #include "logfile.h"
 #include "database.h"
 #include "torrentdb.h"
-#include "torrentdownload.h"
 #include "handleopts.h"
 #include "simplefilter.h"
+#include "torrentdownload.h"
 
 #define  DBSANDBOX "~/.rsstorrent/sandbox.db"
 
@@ -205,7 +206,7 @@ static int createsimpledownloaded(sandboxdb *sandbox, opts_struct *filter)
 	 * Execute filter
 	 * with simulate 1, to run the simplefilters only in the database.
 	 */
-	downloadsimple(sandbox->db, 1);
+	downloadsimple(sandbox->db, (SIM) sim);
 
 	/*
 	 * Clean up

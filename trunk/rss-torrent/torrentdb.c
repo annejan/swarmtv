@@ -25,9 +25,11 @@
 #include <sqlite3.h>
 #include <time.h>
 
+#include "types.h"
 #include "config.h"
 #include "database.h"
 #include "logfile.h"
+#include "torrentdownload.h"
 
 #define 	BUFSIZE 	20
 
@@ -117,9 +119,9 @@ void adddownloaded(sqlite3 *db,
                char *category,
                int  season,
                int  episode,
-               int  simulate)
+               SIM  simulate)
 {
-  int           rci=0;
+  int           rc=0;
   time_t        now=0;
 
   char *query = "INSERT INTO downloaded (title, link, pubdate, category, season, episode, date) "
@@ -133,7 +135,7 @@ void adddownloaded(sqlite3 *db,
   /*
    * Do not log downloading when we are testing filters.
    */
-  if(simulate == 0){
+  if(simulate == (SIM) real){
     writelog(LOG_NORMAL, "##### Download #######\n"
         "title:    %s\n"
         "link:     %s\n"

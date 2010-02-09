@@ -43,7 +43,7 @@ void adddownloaded(sqlite3 *db,
                char *category,
                int  season,
                int  episode,
-               int  simulate);
+               SIM  simulate);
 
 
 /*

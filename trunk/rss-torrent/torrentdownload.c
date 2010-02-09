@@ -24,6 +24,7 @@
 #include <pcre.h>
 #include <sqlite3.h>
 
+#include "types.h"
 #include "config.h"
 #include "curlfile.h"
 #include "torrentdb.h"
@@ -39,10 +40,10 @@
 
 /*
  * Apply the filters from the query.
- * when simulate is set !=0 no actual downloads are performed
+ * when simulate is set to 'sim' no actual downloads are performed
  */
 //void applyfilter(sqlite3 *db, char *name, char *filter, char* nodouble, int simulate);
-void applyfilter(sqlite3 *db, char *name, char* nodouble, int simulate, char *filter, char *fmt, ...);
+void applyfilter(sqlite3 *db, char *name, char* nodouble, SIM simulate, char *filter, char *fmt, ...);
 
 /*
  * Test for double downloads.
@@ -109,7 +110,7 @@ int downloadtorrents(sqlite3 *db)
     /*
      * call apply filter
      */
-    applyfilter(db, name, nodouble, 0, filter, NULL);
+    applyfilter(db, name, nodouble, (SIM) real, filter, NULL);
 		//void applyfilter(sqlite3 *db, char *name, char* nodouble, int simulate, char *filter, char *fmt, ...)
   }
 
@@ -197,7 +198,7 @@ static int testdouble(sqlite3 *db, char *nodouble, char *link, int season, int e
  * *fmt				:	Format of the arguments to insert into the filter sql 
  * ...				:	Arguments for the filter SQL.
  */
-void applyfilter(sqlite3 *db, char *name, char* nodouble, int simulate, char *filter, char *fmt, ...)
+void applyfilter(sqlite3 *db, char *name, char* nodouble, SIM simulate, char *filter, char *fmt, ...)
 {
   sqlite3_stmt  *ppStmt=NULL;
   const char    *pzTail=NULL;
@@ -327,7 +328,7 @@ void applyfilter(sqlite3 *db, char *name, char* nodouble, int simulate, char *fi
          * call apply filter
          * when in a sandbox simulate = 1, no downloads are done.
          */
-        if(simulate == 0) {
+        if(simulate == (SIM) real) {
           /*
            * Download torrent
            */

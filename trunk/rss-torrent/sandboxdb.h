@@ -18,11 +18,6 @@
  *  Program written by Paul Honig 2010
  */
 
-typedef struct {
-  sqlite3* db;
-  char *filename;
-} sandboxdb;
-
 /*
  * Create copy of database
  * and create a sqlite3 pointer to the database copy.

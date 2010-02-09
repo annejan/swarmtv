@@ -27,6 +27,7 @@
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
 
+#include "types.h"
 #include "logfile.h"
 #include "curlfile.h"
 #include "twitparse.h"

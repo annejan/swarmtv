@@ -24,10 +24,12 @@
 #include <time.h>
 #include <string.h>
 
+#include "types.h"
 #include "curlfile.h"
 #include "config.h"
 #include "filter.h"
 #include "handleopts.h"
+#include "runloop.h"
 #include "torrentdownload.h"
 #include "simplefilter.h"
 #include "logfile.h"
@@ -192,7 +194,7 @@ static void dowork(sqlite3 *db){
  * Returns
  * 0 for now.
  */
-int runloop(sqlite3 *db, int onetime)
+int runloop(sqlite3 *db, LOOPMODE onetime)
 {
   int rc;
   int timewait;
@@ -201,7 +203,11 @@ int runloop(sqlite3 *db, int onetime)
   int    timeleft;
 
   rc = configgetint(db, CONF_REFRESH, &timewait);
-  writelog(LOG_NORMAL, "Starting daemon, refresh %ds", timewait);
+	if(onetime == 0) {
+		writelog(LOG_NORMAL, "Starting daemon, refresh %ds", timewait);
+	} else {
+		writelog(LOG_NORMAL, "Running once.");
+	}
 
 	/*
 	 * Keep running until...
@@ -239,7 +245,7 @@ int runloop(sqlite3 *db, int onetime)
     /*
      * Run once.
      */
-    if(onetime != 0) {
+    if(onetime == (LOOPMODE) once) {
       break;
     }
 

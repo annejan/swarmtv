@@ -22,7 +22,9 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <sqlite3.h>
 
+#include "types.h"
 #include "curlfile.h"
 #include "tbl.h"
 #include "torrentparse.h"
