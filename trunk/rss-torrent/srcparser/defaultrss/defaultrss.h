@@ -33,7 +33,7 @@ typedef struct {
 	int			seeds;
 	int			peers;
 	size_t	size;
-	size_t	enclosurelenght;
+	size_t	enclosurelength;
 	char		*enclosuretype;
 	char		*enclosureurl;
 	int			verified;

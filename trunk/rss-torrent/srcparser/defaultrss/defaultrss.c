@@ -230,7 +230,7 @@ static int handleenclosurelenght(void *data, size_t newtor)
 	/*
 	 * set lenght in struct
 	 */
-	rssdata->enclosurelenght = newtor;
+	rssdata->enclosurelength = newtor;
 
 	/*
 	 * Dummy for now.

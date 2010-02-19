@@ -416,7 +416,7 @@ int rssparse(rssparse_callback *call, char *url, MemoryStruct *buffer)
 		 */
     rc = getxpathstring(BAD_CAST toseeds, xpathCtx, &value);
     if( rc < 0 ) {
-      writelog(LOG_DEBUG, "No guidstr found");
+      writelog(LOG_DEBUG, "No seedsstr found");
     } else {
 			if(call->seeds != NULL){
 				integer=atoi((const char*) value);
@@ -430,7 +430,7 @@ int rssparse(rssparse_callback *call, char *url, MemoryStruct *buffer)
 		 */
     rc = getxpathstring(BAD_CAST topeers, xpathCtx, &value);
     if( rc < 0 ) {
-      writelog(LOG_DEBUG, "No guidstr found");
+      writelog(LOG_DEBUG, "No peersstr found");
     } else {
 			if(call->peers != NULL){
 				integer=atoi((const char*) value);
@@ -441,11 +441,11 @@ int rssparse(rssparse_callback *call, char *url, MemoryStruct *buffer)
 		
 
 		/*
-		 * Look for peers
+		 * Look for size
 		 */
     rc = getxpathstring(BAD_CAST tosize, xpathCtx, &value);
     if( rc < 0 ) {
-      writelog(LOG_DEBUG, "No guidstr found");
+      writelog(LOG_DEBUG, "No sizestr found");
     } else {
 			if(call->size != NULL){
 				filesize = atol((const char*) value);

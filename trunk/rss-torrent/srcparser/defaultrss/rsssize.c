@@ -43,7 +43,6 @@ int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata)
 {
 	int				rc=0;
 	size_t 		i_size=0;
-	char   		*s_length=NULL;
 	size_t 		i_length=0;
 	long			min_config=0;
 	torprops	*props=NULL;
@@ -51,17 +50,12 @@ int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata)
 	/*
 	 * Get from size node.
 	 */
-	if(rssdata->size != NULL) {
-		i_size = rssdata->size;
-	}
+	i_size = rssdata->size;
 
 	/*
-	 * Get from enclosure 'length'
+	 * Get size from enclosurelength
 	 */
-	rc = disectdescription(rssdata->description, "length", &s_length);
-	if(s_length != NULL) {
-		i_length = atol(s_length);
-	}
+	i_length = rssdata->enclosurelength;
 
 	/*
 	 * Pick the biggest.
