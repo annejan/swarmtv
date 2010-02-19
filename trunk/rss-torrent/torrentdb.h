@@ -19,39 +19,36 @@
  */
 
 /*
- * Add a torrent to the newtorrents table.
+ * Free strings in newtorrents_struct 
+ * Be sure to free the struct yourself.
+ * Arguments 
+ * newtor structure pointer
+ * returns void, exits on failure
  */
-int addnewtorrent(sqlite3 *db,
-               char *title,
-               char *link,
-               time_t pubdate,
-               char *category,
-               int  season,
-               int  episode,
-               int  seeds,
-               int  peers,
-               size_t size);
+void freenewtor(newtorrents_struct *newtor);
 
+/*
+ * Add a torrent to the newtorrent table.
+ * Arguments
+ * newtor structure holding the values for the record to be added
+ * Returns
+ * 0 on succes, exits on -1 on failure
+ */
+int addnewtorrent(sqlite3 *db, newtorrents_struct *newtor);
 
 /*
  * Add a torrent to the downloaded table.
+ * Arguments
+ * downed			pointer to struct holding values to add to the db.
+ * simulate		0 to log addition, 1 adds anyway, but does not log at all. (used for filtertest)
  */
-void adddownloaded(sqlite3 *db,
-               char *title,
-               char *link,
-               char *pubdate,
-               char *category,
-               int  season,
-               int  episode,
-               SIM  simulate);
-
+void adddownloaded(sqlite3 *db, downloaded_struct *downed, SIM  simulate);
 
 /*
  * When Torrents are prosessed, they are no longer new
  * this method removes the new flag
  */
 void nonewtorrents(sqlite3 *db);
-
 
 /*
  * Delete all newtorrents entris older the x days

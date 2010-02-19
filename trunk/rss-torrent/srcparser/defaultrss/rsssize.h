@@ -19,28 +19,13 @@
  */
 
 /*
- * RSS data structure
+ * Use the rss data to fill out the seeds and peers field in the new torrent struct.
+ * Arguments
+ * newtor		: New torrent structure.
+ * rssdata	: The struct holding the raw rssdata.
+ * Returns	
+ * 0 on succes, -1 on failure.
+ * Errors are logged.
  */
-typedef struct {
-	sqlite3 *db;
-	char 		*title;
-	char		*link;
-	char		*category;
-	time_t	 pubdate;
-	char		*description;
-	char		*comments;
-	char		*guid;
-	int			seeds;
-	int			peers;
-	size_t	size;
-	size_t	enclosurelenght;
-	char		*enclosuretype;
-	char		*enclosureurl;
-	int			verified;
-} rssdatastruct;
-
-/*
- * filter to handle incomming files from http://www.rsstorrents.com
- */
-int defaultrss(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssfile);
+int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata);
 

@@ -91,3 +91,32 @@ typedef struct {
 	int fromseason;		// From what season to download
 	int fromepisode;	// From episode
 } simplefilter_struct;
+
+/*
+ * Struct holding the values to enter into the newtorrents table.
+ */
+typedef struct {
+	char *title;
+	char *link;
+	time_t pubdate;
+	char *category;
+	int		season;
+	int		episode;
+	int		seeds;
+	int		peers;
+  size_t	size;
+	// 'new' is set by the routine. 
+} newtorrents_struct;
+
+/*
+ * Struct holding the values to enter into the downloaded table
+ */
+typedef struct {
+	char *title;
+	char *link;
+	char *pubdate;
+	char *category;
+	int  season;
+	int  episode;
+} downloaded_struct;
+

@@ -395,6 +395,7 @@ static int disecttitle(unsigned char *title, unsigned char** name, int *season, 
   return 0;
 }
 
+#if 0
 /*
  * filter to handle incomming files from http://www.rsstorrents.com
  */
@@ -569,3 +570,4 @@ int rsstorrentfilter(sqlite3 *db, char *name, char *url, char *filter, MemoryStr
 
   return 0;
 }
+#endif

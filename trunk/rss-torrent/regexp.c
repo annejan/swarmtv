@@ -161,13 +161,6 @@ void cleanupstring(char *string)
   }
 
   /*
-   * Remove spaces at end
-   */
-  if(*(cur-1) == ' '){
-    *(cur-1) = '\0';
-  }
-
-  /*
    * Remove spaces at begin
    */
   if(*string == ' ') {

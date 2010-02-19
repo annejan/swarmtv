@@ -19,28 +19,6 @@
  */
 
 /*
- * RSS data structure
- */
-typedef struct {
-	sqlite3 *db;
-	char 		*title;
-	char		*link;
-	char		*category;
-	time_t	 pubdate;
-	char		*description;
-	char		*comments;
-	char		*guid;
-	int			seeds;
-	int			peers;
-	size_t	size;
-	size_t	enclosurelenght;
-	char		*enclosuretype;
-	char		*enclosureurl;
-	int			verified;
-} rssdatastruct;
-
-/*
- * filter to handle incomming files from http://www.rsstorrents.com
+ * Filter to handle incomming files from http://www.rsstorrents.com
  */
 int defaultrss(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssfile);
-

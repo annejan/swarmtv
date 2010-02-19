@@ -50,13 +50,13 @@ void applyfilter(sqlite3 *db, char *name, char* nodouble, SIM simulate, char *fi
  * Queries need to be provided by the user.
  * return 1 if double, 0 if new
  */
-static int testdouble(sqlite3 *db, char *nodouble, char *link, int season, int episode);
+static int testdouble(sqlite3 *db, char *nodouble, downloaded_struct *downed);
 
 /*
  * Do download.
  * take url, create name and call curl routine
  */
-static void dodownload(sqlite3 *db, char *link, char *title, int season, int episode, char *pubdate);
+static void dodownload(sqlite3 *db, downloaded_struct *downed);
 
 
 /*
@@ -131,7 +131,7 @@ int downloadtorrents(sqlite3 *db)
  * Queries need to be provided by the user.
  * return 1 if double, 0 if new
  */
-static int testdouble(sqlite3 *db, char *nodouble, char *link, int season, int episode)
+static int testdouble(sqlite3 *db, char *nodouble, downloaded_struct *downed)
 {
   sqlite3_stmt  *ppStmt;
   const char    *pzTail;
@@ -161,9 +161,9 @@ static int testdouble(sqlite3 *db, char *nodouble, char *link, int season, int e
    * torrentdb.c:116:  rc = sqlite3_bind_text(ppStmt, 4, category, -1, SQLITE_TRANSIENT);
    * torrentdb.c:117:  rc = sqlite3_bind_int(ppStmt, 5, season);
    */
-  rc = sqlite3_bind_text(ppStmt, 1, link, -1, SQLITE_TRANSIENT);
-  rc = sqlite3_bind_int(ppStmt, 2, season);
-  rc = sqlite3_bind_int(ppStmt, 3, episode);
+  rc = sqlite3_bind_text(ppStmt, 1, downed->link, -1, SQLITE_TRANSIENT);
+  rc = sqlite3_bind_int(ppStmt, 2, downed->season);
+  rc = sqlite3_bind_int(ppStmt, 3, downed->episode);
 
   /*
    * Execute query
@@ -205,12 +205,12 @@ void applyfilter(sqlite3 *db, char *name, char* nodouble, SIM simulate, char *fi
   int           rc=0;
   int           step_rc=0;
   char          *zErrMsg=NULL;
-  char          *link=NULL;
-  char          *title=NULL;
-  char          *pubdate=NULL;
-  char          *category=NULL;
-  int           season=0;
-  int           episode=0;
+  //char          *link=NULL;
+  //char          *title=NULL;
+  //char          *pubdate=NULL;
+  //char          *category=NULL;
+  //int           season=0;
+  //int           episode=0;
   char          message[MAXMSGLEN+1];
   va_list     	ap;
 	int						retval=0;
@@ -218,6 +218,7 @@ void applyfilter(sqlite3 *db, char *name, char* nodouble, SIM simulate, char *fi
   char     	   *s=NULL;
   int       	  d=0;
   double        f=0.0;
+	downloaded_struct downed;
 
   /*
    * NULL = no arguments.
@@ -308,21 +309,22 @@ void applyfilter(sqlite3 *db, char *name, char* nodouble, SIM simulate, char *fi
       /*
        * Get name and query of the filters
        */
-      link      = (char*) sqlite3_column_text(ppStmt, 0);
-      title     = (char*) sqlite3_column_text(ppStmt, 1);
-      pubdate   = (char*) sqlite3_column_text(ppStmt, 2);
-      category  = (char*) sqlite3_column_text(ppStmt, 3);
-      season    =  sqlite3_column_int(ppStmt, 4);
-      episode   =  sqlite3_column_int(ppStmt, 5);
+			memset(&downed, 0, sizeof(downloaded_struct));
+      downed.link      = (char*) sqlite3_column_text(ppStmt, 0);
+      downed.title     = (char*) sqlite3_column_text(ppStmt, 1);
+      downed.pubdate   = (char*) sqlite3_column_text(ppStmt, 2);
+      downed.category  = (char*) sqlite3_column_text(ppStmt, 3);
+      downed.season    =  sqlite3_column_int(ppStmt, 4);
+      downed.episode   =  sqlite3_column_int(ppStmt, 5);
 
       /*
        * Test if episode is already there
        */
-      if(testdouble(db, nodouble, link, season, episode) == 0) {
+      if(testdouble(db, nodouble, &downed) == 0) {
         /*
          * Add a torrent to the downloaded table.
          */
-        adddownloaded(db, title, link, pubdate, category, season, episode, simulate);
+        adddownloaded(db, &downed, simulate);
 
         /*
          * call apply filter
@@ -332,16 +334,17 @@ void applyfilter(sqlite3 *db, char *name, char* nodouble, SIM simulate, char *fi
           /*
            * Download torrent
            */
-          dodownload(db, link, title, season, episode, pubdate);
+          dodownload(db, &downed);
           
           /*
            * Send email
            */
-          snprintf(message, MAXMSGLEN, "Downloading %s S%dE%d", title, season, episode);
+          snprintf(message, MAXMSGLEN, "Downloading %s S%dE%d", downed.title, downed.season, downed.episode);
           sendrssmail(db, message, message);
         }
       } else {
-        writelog(LOG_DEBUG, "%s Season %d Episode %d is a duplicate %s:%d", title, episode, season, __FILE__, __LINE__);
+        writelog(LOG_DEBUG, "%s Season %d Episode %d is a duplicate %s:%d", 
+						downed.title, downed.episode, downed.season, __FILE__, __LINE__);
       }
     }
   }
@@ -408,7 +411,7 @@ int testtorrentdir(sqlite3 *db)
  * episode	Episode number
  * pubdate	Date the torrent was published.
  */
-static void dodownload(sqlite3 *db, char *link, char *title, int season, int episode, char *pubdate) 
+static void dodownload(sqlite3 *db, downloaded_struct *downed) 
 {
   char filename[151];
   char *path = NULL;
@@ -424,12 +427,13 @@ static void dodownload(sqlite3 *db, char *link, char *title, int season, int epi
   /*
    * Create filename.
    */
-  snprintf(filename, 150, "%s/%sS%dE%dR%s.torrent", fullpath, title, season, episode, pubdate); 
+  snprintf(filename, 150, "%s/%sS%dE%dR%s.torrent", 
+			fullpath, downed->title, downed->season, downed->episode, downed->pubdate); 
 
   /*
    * download
    */
-  findtorrentwrite(link, filename);
+  findtorrentwrite(downed->link, filename);
 
   /*
    * Cleanup

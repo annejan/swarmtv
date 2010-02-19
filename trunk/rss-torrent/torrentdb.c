@@ -34,32 +34,29 @@
 #define 	BUFSIZE 	20
 
 /*
+ * Free strings in newtorrents_struct 
+ * Be sure to free the struct yourself.
+ * Arguments 
+ * newtor structure pointer
+ * returns void, exits on failure
+ */
+void freenewtor(newtorrents_struct *newtor)
+{
+	free(newtor->title);
+	free(newtor->link);
+	free(newtor->category);
+}
+
+/*
  * Add a torrent to the newtorrent table.
  * Arguments
- * title		Title of the torrent
- * link			The url to the torrent
- * pubdate	The date the torrent was published
- * category	The category of the content
- * season		Season
- * episode	Episode
- * seeds		Number of seeds
- * size			Size of the content
+ * newtor structure holding the values for the record to be added
  * Returns
  * 0 on succes, exits on -1 on failure
  */
-int addnewtorrent(sqlite3 *db,
-               char *title,
-               char *link,
-               time_t pubdate,
-               char *category,
-               int  season,
-               int  episode,
-               int  seeds,
-               int  peers,
-               size_t size)
+int addnewtorrent(sqlite3 *db, newtorrents_struct *newtor)
 {
   int           rc;
-
 
   char *query = "INSERT INTO newtorrents (title, link, pubdate, category, season, episode, seeds, peers, size, new) "
                 "VALUES (?1, ?2, date(?3, 'unixepoch'), ?4, ?5, ?6, ?7, ?8, ?9, 'Y')";
@@ -75,12 +72,15 @@ int addnewtorrent(sqlite3 *db,
       "seeds:    %d\n"
       "peers:    %d\n"
       "size:     %ln",
-      title, link, ctime(&pubdate), category, season, episode, seeds, peers, size);
+      	newtor->title, newtor->link, ctime(&(newtor->pubdate)), newtor->category, newtor->season, 
+				newtor->episode, newtor->seeds, newtor->peers, newtor->size);
 
   /*
    * execute query
    */
-  rc = executequery(db, query, "ssdsddddf", title, link, pubdate, category, season, episode, seeds, peers, (double)size);
+  rc = executequery(db, query, "ssdsddddf", 
+			newtor->title, newtor->link, newtor->pubdate, newtor->category, newtor->season, 
+			newtor->episode, newtor->seeds, newtor->peers, (double)(newtor->size));
   switch(rc) {
     case ROWS_EMPTY:
     case ROWS_CHANGED:
@@ -104,22 +104,10 @@ int addnewtorrent(sqlite3 *db,
 /*
  * Add a torrent to the downloaded table.
  * Arguments
- * title			Title of the torrent 
- * link				URL of the link just downloaded
- * pubdate		The date the torrent was released
- * category		Cathegory of the torrent content.
- * season			Season number
- * episode		Episode number
+ * downed			pointer to struct holding values to add to the db.
  * simulate		0 to log addition, 1 adds anyway, but does not log at all.
  */
-void adddownloaded(sqlite3 *db,
-               char *title,
-               char *link,
-               char *pubdate,
-               char *category,
-               int  season,
-               int  episode,
-               SIM  simulate)
+void adddownloaded(sqlite3 *db, downloaded_struct *downed, SIM  simulate)
 {
   int           rc=0;
   time_t        now=0;
@@ -143,20 +131,22 @@ void adddownloaded(sqlite3 *db,
         "category: %s\n"
         "season:   %d\n"
         "episode:  %d",
-        title, link, pubdate, category, season, episode);
+        downed->title, downed->link, downed->pubdate, downed->category, downed->season, downed->episode);
   }
 
   /*
    * execute query, when failed return -1
    */
-  rc = executequery(db, query, "ssssddd", title, link, pubdate, category, season, episode, now); 
+  rc = executequery(db, query, "ssssddd", downed->title, downed->link, downed->pubdate, downed->category, 
+			downed->season, downed->episode, now); 
   switch(rc) {
     case ROWS_EMPTY:
     case ROWS_CHANGED:
       // print nothing all is okay
       break;
     case ROWS_CONSTRAINT:
-      writelog(LOG_ERROR, "Torrent '%s' allready downloaded, please check no double filters for '%s'. %s:%d", link, title, __FILE__, __LINE__); 
+      writelog(LOG_ERROR, "Torrent '%s' allready downloaded, please check no double filters for '%s'. %s:%d", 
+					downed->link, downed->title, __FILE__, __LINE__); 
       break;
     default:
       writelog(LOG_ERROR, "SQL statement failed %d! %s:%d", rc, __FILE__, __LINE__);

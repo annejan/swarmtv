@@ -17,30 +17,38 @@
  *
  *  Program written by Paul Honig 2009
  */
+#include <stdio.h>
+#include <string.h>
+#include <sqlite3.h>
+#include <time.h>
+#include <stdlib.h>
+
+#include "types.h"
+#include "logfile.h"
+#include "defaultrss.h"
+
+#define CATEGORY_UNKNOWN "unknown"
 
 /*
- * RSS data structure
+ * Use the rss data to fill out the seeds and peers field in the new torrent struct.
+ * Arguments
+ * newtor		: New torrent structure.
+ * rssdata	: The struct holding the raw rssdata.
+ * Returns	
+ * 0 on succes, -1 on failure.
+ * Errors are logged.
  */
-typedef struct {
-	sqlite3 *db;
-	char 		*title;
-	char		*link;
-	char		*category;
-	time_t	 pubdate;
-	char		*description;
-	char		*comments;
-	char		*guid;
-	int			seeds;
-	int			peers;
-	size_t	size;
-	size_t	enclosurelenght;
-	char		*enclosuretype;
-	char		*enclosureurl;
-	int			verified;
-} rssdatastruct;
+int rssseedspeers(newtorrents_struct *newtor, rssdatastruct *rssdata)
+{
+	/*
+	 * Get seeds and peers from the nodes.
+	 */
+	newtor->seeds = rssdata->seeds;
+	newtor->peers = rssdata->peers;
 
-/*
- * filter to handle incomming files from http://www.rsstorrents.com
- */
-int defaultrss(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssfile);
+	/*
+	 * Otherwise do nothing
+	 */
+	return 0;
+}
 

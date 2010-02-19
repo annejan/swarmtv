@@ -57,16 +57,22 @@ static int endtweet(void *data)
 	sqlite3 *db = local->db;
 	torprops *props=NULL;
 	int					rc=0;
-	char 			*name=NULL;
-	char			*link=NULL;
-	int				season=0;
-	int				episode=0;
-	time_t		pubdate=0;
+	//char 			*name=NULL;
+	//char			*link=NULL;
+	//int				season=0;
+	//int				episode=0;
+	//time_t		pubdate=0;
+	newtorrents_struct newtor; 
+
+	/*
+	 * Clean newtor
+	 */
+	memset(&newtor, 0, sizeof(newtorrents_struct));
 
 	/*
 	 * Use data to create database record.
 	 */
-	rc = splittext(local->tweet.text, &name, &link, &season, &episode);
+	rc = splittext(local->tweet.text, &(newtor.title), &(newtor.link), &(newtor.season), &(newtor.episode));
 	if(rc < 0){
 		/*
 		 * Text could not be split, no torrent record.
@@ -77,9 +83,9 @@ static int endtweet(void *data)
 	/*
 	 * Process data
 	 */
-	rc = gettorrentinfo(link, &props);
+	rc = gettorrentinfo(newtor.link, &props);
 	if(rc < 0){
-		writelog(LOG_DEBUG, "Download failed for '%s'\n", link);
+		writelog(LOG_DEBUG, "Download failed for '%s'\n", newtor.link);
 		/*
 		 * No torrent.
 		 */
@@ -89,25 +95,24 @@ static int endtweet(void *data)
 	/*
 	 * Print stuff.
 	 */
-	writelog(LOG_DEBUG, "link: %s, name: %s, season: %d, episode: %d, size: %ld\n", link, name, season, episode,(long) props->size); 
+	writelog(LOG_DEBUG, "link: %s, title: %s, season: %d, episode: %d, size: %ld\n", 
+			newtor.link, newtor.title, newtor.season, newtor.episode,(long) props->size); 
 	
 	/*
 	 * Parse date to string
 	 */
-	disectdate(local->tweet.createdate, &pubdate);
+	disectdate(local->tweet.createdate, &(newtor.pubdate));
 
 	/*
 	 * Add a torrent to the newtorrents table.
 	 */
-	addnewtorrent(db, name, link, pubdate, "", season, episode,
-			0, 0, props->size);
+	addnewtorrent(db, &newtor);
 
 	/*
 	 * cleanup
 	 */
 	freetorprops(props);
-	free(name);
-	free(link);
+	freenewtor(&newtor);
 
 	writelog(LOG_DEBUG, "End Tweet\n");
 

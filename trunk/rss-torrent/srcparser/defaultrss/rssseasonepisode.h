@@ -19,28 +19,12 @@
  */
 
 /*
- * RSS data structure
+ * Get season from description
+ * Arguments
+ * season 	pointer to season int
+ * rssdata	RAW rssdata
+ * returns
+ * 0 on success, otherwise -1
  */
-typedef struct {
-	sqlite3 *db;
-	char 		*title;
-	char		*link;
-	char		*category;
-	time_t	 pubdate;
-	char		*description;
-	char		*comments;
-	char		*guid;
-	int			seeds;
-	int			peers;
-	size_t	size;
-	size_t	enclosurelenght;
-	char		*enclosuretype;
-	char		*enclosureurl;
-	int			verified;
-} rssdatastruct;
-
-/*
- * filter to handle incomming files from http://www.rsstorrents.com
- */
-int defaultrss(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssfile);
+int rssseasonepisode(newtorrents_struct *newtor, rssdatastruct *rssdata);
 

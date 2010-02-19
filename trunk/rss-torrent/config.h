@@ -30,6 +30,7 @@
 #define CONF_SMTPTO     "smtp_to"
 #define CONF_SMTPFROM   "smtp_from"
 #define CONF_SMTPHOST   "smtp_host"
+#define CONF_MIN_SIZE   "min_size"
 #define CONF_SMTPENABLE "smtp_enable"
 
 
