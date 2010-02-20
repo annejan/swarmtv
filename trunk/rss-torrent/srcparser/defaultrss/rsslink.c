@@ -54,24 +54,24 @@ int rsslink(newtorrents_struct *newtor, rssdatastruct *rssdata)
 	}
 	
 	/*
-	 * Get the link from the link node
+	 * Get the link from the enclosureurl.
 	 */
-	if(rssdata->link != NULL && strlen(rssdata->link) != 0)
-	{
-		rc = alloccopy(&link, rssdata->link, strlen(rssdata->link));
-		if(rc != 0){
+	if(rssdata->enclosureurl != NULL) {
+		rc = alloccopy(&link, rssdata->enclosureurl, strlen(rssdata->enclosureurl));
+		if(rc != 0) {
 			writelog(LOG_ERROR, "Alloc failed %s:%d", __FILE__, __LINE__);
 			exit(1);
 		}
 	}
 
 	/*
-	 * When that failes try to get the link from the enclosureurl.
+	 * Get the link from the link node
 	 */
 	if(link == NULL){
-		if(rssdata->enclosureurl != NULL) {
-			rc = alloccopy(&link, rssdata->enclosureurl, strlen(rssdata->enclosureurl));
-			if(rc == 0) {
+		if(rssdata->link != NULL && strlen(rssdata->link) != 0)
+		{
+			rc = alloccopy(&link, rssdata->link, strlen(rssdata->link));
+			if(rc != 0){
 				writelog(LOG_ERROR, "Alloc failed %s:%d", __FILE__, __LINE__);
 				exit(1);
 			}
@@ -97,6 +97,11 @@ int rsslink(newtorrents_struct *newtor, rssdatastruct *rssdata)
 	if(link == NULL){
 		return -1;
 	}
+
+	/*
+	 * When enclosure type is nog 'application/x-bittorrent' get real torrent link.
+	 */
+
 
 	/*
 	 * Store value in struct

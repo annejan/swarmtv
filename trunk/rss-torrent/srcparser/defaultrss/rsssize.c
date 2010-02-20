@@ -61,9 +61,9 @@ int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata)
 	 * Pick the biggest.
 	 */
 	if(i_size > i_length) {
-		rssdata->size = i_size;
+		newtor->size = i_size;
 	} else {
-		rssdata->size = i_length;
+		newtor->size = i_length;
 	}
 
 	/*
@@ -75,11 +75,11 @@ int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata)
 		return -1;
 	}
 
-	if( rssdata->size < (size_t) min_config) {
+	if( newtor->size < (size_t) min_config) {
 		/*
 		 * Download the torrent to verify the length
 		 */
-		rc = gettorrentinfo( rssdata->link, &props);
+		rc = gettorrentinfo(rssdata->link, &props);
 		if(rc == 0) {
 			newtor->size = props->size;	
 		}
