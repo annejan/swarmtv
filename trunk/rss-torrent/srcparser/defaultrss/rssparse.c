@@ -41,6 +41,7 @@
 static char *toitems				= "/rss/channel/item";
 static char *totitle				= "title";
 static char *tolink					= "link";
+static char *totorrentlink	= "torrentLink";
 static char *tocategory			= "category";
 static char *topubdate			= "pubDate";
 static char *todescription	= "description";
@@ -342,6 +343,19 @@ int rssparse(rssparse_callback *call, char *url, MemoryStruct *buffer)
     } else {
 			if(call->link != NULL){
 				call->link(call->data, (char*) value);
+			}
+		}
+		value=NULL;
+
+		/*
+		 * Look for torrentlink
+		 */
+    rc = getxpathstring(BAD_CAST totorrentlink, xpathCtx, &value);
+    if( rc < 0 ) {
+      writelog(LOG_DEBUG, "No torrentlink found");
+    } else {
+			if(call->torrentlink != NULL){
+				call->torrentlink(call->data, (char*) value);
 			}
 		}
 		value=NULL;

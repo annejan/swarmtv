@@ -33,6 +33,7 @@ typedef struct {
 	int (*guid)(void *data, char *string); // Called if the guid is found
 	int (*leechs)(void *data, char *string); // Called when a number of leechs is found
 	int (*link)(void *data, char *string); // Called if the link is found
+	int (*torrentlink)(void *data, char *string); // Called if the link is found
 	int (*peers)(void *data, int peers); // Called when a number of peers is found
 	int (*pubdate)(void *data, char *string); // Called if the pubdate is found
 	int (*seeds)(void *data, int seeds); // Called when a number of seeds is found

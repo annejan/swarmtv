@@ -47,6 +47,7 @@ static void	freerssdata(rssdatastruct *rssdata)
 {
 	free(rssdata->title);
 	free(rssdata->link);
+	free(rssdata->torrentlink);
 	free(rssdata->category);
 	free(rssdata->description);
 	free(rssdata->comments);
@@ -87,6 +88,26 @@ static int handlelink(void *data, char *string)
 	 * Store into the struct
 	 */
 	rc = alloccopy(&(rssdata->link), string, strlen(string));
+	if(rc != 0) {
+		writelog(LOG_ERROR, "Alloc failed at %s:%d", __FILE__, __LINE__);
+		return  -1;
+	}
+
+	return 0;
+}
+
+/*
+ * Handle link
+ */
+static int handletorrentlink(void *data, char *string)
+{
+	int rc = 0;
+	rssdatastruct *rssdata = (rssdatastruct *) data;
+
+	/*
+	 * Store into the struct
+	 */
+	rc = alloccopy(&(rssdata->torrentlink), string, strlen(string));
 	if(rc != 0) {
 		writelog(LOG_ERROR, "Alloc failed at %s:%d", __FILE__, __LINE__);
 		return  -1;
@@ -440,6 +461,7 @@ int defaultrss(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *r
 	callback.start 						= handlestart;
 	callback.title 						= handletitle;
 	callback.link	 						= handlelink;
+	callback.torrentlink	 		= handletorrentlink;
 	callback.category					= handlecategory;
 	callback.pubdate					= handlepubdate;
 	callback.description			= handledescription;

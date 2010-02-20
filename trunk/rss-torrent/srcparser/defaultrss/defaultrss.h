@@ -25,6 +25,7 @@ typedef struct {
 	sqlite3 *db;
 	char 		*title;
 	char		*link;
+	char		*torrentlink;
 	char		*category;
 	time_t	 pubdate;
 	char		*description;
