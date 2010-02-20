@@ -69,11 +69,13 @@ int rsslink(newtorrents_struct *newtor, rssdatastruct *rssdata)
 	/*
 	 * Get the link from the enclosureurl.
 	 */
-	if(rssdata->enclosureurl != NULL) {
-		rc = alloccopy(&link, rssdata->enclosureurl, strlen(rssdata->enclosureurl));
-		if(rc != 0) {
-			writelog(LOG_ERROR, "Alloc failed %s:%d", __FILE__, __LINE__);
-			exit(1);
+	if(link == NULL){
+		if(rssdata->enclosureurl != NULL) {
+			rc = alloccopy(&link, rssdata->enclosureurl, strlen(rssdata->enclosureurl));
+			if(rc != 0) {
+				writelog(LOG_ERROR, "Alloc failed %s:%d", __FILE__, __LINE__);
+				exit(1);
+			}
 		}
 	}
 
