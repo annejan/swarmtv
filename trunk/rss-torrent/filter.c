@@ -23,6 +23,7 @@
 #include <string.h>
 #include <pcre.h>
 #include <sqlite3.h>
+#include <time.h>
 
 #include "types.h"
 #include "curlfile.h"

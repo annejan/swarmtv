@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <time.h>
 #include <sqlite3.h>
 
 #include "types.h"

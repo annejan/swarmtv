@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#define _XOPEN_SOURCE 500
+#define __ISO_C_VISIBLE 2010
 
 #include <stdio.h>
 #include <stdlib.h>

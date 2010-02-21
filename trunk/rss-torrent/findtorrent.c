@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <sqlite3.h>
 #include <libxml/tree.h>
 #include <libxml/parser.h>
