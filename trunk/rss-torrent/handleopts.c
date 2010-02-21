@@ -46,7 +46,7 @@
 /*
  * optstring what options do we allow
  */
-static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:kA";
+static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:kAU:";
 
 /*
  * Long opts
@@ -84,6 +84,7 @@ static const struct option optLong[] =
 	{"add-simple", 						required_argument, 0, 'e'},
 	{"title",									required_argument, 0, 'E'},
 	{"exclude",								required_argument, 0, 'N'},
+  {"category",              required_argument, 0, 'U'},
 	{"max-size", 							required_argument, 0, 'O'},
 	{"min-size", 							required_argument, 0, 'o'},
 	{"nodup", 							  required_argument, 0, 'u'},
@@ -129,6 +130,7 @@ static void printhelp(void)
           "add-simple       -e <name>        : Add a simple download filter\n"
           "title            -E <regexp>      : Title expression\n"
           "exclude          -N <regexp>      : Exclude expression\n"
+          "category         -U <regexp>      : Category expression\n"
           "max-size         -O <size>        : Maximal size of downloaded torrent\n"
           "min-size         -o <size>        : Minimal size of downloaded torrent\n"
           "nodup            -u <type>        : No duplicate filter type (unique, newer, link, none)\n"
@@ -253,13 +255,14 @@ static int verifyarguments(opts_struct *opts)
 	/*
 	 * Simple filter arguments are not allowed without the add filter argument
 	 */
-	if( !opts->simplename && 
-			(opts->simpletitle || 
-			 opts->simpleexclude || 
-			 opts->simplemaxsize || 
-			 opts->simpleminsize ||
-			 opts->simplenodup ||
-			 opts->simpleseason ||
+	if( !opts->simplename     && 
+			(opts->simpletitle    || 
+			 opts->simpleexclude  || 
+			 opts->simplecategory || 
+			 opts->simplemaxsize  || 
+			 opts->simpleminsize  ||
+			 opts->simplenodup    ||
+			 opts->simpleseason   ||
 			 opts->simpleepisode)) {
 		fprintf(stderr, "Error, you can not use simple filter argument without adding a simple filter.\n");
 		retval=-1;
@@ -439,26 +442,33 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
         }
 				alloccopy(&(opts->simplename), optarg, strlen(optarg));
         break;
-      case 'N': // Add simple filter
+      case 'N': // Add simple exclude regexp
         if( opts->simpleexclude != NULL) {
           fprintf(stderr, "Warning: ignoring second exclude addition.\n");
           break;
         }
 				alloccopy(&(opts->simpleexclude), optarg, strlen(optarg));
         break;
+      case 'U': // Add simple category regexp
+        if( opts->simplecategory != NULL) {
+          fprintf(stderr, "Warning: ignoring second exclude addition.\n");
+          break;
+        }
+        alloccopy(&(opts->simplecategory), optarg, strlen(optarg));
+        break;
       case 'E': // Add title-filter argument
         if( opts->simpletitle != NULL) {
           fprintf(stderr, "Warning: ignoring second simple filter addition.\n");
           break;
         }
-				alloccopy(&(opts->simpletitle), optarg, strlen(optarg));
+        alloccopy(&(opts->simpletitle), optarg, strlen(optarg));
         break;
       case 'O': // Add 'max size' argument
         if( opts->simplemaxsize != NULL) {
           fprintf(stderr, "Warning: ignoring second 'max size' argument.\n");
           break;
         }
-				alloccopy(&(opts->simplemaxsize), optarg, strlen(optarg));
+        alloccopy(&(opts->simplemaxsize), optarg, strlen(optarg));
         break;
       case 'o': // Add 'min size' argument
         if( opts->simpleminsize != NULL) {

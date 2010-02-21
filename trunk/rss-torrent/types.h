@@ -54,7 +54,7 @@ typedef struct {
   int run;							// run 
   int nodetach;					// run in forground 
   int testfilt;					// Only test the filter
-  LOOPMODE onetime;					// run once then exit
+  LOOPMODE onetime;			// run once then exit
 	char *sourcefilter; 	// source filter 
 	char *source;					// source
 	char *filter;					// sql downloadfilter
@@ -62,9 +62,10 @@ typedef struct {
 	char *simplename;			// Simple filter name
 	char *simpletitle;		// Simple title regexp
 	char *simpleexclude;	// Simple exclude regexp
+  char *simplecategory; // Simple category regexp
 	char *simplemaxsize;	// Simple max size
 	char *simpleminsize;	// Simple minimal size
-	char *simplenodup;	// Simple no double filter type
+	char *simplenodup;	  // Simple no double filter type
 	char *simpleseason;		// From what season to download
 	char *simpleepisode;	// From episode
   char *simpledel;      // Name of simple filter to delete
@@ -85,6 +86,7 @@ typedef struct {
 	char *name;			// Simple filter name
 	char *title;		// Simple title regexp
 	char *exclude;	// Simple exclude regexp
+  char *category; // Simple category
 	double maxsize;	// Simple max size
 	double minsize;	// Simple minimal size
 	char *nodup;	// Simple no double filter type

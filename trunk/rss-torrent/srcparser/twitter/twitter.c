@@ -57,11 +57,6 @@ static int endtweet(void *data)
 	sqlite3 *db = local->db;
 	torprops *props=NULL;
 	int					rc=0;
-	//char 			*name=NULL;
-	//char			*link=NULL;
-	//int				season=0;
-	//int				episode=0;
-	//time_t		pubdate=0;
 	newtorrents_struct newtor; 
 
 	/*
@@ -74,6 +69,8 @@ static int endtweet(void *data)
 	 */
 	rc = splittext(local->tweet.text, &(newtor.title), &(newtor.link), &(newtor.season), &(newtor.episode));
 	if(rc < 0){
+    freetorprops(props);
+    freenewtor(&newtor);
 		/*
 		 * Text could not be split, no torrent record.
 		 */
@@ -86,6 +83,8 @@ static int endtweet(void *data)
 	rc = gettorrentinfo(newtor.link, &props);
 	if(rc < 0){
 		writelog(LOG_DEBUG, "Download failed for '%s'\n", newtor.link);
+    freetorprops(props);
+    freenewtor(&newtor);
 		/*
 		 * No torrent.
 		 */

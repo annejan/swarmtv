@@ -221,6 +221,7 @@ int splittext(char *text, char **name, char **link, int *season, int *episode)
 {
 	char *data=NULL;
 	int		rc=0;
+  int   retval=0;
 
 	/*
 	 * Split the initial data and link.
@@ -228,23 +229,24 @@ int splittext(char *text, char **name, char **link, int *season, int *episode)
 	rc = getdataandlink(text, &data, link);
 	if(rc != 1) {
 		writelog(LOG_DEBUG, "Tweet does not hold and url: '%s'", text);
-		return -1;
+		retval = -1;
 	}
 
 	/*
 	 * Split the data, into name, season, episode.
 	 */
-	rc = getnamelinkepisode(data, name, season, episode);
-	if(rc != 1) {
-		writelog(LOG_DEBUG, "Tweet does not contain season and episode info: '%s'", text);
-		return -1;
-	}
+  if(retval == 0) {
+    rc = getnamelinkepisode(data, name, season, episode);
+    if(rc != 1) {
+      writelog(LOG_DEBUG, "Tweet does not contain season and episode info: '%s'", text);
+      retval = -1;
+    }
+  }
 
-
-	/*
+  /*
 	 * free stuff.
 	 */
 	free(data);
 
-	return 0;
+	return retval;
 }

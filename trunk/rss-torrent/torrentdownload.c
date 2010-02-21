@@ -206,12 +206,6 @@ void applyfilter(sqlite3 *db, char *name, char* nodouble, SIM simulate, char *fi
   int           rc=0;
   int           step_rc=0;
   char          *zErrMsg=NULL;
-  //char          *link=NULL;
-  //char          *title=NULL;
-  //char          *pubdate=NULL;
-  //char          *category=NULL;
-  //int           season=0;
-  //int           episode=0;
   char          message[MAXMSGLEN+1];
   va_list     	ap;
 	int						retval=0;
