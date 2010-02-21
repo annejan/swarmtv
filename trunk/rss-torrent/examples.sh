@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#
 # This script inserts example sources and filters into the database.
 #
 

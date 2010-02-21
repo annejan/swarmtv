@@ -1,4 +1,9 @@
 #! /usr/bin/env bash
+#
+# Create the database from scratch.
+# Or delete the old database and create a new one.
+#
+
 RSSDIR=~/.rsstorrent
 DBFILE=$RSSDIR/rss.db
 
