@@ -290,7 +290,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
    */
   rc = downloadtobuffer( url, &buffer);
   if(rc != 0) {
-    writelog(LOG_NORMAL,  "%s: Failed to download.", url);
+    //writelog(LOG_NORMAL,  "%s: Failed to download.", url);
     return 0;
   }
 
@@ -351,8 +351,8 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
         HTML_PARSE_NOWARNING | HTML_PARSE_NOERROR | HTML_PARSE_NOBLANKS | HTML_PARSE_RECOVER);
     if(html == NULL) {
       freedownload(&buffer);
-      fprintf(stderr, "%s: failed to create reader\n", url);      
-      exit(1);
+      writelog(LOG_ERROR, "%s: failed to create reader\n", url);      
+      return -1;
     }
 
     /*

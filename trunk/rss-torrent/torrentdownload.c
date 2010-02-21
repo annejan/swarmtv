@@ -321,6 +321,7 @@ void applyfilter(sqlite3 *db, char *name, char* nodouble, SIM simulate, char *fi
        * Test if episode is already there
        */
       if(testdouble(db, nodouble, &downed) == 0) {
+
         /*
          * Add a torrent to the downloaded table.
          */

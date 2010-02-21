@@ -215,7 +215,8 @@ int comregexp(char *regexp, char *string)
       break;
 
     default:
-      writelog(LOG_ERROR, "Error while matching: '%s' %s:%d", regexp, __FILE__, __LINE__);
+      //fprintf(stderr, "Error evaluating password!\n");
+      writelog(LOG_ERROR, "Error while matching: %s %s:%d", regexp, __FILE__, __LINE__);
       break;
   }
 

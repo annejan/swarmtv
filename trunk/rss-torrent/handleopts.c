@@ -41,6 +41,7 @@
 #include "runloop.h"
 #include "testfilter.h"
 #include "simplefilter.h"
+#include "filesystem.h"
 
 /*
  * optstring what options do we allow
