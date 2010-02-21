@@ -4,9 +4,48 @@
 cmake_minimum_required(VERSION 2.6)
 project (rsstorrent C)
 
+# Detect Libraries
+SET(CMAKE_MODULE_PATH /usr/share/apps/cmake/modules cmake_modules)
+FIND_PACKAGE(LibXml2)
+FIND_PACKAGE(Sqlite)
+FIND_PACKAGE(PCRE)
+FIND_PACKAGE(CURL)
+FIND_PACKAGE(ESMTP)
+
+# Use the detected libraries to set build variables.
+SET(optionalLibs)
+IF(LIBXML2_FOUND)
+	MESSAGE(STATUS "Includedir ${LIBXML2_INCLUDE_DIR} set.")
+	INCLUDE_DIRECTORIES( ${LIBXML2_INCLUDE_DIR} )
+	SET(optionalLibs ${optionalLibs} ${LIBXML2_LIBRARIES} )
+ENDIF(LIBXML2_FOUND)
+
+IF(SQLITE_FOUND)
+	MESSAGE(STATUS "Includedir ${SQLITE_INCLUDE_DIR} set.")
+	INCLUDE_DIRECTORIES( ${SQLITE_INCLUDE_DIR} )
+	SET(optionalLibs ${optionalLibs} ${SQLITE_LIBRARIES} )
+ENDIF(SQLITE_FOUND)
+
+IF(PCRE_FOUND)
+	MESSAGE(STATUS "Includedir ${PCRE_INCLUDE_DIR} set.")
+	INCLUDE_DIRECTORIES( ${PCRE_INCLUDE_DIR} )
+	SET(optionalLibs ${optionalLibs} ${PCRE_LIBRARIES} )
+ENDIF(PCRE_FOUND)
+
+IF(CURL_FOUND)
+	MESSAGE(STATUS "Includedir ${CURL_INCLUDE_DIR} set.")
+	INCLUDE_DIRECTORIES( ${CURL_INCLUDE_DIR} )
+	SET(optionalLibs ${optionalLibs} ${CURL_LIBRARIES} )
+ENDIF(CURL_FOUND)
+
+IF(ESMTP_FOUND)
+	MESSAGE(STATUS "Includedir ${ESMTP_INCLUDE_DIR} set.")
+	INCLUDE_DIRECTORIES( ${ESMTP_INCLUDE_DIR} )
+	SET(optionalLibs ${optionalLibs} ${ESMTP_LIBRARIES} )
+ENDIF(ESMTP_FOUND)
+
 # Compiler directives
-add_definitions( `xml2-config --cflags` -Wall -W -g)
-link_libraries(curl xml2 pcre esmtp sqlite3)
+add_definitions(-Wall -W -g)
 include_directories(.)
 
 # Add manpage 
@@ -23,9 +62,8 @@ SET(SRC rsstorrent database config regexp source
 INCLUDE(srcparser/parsers.cmake)
 
 # Add executable
-  add_executable (
-  rsstorrent ${SRC} ${RSS_MAN}
-) 
+add_executable (rsstorrent ${SRC} ${RSS_MAN}) 
+TARGET_LINK_LIBRARIES(rsstorrent ${optionalLibs} )
 
 # Compression of the manuals
 FOREACH(man ${RSS_SRC})
@@ -57,6 +95,7 @@ ADD_CUSTOM_TARGET(uninstall
 
 ADD_CUSTOM_TARGET(realclean
 		make clean
+		COMMAND rm CMakeCache.txt
 		COMMAND rm -rf CMakeFiles )
 
 
