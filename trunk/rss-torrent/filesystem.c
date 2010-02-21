@@ -26,6 +26,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#include "regexp.h"
 
 #define TESTFILENAME "test.file"
 
@@ -65,9 +66,7 @@ void completepath(const char *origpath, char **destpath)
     /*
      * if not copy origpath to destpath and allocate memory
      */
-    lenght = strlen(origpath);
-    *destpath = calloc(lenght+1, 1);
-    strncpy(*destpath, origpath, lenght);
+		alloccopy(destpath, (char*) origpath, strlen(origpath));
   }
 }
 

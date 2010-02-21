@@ -29,19 +29,20 @@
 #include "database.h"
 #include "logfile.h"
 #include "filesystem.h"
+#include "regexp.h"
 
 /*
  * This function implement pcre functionality to the queries.
  * called every time sqlite crosses an regexp.
  */
 static void genregexpfunc(sqlite3_context *db, int num, sqlite3_value **sqlite3_value, int opt){
-  int   rc;
-  const char *var1;
-  const char *var2;
-  pcre *re = NULL; 
-  const char *error = NULL; 
-  int errOffset = 0; 
-  int match;
+  int   			rc=0;
+  const char 	*var1=0;
+  const char 	*var2=0;
+  pcre 				*re = NULL; 
+  const char 	*error = NULL; 
+  int 				errOffset = 0; 
+  int 				match=0;
 
   /*
    * sanity check
@@ -223,18 +224,18 @@ int initdatabase(
  */
 int dosingletextquery(sqlite3 *db, const unsigned char **text, const char *query, char *fmt, ...) 
 {
-  sqlite3_stmt *ppStmt;
-  const char *pzTail;
-  int         rc;
-  int         step_rc;
-  char       *zErrMsg = 0;
-  const unsigned char  *temptext;
-  va_list     ap;
-  int         retval=0;
-  int         count=0;
-  char        *s=NULL;
-  int          d=0;
-  double       f=0.0;
+  sqlite3_stmt 	*ppStmt=NULL;
+  const char 		*pzTail=NULL;
+  int         	rc=0;
+  int         	step_rc=0;
+  char       		*zErrMsg = 0;
+  const unsigned char  *temptext=NULL;
+  va_list     	ap;
+  int         	retval=0;
+  int         	count=0;
+  char        	*s=NULL;
+  int          	d=0;
+  double       	f=0.0;
 
   /*
    * NULL = no arguments.
@@ -329,8 +330,7 @@ int dosingletextquery(sqlite3 *db, const unsigned char **text, const char *query
         /*
          * Move result to premanent own location.
          */
-        *text = (unsigned char *) calloc(strlen((char *)temptext)+1, 1);
-        strcpy((char*) *text,(char*) temptext);
+				alloccopy((char**)text,(char*) temptext, strlen((char*)temptext));
 
         break;
       case SQLITE_DONE:
@@ -365,19 +365,18 @@ int dosingletextquery(sqlite3 *db, const unsigned char **text, const char *query
  */
 int executequery(sqlite3 *db, const char *query, char *fmt, ...) 
 {
-  sqlite3_stmt *ppStmt=NULL;
-  const char *pzTail=NULL;
-  va_list     ap;
-  int         rc=0;
-  int         retval=0; 
-  int         step_rc=0;
-  char       *zErrMsg = 0;
-  char        *s=NULL;
-  int          d=0;
-  double       f=0.0;
-  //char         c=' ';
-  int          count=0;
-  int          changes=0;
+  sqlite3_stmt 	*ppStmt=NULL;
+  const char 		*pzTail=NULL;
+  va_list     	ap;
+  int         	rc=0;
+  int         	retval=0; 
+  int        		step_rc=0;
+  char       		*zErrMsg = 0;
+  char        	*s=NULL;
+  int          	d=0;
+  double       	f=0.0;
+  int          	count=0;
+  int          	changes=0;
 
   /*
    * fmt pointer to NULL is do not substitutes
@@ -502,14 +501,14 @@ int executequery(sqlite3 *db, const char *query, char *fmt, ...)
  */
 int printquery(sqlite3 *db, const char *query)
 {
-  sqlite3_stmt  *ppStmt;
-  const char    *pzTail;
-  int           rc;
-  int           step_rc;
-  int           cols;
-  char          *zErrMsg = 0;
+  sqlite3_stmt  *ppStmt=NULL;
+  const char    *pzTail=NULL;
+  int           rc=0;
+  int           step_rc=0;
+  int           cols=0;
+  char          *zErrMsg=0;
   int           count=0;
-  const unsigned char *text;
+  const unsigned char *text=NULL;
 
   /*
    * Prepare the sqlite statement

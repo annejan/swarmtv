@@ -27,6 +27,7 @@
 #include "config.h"
 #include "database.h"
 #include "logfile.h"
+#include "regexp.h"
 
 #define  MAXLENGHT 400
 
@@ -111,8 +112,7 @@ int addsource(sqlite3 *db, const char *name, const char *url, char *filtertype)
   if(filtertype == NULL){
     configgetproperty(db, CONF_DEFPARSER, &localfilter);
   } else {
-    localfilter = calloc(1, strlen(filtertype));
-    strcpy(localfilter, filtertype);
+		alloccopy(&localfilter, filtertype, strlen(filtertype));
   }
   
   printf("Adding:%s, url:%s, filtertype:%s\n", name, url, filtertype);

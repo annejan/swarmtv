@@ -125,7 +125,6 @@ static void getbasename(char *url, char **basename)
 {
   char    *cur=NULL;
   size_t  basesize=0;
-  //int     loop;
   int     found=0;
 
   *basename = NULL;
@@ -134,17 +133,6 @@ static void getbasename(char *url, char **basename)
    * find 3th '/'
    */
   cur = strrchr(url, '/');
-  //for(loop=0; loop<2; loop++) {
-    //cur = strrchr(cur+1, '/');
-
-    /*
-     * When no 3 '/' are there.
-     */
-    //if(cur == NULL) {
-    //  found = 1;
-    //  break;
-    //}
-  //}
 
   /*
    * When not found check if the string starts with 'http://'
@@ -160,10 +148,7 @@ static void getbasename(char *url, char **basename)
    * Copy the basename to the outputbuffer
    */
   basesize=cur-url;    
-  *basename=calloc(1, basesize+1);
-  strncpy(*basename, url, basesize);
-
-  //printf("Found basename :%s\n", *basename);
+	alloccopy(basename, url, basesize);
 }
 
 
@@ -263,7 +248,6 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
   xmlDocPtr         html = NULL; 
   xmlNodeSetPtr     nodeset = NULL;
   int               count=0;
-  char              *conttype=NULL;
 
   /*
    * When uninteresting stuff is found, ignore
@@ -300,16 +284,11 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
   rc = getheadersvalue(HTTP_CONTENTTYPE, &filetype, &buffer);
   if(rc == -1) {
     /*
-     * No header found use, mime magic
+     * No header found ignore this link.
      */
-		fprintf(stderr, "%s: Error during determining content type.\n", url);      
 		freedownload(&buffer);
 		return 0;
   }
-  else if(rc != 0) {
-    printf("No header found and mimetype matching failed, rc = %d\n", rc);
-  }
-  free(conttype);
 
   /*
    * When lib magic finds a torrent, return 1 and set buffer + url
@@ -319,8 +298,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
      * Copy and allocate the url + buffer
      * Both should be freed after use !
      */
-    *torrenturl = calloc(1, strlen(url)+1);
-    strcpy(*torrenturl, url);
+		alloccopy(torrenturl, url, strlen(url));
     *torbuffer = calloc(1, sizeof(MemoryStruct)+1);
     memcpy(*torbuffer, &buffer, sizeof(MemoryStruct));
 
@@ -350,9 +328,10 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
     html =  htmlReadDoc((unsigned char*)(buffer.memory), "", NULL, 
         HTML_PARSE_NOWARNING | HTML_PARSE_NOERROR | HTML_PARSE_NOBLANKS | HTML_PARSE_RECOVER);
     if(html == NULL) {
+      writelog(LOG_NORMAL, "%s: failed to create reader, although MIME suggested html\n", url);      
       freedownload(&buffer);
-      writelog(LOG_ERROR, "%s: failed to create reader\n", url);      
-      return -1;
+			free(filetype);
+      return 0;
     }
 
     /*
@@ -448,6 +427,7 @@ int findtorrentwrite(char *url, char *name)
   rc = findtorrent(url, &torurl, &buffer, RECURSE);
   if(rc != 1) {
     writelog(LOG_ERROR, "Torrent not found in %s", url);
+		freedownload(buffer);
     rv=-1;
   }
 

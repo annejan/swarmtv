@@ -268,6 +268,8 @@ int downloadtofile(char *url, char *path)
 
 /*
  * Free the download and clean the leftovers
+ * Arguments :
+ * chunk 	pointer to downloaded data, NULL pointers are ignored.
  */
 void freedownload(MemoryStruct *chunk)
 {
@@ -308,8 +310,7 @@ int getheadersvalue(char *name, char **value, MemoryStruct *chunk)
   /*
    * Copy the inputbuffer to tempbuffer.
    */
-  header = calloc(1, strlen(chunk->header)+1);
-  strcpy(header, chunk->header);
+	alloccopy(&header, chunk->header, strlen(chunk->header));
 
   /*
    * Create regexp for getting header

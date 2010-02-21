@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 2.6)
 project (rsstorrent C)
 
 # Detect Libraries
-SET(CMAKE_MODULE_PATH /usr/share/apps/cmake/modules cmake_modules)
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} /usr/share/apps/cmake/modules ${CMAKE_SOURCE_DIR}/cmake_modules)
 FIND_PACKAGE(LibXml2)
 FIND_PACKAGE(Sqlite)
 FIND_PACKAGE(PCRE)

@@ -30,6 +30,7 @@
 #include "torrentparse.h"
 #include "findtorrent.h"
 #include "logfile.h"
+#include "regexp.h"
 
 typedef struct str { size_t len; char *str; } str_t;
 
@@ -43,8 +44,6 @@ static void setintstate(bencstate *state, long value){
   if(state->prevtype != 'k') {
     return;
   }
-
-  //printf("'Prevkey '%s'\n", state->prevkey);
 
   /*
    * Add size to total
@@ -79,7 +78,6 @@ static int tbl_integer(void *ctx, long value)
   state->prevtype='i';
   state->prevint=value;
 
-  //printf("Parsed int to: %ld\n", value);
 	return 0;
 }
 
@@ -88,8 +86,6 @@ static int tbl_integer(void *ctx, long value)
  */
 static int tbl_string(void *ctx, char *value, size_t length)
 {
-  char *string;
-  
   if(length > 300) {
     return 0;
   }
@@ -101,13 +97,6 @@ static int tbl_string(void *ctx, char *value, size_t length)
   state->prevtype='s';
   strncpy(state->prevstring, value, DATALEN);
 
-  /*
-   * terminate string
-   */
-  string = calloc(1, length+1);
-  strncpy(string, value, length);
-
-  free(string);
 	return 0;
 }
 
@@ -122,16 +111,13 @@ static int tbl_dictkey(void *ctx, char *value, size_t length)
   /*
    * terminate string
    */
-  string = calloc(1, length+1);
-  strncpy(string, value, length);
+	alloccopy(&string, value, length);
 
   /*
    * set state
    */
   state->prevtype='k';
   strncpy(state->prevkey, string, DATALEN);
-
-  //printf("Parsed dictkey: %s\n", string);
 
   free(string);
 	return 0;
@@ -224,7 +210,9 @@ int gettorrentinfo(char *url, torprops **props)
     *props=NULL;
     retval=-1;
   }
-  // Do nothing for now with the found url.
+  /*
+	 * Do nothing for now with the found url.
+	 */
   free(torurl);
 
   /*
