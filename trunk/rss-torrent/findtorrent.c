@@ -276,6 +276,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
   rc = downloadtobuffer( url, &buffer);
   if(rc != 0) {
     //writelog(LOG_NORMAL,  "%s: Failed to download.", url);
+	  freedownload(&buffer);
     return 0;
   }
 
@@ -315,6 +316,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
    * We are not interested in other content then torrents, so returning 0
    */
   if(recurse <= 0) {
+		freedownload(&buffer); 
     return 0;
   }
 
