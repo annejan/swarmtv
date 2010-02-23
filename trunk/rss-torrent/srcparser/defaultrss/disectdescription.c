@@ -75,7 +75,6 @@ int disectdescription(char *description, char *key, char **retrieved)
 		 */
 		split = strchr(token, ':');
 		if(split == NULL) {
-			printf("token: %s\n", split);
 			token = strtok (NULL, ";");
 			continue;
 		}

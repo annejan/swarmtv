@@ -273,8 +273,10 @@ int downloadtofile(char *url, char *path)
  */
 void freedownload(MemoryStruct *chunk)
 {
-	free(chunk->memory);
-	free(chunk->header);
+  if(chunk != NULL) {
+    free(chunk->memory);
+    free(chunk->header);
+  }
 
   return;
 }
