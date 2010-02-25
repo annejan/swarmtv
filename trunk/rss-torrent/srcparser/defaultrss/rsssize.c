@@ -46,6 +46,7 @@ int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata)
 	size_t 		i_length=0;
 	long			min_config=0;
 	torprops	*props=NULL;
+	int				retval=0;
 
 	/*
 	 * Get from size node.
@@ -82,9 +83,11 @@ int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata)
 		rc = gettorrentinfo(rssdata->link, &props);
 		if(rc == 0) {
 			newtor->size = props->size;	
+		} else {
+			retval = -1;
 		}
 		freetorprops(props);
 	}
 
-	return 0;
+	return retval;
 }

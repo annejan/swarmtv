@@ -207,7 +207,7 @@ int gettorrentinfo(char *url, torprops **props)
    */
   rc = findtorrent(url, &torurl, &buffer, RECURSE);
   if(rc != 1){
-    writelog(LOG_ERROR, "could not find torrent '%s' %s:%d", url, __FILE__, __LINE__);
+    writelog(LOG_NORMAL, "could not find torrent '%s' %s:%d", url, __FILE__, __LINE__);
     *props=NULL;
     retval=-1;
   }

@@ -57,7 +57,7 @@ static int testdouble(sqlite3 *db, char *nodouble, downloaded_struct *downed);
  * Do download.
  * take url, create name and call curl routine
  */
-static void dodownload(sqlite3 *db, downloaded_struct *downed);
+static int dodownload(sqlite3 *db, downloaded_struct *downed);
 
 
 /*
@@ -330,13 +330,14 @@ void applyfilter(sqlite3 *db, char *name, char* nodouble, SIM simulate, char *fi
           /*
            * Download torrent
            */
-          dodownload(db, &downed);
-          
-          /*
-           * Send email
-           */
-          snprintf(message, MAXMSGLEN, "Downloading %s S%dE%d", downed.title, downed.season, downed.episode);
-          sendrssmail(db, message, message);
+          rc = dodownload(db, &downed);
+					if(rc == 0) {
+						/*
+						 * Send email
+						 */
+						snprintf(message, MAXMSGLEN, "Downloading %s S%dE%d", downed.title, downed.season, downed.episode);
+						sendrssmail(db, message, message);
+					}
         }
       } else {
         writelog(LOG_DEBUG, "%s Season %d Episode %d is a duplicate %s:%d", 
@@ -407,11 +408,12 @@ int testtorrentdir(sqlite3 *db)
  * episode	Episode number
  * pubdate	Date the torrent was published.
  */
-static void dodownload(sqlite3 *db, downloaded_struct *downed) 
+static int dodownload(sqlite3 *db, downloaded_struct *downed) 
 {
   char filename[151];
   char *path = NULL;
   char *fullpath = NULL;
+	int  retval=0;
 
   
   /*
@@ -429,12 +431,14 @@ static void dodownload(sqlite3 *db, downloaded_struct *downed)
   /*
    * download
    */
-  findtorrentwrite(downed->link, filename);
+  retval = findtorrentwrite(downed->link, filename);
 
   /*
    * Cleanup
    */
   free(path);
   free(fullpath);
+
+	return retval;
 }
 

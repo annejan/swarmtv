@@ -38,6 +38,7 @@
 static const char* units[]    = {"B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
 static const char* unitmatch  = "BKMGTPEZY";
 
+
 /*
  * This function copies and allocates the destination memory.
  * don't forget to free the destination after use.
@@ -59,6 +60,7 @@ int alloccopy(char **dest, char *src, size_t size)
 	 */
 	return !*dest;
 }
+
 
 /*
  * Split options
@@ -169,6 +171,7 @@ void cleanupstring(char *string)
   }
 }
 
+
 /*
  * Simple routine to compare a string to a regexp
  */
@@ -186,9 +189,11 @@ int comregexp(char *regexp, char *string)
    */
   p = pcre_compile(regexp, 0, &errmsg, &errpos, 0);
   if (p == NULL) {
-    /* should not happen, because init1 has already tested and set to NULL on error */
-    //writelog(LOG_ERROR, "Ouch! Can't compile regular expression: %s (char %i) %s:%d",
-    //    errmsg, errpos, __FILE__, __LINE__);
+    /* 
+		 * Should not happen, because init1 has already tested and set to NULL on error 
+		 */ 
+    writelog(LOG_ERROR, "Ouch! Can't compile regular expression: %s (char %i) %s:%d",
+        errmsg, errpos, __FILE__, __LINE__);
   }
 
   /*
@@ -215,7 +220,6 @@ int comregexp(char *regexp, char *string)
       break;
 
     default:
-      //fprintf(stderr, "Error evaluating password!\n");
       writelog(LOG_ERROR, "Error while matching: %s %s:%d", regexp, __FILE__, __LINE__);
       break;
   }
@@ -227,6 +231,7 @@ int comregexp(char *regexp, char *string)
 
   return outval;
 }
+
 
 /*
  * This routine returns a string pointing to the first captured string.
@@ -298,6 +303,7 @@ int capturefirstmatch(char *regexp, int flag, char *string, char **match)
 
   return 0;
 }
+
 
 /*
  * Extract username and password from url
@@ -399,6 +405,7 @@ int getusernamepassword(char *url, char **cleanurl, char **userpass)
 	return 1;
 }
 
+
 /*
  * buf must be a pre-allocated buffer with size BUFSIZE+1
  * returns the char * to the converted string.
@@ -417,6 +424,7 @@ char* sizetohuman(size_t size/*in bytes*/, char *buf)
   snprintf(buf, BUFSIZE, "%.*f %s", i, (double) tempsize, units[i]);
   return buf;
 }
+
 
 /*
  * buf must be a pre-allocated buffer with size BUFSIZE+1
@@ -486,6 +494,7 @@ int humantosize(char *buf, double *size)
 
   return 0;
 }
+
 
 /*
  * Credits to Gilles Kohl for providing the base code.

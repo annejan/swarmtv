@@ -293,7 +293,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
   }
 
   /*
-   * When lib magic finds a torrent, return 1 and set buffer + url
+   * When we find a torrent, return 1 and set buffer + url
    */
   if(strncmp(filetype, TORRENT_MIME, strlen(TORRENT_MIME)) == 0){
     /*
@@ -429,7 +429,7 @@ int findtorrentwrite(char *url, char *name)
    */
   rc = findtorrent(url, &torurl, &buffer, RECURSE);
   if(rc != 1) {
-    writelog(LOG_ERROR, "Torrent not found in %s", url);
+    writelog(LOG_NORMAL, "Torrent not found in %s", url);
 		freedownload(buffer);
     rv=-1;
   }
