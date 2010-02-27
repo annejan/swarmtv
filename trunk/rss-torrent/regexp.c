@@ -174,6 +174,13 @@ void cleanupstring(char *string)
 
 /*
  * Simple routine to compare a string to a regexp
+ * @Arguments
+ * regexp   Regular expression to match.
+ * string   String to match regular expression on.
+ * @Returns
+ * 0 no match
+ * 1 match
+ * -1 error
  */
 int comregexp(char *regexp, char *string)
 {
@@ -211,17 +218,17 @@ int comregexp(char *regexp, char *string)
   /*
    * handle output
    */
-  switch (rc) {
-    case 0:
-      outval = 1;
-      break;
-    case PCRE_ERROR_NOMATCH:
-      outval = 0;
-      break;
-
-    default:
-      writelog(LOG_ERROR, "Error while matching: %s %s:%d", regexp, __FILE__, __LINE__);
-      break;
+  if(rc == PCRE_ERROR_NOMATCH) {
+    outval=0;
+  } 
+  else if (rc == PCRE_ERROR_MATCHLIMIT) {
+    writelog(LOG_ERROR, "PCRE hitted PCRE_ERROR_MATCHLIMIT for regexp '%s' and text '%s'", regexp, string);
+    outval=-1;
+  } else {
+    /*
+     * Found a match !
+     */
+    outval=1;
   }
 
   /*
