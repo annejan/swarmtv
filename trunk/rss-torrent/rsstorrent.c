@@ -29,6 +29,7 @@
 #include "database.h"
 #include "logfile.h"
 #include "handleopts.h"
+#include "setup.h"
 
 /*
  * Bit of a hack.. but needed for cleanup
@@ -98,12 +99,21 @@ int main(int argc, char **argv){
   signal(SIGINT,Signal_Handler); /* software termination signal CTRL+C */
   signal(SIGPIPE,Signal_Handler); /* software termination signal CTRL+C */
 
+	/*
+	 * Test if basedir is present
+	 */
+	rc = initrsstorrent(); 
+	if(rc != 0) {
+    fprintf(stderr, "Initializing basedir : \'%s\' failed", RSS_BASEDIR);
+    exit(1);
+  }
+
   /*
    * Initialize the database
    */
   rc = initdatabase( DBFILE, &db);  
   if( rc!=SQLITE_OK ){
-    fprintf(stderr, "Initializing db : \'%s\' failed", argv[1]);
+    fprintf(stderr, "Initializing db : \'%s\' failed\n", argv[1]);
     exit(1);
   }
   cleandb=db;

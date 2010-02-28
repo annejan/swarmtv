@@ -39,3 +39,11 @@ int fsexists(char *path);
  */
 int testwrite(const char *path);
 
+/*
+ * Create directory
+ * Arguments
+ * path path to directory
+ * returns
+ * 0 on succes, -1 on failure
+ */
+int makedir(char *path);

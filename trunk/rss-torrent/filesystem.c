@@ -44,6 +44,13 @@ void completepath(const char *origpath, char **destpath)
   int   lenght=0;
   char *homedir=NULL;
 
+	/*
+	 * Test input
+	 */
+	if(origpath == NULL) {
+		return;
+	}
+
   /*
    * Test if the string starts with a '~'
    */
@@ -145,3 +152,22 @@ int testwrite(const char *path)
   }
 }
 
+
+/*
+ * Create directory
+ * Arguments
+ * path path to directory
+ * returns
+ * 0 on succes, -1 on failure
+ */
+int makedir(char *path)
+{
+	int rc;
+
+	/*
+	 * Create directory depending on users umask.
+	 */
+	rc = mkdir(path, 0777);
+
+	return rc;
+}

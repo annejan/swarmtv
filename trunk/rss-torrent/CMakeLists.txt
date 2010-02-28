@@ -48,7 +48,7 @@ SET(RSS_SRC man/rsstorrent.1)
 SET(RSS_MAN man/rsstorrent.1.gz)
 
 # All other sources
-SET(SRC rsstorrent database config regexp source
+SET(SRC setup rsstorrent database config regexp source
   filter runloop curlfile torrentdb torrentdownload logfile
   daemonize mailmsg findtorrent sandboxdb testfilter
   filesystem tbl torrentparse handleopts simplefilter)

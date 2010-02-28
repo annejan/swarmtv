@@ -43,7 +43,6 @@
  * Apply the filters from the query.
  * when simulate is set to 'sim' no actual downloads are performed
  */
-//void applyfilter(sqlite3 *db, char *name, char *filter, char* nodouble, int simulate);
 void applyfilter(sqlite3 *db, char *name, char* nodouble, SIM simulate, char *filter, char *fmt, ...);
 
 /*
@@ -376,6 +375,8 @@ int testtorrentdir(sqlite3 *db)
   rc = fsexists(fullpath);
   if(rc != 0) {
     writelog(LOG_ERROR, "Torrent directory '%s' does not exist!", path);
+		writelog(LOG_ERROR, 
+				"Please create the directory, or alter torrent directory by setting 'torrentdir' in the config. (--set-config \"torrentdir:<path>\")");
   }
 
   /*

@@ -30,6 +30,130 @@
 #include "logfile.h"
 #include "filesystem.h"
 #include "regexp.h"
+#include "setup.h"
+
+/*
+ * Database version.
+ * When the current version does not match the version in the version field
+ * The database is recreated
+ */
+#define DB_VERSION 1
+
+#define SCRIPT_EOL "\n"
+#define SCRIPT_SYM "--"
+
+/*
+ * Database create script
+ */
+static const char *dbinitscript = 
+"-- Drop tables\n"
+"drop table if exists version;\n"
+"drop table if exists newtorrents;\n"
+"drop table if exists downloaded;\n"
+"drop table if exists filters;\n"
+"drop table if exists sources;\n"
+"drop table if exists config;\n"
+"\n"
+"-- Create versioning field\n"
+"create table version (version INTEGER);\n"
+"INSERT INTO 'version' VALUES(1);\n"
+"\n"
+"-- Create the newtorrents table\n"
+"create table newtorrents (id INTEGER PRIMARY KEY,title TEXT, link TEXT UNIQUE, pubdate DATE, "
+"category TEXT, season INTEGER, episode INTEGER, seeds INTEGER DEFAULT 0, peers INTEGER DEFAULT 0, size INTEGER, new TEXT DEFAULT 'Y');\n"
+"\n"
+"-- Create the downloaded table\n"
+"create table downloaded (id INTEGER PRIMARY KEY,title TEXT, link TEXT UNIQUE, pubdate DATE, "
+"category TEXT, season INTEGER, episode INTEGER, date DATE);\n"
+"\n"
+"-- Create the filters table\n"
+"create table filters (id INTEGER PRIMARY KEY, name TEXT UNIQUE, filter TEXT, nodouble TEXT DEFAULT '');\n"
+"CREATE TABLE simplefilters (id INTEGER PRIMARY KEY, name TEXT UNIQUE, title TEXT, exclude TEXT, category TEXT, maxsize INTEGER DEFAULT 0, "
+"minsize INTEGER DEFAULT 0, nodup TEXT NOT NULL, fromseason INTEGER DEFAULT 0, fromepisode INTEGER DEFAULT0 );\n"
+"\n"
+"-- Create the sources table\n"
+"create table sources (id INTEGER PRIMARY KEY, name TEXT UNIQUE, url TEXT, parser TEXT);\n"
+"\n"
+"-- Create the config table, and fillout the table with the 'standard' values\n"
+"create table config (id INTEGER PRIMARY KEY, prop TEXT UNIQUE, value TEXT, descr TEXT);\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('torrentdir', '~/torrents', 'Path the downloaded torrents are placed in.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('logfile', '~/.rsstorrent/rsstorrent.log', 'Path to logfile.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('lockfile', '~/.rsstorrent/lockfile.pid', 'Path to lockfile.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('refresh', '3600', 'Seconds between refreshes.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('retain', '30', 'The number of days source information is retained.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('default_parser', 'defaultrss', 'The default rss filter to add to new rss sources.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('smtp_enable', 'N', '`Y` is send email notifications on new download, `N` is don`t.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('smtp_to', 'foo@bar.nl', 'Host to send the notifications to.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('smtp_from', 'user@somehost.nl', 'The from email-address in the mail headers.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('smtp_host', 'smtp.foobar.nl:25', 'The STMP server used to send the notifications.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('min_size', '4000000', 'When size is smaller then this, download torrent and check.');\n"
+"\n";
+
+/*
+ * Executing script
+ * This function executes a script.
+ * Each line should be seperated by a '\n' char.
+ * @Arguments 
+ * script pointer so buffer holding script.
+ * @ returns
+ * 0 on succes
+ * -1 on fail
+ */
+static int dbexecscript(sqlite3 *db, const char *script)
+{
+	char 	*latest=NULL;
+	char 	*local=NULL;
+	char 	*line=NULL;
+	int		rc=0;
+	int		retval=0;
+	int		linenr=0;
+
+	/*
+	 * Copy to local buffer for strtok to modify
+	 */
+	alloccopy(&local, script, strlen(script));
+
+	/*
+	 * Use strtok to seperate the lines
+	 */
+	char *strtok(char *str, const char *delim);
+	line = strtok_r(local, SCRIPT_EOL, &latest);
+	while(line != NULL && retval == 0){
+		linenr++;
+
+		/*
+		 * Ignore comments
+		 */
+		if(strncmp(line, SCRIPT_SYM, strlen(SCRIPT_SYM)-1) == 0) {
+			line = strtok_r(NULL, SCRIPT_EOL, &latest);
+			continue;
+		}
+
+		/*
+		 * Execute line by line
+		 */
+		rc = executequery(db, line, NULL);
+		if(rc < 0) {
+			/*
+			 * On error print report, and break loop.
+			 */
+			writelog(LOG_ERROR, "Error in script on line %d : %s", linenr, line);
+			retval = -1;
+		}
+
+		/*
+		 * Next line
+		 */
+		line = strtok_r(NULL, SCRIPT_EOL, &latest);
+	}
+
+	/*
+	 * Done.
+	 */
+	free(local);
+	return retval;
+}
+
 
 /*
  * This function implement pcre functionality to the queries.
@@ -133,22 +257,88 @@ static void iregexpfunc(sqlite3_context *db, int num, sqlite3_value **sqlite3_va
 
 
 /*
+ * Get database version.
+ * @arguments
+ * version pointer to int holding database version number
+ * @return
+ * 0 on succes, -1 on failure
+ */
+static int getdbversion(sqlite3 *db, int *version)
+{
+	int 	rc=0;
+	char *text=NULL;
+
+	const char *existquery="SELECT * FROM sqlite_master WHERE name = 'version' AND type = 'table'";
+	const char *query="SELECT version FROM version";
+	
+	/*
+	 * Test if version table exists
+	 */
+	rc = executequery(db, existquery, NULL);
+	free(text);
+	if(rc != 1) {
+		/*
+		 * version table not there
+		 */
+		*version=0;
+		return -1;
+	}
+
+	/*
+	 * Execute query.
+	 * translate value when found
+	 */
+	rc = dosingletextquery(db, (unsigned char const**)&text, query, NULL);
+	if(rc == 0) {
+		*version = atoi(text);
+	}
+
+	/*
+	 * Return rc from dosingeltextquery
+	 */
+	free(text);
+	return rc;
+}
+
+/*
+ * Run the Database init script.
+ * @return
+ * 0 on succes, -1 on failure
+ */
+static int rundbinitscript(sqlite3 *db)
+{
+	int rc=0;
+
+	/*
+	 * Execute query
+	 */
+	rc = dbexecscript(db, dbinitscript); 
+
+	/*
+	 * return result
+	 */
+	return rc;
+}
+
+
+/*
  * Open database, and add regexp functionality.
  */
 int initdatabase(
-    const char *filename,   /* Database filename (UTF-8) */
-    sqlite3   **ppDb)       /* OUT: SQLite db handle */
+		const char *filename,   /* Database filename (UTF-8) */
+		sqlite3   **ppDb)       /* OUT: SQLite db handle */
 {
-  int         rc=0; /* return code */
-  char       *zErrMsg = 0;
-  char       *dbpath = NULL;
-  
-  /*
-   * Complete the filename is it contains a ~ as homedir
-   */
-  completepath(filename, &dbpath);
-  
-  /*
+	int         rc=0; /* return code */
+	int					version=0;
+	char       *zErrMsg = 0;
+	char       *dbpath = NULL;
+
+	/*
+	 * Complete the filename is it contains a ~ as homedir
+	 */
+	completepath(filename, &dbpath);
+
+	/*
    * Open the sqlite database.
    */
   rc = sqlite3_open(dbpath, ppDb);
@@ -162,6 +352,23 @@ int initdatabase(
    * free dbpath
    */
   free(dbpath);
+
+	/*
+	 * Test if database is initialized and of the right version.
+	 */
+	rc = getdbversion(*ppDb, &version);
+	if(rc != 0 || version != DB_VERSION){
+		/*
+		 * Create new DB
+		 */
+		printf("Running create databasescript.\n");
+		rc = rundbinitscript(*ppDb);
+		if(rc == -1){
+			fprintf(stderr, "Can't open database, initscript failed!\n");
+			sqlite3_close(*ppDb);
+			return !SQLITE_OK;
+		}
+	}
 
   /* 
    * Add regexp function.
@@ -257,7 +464,6 @@ int dosingletextquery(sqlite3 *db, const unsigned char **text, const char *query
   if( rc!=SQLITE_OK ){
     writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
     writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
-    sqlite3_free(zErrMsg);
     retval = -1;
   }
 

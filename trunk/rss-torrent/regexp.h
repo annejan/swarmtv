@@ -24,7 +24,7 @@
  * This function copies and allocates the destination memory.
  * don't forget to free the destination after use.
  */
-int alloccopy(char **dest, char *src, size_t size);
+int alloccopy(char **dest, const char *src, const size_t size);
 
 /*
  * Split options
