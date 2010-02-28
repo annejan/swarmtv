@@ -39,7 +39,14 @@
  */
 #define DB_VERSION 1
 
+/*
+ * End of line character
+ */
 #define SCRIPT_EOL "\n"
+
+/*
+ * Memic to indicate comments.
+ */
 #define SCRIPT_SYM "--"
 
 /*
