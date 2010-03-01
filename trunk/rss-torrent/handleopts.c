@@ -90,7 +90,7 @@ static const struct option optLong[] =
 	{"nodup", 							  required_argument, 0, 'u'},
 	{"from-season", 				  required_argument, 0, 'g'},
 	{"from-episode", 				  required_argument, 0, 'G'},
-	{"reinit-database", 		  required_argument, 0, 'K'},
+	{"reinit-database", 		  no_argument, 			 0, 'K'},
 	{0, 0, 0, 0}
 };
 
