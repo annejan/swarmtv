@@ -80,3 +80,10 @@ int printquery(sqlite3 *db, const char *query);
  */
 int printquery(sqlite3 *db, const char *query);
 
+/*
+ * Run the Database init script.
+ * @return
+ * 0 on succes, -1 on failure
+ */
+int rundbinitscript(sqlite3 *db);
+

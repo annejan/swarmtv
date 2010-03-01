@@ -46,7 +46,7 @@
 /*
  * optstring what options do we allow
  */
-static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:kAU:";
+static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:kAU:K";
 
 /*
  * Long opts
@@ -90,6 +90,7 @@ static const struct option optLong[] =
 	{"nodup", 							  required_argument, 0, 'u'},
 	{"from-season", 				  required_argument, 0, 'g'},
 	{"from-episode", 				  required_argument, 0, 'G'},
+	{"reinit-database", 		  required_argument, 0, 'K'},
 	{0, 0, 0, 0}
 };
 
@@ -107,11 +108,12 @@ static void printhelp(void)
           "test             -q               : Test filter (together with -F & -T).\n"  
           "test-mail        -m <text>        : Send testmail notification.\n"  
           "version          -v               : Print version.\n"  
+					"reinit-database  -K               : Reinitialize the database. (warning: data is lost)\n"
           "\nConfig settings\n"
           "list-config      -c               : List config Items and their values.\n"  
           "set-config       -C <name:value>  : Set a config value.\n"  
           "\nSource\n"
-          "add-source       -s <name:url>    : Set RSS source (default parser type 'defaultrss') .\n"  
+          "add-source       -s <name:url>    : Set RSS source. (default parser type 'defaultrss')\n"  
           "del-source       -D <name>        : Delete RSS source.\n"  
           "list-sources     -S               : List RSS sources.\n"  
           "source-parser    -t <type>        : Set RSS source parser type. (use with -s)\n"  
@@ -320,6 +322,19 @@ static void testmail(sqlite3 *db, char *testtxt)
 	}
 }
 
+static void reinitdb(sqlite3 *db)
+{
+	int rc=0;
+
+	printf("Running reinitializion script on database...\n");
+	rc = rundbinitscript(db);
+	if(rc != 0) {
+		fprintf(stderr, "Reinitializing database failed!\n");
+	} else {
+		printf("Reinitialization succesful!\n");
+	}
+}
+
 /*
  * handle Commandline options, setting up the structure for the complex 
  * arguments.
@@ -497,6 +512,10 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
           break;
         }
 				alloccopy(&(opts->simpleepisode), optarg, strlen(optarg));
+        break;
+      case 'K': // Reinitialize the database
+				reinitdb(db);
+        stopop =1; // no more
         break;
       case 'h':   /* fall-through is intentional */
       case '?':

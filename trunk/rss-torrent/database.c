@@ -53,6 +53,8 @@
  * Database create script
  */
 static const char *dbinitscript = 
+"BEGIN TRANSACTION"
+""
 "-- Drop tables\n"
 "drop table if exists version;\n"
 "drop table if exists newtorrents;\n"
@@ -60,6 +62,7 @@ static const char *dbinitscript =
 "drop table if exists filters;\n"
 "drop table if exists sources;\n"
 "drop table if exists config;\n"
+"drop table if exists simplefilters;\n"
 "\n"
 "-- Create versioning field\n"
 "create table version (version INTEGER);\n"
@@ -94,6 +97,8 @@ static const char *dbinitscript =
 "INSERT INTO 'config' (prop, value, descr) VALUES('smtp_from', 'user@somehost.nl', 'The from email-address in the mail headers.');\n"
 "INSERT INTO 'config' (prop, value, descr) VALUES('smtp_host', 'smtp.foobar.nl:25', 'The STMP server used to send the notifications.');\n"
 "INSERT INTO 'config' (prop, value, descr) VALUES('min_size', '4000000', 'When size is smaller then this, download torrent and check.');\n"
+""
+"COMMIT"
 "\n";
 
 /*
@@ -312,7 +317,7 @@ static int getdbversion(sqlite3 *db, int *version)
  * @return
  * 0 on succes, -1 on failure
  */
-static int rundbinitscript(sqlite3 *db)
+int rundbinitscript(sqlite3 *db)
 {
 	int rc=0;
 
