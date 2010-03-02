@@ -28,9 +28,11 @@
 #include "regexp.h"
 #include "logfile.h"
 
-#define REGEXPSIZE 40
+#define REGEXPSIZE  40
 
-#define HEADEREOL  "\r\n"
+#define HEADEREOL   "\r\n"
+
+#define MAX_REDIR   10
 
 /*
  * realloc 
@@ -159,6 +161,12 @@ int downloadtobuffer(char *url, MemoryStruct *chunk)
   /* Set generate errorstring */
   curl_easy_setopt(curl_handle, CURLOPT_ENCODING, "");
 
+  /* Make curl Follow redirects */
+  curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1);
+
+  /* Set max redirects */
+  curl_easy_setopt(curl_handle, CURLOPT_MAXREDIRS, MAX_REDIR);
+
 	/* If a username and password is set add it to the options */
 	if(userpass != NULL) {
 		curl_easy_setopt(curl_handle, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
@@ -232,15 +240,19 @@ int downloadtofile(char *url, char *path)
   curl = curl_easy_init();
   if(curl) {
     /*
-     *      * Get curl 7.9.2 from sunet.se's FTP site. curl 7.9.2 is most likely not
-     *           * present there by the time you read this, so you'd better replace the
-     *                * URL with one that works!
-     *                     */ 
+     * Get curl 7.9.2 from sunet.se's FTP site. curl 7.9.2 is most likely not
+     * present there by the time you read this, so you'd better replace the
+     * URL with one that works!
+     */ 
     curl_easy_setopt(curl, CURLOPT_URL, url);
     /* Define our callback to get called when there's data to be written */ 
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curlfwrite);
     /* Set a pointer to our struct to pass to the callback */ 
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ftpfile);
+    /* Make curl Follow redirects */
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+    /* Set max redirects */
+    curl_easy_setopt(curl, CURLOPT_MAXREDIRS, MAX_REDIR);
 
     /* Switch on full protocol/debug output */ 
     //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
