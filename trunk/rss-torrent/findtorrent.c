@@ -39,13 +39,14 @@
  * MIME strings 
  */
 #define TORRENT_MIME  "application/x-bittorrent"
+#define SECONDARY_MIME "application/octet-stream"
 #define HTML_MIME     "text/html"
 #define HTTPPATTERN   "http://"
 #define HTTPSPATTERN   "https://"
 
 #define XPATH_TO_A    "//a[@href]" 
 
-#define NODOWN_EXT  "\\.(gif|png|jpg|js|rss|css|xml|jsf|exe|html|php)$"
+#define NODOWN_EXT  "\\.(gif|png|jpg|js|rss|css|xml|jsf|exe)$"
 #define NODOWN_TEXT  "(/faq/|/forum/|/login/|/showlist/|calendar|php[^?]|news)"
 
 
@@ -230,6 +231,39 @@ static char *gethrefvalue(xmlNode *node)
 
 
 /*
+ * Decide if a downloaded file is a torrent
+ * @Arguments
+ * url url of the downloaded file
+ * mime the mimetype of the file
+ * @returns
+ * 0 on no torrent
+ * 1 on torrent found
+ */
+static int testiftorrent(char *url, char *mimetype)
+{
+	/*
+	 * found torrent mime
+	 */
+	if(strncmp(mimetype, TORRENT_MIME, strlen(TORRENT_MIME)) == 0) {
+		return 1;
+	}
+
+	/*
+	 * Is a torrent but with generic mime type.
+	 */
+	if(strncmp(mimetype, SECONDARY_MIME, strlen(SECONDARY_MIME)) == 0 &&
+			strstr(url, ".torrent") != NULL) {
+		return 1;
+	}
+
+	/*
+	 * not a torrent
+	 */
+	return 0;
+}
+
+
+/*
  * This is a recursive function.
  * It scans for torrent files, and will return the first one it encounteres.
  * Note this might not be the correct torrent at all :)
@@ -295,7 +329,8 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
   /*
    * When we find a torrent, return 1 and set buffer + url
    */
-  if(strncmp(filetype, TORRENT_MIME, strlen(TORRENT_MIME)) == 0){
+	rc = testiftorrent(url, filetype);
+  if(rc == 1) {
     /*
      * Copy and allocate the url + buffer
      * Both should be freed after use !
