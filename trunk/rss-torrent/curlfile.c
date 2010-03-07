@@ -310,8 +310,10 @@ int getheadersvalue(char *name, char **value, MemoryStruct *chunk)
   char *header=NULL;
   char *latest=NULL;
   char *token=NULL;
+	char *lastvalue=NULL;
   char regexp[REGEXPSIZE+1];
   int rc=0;
+	int retvalue=-1;
 
   /* 
    * Init vars
@@ -334,18 +336,24 @@ int getheadersvalue(char *name, char **value, MemoryStruct *chunk)
    */
   token = strtok_r(header, HEADEREOL, &latest);
   while(token != NULL) {
-    // Get the first match from the header
+    /*
+		 * Get the first match from the header
+		 */
     rc =  capturefirstmatch(regexp, 0, token, value);
     if(rc == 0) {
       writelog(LOG_DEBUG, "Found '%s'->'%s'", token, *value);
-      // found !
-      break;
+			/*
+			 * We want the last matching value only.
+			 * Free previous found value.
+			 */
+			free(lastvalue);
+			lastvalue=*value;
+			retvalue=0;
     }
-    
-    // just to be sure
-    free(*value);
 
-    // Next token
+    /* 
+		 * Next token
+		 */
     token = strtok_r(NULL, HEADEREOL, &latest);
   }
 
@@ -354,8 +362,10 @@ int getheadersvalue(char *name, char **value, MemoryStruct *chunk)
    */
   free(header);
 
-  // Return the value
-  return rc;
+  /* 
+	 * Return the value
+	 */
+  return retvalue;
 }
 
 /*

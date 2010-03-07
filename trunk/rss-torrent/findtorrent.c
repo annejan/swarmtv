@@ -276,12 +276,12 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
 {
   int               rc = 0;
   MemoryStruct      buffer;
-  char              *filetype;
-  char              *linkaddr; 
-  char              *fulllink;
-  xmlXPathObjectPtr allas = NULL;
-  xmlDocPtr         html = NULL; 
-  xmlNodeSetPtr     nodeset = NULL;
+  char              *filetype=NULL;
+  char              *linkaddr=NULL; 
+  char              *fulllink=NULL;
+  xmlXPathObjectPtr allas=NULL;
+  xmlDocPtr         html=NULL; 
+  xmlNodeSetPtr     nodeset=NULL;
   int               count=0;
 
   /*
