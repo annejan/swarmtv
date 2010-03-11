@@ -76,12 +76,12 @@ int delsource(sqlite3 *db, const char *name)
   switch(rc) {
     case(ROWS_CHANGED):
       printf("Source '%s' deleted.\n", name);
-      writelog(LOG_NORMAL, "Source '%s' deleted.", name);
+      writelog(LOG_DEBUG, "Source '%s' deleted.", name);
       return 0;
       break;
     case(ROWS_EMPTY):
       printf("Source '%s' not found, could not delete.\n", name);
-      writelog(LOG_NORMAL, "Source '%s' not found, could not delete.", name);
+      writelog(LOG_DEBUG, "Source '%s' not found, could not delete.", name);
       return -1;
       break;
     default: 
@@ -95,10 +95,10 @@ int delsource(sqlite3 *db, const char *name)
  * When allready existing -1 is returned.
  * On succes 0 is returned.
  */
-int addsource(sqlite3 *db, const char *name, const char *url, char *filtertype)
+int addsource(sqlite3 *db, const char *name, const char *url, char *parsertype)
 {
   int         rc;
-  char       *localfilter;
+  char       *localparser;
 
   /*
    * Init query
@@ -107,26 +107,26 @@ int addsource(sqlite3 *db, const char *name, const char *url, char *filtertype)
 
 
   /*
-   * When filtertype is not set use the default.
+   * When parsertype is not set use the default.
    */
-  if(filtertype == NULL){
-    configgetproperty(db, CONF_DEFPARSER, &localfilter);
+  if(parsertype == NULL){
+    configgetproperty(db, CONF_DEFPARSER, &localparser);
   } else {
-		alloccopy(&localfilter, filtertype, strlen(filtertype));
+		alloccopy(&localparser, parsertype, strlen(parsertype));
   }
   
-  printf("Adding:%s, url:%s, filtertype:%s\n", name, url, filtertype);
-  writelog(LOG_NORMAL, "Adding:%s, url:%s, filtertype:%s", name, url, filtertype);
+  printf("Adding:%s, url:%s, parser type:%s\n", name, url, localparser);
+  writelog(LOG_DEBUG, "Adding:%s, url:%s, parsertype:%s", name, url, localparser);
 
   /*
    * Execute query
    */
-  rc = executequery(db, query, "sss", url, name, localfilter);
+  rc = executequery(db, query, "sss", url, name, localparser);
 
   /*
-   * free filtertype.
+   * free parsertype.
    */
-  free(localfilter);
+  free(localparser);
 
   /*
    * Act on addfilter
@@ -134,7 +134,7 @@ int addsource(sqlite3 *db, const char *name, const char *url, char *filtertype)
   switch(rc) {
     case(ROWS_CHANGED):
       printf("Source '%s' added succesfully.\n", name);
-      writelog(LOG_NORMAL, "Source '%s' added succesfully.", name);
+      writelog(LOG_DEBUG, "Source '%s' added succesfully.", name);
       return 0;
       break;
     case(ROWS_CONSTRAINT):

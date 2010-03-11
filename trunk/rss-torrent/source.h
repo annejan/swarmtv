@@ -35,7 +35,7 @@ void printsources(sqlite3 *db);
  * When allready existing -1 is returned.
  * On succes 0 is returned.
  */
-int addsource(sqlite3 *db, const char *name, const char *url, char *filtertype);
+int addsource(sqlite3 *db, const char *name, const char *url, char *parsertype);
 
 /*
  * del source item

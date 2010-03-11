@@ -407,9 +407,6 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
         break;
       case 'D': // delete rss source
         rc = delsource(db, optarg);
-        if(rc == 0) {
-          printf("Delete source: %s succesful\n", optarg);
-        } 
         break;
       case 'r': // run as daemon 
         opts->run = 1;
