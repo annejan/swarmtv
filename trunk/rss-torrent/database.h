@@ -39,6 +39,8 @@
 
 /*
  * Open database, and add regexp functionality.
+ * @returns 
+ * returns SQLITE_OK when all did go well.
  */
 int initdatabase(
     const char *filename,   /* Database filename (UTF-8) */
@@ -52,6 +54,13 @@ int initdatabase(
  * the value returned must be a TEXT value.
  * the returned value will be put into text
  * make sure to free text after use
+ * @Arguments
+ * text retrieved from the query
+ * query pointer to the query string
+ * fmt arguments pointer
+ * ... other arguments
+ * @return
+ * 0 on succes, -1 on failure
  */
 int dosingletextquery(sqlite3 *db, const unsigned char **text, const char *query, char *fmt, ...);
 
@@ -60,6 +69,11 @@ int dosingletextquery(sqlite3 *db, const unsigned char **text, const char *query
  * query, format, arguments 
  * format string accepts 
  * d = int , s = string, f = double, NULL pointer when no arguments.
+ * @arguments
+ * query pointer to query string
+ * fmt format string
+ * ... arguments to fill out in query
+ * @returns
  * returns 1 on 1 row returned
  * return 0 on no rows returned
  * returns -1 on error
@@ -69,12 +83,9 @@ int executequery(sqlite3 *db, const char *query, char *fmt, ...);
 /*
  * Prints columns from query to standard out.
  * third argumnt is the number of rows returned.
- */
-int printquery(sqlite3 *db, const char *query);
-
-/*
- * Prints columns from query to standard out.
- * third argumnt is the number of rows returned.
+ * @Arguments
+ * query the query that retrieves the values to print
+ * @Returns
  * return 0 when okay
  * return -1 on error
  */

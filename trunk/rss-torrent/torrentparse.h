@@ -49,11 +49,18 @@ typedef struct {
  * Provide the url to the torrent,
  * returns a struct containing some of the props of the torrent.
  * free struct afterwards
+ * @arguments
+ * url url to get torrent from
+ * props structure holding the torrentproperties
+ * @return
+ * returns -1 on failure to parse url, otherwise 0 is returned.
  */
 int gettorrentinfo(char *url, torprops **props);
 
 /*
  * Free torrentprop struct.
+ * @arguments
+ * props structure to be freed
  */
 void freetorprops(torprops *props);
 

@@ -32,10 +32,24 @@
  * The torrent wil be contained in torbuffer.
  * The url the torrent was found in torrenturl.
  * Don't forget to free buffer and torrenturl !
+ * @arguments
+ * url the url to start searching.
+ * torrenturl the url found containing the torrent.
+ * torbuffer the buffer the torrent is returned in when found. 
+ * recurse the number of recursions to do to find the torrent.
+ * @return
+ * 0 when nothing is found
+ * 1 when the torrent was found
  */
 int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recurse);
 
 /*
  * Finds and writes torrent to file
+ * @arguments
+ * url the url to start looking for a torrent.
+ * name the path to store the torrent on disk.
+ * @return
+ * 0 on success
+ * -1 when torrent was not found or could not be stored.
  */
 int findtorrentwrite(char *url, char *name);

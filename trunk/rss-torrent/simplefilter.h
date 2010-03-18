@@ -20,7 +20,10 @@
 
 /*
  * Add simple filter
- * returns 0 on succes, else -1
+ * @variables
+ * opts structure holding the options
+ * @returns 
+ * 0 on succes, else -1
  */
 int addsimplefilter(sqlite3 *db, opts_struct *opts);
 
@@ -33,6 +36,8 @@ void listsimple(sqlite3 *db);
 /*
  * Print filter in shell format
  * Prints the names of the simple filters + a header.
+ * @variables
+ * filtername name to print
  */
 void printsimple(sqlite3 *db, char *filtername);
 
@@ -52,6 +57,9 @@ int delallsimple(sqlite3 *db);
 /*
  * del filter item
  * When allready existing -1 is returned.
+ * @variables
+ * name filtername to delete
+ * @returns
  * On succes 0 is returned.
  */
 int delsimple(sqlite3 *db, const char *name);
@@ -60,7 +68,10 @@ int delsimple(sqlite3 *db, const char *name);
  * Apply filters
  * Runs through all filters in simplefilters table.
  * Calls SQL filters routines for further handling.
+ * @variables 
  * simultate 0 for real behaviour, 1 for simulation mode.
+ * @return
+ * -1 on error, 0 on success
  */
 int downloadsimple(sqlite3 *db, SIM simulate);
 

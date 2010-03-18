@@ -23,13 +23,15 @@
  * Get the filters from the database.
  * apply the filters.
  * then download the results.
+ * @return
+ * SQLITE_DONE on success, -1 on error.
  */
 int downloadtorrents(sqlite3 *db);
 
 /*
  * Apply the filters from the query.
  * when simulate is set !=0 no actual downloads are performed
- * arguments :
+ * @arguments 
  * db					: Sqlite3 pointer
  * *name			: Filter name
  * *nodouble	: SQL for the nodouble filter
@@ -42,6 +44,8 @@ void applyfilter(sqlite3 *db, char *name, char* nodouble, SIM simulate, char *fi
 
 /*
  * Test torrentdir
+ * @return
+ * 0 when writabe, -1 if not.
  */
 int testtorrentdir(sqlite3 *db);
 

@@ -37,10 +37,10 @@
 /*
  * Get value of a config object.
  * Make sure the free the value returned in the value pointer.
- * arguments
+ * @arguments
  * prop name of config property to retrieve
  * value pointer to the pointer that is going to hold the retrieved value.
- * returns
+ * @returns
  * 0 when the value was found, otherwise -1.
  */
 int configgetproperty(sqlite3 *db, char *prop, char **value);
@@ -54,6 +54,10 @@ void printconfigitems(sqlite3 *db);
 
 /*
  * Set config item
+ * @arguments
+ * prop name of the propertie to change
+ * value new value to enter
+ * @returns
  * When not found -1 is returned.
  * On succes 0 is returned.
  */
@@ -61,11 +65,23 @@ int setconfigitem(sqlite3 *db, char *prop, char *value);
 
 /*
  * Get value of a config object.
+ * @arguments
+ * prop name of the propertie to change
+ * number pointer to place to store value of prop
+ * @returns
+ * When not found -1 is returned.
+ * On succes 0 is returned.
  */
 int configgetint(sqlite3 *db, char *prop, int *number);
 
 /*
  * Get value of a config object.
+ * @arguments
+ * prop name of the propertie to change
+ * number pointer to place to store value of prop
+ * @returns
+ * When not found -1 is returned.
+ * On succes 0 is returned.
  */
 int configgetlong(sqlite3 *db, char *prop, long *number);
 

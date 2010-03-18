@@ -58,12 +58,6 @@ void daemonize(char *path)
     exit(EXIT_FAILURE);
   }
 
-  /* Change the current working directory.  This prevents the current
-   *        directory from being locked; hence not being able to remove it. */
-  //if ((chdir("/")) < 0) {
-  //  exit(EXIT_FAILURE);
-  //}
-
   /*
 	 * Redirect input files to /dev/null.
 	 * Redirect all else to given path.

@@ -20,6 +20,10 @@
 
 /*
  * Main loop, dispatches tasks
+ * @arguments
+ * onetime When onetime != 0 run once then exit
+ * @return
+ * 0 for now.
  */
 int runloop(sqlite3 *db, LOOPMODE onetime);
 

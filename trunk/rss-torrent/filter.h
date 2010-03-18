@@ -18,14 +18,6 @@
  *  Program written by Paul Honig 2009
  */
 
-#include "curlfile.h"
-
-/*
- * Get value of a config object.
- */
-int getfilter(sqlite3 *db, char *prop, char **url);
-
-
 /*
  * Print all available config items to the screen.
  * format varname : value
@@ -33,9 +25,11 @@ int getfilter(sqlite3 *db, char *prop, char **url);
  */
 void printfilters(sqlite3 *db);
 
+
 /*
  * Del all filters.
  * Deletes all filters from filtertable.
+ * @returns
  * On succes 0 is returned.
  */
 int delallfilters(sqlite3 *db);
@@ -43,6 +37,9 @@ int delallfilters(sqlite3 *db);
 /*
  * del source item
  * When allready existing -1 is returned.
+ * @arguments
+ * name the name of the SQL filter to delete
+ * @return
  * On succes 0 is returned.
  */
 int delfilter(sqlite3 *db, const char *name);
@@ -50,6 +47,11 @@ int delfilter(sqlite3 *db, const char *name);
 
 /*
  * Add source item
+ * @arguments
+ * name name of the filter
+ * filter SQL query to sort out the candidates
+ * doublefilter SQL query to root out the candidates that are already downloaded.
+ * @return
  * When allready existing -1 is returned.
  * On succes 0 is returned.
  */
@@ -57,15 +59,10 @@ int addfilter(sqlite3 *db, const char *name, const char *filter, const char *dou
 
 
 /*
- * Change source item
- * When not found -1 is returned.
- * On succes 0 is returned.
- */
-int changefilter(sqlite3 *db, const char *name, const char *filter);
-
-
-/*
  * Print filter in a way it could be modified and reentered
+ * @arguments
+ * appname the name of the rsstorrent executable
+ * filtername the filtername to print
  */
 void printshellfilter(sqlite3 *db, char *appname, char *filtername);
 

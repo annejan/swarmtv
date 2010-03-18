@@ -31,16 +31,28 @@
 
 /*
  * Download url and put the resulting data in chunk.
+ * @arguments
+ * url 
+ * chunk 
+ * @returns
  */
 int downloadtobuffer(char *url, MemoryStruct *chunk);
 
 /*
  * Free the download and clean the leftovers
+ * @arguments
+ * chuck pointer to MemoryStruct to free content of.
  */
 void freedownload(MemoryStruct *chunk);
 
 /*
  * Download to file.
+ * @arguments
+ * url the url to download the content from
+ * path the path to store the file (including filename)
+ * @returns
+ * 0 when all goes well
+ * -1 when not found
  */
 int downloadtofile(char *url, char *path);
 
@@ -49,11 +61,22 @@ int downloadtofile(char *url, char *path);
  * This method extracts a given field from the http-header.
  * The pointer returned contains the value.
  * after use free the returned string
+ * @arguments 
+ * name 	the name of the variable you wish to retrieve.
+ * value	the pointer to store the value of the variable in.
+ * chunk	the memory structure holding the header.
+ * @returns
+ * 0 on succes, -1 on failure
  */
 int getheadersvalue(char *name, char **value, MemoryStruct *chunk);
 
 /*
  * Write retrieved buffer to file.
+ * @arguments
+ * filename is the path to write the file to
+ * buffer to write to file
+ * @returns
+ * 0 on success, else -1
  */
 int writebuffer(char *filename, MemoryStruct *buffer);
 

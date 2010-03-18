@@ -21,12 +21,21 @@
 /*
  * Create copy of database
  * and create a sqlite3 pointer to the database copy.
+ * @arguments
+ * sourcedbname source path to database
+ * sandboxdbname detination path to database
+ * @return
+ * pointer not sandbox database
  */
 sandboxdb *createsandbox(char *sourcedbname, char *sandboxdbname);
 
 /*
  * Close the database.
  * delete the sandboxed database.
+ * @arguments
+ * db pointer to sandbox db
+ * @returns
+ * 0 on succes otherwise -1 
  */
 int closesandbox(sandboxdb *db);
 

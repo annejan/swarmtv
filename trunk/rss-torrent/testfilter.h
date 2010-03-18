@@ -21,13 +21,21 @@
 /*
  * Do filter test
  * show first 10 matches
+ * @arguments
+ * filter filter SQL
+ * nodouble nodouble SQL
+ * @return
+ * -1 on error
+ * 0 on success
  */
 int dofiltertest(char *filter, char *nodouble);
 
 /*
  * Do filter test
  * show first 10 matches
- * Takes opts_struct * as argument.
+ * @arguments
+ * opts Takes opts_struct * as argument.
+ * @return
  * return 0 on succes, return -1 on failure.
  */
 int dosimpletest(opts_struct *opts);

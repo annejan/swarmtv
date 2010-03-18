@@ -434,11 +434,12 @@ int initdatabase(
  * the returned value will be put into text
  * make sure to free text after use
  * passing NULL to the fmt argument means no arguments.
- * Arguments
- * text
- * query
- * fmt
- * return
+ * @Arguments
+ * text retrieved from the query
+ * query pointer to the query string
+ * fmt arguments pointer
+ * ... other arguments
+ * @return
  * 0 on succes, -1 on failure
  */
 int dosingletextquery(sqlite3 *db, const unsigned char **text, const char *query, char *fmt, ...) 
@@ -577,6 +578,11 @@ int dosingletextquery(sqlite3 *db, const unsigned char **text, const char *query
  * query, format, arguments 
  * format string accepts 
  * d = int , s = string, f = double, NULL pointer when no arguments.
+ * @arguments
+ * query pointer to query string
+ * fmt format string
+ * ... arguments to fill out in query
+ * @returns
  * returns 1 on 1 row returned
  * return 0 on no rows returned
  * returns -1 on error

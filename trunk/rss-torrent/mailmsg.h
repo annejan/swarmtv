@@ -33,3 +33,4 @@ int sendrssmail(sqlite3 *db, const char *subject, const char *msgtxt);
  * message  : pointer to message inside email has to start with '\r\n' or strange things will happen
  */
 int sendmail(const char *host, const char *from, const char *to, const char *subject, const char *message);
+

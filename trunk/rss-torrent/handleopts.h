@@ -21,7 +21,7 @@
 /*
  * Program version
  */
-#define PROGVERSION "0.6"
+#define PROGVERSION "0.7"
 
 /*
  * Default timeout when no -i is provided
@@ -30,6 +30,9 @@
 
 /*
  * Handles the arguments, and Calls the subroutines when needed.
+ * @arguments
+ * argc from main
+ * argv from main
  */
 void handleopts(sqlite3 *db, int argc, char *argv[]);
 

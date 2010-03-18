@@ -29,17 +29,31 @@
 
 /*
  * Open logfile getting path from database
+ * @return
+ * 0 when succesfull
+ * !0 when fail
  */
 int initlogdb(sqlite3 *db);
 
 /*
  * Initialize logfile
+ * @arguments
+ * logpath the path to store the log
+ * @return
+ * 0 when succesfull
+ * !0 when fail
  */
 int initlog(char *logpath);
 
 /*
  * Log an entry
  * LOG_DEBUG, LOG_NORMAL, LOG_ERROR
+ * @arguments
+ * level the loglevel (see loglevel defines)
+ * str the string to log 
+ * ... the arguments to fill out in the log line
+ * @return
+ * returns 1 for now in all cases
  */
 int writelog(int level, char *str,...);
 

@@ -22,23 +22,23 @@
  * Free strings in newtorrents_struct 
  * Be sure to free the struct yourself.
  * Arguments 
- * newtor structure pointer
- * returns void, exits on failure
+ * @arguments
+ * newtor newtor structure pointer
  */
 void freenewtor(newtorrents_struct *newtor);
 
 /*
  * Add a torrent to the newtorrent table.
- * Arguments
+ * @arguments
  * newtor structure holding the values for the record to be added
- * Returns
+ * @returns
  * 0 on succes, exits on -1 on failure
  */
 int addnewtorrent(sqlite3 *db, newtorrents_struct *newtor);
 
 /*
  * Add a torrent to the downloaded table.
- * Arguments
+ * @arguments
  * downed			pointer to struct holding values to add to the db.
  * simulate		0 to log addition, 1 adds anyway, but does not log at all. (used for filtertest)
  */
@@ -53,6 +53,10 @@ void nonewtorrents(sqlite3 *db);
 /*
  * Delete all newtorrents entris older the x days
  * This function returns 0 on succes, -1 SQL on failure.
+ * @arguments
+ * days max age a newtorrent may become before deletion
+ * @return
+ * returns 0 on succes, -1 on error.
  */
 int deloldnewtorents(sqlite3 *db, unsigned int days);
 
