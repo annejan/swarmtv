@@ -47,8 +47,8 @@ int rsstitle(newtorrents_struct *newtor, rssdatastruct *rssdata)
 	 * Get title from title field
 	 */
 	if(rssdata->title != NULL && strlen(rssdata->title) != 0) {
-		alloccopy(&(newtor->title), rssdata->title, strlen(rssdata->title));
-		cleanupstring(newtor->title);
+		rsstalloccopy(&(newtor->title), rssdata->title, strlen(rssdata->title));
+		rsstcleanupstring(newtor->title);
 	}
 
 	/*
@@ -62,7 +62,7 @@ int rsstitle(newtorrents_struct *newtor, rssdatastruct *rssdata)
 	}
 
 	if(newtor->title != NULL){
-		cleanupstring(newtor->title);
+		rsstcleanupstring(newtor->title);
 		return 0;
 	}
 

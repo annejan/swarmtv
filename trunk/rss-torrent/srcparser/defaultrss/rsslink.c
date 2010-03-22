@@ -59,9 +59,9 @@ int rsslink(newtorrents_struct *newtor, rssdatastruct *rssdata)
 	 *    * Get the link from the enclosureurl.
 	 *       */
 	if(rssdata->torrentlink != NULL) {
-		rc = alloccopy(&link, rssdata->torrentlink, strlen(rssdata->torrentlink));
+		rc = rsstalloccopy(&link, rssdata->torrentlink, strlen(rssdata->torrentlink));
 		if(rc != 0) {
-			writelog(LOG_ERROR, "Alloc failed %s:%d", __FILE__, __LINE__);
+			rsstwritelog(LOG_ERROR, "Alloc failed %s:%d", __FILE__, __LINE__);
 			exit(1);
 		}
 	}
@@ -71,9 +71,9 @@ int rsslink(newtorrents_struct *newtor, rssdatastruct *rssdata)
 	 */
 	if(link == NULL){
 		if(rssdata->enclosureurl != NULL) {
-			rc = alloccopy(&link, rssdata->enclosureurl, strlen(rssdata->enclosureurl));
+			rc = rsstalloccopy(&link, rssdata->enclosureurl, strlen(rssdata->enclosureurl));
 			if(rc != 0) {
-				writelog(LOG_ERROR, "Alloc failed %s:%d", __FILE__, __LINE__);
+				rsstwritelog(LOG_ERROR, "Alloc failed %s:%d", __FILE__, __LINE__);
 				exit(1);
 			}
 		}
@@ -85,9 +85,9 @@ int rsslink(newtorrents_struct *newtor, rssdatastruct *rssdata)
 	if(link == NULL){
 		if(rssdata->link != NULL && strlen(rssdata->link) != 0)
 		{
-			rc = alloccopy(&link, rssdata->link, strlen(rssdata->link));
+			rc = rsstalloccopy(&link, rssdata->link, strlen(rssdata->link));
 			if(rc != 0){
-				writelog(LOG_ERROR, "Alloc failed %s:%d", __FILE__, __LINE__);
+				rsstwritelog(LOG_ERROR, "Alloc failed %s:%d", __FILE__, __LINE__);
 				exit(1);
 			}
 		}
@@ -98,9 +98,9 @@ int rsslink(newtorrents_struct *newtor, rssdatastruct *rssdata)
 	 */
 	if(link == NULL){
 		if(rssdata->guid != NULL) {
-			rc = alloccopy(&link, rssdata->guid, strlen(rssdata->guid));
+			rc = rsstalloccopy(&link, rssdata->guid, strlen(rssdata->guid));
 			if(rc == 0) {
-				writelog(LOG_ERROR, "Alloc failed %s:%d", __FILE__, __LINE__);
+				rsstwritelog(LOG_ERROR, "Alloc failed %s:%d", __FILE__, __LINE__);
 				exit(1);
 			}
 		}

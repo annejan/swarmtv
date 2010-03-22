@@ -40,7 +40,7 @@ static int disectdate(char *date, struct tm *pubtm)
   // When all failes use time 'now'
   rc = strptime(date, "%a, %d %b %Y %H:%M:%S", pubtm);
 	if(rc != NULL) {
-		writelog(LOG_DEBUG, "Converted date '%s'.", date);
+		rsstwritelog(LOG_DEBUG, "Converted date '%s'.", date);
 	}
 
 	return !rc;
@@ -57,7 +57,7 @@ static int simpledisectdate(char *date, struct tm *pubtm)
   // %Y-%m-%d
 	rc = strptime(date, "%Y-%m-%d", pubtm);
 	if(rc != NULL) {
-		writelog(LOG_DEBUG, "Converted date '%s'.", date);
+		rsstwritelog(LOG_DEBUG, "Converted date '%s'.", date);
 	}
 
 	return !rc;
@@ -97,7 +97,7 @@ int rssdisectdate(char *date, time_t *pubdate)
 	 * Disect the date
 	 */
 	if(date == NULL){
-		writelog(LOG_DEBUG, "NULL passed to rssdisectdate using now.");
+		rsstwritelog(LOG_DEBUG, "NULL passed to rssdisectdate using now.");
 		nowdate(&pubtm);
 		retval=1;
 	}
@@ -117,7 +117,7 @@ int rssdisectdate(char *date, time_t *pubdate)
     /*
      * When all else fails it's a safe bet to set the date to 'now'
      */
-    writelog(LOG_DEBUG, "Converting date '%s' failed, used 'now' as substitute.", date);
+    rsstwritelog(LOG_DEBUG, "Converting date '%s' failed, used 'now' as substitute.", date);
 		nowdate(&pubtm);
   }
 
@@ -133,7 +133,7 @@ int rssdisectdate(char *date, time_t *pubdate)
    */
   *pubdate = mktime(&pubtm);
 
-  writelog(LOG_DEBUG, "Converted ctime: %s", ctime(pubdate));
+  rsstwritelog(LOG_DEBUG, "Converted ctime: %s", ctime(pubdate));
 
   /*
    * success

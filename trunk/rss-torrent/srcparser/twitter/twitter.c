@@ -38,7 +38,7 @@ static int newtweet(void *data)
 {
 	twitterdata *local = (twitterdata*) data;
 
-	writelog(LOG_DEBUG, "New Tweet\n");
+	rsstwritelog(LOG_DEBUG, "New Tweet\n");
 
 	/*
 	 * Clear tweet struct
@@ -69,8 +69,8 @@ static int endtweet(void *data)
 	 */
 	rc = splittext(local->tweet.text, &(newtor.title), &(newtor.link), &(newtor.season), &(newtor.episode));
 	if(rc < 0){
-    freetorprops(props);
-    freenewtor(&newtor);
+    rsstfreetorprops(props);
+    rsstfreenewtor(&newtor);
 		/*
 		 * Text could not be split, no torrent record.
 		 */
@@ -80,11 +80,11 @@ static int endtweet(void *data)
 	/*
 	 * Process data
 	 */
-	rc = gettorrentinfo(newtor.link, &props);
+	rc = rsstgettorrentinfo(newtor.link, &props);
 	if(rc < 0){
-		writelog(LOG_DEBUG, "Download failed for '%s'\n", newtor.link);
-    freetorprops(props);
-    freenewtor(&newtor);
+		rsstwritelog(LOG_DEBUG, "Download failed for '%s'\n", newtor.link);
+    rsstfreetorprops(props);
+    rsstfreenewtor(&newtor);
 		/*
 		 * No torrent.
 		 */
@@ -94,7 +94,7 @@ static int endtweet(void *data)
 	/*
 	 * Print stuff.
 	 */
-	writelog(LOG_DEBUG, "link: %s, title: %s, season: %d, episode: %d, size: %ld\n", 
+	rsstwritelog(LOG_DEBUG, "link: %s, title: %s, season: %d, episode: %d, size: %ld\n", 
 			newtor.link, newtor.title, newtor.season, newtor.episode,(long) props->size); 
 	
 	/*
@@ -105,15 +105,15 @@ static int endtweet(void *data)
 	/*
 	 * Add a torrent to the newtorrents table.
 	 */
-	addnewtorrent(db, &newtor);
+	rsstaddnewtorrent(db, &newtor);
 
 	/*
 	 * cleanup
 	 */
-	freetorprops(props);
-	freenewtor(&newtor);
+	rsstfreetorprops(props);
+	rsstfreenewtor(&newtor);
 
-	writelog(LOG_DEBUG, "End Tweet\n");
+	rsstwritelog(LOG_DEBUG, "End Tweet\n");
 
 	return 0;
 }
@@ -126,7 +126,7 @@ static int twittertext(void *data, char *string)
 	/*
 	 * Debugging : print the twittertext we found.
 	 */
-	writelog(LOG_DEBUG, "Twitter text : '%s'\n", string);
+	rsstwritelog(LOG_DEBUG, "Twitter text : '%s'\n", string);
 	local->tweet.text=string;
 
 	return 0;
@@ -137,7 +137,7 @@ static int twittecreaterdate(void *data, char *string)
 	twitterdata *local = (twitterdata*) data;
 	//sqlite3 *db = local->db;
 
-	writelog(LOG_DEBUG, "Twitter createdate: '%s'\n", string);
+	rsstwritelog(LOG_DEBUG, "Twitter createdate: '%s'\n", string);
 	local->tweet.createdate=string;
 
 	return 0;
@@ -179,7 +179,7 @@ int twitter(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssf
 	 */
 	rc = twitparse(&twitcallback, url, rssfile);
 	if(rc != 0){
-		writelog(LOG_ERROR, "Twitter stream url '%s' name '%s' filter '%s' fialed ! %s:%d", url, name, filter, __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Twitter stream url '%s' name '%s' filter '%s' fialed ! %s:%d", url, name, filter, __FILE__, __LINE__);
 		retval = -1;
 	}
 

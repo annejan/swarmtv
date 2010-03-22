@@ -49,14 +49,14 @@ int disectdate(char *date, time_t *pubdate)
   // When all failes use time 'now'
   rc = strptime(date, "%a, %d %b %Y %H:%M:%S", &pubtm);
   if(rc == NULL) {
-    writelog(LOG_DEBUG, "Converting date '%s'.\n", date);
+    rsstwritelog(LOG_DEBUG, "Converting date '%s'.\n", date);
     rc = strptime(date, "%Y-%m-%d", &pubtm);
   }
   if(rc == NULL) {
     /*
      * When all else fails it's a safe bet to set the date to 'now'
      */
-    writelog(LOG_DEBUG, "Converting date '%s' failed, used 'now' as substitute.", date);
+    rsstwritelog(LOG_DEBUG, "Converting date '%s' failed, used 'now' as substitute.", date);
     now = time ( NULL );
     localtime_r ( &now, &pubtm );
 
@@ -71,7 +71,7 @@ int disectdate(char *date, time_t *pubdate)
    */
   *pubdate = mktime(&pubtm);
 
-  writelog(LOG_DEBUG, "Converted ctime: %s\n", ctime(pubdate));
+  rsstwritelog(LOG_DEBUG, "Converted ctime: %s\n", ctime(pubdate));
 
   /*
    * success

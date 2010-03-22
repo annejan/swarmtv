@@ -122,7 +122,7 @@ int twitparse(twitparse_callback *call, char *url, MemoryStruct *buffer)
    */
   doc = xmlReadMemory(buffer->memory, buffer->size, url, NULL, 0);
   if (doc == NULL) {
-    //writelog(LOG_ERROR, "Failed to parse document %s:%d\n", __FILE__, __LINE__);
+    //rsstwritelog(LOG_ERROR, "Failed to parse document %s:%d\n", __FILE__, __LINE__);
     fprintf(stderr, "Failed to parse document %s:%d\n", __FILE__, __LINE__);
     return -1;
   }
@@ -131,7 +131,7 @@ int twitparse(twitparse_callback *call, char *url, MemoryStruct *buffer)
   /* Create xpath evaluation context */
   xpathCtx = xmlXPathNewContext(doc);
   if(xpathCtx == NULL) {
-    //writelog(LOG_ERROR, "Error: unable to create new XPath context %s:%d\n", __FILE__, __LINE__);
+    //rsstwritelog(LOG_ERROR, "Error: unable to create new XPath context %s:%d\n", __FILE__, __LINE__);
     fprintf(stderr, "Error: unable to create new XPath context %s:%d\n", __FILE__, __LINE__);
     xmlFreeDoc(doc); 
     return(-1);
@@ -142,7 +142,7 @@ int twitparse(twitparse_callback *call, char *url, MemoryStruct *buffer)
    */
   xpathObj = myXmlXPathEval(BAD_CAST tostatus, xpathCtx);
   if(xpathObj == NULL) {
-    //writelog(LOG_ERROR, "Error: unable to evaluate xpath expression \"%s\" %s:%d\n", toitems, __FILE__, __LINE__);
+    //rsstwritelog(LOG_ERROR, "Error: unable to evaluate xpath expression \"%s\" %s:%d\n", toitems, __FILE__, __LINE__);
     fprintf(stderr, "Error: unable to evaluate xpath expression \"%s\" %s:%d\n", tostatus, __FILE__, __LINE__);
     xmlXPathFreeContext(xpathCtx); 
     xmlFreeDoc(doc); 
@@ -177,11 +177,11 @@ int twitparse(twitparse_callback *call, char *url, MemoryStruct *buffer)
 		if( rc < 0 ) {
 			
 		} else {
-			//writelog(LOG_DEBUG, "title: %s", title);
+			//rsstwritelog(LOG_DEBUG, "title: %s", title);
 		 if(call->gettext != NULL){
 				rc = call->gettext(call->data, (char*) text);
 				if(rc < 0) {
-					writelog(LOG_ERROR, "gettext returned '%d'. %s:%d", rc, __FILE__, __LINE__);
+					rsstwritelog(LOG_ERROR, "gettext returned '%d'. %s:%d", rc, __FILE__, __LINE__);
 				}
 		 }
 		}
@@ -195,7 +195,7 @@ int twitparse(twitparse_callback *call, char *url, MemoryStruct *buffer)
 			if(call->getcreatedate != NULL) {
 				rc = call->getcreatedate(call->data, (char*) date); // Called when createdate is found
 				if(rc < 0) {
-					writelog(LOG_ERROR, "getcreatedate returned '%d'. %s:%d", rc, __FILE__, __LINE__);
+					rsstwritelog(LOG_ERROR, "getcreatedate returned '%d'. %s:%d", rc, __FILE__, __LINE__);
 				}
 			}
 		}

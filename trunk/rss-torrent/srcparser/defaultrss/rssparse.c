@@ -178,7 +178,7 @@ static int disectenclosure(xmlNode *encnode, rssparse_callback *call)
     /*
      * warn about no enclosure
      */
-    writelog(LOG_DEBUG, "No enclosure found %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_DEBUG, "No enclosure found %s:%d", __FILE__, __LINE__);
     return 0;
   }
 
@@ -209,7 +209,7 @@ static int disectenclosure(xmlNode *encnode, rssparse_callback *call)
        * transform to size_t
        */
       torsize = atol(attr);
-      writelog(LOG_DEBUG, "length : %s %ld", attr, torsize);
+      rsstwritelog(LOG_DEBUG, "length : %s %ld", attr, torsize);
 			if(call->enclosurelenght != NULL){
 				call->enclosurelenght(call->data, torsize);
 			}
@@ -218,13 +218,13 @@ static int disectenclosure(xmlNode *encnode, rssparse_callback *call)
       /*
        * copy type to string
        */
-      writelog(LOG_DEBUG, "Type : '%s'", attr);
+      rsstwritelog(LOG_DEBUG, "Type : '%s'", attr);
 			if(call->enclosuretype != NULL){
 				call->enclosuretype(call->data, attr);
 			}
     } 
     else {
-      writelog(LOG_ERROR, "unknown enclosuretype: '%s' : ,%s'", name, attr);
+      rsstwritelog(LOG_ERROR, "unknown enclosuretype: '%s' : ,%s'", name, attr);
     }
 
     prop = prop->next;
@@ -260,7 +260,7 @@ int rssparse(rssparse_callback *call, char *url, MemoryStruct *buffer)
    */
   doc = xmlReadMemory(buffer->memory, buffer->size, url, NULL, 0);
   if (doc == NULL) {
-    writelog(LOG_ERROR, "Failed to parse RSS document: '%s' %s:%d", url, __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Failed to parse RSS document: '%s' %s:%d", url, __FILE__, __LINE__);
     return -1;
   }
   root_element = xmlDocGetRootElement(doc);
@@ -268,7 +268,7 @@ int rssparse(rssparse_callback *call, char *url, MemoryStruct *buffer)
   /* Create xpath evaluation context */
   xpathCtx = xmlXPathNewContext(doc);
   if(xpathCtx == NULL) {
-    writelog(LOG_ERROR, "Error: unable to create new XPath context %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Error: unable to create new XPath context %s:%d", __FILE__, __LINE__);
     xmlFreeDoc(doc); 
     return(-1);
   }
@@ -278,7 +278,7 @@ int rssparse(rssparse_callback *call, char *url, MemoryStruct *buffer)
    */
   xpathObj = myXmlXPathEval(BAD_CAST toitems, xpathCtx);
   if(xpathObj == NULL) {
-    writelog(LOG_ERROR, "Error: unable to evaluate xpath expression \"%s\" %s:%d", toitems, __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Error: unable to evaluate xpath expression \"%s\" %s:%d", toitems, __FILE__, __LINE__);
     xmlXPathFreeContext(xpathCtx); 
     xmlFreeDoc(doc); 
     return(-1);
@@ -316,7 +316,7 @@ int rssparse(rssparse_callback *call, char *url, MemoryStruct *buffer)
 			/*
 			 * When an error occures ignore record
 			 */
-			writelog(LOG_ERROR, "enclosure failed not found");
+			rsstwritelog(LOG_ERROR, "enclosure failed not found");
 			continue;
 		}
 
@@ -326,7 +326,7 @@ int rssparse(rssparse_callback *call, char *url, MemoryStruct *buffer)
 		 */
 		rc = getxpathstring(BAD_CAST totitle, xpathCtx, &value);
     if( rc < 0 ) {
-      writelog(LOG_DEBUG, "No title found");
+      rsstwritelog(LOG_DEBUG, "No title found");
     } else {
 			if(call->title != NULL){
 				call->title(call->data, (char*) value);
@@ -339,7 +339,7 @@ int rssparse(rssparse_callback *call, char *url, MemoryStruct *buffer)
 		 */
     rc = getxpathstring(BAD_CAST tolink, xpathCtx, &value);
     if( rc < 0 ) {
-      writelog(LOG_ERROR, "No link found");
+      rsstwritelog(LOG_ERROR, "No link found");
     } else {
 			if(call->link != NULL){
 				call->link(call->data, (char*) value);
@@ -352,7 +352,7 @@ int rssparse(rssparse_callback *call, char *url, MemoryStruct *buffer)
 		 */
     rc = getxpathstring(BAD_CAST totorrentlink, xpathCtx, &value);
     if( rc < 0 ) {
-      writelog(LOG_DEBUG, "No torrentlink found");
+      rsstwritelog(LOG_DEBUG, "No torrentlink found");
     } else {
 			if(call->torrentlink != NULL){
 				call->torrentlink(call->data, (char*) value);
@@ -365,7 +365,7 @@ int rssparse(rssparse_callback *call, char *url, MemoryStruct *buffer)
 		 */
     rc = getxpathstring(BAD_CAST tocategory, xpathCtx, &value);
     if( rc < 0 ) {
-      writelog(LOG_DEBUG, "No categorystr found");
+      rsstwritelog(LOG_DEBUG, "No categorystr found");
     } else {
 			if(call->category != NULL){
 				call->category(call->data, (char*) value);
@@ -378,7 +378,7 @@ int rssparse(rssparse_callback *call, char *url, MemoryStruct *buffer)
 		 */
     rc = getxpathstring(BAD_CAST topubdate, xpathCtx, &value);
     if( rc < 0 ) {
-      writelog(LOG_DEBUG, "No pubdatestr found");
+      rsstwritelog(LOG_DEBUG, "No pubdatestr found");
     } else {
 			if(call->pubdate != NULL){
 				call->pubdate(call->data, (char*) value);
@@ -391,7 +391,7 @@ int rssparse(rssparse_callback *call, char *url, MemoryStruct *buffer)
      */
     rc = getxpathstring(BAD_CAST todescription, xpathCtx, &value);
     if( rc < 0 ) {
-      writelog(LOG_DEBUG, "No description found");
+      rsstwritelog(LOG_DEBUG, "No description found");
     } else {
 			if(call->description != NULL){
 				call->description(call->data, (char*) value);
@@ -404,7 +404,7 @@ int rssparse(rssparse_callback *call, char *url, MemoryStruct *buffer)
 		 */
     rc = getxpathstring(BAD_CAST tocomments, xpathCtx, &value);
     if( rc < 0 ) {
-      writelog(LOG_DEBUG, "No commentsstr found");
+      rsstwritelog(LOG_DEBUG, "No commentsstr found");
     } else {
 			if(call->comments != NULL){
 				call->comments(call->data, (char*) value);
@@ -417,7 +417,7 @@ int rssparse(rssparse_callback *call, char *url, MemoryStruct *buffer)
 		 */
     rc = getxpathstring(BAD_CAST toguid, xpathCtx, &value);
     if( rc < 0 ) {
-      writelog(LOG_DEBUG, "No guidstr found");
+      rsstwritelog(LOG_DEBUG, "No guidstr found");
     } else {
 			if(call->guid != NULL){
 				call->guid(call->data, (char*) value);
@@ -430,7 +430,7 @@ int rssparse(rssparse_callback *call, char *url, MemoryStruct *buffer)
 		 */
     rc = getxpathstring(BAD_CAST toseeds, xpathCtx, &value);
     if( rc < 0 ) {
-      writelog(LOG_DEBUG, "No seedsstr found");
+      rsstwritelog(LOG_DEBUG, "No seedsstr found");
     } else {
 			if(call->seeds != NULL){
 				integer=atoi((const char*) value);
@@ -444,7 +444,7 @@ int rssparse(rssparse_callback *call, char *url, MemoryStruct *buffer)
 		 */
     rc = getxpathstring(BAD_CAST topeers, xpathCtx, &value);
     if( rc < 0 ) {
-      writelog(LOG_DEBUG, "No peersstr found");
+      rsstwritelog(LOG_DEBUG, "No peersstr found");
     } else {
 			if(call->peers != NULL){
 				integer=atoi((const char*) value);
@@ -459,7 +459,7 @@ int rssparse(rssparse_callback *call, char *url, MemoryStruct *buffer)
 		 */
     rc = getxpathstring(BAD_CAST tosize, xpathCtx, &value);
     if( rc < 0 ) {
-      writelog(LOG_DEBUG, "No sizestr found");
+      rsstwritelog(LOG_DEBUG, "No sizestr found");
     } else {
 			if(call->size != NULL){
 				filesize = atol((const char*) value);

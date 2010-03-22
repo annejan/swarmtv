@@ -45,13 +45,13 @@ int rsscategory(newtorrents_struct *newtor, rssdatastruct *rssdata)
 	 * Try to get a value from the category tag
 	 */
 	if(rssdata->category != NULL) {
-		alloccopy(&(newtor->category), rssdata->category, strlen(rssdata->category));
+		rsstalloccopy(&(newtor->category), rssdata->category, strlen(rssdata->category));
 		return 0;
 	}
 
 	/*
 	 * When not found, put in "unknown"
 	 */
-	alloccopy(&(newtor->category), CATEGORY_UNKNOWN, strlen(CATEGORY_UNKNOWN));
+	rsstalloccopy(&(newtor->category), CATEGORY_UNKNOWN, strlen(CATEGORY_UNKNOWN));
 	return 0;
 }

@@ -70,9 +70,9 @@ int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata)
 	/*
 	 * When smaller then 'min_size'
 	 */
-	rc = configgetlong(rssdata->db, CONF_MIN_SIZE , &min_config);
+	rc = rsstconfiggetlong(rssdata->db, CONF_MIN_SIZE , &min_config);
 	if(rc != 0){
-		writelog(LOG_ERROR, "Config variable '%s' not set!", CONF_MIN_SIZE);
+		rsstwritelog(LOG_ERROR, "Config variable '%s' not set!", CONF_MIN_SIZE);
 		return -1;
 	}
 
@@ -80,13 +80,13 @@ int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata)
 		/*
 		 * Download the torrent to verify the length
 		 */
-		rc = gettorrentinfo(rssdata->link, &props);
+		rc = rsstgettorrentinfo(rssdata->link, &props);
 		if(rc == 0) {
 			newtor->size = props->size;	
 		} else {
 			retval = -1;
 		}
-		freetorprops(props);
+		rsstfreetorprops(props);
 	}
 
 	return retval;

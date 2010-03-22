@@ -57,7 +57,7 @@ int disectdescription(char *description, char *key, char **retrieved)
 	/*
 	 * Move description to local buffer
 	 */
-	alloccopy(&desc, description, strlen(description));
+	rsstalloccopy(&desc, description, strlen(description));
 
 
 	/*
@@ -82,24 +82,24 @@ int disectdescription(char *description, char *key, char **retrieved)
 		/*
 		 * Get both values
 		 */
-		rc =  alloccopy(&fkey, token,	split-token);
+		rc =  rsstalloccopy(&fkey, token,	split-token);
 		if(rc != 0){
-			writelog(LOG_ERROR, "Alloc failed on %s:%d", __FILE__, __LINE__);
+			rsstwritelog(LOG_ERROR, "Alloc failed on %s:%d", __FILE__, __LINE__);
 			exit(1);
 		}
-		rc |= alloccopy(&fvalue, split+1, strlen(split+1));
+		rc |= rsstalloccopy(&fvalue, split+1, strlen(split+1));
 		if(rc != 0){
-			writelog(LOG_ERROR, "Alloc failed on %s:%d", __FILE__, __LINE__);
+			rsstwritelog(LOG_ERROR, "Alloc failed on %s:%d", __FILE__, __LINE__);
 			exit(1);
 		}
-		cleanupstring(fkey);
-		cleanupstring(fvalue);
+		rsstcleanupstring(fkey);
+		rsstcleanupstring(fvalue);
 
 		/*
 		 * When found copyalloc to retrieved
 		 */
 		if(fkey != NULL && strcmp(fkey, key) == 0){
-			rc = alloccopy(retrieved, split+1, strlen(split+1));
+			rc = rsstalloccopy(retrieved, split+1, strlen(split+1));
 
 			free(fkey);
 			free(fvalue);

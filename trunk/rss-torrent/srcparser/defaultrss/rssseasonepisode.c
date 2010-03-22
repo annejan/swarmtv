@@ -64,7 +64,7 @@ static int titleregexp(char *regexp, char *title, int *season, int *episode)
   p = pcre_compile((char*) regexp, 0, &errmsg, &errpos, 0);
   if (p == NULL) {
     /* should not happen, because init1 has already tested and set to NULL on error */
-    writelog(LOG_ERROR, "Ouch! Can't compile regular expression: %s (char %i)", errmsg, errpos);
+    rsstwritelog(LOG_ERROR, "Ouch! Can't compile regular expression: %s (char %i)", errmsg, errpos);
     exit(1);
   }
 
@@ -86,7 +86,7 @@ static int titleregexp(char *regexp, char *title, int *season, int *episode)
         break;
 
       default:
-        writelog(LOG_ERROR, "Error while matching: %d %s:%d", rc, __FILE__, __LINE__);
+        rsstwritelog(LOG_ERROR, "Error while matching: %d %s:%d", rc, __FILE__, __LINE__);
         exit(1);
     }
     free(p);
@@ -109,7 +109,7 @@ static int titleregexp(char *regexp, char *title, int *season, int *episode)
   *season = atoi(s_season);
   *episode = atoi(s_episode);
 
-  writelog(LOG_DEBUG, "number of strings found '%d', season '%d' episode '%d'", rc, *season, *episode);
+  rsstwritelog(LOG_DEBUG, "number of strings found '%d', season '%d' episode '%d'", rc, *season, *episode);
 
   /*
    * Get the 3 strings and put them in the output strings.
@@ -172,7 +172,7 @@ int rssseasonepisode(newtorrents_struct *newtor, rssdatastruct *rssdata)
 	 */
 	rc = titleregexp("^.*[sS]([0-9][0-9]?) ?[eE] ?([0-9][0-9]?)", rssdata->title, &i_season, &i_episode);
   if(rc == 0) {
-    writelog(LOG_DEBUG, "Found title match at specific regexp %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_DEBUG, "Found title match at specific regexp %s:%d", __FILE__, __LINE__);
 		newtor->season 	= i_season;
 		newtor->episode = i_episode;
     return 0;
@@ -183,7 +183,7 @@ int rssseasonepisode(newtorrents_struct *newtor, rssdatastruct *rssdata)
 	 */
 	rc = titleregexp("^.*[^0-9]([0-9][0-9]?) ?[xX] ?([0-9][0-9]?)", rssdata->title, &i_season, &i_episode);
   if(rc == 0) {
-    writelog(LOG_DEBUG, "Found title match at specific regexp %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_DEBUG, "Found title match at specific regexp %s:%d", __FILE__, __LINE__);
 		newtor->season 	= i_season;
 		newtor->episode = i_episode;
     return 0;
@@ -194,7 +194,7 @@ int rssseasonepisode(newtorrents_struct *newtor, rssdatastruct *rssdata)
 	 */
 	rc = titleregexp("^[^0-9]+[Ss][[:space:]]*([0-9][0-9]?)[^0-9]+([0-9][0-9]?)[^0-9]*$", rssdata->title, &i_season, &i_episode);
   if(rc == 0) {
-    writelog(LOG_DEBUG, "Found title match at specific regexp %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_DEBUG, "Found title match at specific regexp %s:%d", __FILE__, __LINE__);
 		newtor->season 	= i_season;
 		newtor->episode = i_episode;
     return 0;

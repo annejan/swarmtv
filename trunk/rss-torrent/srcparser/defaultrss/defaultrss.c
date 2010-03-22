@@ -67,9 +67,9 @@ static int handletitle(void *data, char *string)
 	/*
 	 * Store into the struct
 	 */
-	rc = alloccopy(&(rssdata->title), string, strlen(string));
+	rc = rsstalloccopy(&(rssdata->title), string, strlen(string));
 	if(rc != 0) {
-		writelog(LOG_ERROR, "Alloc failed at %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Alloc failed at %s:%d", __FILE__, __LINE__);
 		return  -1;
 	}
 
@@ -87,9 +87,9 @@ static int handlelink(void *data, char *string)
 	/*
 	 * Store into the struct
 	 */
-	rc = alloccopy(&(rssdata->link), string, strlen(string));
+	rc = rsstalloccopy(&(rssdata->link), string, strlen(string));
 	if(rc != 0) {
-		writelog(LOG_ERROR, "Alloc failed at %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Alloc failed at %s:%d", __FILE__, __LINE__);
 		return  -1;
 	}
 
@@ -107,9 +107,9 @@ static int handletorrentlink(void *data, char *string)
 	/*
 	 * Store into the struct
 	 */
-	rc = alloccopy(&(rssdata->torrentlink), string, strlen(string));
+	rc = rsstalloccopy(&(rssdata->torrentlink), string, strlen(string));
 	if(rc != 0) {
-		writelog(LOG_ERROR, "Alloc failed at %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Alloc failed at %s:%d", __FILE__, __LINE__);
 		return  -1;
 	}
 
@@ -127,9 +127,9 @@ static int handlecategory(void *data, char *string)
 	/*
 	 * Store into the struct
 	 */
-	rc = alloccopy(&(rssdata->category), string, strlen(string));
+	rc = rsstalloccopy(&(rssdata->category), string, strlen(string));
 	if(rc != 0) {
-		writelog(LOG_ERROR, "Alloc failed at %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Alloc failed at %s:%d", __FILE__, __LINE__);
 		return  -1;
 	}
 
@@ -150,7 +150,7 @@ static int handlepubdate(void *data, char *string)
 	 */
 	rc = rssdisectdate(string, &pubdate);
 	if(rc != 0){
-		writelog(LOG_ERROR, "pubdate '%s' could not be decoded.", string);	
+		rsstwritelog(LOG_ERROR, "pubdate '%s' could not be decoded.", string);	
 	}
 
 	/*
@@ -175,9 +175,9 @@ static int handledescription(void *data, char *string)
 	/*
 	 * Store into the struct
 	 */
-	rc = alloccopy(&(rssdata->description), string, strlen(string));
+	rc = rsstalloccopy(&(rssdata->description), string, strlen(string));
 	if(rc != 0) {
-		writelog(LOG_ERROR, "Alloc failed at %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Alloc failed at %s:%d", __FILE__, __LINE__);
 		return  -1;
 	}
 
@@ -196,9 +196,9 @@ static int handlecomments(void *data, char *string)
 	/*
 	 * Store into the struct
 	 */
-	rc = alloccopy(&(rssdata->comments), string, strlen(string));
+	rc = rsstalloccopy(&(rssdata->comments), string, strlen(string));
 	if(rc != 0) {
-		writelog(LOG_ERROR, "Alloc failed at %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Alloc failed at %s:%d", __FILE__, __LINE__);
 		return  -1;
 	}
 
@@ -216,9 +216,9 @@ static int handleguid(void *data, char *string)
 	/*
 	 * Store into the struct
 	 */
-	rc = alloccopy(&(rssdata->guid), string, strlen(string));
+	rc = rsstalloccopy(&(rssdata->guid), string, strlen(string));
 	if(rc != 0) {
-		writelog(LOG_ERROR, "Alloc failed at %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Alloc failed at %s:%d", __FILE__, __LINE__);
 		return  -1;
 	}
 
@@ -268,9 +268,9 @@ static int handleenclosuretype(void *data, char *string)
 	/*
 	 * Set the onclosure type
 	 */
-	rc = alloccopy(&(rssdata->enclosuretype), string, strlen(string));
+	rc = rsstalloccopy(&(rssdata->enclosuretype), string, strlen(string));
 	if(rc != 0) {
-		writelog(LOG_ERROR, "Alloc failed at %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Alloc failed at %s:%d", __FILE__, __LINE__);
 		return  -1;
 	}
 
@@ -285,9 +285,9 @@ static int handleenclosereurl(void *data, char *string)
 	/*
 	 * Set enclosure url
 	 */
-	rc = alloccopy(&(rssdata->enclosureurl), string, strlen(string));
+	rc = rsstalloccopy(&(rssdata->enclosureurl), string, strlen(string));
 	if(rc != 0) {
-		writelog(LOG_ERROR, "Alloc failed at %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Alloc failed at %s:%d", __FILE__, __LINE__);
 		return  -1;
 	}
 
@@ -410,9 +410,9 @@ static int handleend(void *data)
 	 * enter the new record.
 	 */
 	if(ignore == 0) {
-		rc = addnewtorrent(rssdata->db, &newtor);
+		rc = rsstaddnewtorrent(rssdata->db, &newtor);
 		if(rc != 0) {
-			writelog(LOG_ERROR, "Failed to add newtorrent %s:%d", __FILE__, __LINE__);
+			rsstwritelog(LOG_ERROR, "Failed to add newtorrent %s:%d", __FILE__, __LINE__);
 			return -1;
 		}
 	}
@@ -425,7 +425,7 @@ static int handleend(void *data)
 	/*
 	 * Free newtorrents strings
 	 */
-	freenewtor(&newtor);
+	rsstfreenewtor(&newtor);
 
 	/*
 	 * All gone well !
@@ -479,7 +479,7 @@ int defaultrss(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *r
 	 */
 	rc = rssparse(&callback, url, rssfile);
 	if(rc != 0) {
-		writelog(LOG_ERROR, "RSS could not be parsed '%s' '%s' '%s'", url, name, filter);
+		rsstwritelog(LOG_ERROR, "RSS could not be parsed '%s' '%s' '%s'", url, name, filter);
 		retval=-1;
 	}
 

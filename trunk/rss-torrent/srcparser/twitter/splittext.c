@@ -88,7 +88,7 @@ int getdataandlink(char *text, char **data, char **link)
 				return 0;
         break;
       default:
-        writelog(LOG_ERROR, "Error while matching url. %d %s:%d", rc, __FILE__, __LINE__);
+        rsstwritelog(LOG_ERROR, "Error while matching url. %d %s:%d", rc, __FILE__, __LINE__);
         break;
     }
     free(p);
@@ -172,7 +172,7 @@ int getnamelinkepisode(char *data, char **name, int *season, int *episode)
 				return 0;
         break;
       default:
-        writelog(LOG_ERROR, "Error while matching url. %d %s:%d", rc, __FILE__, __LINE__);
+        rsstwritelog(LOG_ERROR, "Error while matching url. %d %s:%d", rc, __FILE__, __LINE__);
         break;
     }
     free(p);
@@ -228,7 +228,7 @@ int splittext(char *text, char **name, char **link, int *season, int *episode)
 	 */ 
 	rc = getdataandlink(text, &data, link);
 	if(rc != 1) {
-		writelog(LOG_DEBUG, "Tweet does not hold and url: '%s'", text);
+		rsstwritelog(LOG_DEBUG, "Tweet does not hold and url: '%s'", text);
 		retval = -1;
 	}
 
@@ -238,7 +238,7 @@ int splittext(char *text, char **name, char **link, int *season, int *episode)
   if(retval == 0) {
     rc = getnamelinkepisode(data, name, season, episode);
     if(rc != 1) {
-      writelog(LOG_DEBUG, "Tweet does not contain season and episode info: '%s'", text);
+      rsstwritelog(LOG_DEBUG, "Tweet does not contain season and episode info: '%s'", text);
       retval = -1;
     }
   }
