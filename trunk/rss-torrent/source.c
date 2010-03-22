@@ -36,7 +36,7 @@
  * format varname : value
  * All from database
  */
-void printsources(sqlite3 *db) 
+void rsstprintsources(sqlite3 *db) 
 {
   /*
    * header
@@ -46,7 +46,7 @@ void printsources(sqlite3 *db)
   printf("Name : url : parser\n");
   printf("#############\n");
 
-  printquery(db, "select name, url, parser from sources");
+  rsstprintquery(db, "select name, url, parser from sources");
 
   /*
    * Footer
@@ -59,7 +59,7 @@ void printsources(sqlite3 *db)
  * When allready existing -1 is returned.
  * On succes 0 is returned.
  */
-int delsource(sqlite3 *db, const char *name)
+int rsstdelsource(sqlite3 *db, const char *name)
 {
   int         rc;
 
@@ -72,20 +72,20 @@ int delsource(sqlite3 *db, const char *name)
    * Execute query
    * When name is all, delete all filters.
    */
-  rc = executequery(db, query, "s", name);
+  rc = rsstexecutequery(db, query, "s", name);
   switch(rc) {
     case(ROWS_CHANGED):
       printf("Source '%s' deleted.\n", name);
-      writelog(LOG_DEBUG, "Source '%s' deleted.", name);
+      rsstwritelog(LOG_DEBUG, "Source '%s' deleted.", name);
       return 0;
       break;
     case(ROWS_EMPTY):
       printf("Source '%s' not found, could not delete.\n", name);
-      writelog(LOG_DEBUG, "Source '%s' not found, could not delete.", name);
+      rsstwritelog(LOG_DEBUG, "Source '%s' not found, could not delete.", name);
       return -1;
       break;
     default: 
-      writelog(LOG_ERROR, "Query error during deletesource '%s':%d",  __FILE__, __LINE__);
+      rsstwritelog(LOG_ERROR, "Query error during deletesource '%s':%d",  __FILE__, __LINE__);
       return -1;
   }
 }
@@ -95,7 +95,7 @@ int delsource(sqlite3 *db, const char *name)
  * When allready existing -1 is returned.
  * On succes 0 is returned.
  */
-int addsource(sqlite3 *db, const char *name, const char *url, char *parsertype)
+int rsstaddsource(sqlite3 *db, const char *name, const char *url, char *parsertype)
 {
   int         rc;
   char       *localparser;
@@ -110,18 +110,18 @@ int addsource(sqlite3 *db, const char *name, const char *url, char *parsertype)
    * When parsertype is not set use the default.
    */
   if(parsertype == NULL){
-    configgetproperty(db, CONF_DEFPARSER, &localparser);
+    rsstconfiggetproperty(db, CONF_DEFPARSER, &localparser);
   } else {
-		alloccopy(&localparser, parsertype, strlen(parsertype));
+		rsstalloccopy(&localparser, parsertype, strlen(parsertype));
   }
   
   printf("Adding:%s, url:%s, parser type:%s\n", name, url, localparser);
-  writelog(LOG_DEBUG, "Adding:%s, url:%s, parsertype:%s", name, url, localparser);
+  rsstwritelog(LOG_DEBUG, "Adding:%s, url:%s, parsertype:%s", name, url, localparser);
 
   /*
    * Execute query
    */
-  rc = executequery(db, query, "sss", url, name, localparser);
+  rc = rsstexecutequery(db, query, "sss", url, name, localparser);
 
   /*
    * free parsertype.
@@ -134,17 +134,17 @@ int addsource(sqlite3 *db, const char *name, const char *url, char *parsertype)
   switch(rc) {
     case(ROWS_CHANGED):
       printf("Source '%s' added succesfully.\n", name);
-      writelog(LOG_DEBUG, "Source '%s' added succesfully.", name);
+      rsstwritelog(LOG_DEBUG, "Source '%s' added succesfully.", name);
       return 0;
       break;
     case(ROWS_CONSTRAINT):
     case(ROWS_EMPTY):
       fprintf(stderr, "Could not add source '%s', does the source allready exist?\n", name);
-      writelog(LOG_ERROR, "Could not add source '%s'. %s:%d", name, __FILE__, __LINE__);
+      rsstwritelog(LOG_ERROR, "Could not add source '%s'. %s:%d", name, __FILE__, __LINE__);
       return -1;
       break;
     default: 
-      writelog(LOG_ERROR, "Query error during addsource '%s'. %s:%d", name,  __FILE__, __LINE__);
+      rsstwritelog(LOG_ERROR, "Query error during addsource '%s'. %s:%d", name,  __FILE__, __LINE__);
       return -1;
   }
 }

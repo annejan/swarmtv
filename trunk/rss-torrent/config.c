@@ -38,18 +38,18 @@
  * returns
  * 0 when the value was found, otherwise -1.
  */
-int configgetproperty(sqlite3 *db, char *prop, char **value) 
+int rsstconfiggetproperty(sqlite3 *db, char *prop, char **value) 
 {
   char  *query;
   int   rc=0;
   
   query="select value from config where prop = ?1";
 
-  rc =  dosingletextquery(db, (unsigned char const**) value, query, "s", prop);
+  rc =  rsstdosingletextquery(db, (unsigned char const**) value, query, "s", prop);
   if(rc == 0){
     return 0;
   } 
-  writelog(LOG_ERROR, "Config value '%s' not found!", prop);
+  rsstwritelog(LOG_ERROR, "Config value '%s' not found!", prop);
 
   return -1;
 }
@@ -62,18 +62,18 @@ int configgetproperty(sqlite3 *db, char *prop, char **value)
  * number the pointer the propvalie will be put in.
  * return 0 when prop is found, -1 when not found.
  */
-int configgetint(sqlite3 *db, char *prop, int *number) 
+int rsstconfiggetint(sqlite3 *db, char *prop, int *number) 
 {
   char *value;
   int rc=0;
 
-  rc = configgetproperty(db, prop,(char**) &value);
+  rc = rsstconfiggetproperty(db, prop,(char**) &value);
   if(rc == 0){
     *number = atoi(value);
     free(value);
     return 0;
   }
-  writelog(LOG_ERROR, "Config value '%s' not found!", prop);
+  rsstwritelog(LOG_ERROR, "Config value '%s' not found!", prop);
 
   return -1;
 }
@@ -87,18 +87,18 @@ int configgetint(sqlite3 *db, char *prop, int *number)
  * return 
  * 0 when prop is found, -1 when not found.
  */
-int configgetlong(sqlite3 *db, char *prop, long *number) 
+int rsstconfiggetlong(sqlite3 *db, char *prop, long *number) 
 {
   char *value;
   int rc=0;
 
-  rc = configgetproperty(db, prop,(char**) &value);
+  rc = rsstconfiggetproperty(db, prop,(char**) &value);
   if(rc == 0){
     *number = atol(value);
     free(value);
     return 0;
   }
-  writelog(LOG_ERROR, "Config value '%s' not found!", prop);
+  rsstwritelog(LOG_ERROR, "Config value '%s' not found!", prop);
 
   return -1;
 }
@@ -109,7 +109,7 @@ int configgetlong(sqlite3 *db, char *prop, long *number)
  * format varname : value
  * All from database
  */
-void printconfigitems(sqlite3 *db) 
+void rsstprintconfigitems(sqlite3 *db) 
 {
   /*
    * header
@@ -118,7 +118,7 @@ void printconfigitems(sqlite3 *db)
   printf("Available config items.\n");
   printf("#############\n");
   // select prop, value from config 
-  printquery(db, "select prop, value, descr from config");
+  rsstprintquery(db, "select prop, value, descr from config");
 
   /*
    * Footer
@@ -136,7 +136,7 @@ void printconfigitems(sqlite3 *db)
  * When not found -1 is returned.
  * On succes 0 is returned.
  */
-int setconfigitem(sqlite3 *db, const char *prop, const char *value)
+int rsstsetconfigitem(sqlite3 *db, const char *prop, const char *value)
 {
   sqlite3_stmt  *ppStmt=NULL;
   const char    *pzTail=NULL;
@@ -159,8 +159,8 @@ int setconfigitem(sqlite3 *db, const char *prop, const char *value)
       &pzTail              /* OUT: Pointer to unused portion of zSql */
       );
   if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
-    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+    rsstwritelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
     sqlite3_free(zErrMsg);
     return -1;
   }
@@ -172,13 +172,13 @@ int setconfigitem(sqlite3 *db, const char *prop, const char *value)
   rc = sqlite3_bind_text(ppStmt, 1, value, -1, SQLITE_TRANSIENT);
   if( rc!=SQLITE_OK ){
     //fprintf(stderr, "sqlite3_bind_text failed on value\n");  
-    writelog(LOG_ERROR, "sqlite3_bind_text failed on value %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "sqlite3_bind_text failed on value %s:%d", __FILE__, __LINE__);
     return -1;
   }
   rc = sqlite3_bind_text(ppStmt, 2, prop, -1, SQLITE_TRANSIENT);
   if( rc!=SQLITE_OK ){
     //fprintf(stderr, "sqlite3_bind_text failed on prop\n");  
-    writelog(LOG_ERROR, "sqlite3_bind_text failed on prop %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "sqlite3_bind_text failed on prop %s:%d", __FILE__, __LINE__);
     return -1;
   }
 
@@ -189,8 +189,8 @@ int setconfigitem(sqlite3 *db, const char *prop, const char *value)
   if( rc!=SQLITE_DONE ) {
     //fprintf(stderr, "sqlite3_step\n");
     //fprintf(stderr, "SQL error: %s\n", zErrMsg);
-    writelog(LOG_ERROR, "sqlite3_step %s:%d", __FILE__, __LINE__);
-    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+    rsstwritelog(LOG_ERROR, "sqlite3_step %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
     sqlite3_free(zErrMsg);
     return -1;
   }
@@ -201,7 +201,7 @@ int setconfigitem(sqlite3 *db, const char *prop, const char *value)
   rc = sqlite3_finalize(ppStmt);
   if( rc!=SQLITE_OK ){
     //fprintf(stderr, "Finalize failed in %s at line %d.!", __FILE__, __LINE__);
-    writelog(LOG_ERROR, "Finalize failed in %s at line %d.!", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Finalize failed in %s at line %d.!", __FILE__, __LINE__);
     exit(1);
   }
 

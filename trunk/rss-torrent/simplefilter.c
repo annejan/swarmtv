@@ -78,19 +78,19 @@ static int findnodup(char *name, char *title, char **nodup)
    */
   if(strcmp(name, NODUP_NONE_NAME) == 0)
   {
-    alloccopy(nodup, NODUP_NONE, strlen(NODUP_NONE));
+    rsstalloccopy(nodup, NODUP_NONE, strlen(NODUP_NONE));
   }
   if(strcmp(name, NODUP_LINK_NAME) == 0)
   {
-    alloccopy(nodup, NODUP_LINK, strlen(NODUP_LINK));
+    rsstalloccopy(nodup, NODUP_LINK, strlen(NODUP_LINK));
   }
   if(strcmp(name, NODUP_UNIQUE_NAME) == 0)
   {
-    alloccopy(nodup, NODUP_UNIQUE, strlen(NODUP_UNIQUE));
+    rsstalloccopy(nodup, NODUP_UNIQUE, strlen(NODUP_UNIQUE));
   }
   if(strcmp(name, NODUP_NEWER_NAME) == 0)
   {
-    alloccopy(nodup, NODUP_NEWER, strlen(NODUP_NEWER));
+    rsstalloccopy(nodup, NODUP_NEWER, strlen(NODUP_NEWER));
   }
 
   /*
@@ -103,7 +103,7 @@ static int findnodup(char *name, char *title, char **nodup)
   /*
    * Insert the correct TITLE filter
    */
-  strrepl(nodup, "REPLACE_TITLE", title);
+  rsststrrepl(nodup, "REPLACE_TITLE", title);
 
   return 0;
 }
@@ -126,7 +126,7 @@ static int validearguments(opts_struct *opts)
   rc = findnodup(opts->simplenodup, opts->simpletitle, &nodup);
   free(nodup);
   if(rc == -1) {
-    writelog(LOG_ERROR, "Nodup name '%s' is not valid. %s:%d", opts->simplenodup, __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Nodup name '%s' is not valid. %s:%d", opts->simplenodup, __FILE__, __LINE__);
     fprintf(stderr, "Nodup name '%s' is not valid.", opts->simplenodup);
     retval=-1;
   }
@@ -145,38 +145,38 @@ static int optstosimple(opts_struct *opts, simplefilter_struct *simple)
   /*
    * Copy strings
    */
-  alloccopy(&(simple->name),   opts->simplename,   strlen(opts->simplename));
-  alloccopy(&(simple->nodup),  opts->simplenodup,  strlen(opts->simplenodup));
+  rsstalloccopy(&(simple->name),   opts->simplename,   strlen(opts->simplename));
+  rsstalloccopy(&(simple->nodup),  opts->simplenodup,  strlen(opts->simplenodup));
 
   /*
    * Title filter is optional
    */
   if(opts->simpletitle != NULL) {
-    alloccopy(&(simple->title),  opts->simpletitle,  strlen(opts->simpletitle));
+    rsstalloccopy(&(simple->title),  opts->simpletitle,  strlen(opts->simpletitle));
   } else {
-    alloccopy(&(simple->title), "", 1);
+    rsstalloccopy(&(simple->title), "", 1);
   }
   if(opts->simpleexclude != NULL) {
-    alloccopy(&(simple->exclude),  opts->simpleexclude,  strlen(opts->simpleexclude));
+    rsstalloccopy(&(simple->exclude),  opts->simpleexclude,  strlen(opts->simpleexclude));
   } else {
-    alloccopy(&(simple->exclude), "", 1);
+    rsstalloccopy(&(simple->exclude), "", 1);
   }
   if(opts->simplecategory != NULL) {
-    alloccopy(&(simple->category),  opts->simplecategory,  strlen(opts->simplecategory));
+    rsstalloccopy(&(simple->category),  opts->simplecategory,  strlen(opts->simplecategory));
   } else {
-    alloccopy(&(simple->category), "", 1);
+    rsstalloccopy(&(simple->category), "", 1);
   }
 
   /*
    * Convert units 
    */
   if(opts->simplemaxsize != NULL) {
-    humantosize(opts->simplemaxsize, &(simple->maxsize));
+    rssthumantosize(opts->simplemaxsize, &(simple->maxsize));
   } else {
     simple->maxsize = 0;
   }
   if(opts->simpleminsize != NULL) {
-    humantosize(opts->simpleminsize, &(simple->minsize));
+    rssthumantosize(opts->simpleminsize, &(simple->minsize));
   } else {
     simple->minsize = 0;
   }
@@ -232,7 +232,7 @@ static int insertsimplefilter(sqlite3 *db, simplefilter_struct *simple)
   /*
    * Call database execute query function
    */
-  rc = executequery(db, query, fmt, 
+  rc = rsstexecutequery(db, query, fmt, 
       simple->name,
       simple->title,
 			simple->exclude,
@@ -268,7 +268,7 @@ static int checksimple(sqlite3 *db, const char *name)
   /*
    * execute query
    */
-  rc = executequery(db, query, "s", name);
+  rc = rsstexecutequery(db, query, "s", name);
 
   return rc;
 }
@@ -278,7 +278,7 @@ static int checksimple(sqlite3 *db, const char *name)
  * Add simple filter
  * returns 0 on succes, else -1
  */
-int addsimplefilter(sqlite3 *db, opts_struct *opts)
+int rsstaddsimplefilter(sqlite3 *db, opts_struct *opts)
 {
   int rc=0;
   int retval=0;
@@ -307,7 +307,7 @@ int addsimplefilter(sqlite3 *db, opts_struct *opts)
    */
   rc = checksimple(db, opts->simplename);
   if(rc == 1){
-    delsimple(db, opts->simplename);
+    rsstdelsimple(db, opts->simplename);
   }
 
   /*
@@ -326,7 +326,7 @@ int addsimplefilter(sqlite3 *db, opts_struct *opts)
 /*
  * List Simple filters.
  */
-void listsimple(sqlite3 *db)
+void rsstlistsimple(sqlite3 *db)
 {
   int rc;
 
@@ -341,7 +341,7 @@ void listsimple(sqlite3 *db)
   "#############\n");
 
 
-  rc = printquery(db, query);
+  rc = rsstprintquery(db, query);
   if(rc != 0) {
     fprintf(stderr, "Listing simple filters failed!\n");
   }
@@ -355,7 +355,7 @@ void listsimple(sqlite3 *db)
  * When the name is not found -1 is returned.
  * On succes 0 is returned.
  */
-int delallsimple(sqlite3 *db)
+int rsstdelallsimple(sqlite3 *db)
 {
   int         rc=0;
 
@@ -368,18 +368,18 @@ int delallsimple(sqlite3 *db)
    * Execute query
    * When name is all, delete all filters.
    */
-  rc = executequery(db, query, NULL);
+  rc = rsstexecutequery(db, query, NULL);
   switch(rc) {
     case(ROWS_CHANGED):
       return 0;
       break;
     case(ROWS_EMPTY):
       fprintf(stderr, "No simplefilters in list.\n");
-      writelog(LOG_ERROR, "No simplefilters in list.\n");
+      rsstwritelog(LOG_ERROR, "No simplefilters in list.\n");
       return -1;
       break;
     default: 
-      writelog(LOG_ERROR, "Query error during delallfilter %s:%d",  __FILE__, __LINE__);
+      rsstwritelog(LOG_ERROR, "Query error during delallfilter %s:%d",  __FILE__, __LINE__);
       return -1;
   }
 }
@@ -387,7 +387,7 @@ int delallsimple(sqlite3 *db)
 /*
  * Print all simple filters in shell format.
  */
-void printallsimple(sqlite3 *db)
+void rsstprintallsimple(sqlite3 *db)
 {
   sqlite3_stmt  *ppStmt=NULL;
   const char    *pzTail=NULL;
@@ -411,8 +411,8 @@ void printallsimple(sqlite3 *db)
       &pzTail              /* OUT: Pointer to unused portion of zSql */
       );
   if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
-    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+    rsstwritelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
     sqlite3_free(zErrMsg);
     return;
   }
@@ -432,7 +432,7 @@ void printallsimple(sqlite3 *db)
 		 * Print the content of the row
 		 */
 		text = sqlite3_column_text(ppStmt, count);
-		printsimple(db, (char*) text);
+		rsstprintsimple(db, (char*) text);
 	}
 
 	/*
@@ -447,7 +447,7 @@ void printallsimple(sqlite3 *db)
  * When the name is not found -1 is returned.
  * On succes 0 is returned.
  */
-int delsimple(sqlite3 *db, const char *name)
+int rsstdelsimple(sqlite3 *db, const char *name)
 {
   int         rc=0;
 
@@ -460,18 +460,18 @@ int delsimple(sqlite3 *db, const char *name)
    * Execute query
    * When name is all, delete all filters.
    */
-  rc = executequery(db, query, "s", name);
+  rc = rsstexecutequery(db, query, "s", name);
   switch(rc) {
     case(ROWS_CHANGED):
       return 0;
       break;
     case(ROWS_EMPTY):
       fprintf(stderr, "Could not delete filter '%s' %s:%di\n", name,  __FILE__, __LINE__);
-      writelog(LOG_ERROR, "Could not delete filter '%s' %s:%d", name,  __FILE__, __LINE__);
+      rsstwritelog(LOG_ERROR, "Could not delete filter '%s' %s:%d", name,  __FILE__, __LINE__);
       return -1;
       break;
     default: 
-      writelog(LOG_ERROR, "Query error during delfilter %s:%d",  __FILE__, __LINE__);
+      rsstwritelog(LOG_ERROR, "Query error during delfilter %s:%d",  __FILE__, __LINE__);
       return -1;
   }
 }
@@ -481,7 +481,7 @@ int delsimple(sqlite3 *db, const char *name)
  * Print filter in shell format
  * Prints the names of the simple filters + a header.
  */
-void printsimple(sqlite3 *db, char *filtername)
+void rsstprintsimple(sqlite3 *db, char *filtername)
 {
   sqlite3_stmt  *ppStmt;
   const char    *pzTail;
@@ -513,8 +513,8 @@ void printsimple(sqlite3 *db, char *filtername)
       &pzTail              /* OUT: Pointer to unused portion of zSql */
       );
   if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
-    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+    rsstwritelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
     sqlite3_free(zErrMsg);
     return;
   }
@@ -524,7 +524,7 @@ void printsimple(sqlite3 *db, char *filtername)
    */
   rc = sqlite3_bind_text(ppStmt, 1, filtername, -1, SQLITE_TRANSIENT);
   if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_bind_text failed on name %s:%d" __FILE__, __LINE__);  
+    rsstwritelog(LOG_ERROR, "sqlite3_bind_text failed on name %s:%d" __FILE__, __LINE__);  
     return;
   }
 
@@ -582,7 +582,7 @@ void printsimple(sqlite3 *db, char *filtername)
    * Maxsize
    */
   if(maxsizedouble != 0){
-    sizetohuman(maxsizedouble, (char*) maxsizestring);
+    rsstsizetohuman(maxsizedouble, (char*) maxsizestring);
 
     printf("--max-size='%s' ", maxsizestring);
   }
@@ -591,7 +591,7 @@ void printsimple(sqlite3 *db, char *filtername)
    * Minsize
    */
   if(minsizedouble != 0){
-    sizetohuman(minsizedouble, (char*) minsizestring);
+    rsstsizetohuman(minsizedouble, (char*) minsizestring);
 
     printf("--min-size='%s' ", minsizestring);
   }
@@ -616,7 +616,7 @@ void printsimple(sqlite3 *db, char *filtername)
  * db pointer to db to use
  * simultate 0 for real behaviour, 1 for simulation mode.
  */
-int downloadsimple(sqlite3 *db, SIM simulate)
+int rsstdownloadsimple(sqlite3 *db, SIM simulate)
 {
   sqlite3_stmt  *ppStmt=NULL;
   const char    *pzTail=NULL;
@@ -651,8 +651,8 @@ int downloadsimple(sqlite3 *db, SIM simulate)
       &pzTail             /* OUT: Pointer to unused portion of zSql */
       );
   if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
-    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+    rsstwritelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
     sqlite3_free(zErrMsg);
     return -1;
   }
@@ -682,20 +682,20 @@ int downloadsimple(sqlite3 *db, SIM simulate)
     rc = findnodup(nodup, title, &sqlnodup);
     if(rc != 0) {
     free(sqlnodup);
-      writelog(LOG_ERROR, "Simple filter '%s' does not have a valid nodup value. %s:%d", name, __FILE__, __LINE__);
+      rsstwritelog(LOG_ERROR, "Simple filter '%s' does not have a valid nodup value. %s:%d", name, __FILE__, __LINE__);
       continue;
     }
 
 		/*
 		 * Log SQL used for handling filters.
 		 */
-		writelog(LOG_DEBUG, "%s : %s", name, sqlfilter);
-		writelog(LOG_DEBUG, "%s : %s", name, sqlnodup);
+		rsstwritelog(LOG_DEBUG, "%s : %s", name, sqlfilter);
+		rsstwritelog(LOG_DEBUG, "%s : %s", name, sqlnodup);
 
     /*
      * call apply filter
      */
-    applyfilter(db, name, sqlnodup, simulate, sqlfilter, 
+    rsstapplyfilter(db, name, sqlnodup, simulate, sqlfilter, 
 				"sffddss", title, maxsize, minsize, season, episode, exclude, category);
 
     /*

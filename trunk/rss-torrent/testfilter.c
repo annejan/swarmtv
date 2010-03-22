@@ -47,16 +47,16 @@ static int createdownloaded(sandboxdb *sandbox, char *filter, char *nodouble)
   /*
    * Clean downloaded.
    */
-  rc = executequery(sandbox->db, delfilterquery, NULL);
+  rc = rsstexecutequery(sandbox->db, delfilterquery, NULL);
   if(rc == ROWS_ERROR){
-    writelog(LOG_ERROR, "Deleting downloaded failed %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Deleting downloaded failed %s:%d", __FILE__, __LINE__);
     return -1;
   }
 
   /*
    * use function to add records to the downloaded table.
    */
-  applyfilter(sandbox->db, "Sandbox", nodouble, 1, filter,  NULL);
+  rsstapplyfilter(sandbox->db, "Sandbox", nodouble, 1, filter,  NULL);
 
   return 0;
 }
@@ -73,9 +73,9 @@ static int setnewtorrentflags(sandboxdb *sandbox)
   /*
    * do query
    */
-  rc = executequery(sandbox->db, query, NULL);
+  rc = rsstexecutequery(sandbox->db, query, NULL);
   if(rc != ROWS_CHANGED){
-    writelog(LOG_ERROR, "Setting of new flag failed %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Setting of new flag failed %s:%d", __FILE__, __LINE__);
     retval=-1;
   }
 
@@ -93,9 +93,9 @@ static sandboxdb *initfiltertest()
   /*
    * create sandbox
    */
-  sandbox = createsandbox(DBFILE, DBSANDBOX);
+  sandbox = rsstcreatesandbox(DBFILE, DBSANDBOX);
   if(sandbox == NULL) {
-    writelog(LOG_ERROR, "Sandbox creaton failed %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Sandbox creaton failed %s:%d", __FILE__, __LINE__);
     fprintf(stderr, "Sandbox creaton failed %s:%d\n", __FILE__, __LINE__);
     return NULL;
   }
@@ -105,7 +105,7 @@ static sandboxdb *initfiltertest()
    */
   rc = setnewtorrentflags(sandbox);
   if(rc != 0) {
-    closesandbox(sandbox);
+    rsstclosesandbox(sandbox);
     return NULL;
   }
 
@@ -117,7 +117,7 @@ static sandboxdb *initfiltertest()
  * Do filter test
  * show first 10 matches
  */
-int dofiltertest(char *filter, char *nodouble)
+int rsstdofiltertest(char *filter, char *nodouble)
 {
   int rc=0;
   sandboxdb *sandbox;
@@ -128,7 +128,7 @@ int dofiltertest(char *filter, char *nodouble)
    */
   sandbox = initfiltertest();
   if(sandbox == NULL){
-    writelog(LOG_ERROR, "Sandbox creaton failed %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Sandbox creaton failed %s:%d", __FILE__, __LINE__);
     return -1;
   }
 
@@ -138,7 +138,7 @@ int dofiltertest(char *filter, char *nodouble)
   rc = createdownloaded(sandbox, filter, nodouble);
   if(rc != 0){
     printf("Execution of testfilter failed.\n");
-    writelog(LOG_ERROR, "Execution of testfilter failed %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Execution of testfilter failed %s:%d", __FILE__, __LINE__);
     return -1;
   }
 
@@ -146,20 +146,20 @@ int dofiltertest(char *filter, char *nodouble)
    * Print content of downloaded
    */
   printf("Title                     | Season                    | Episode                   | Pubdate\n");
-  rc = printquery(sandbox->db, query);
+  rc = rsstprintquery(sandbox->db, query);
   if(rc != 0){
     printf("Listing of download queue failed.\n");
-    writelog(LOG_ERROR, "Execution of testfilter failed %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Execution of testfilter failed %s:%d", __FILE__, __LINE__);
     return -1;
   }
 
   /*
    * cleanup sandbox
    */
-  rc = closesandbox(sandbox);
+  rc = rsstclosesandbox(sandbox);
   if(rc != 0){
     printf("Closing sandbox failed.\n");
-    writelog(LOG_ERROR, "Closing sandbox falied %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Closing sandbox falied %s:%d", __FILE__, __LINE__);
     return -1;
   }
 
@@ -182,31 +182,31 @@ static int createsimpledownloaded(sandboxdb *sandbox, opts_struct *filter)
   /*
    * Clean downloaded.
    */
-  rc = executequery(sandbox->db, delquery, NULL);
+  rc = rsstexecutequery(sandbox->db, delquery, NULL);
   if(rc == ROWS_ERROR){
-    writelog(LOG_ERROR, "Deleting downloaded failed %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Deleting downloaded failed %s:%d", __FILE__, __LINE__);
     return -1;
   }
 
 	/*
 	 * Empty simple filters in sandbox
 	 */
-  rc = executequery(sandbox->db, delsimplequery, NULL);
+  rc = rsstexecutequery(sandbox->db, delsimplequery, NULL);
   if(rc == ROWS_ERROR){
-    writelog(LOG_ERROR, "Deleting simplefilters failed %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Deleting simplefilters failed %s:%d", __FILE__, __LINE__);
     return -1;
   }
 
 	/*
 	 * Add filter to sandbox
 	 */
-	addsimplefilter(sandbox->db, filter);
+	rsstaddsimplefilter(sandbox->db, filter);
 
 	/*
 	 * Execute filter
 	 * with simulate 1, to run the simplefilters only in the database.
 	 */
-	downloadsimple(sandbox->db, (SIM) sim);
+	rsstdownloadsimple(sandbox->db, (SIM) sim);
 
 	/*
 	 * Clean up
@@ -223,7 +223,7 @@ static int createsimpledownloaded(sandboxdb *sandbox, opts_struct *filter)
  * Takes opts_struct * as argument.
  * return 0 on succes, return -1 on failure.
  */
-int dosimpletest(opts_struct *opts)
+int rsstdosimpletest(opts_struct *opts)
 {
   int rc=0;
   sandboxdb *sandbox;
@@ -234,7 +234,7 @@ int dosimpletest(opts_struct *opts)
    */
   sandbox = initfiltertest();
   if(sandbox == NULL){
-    writelog(LOG_ERROR, "Sandbox creaton failed %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Sandbox creaton failed %s:%d", __FILE__, __LINE__);
     return -1;
   }
 
@@ -244,7 +244,7 @@ int dosimpletest(opts_struct *opts)
 	rc = createsimpledownloaded(sandbox, opts);
   if(rc != 0){
     printf("Execution of testfilter failed.\n");
-    writelog(LOG_ERROR, "Execution of testfilter failed %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Execution of testfilter failed %s:%d", __FILE__, __LINE__);
     return -1;
   }
 
@@ -252,20 +252,20 @@ int dosimpletest(opts_struct *opts)
    * Print content of downloaded
    */
   printf("Title                     | Season                    | Episode                   | Pubdate\n");
-  rc = printquery(sandbox->db, query);
+  rc = rsstprintquery(sandbox->db, query);
   if(rc != 0){
     printf("Listing of download queue failed.\n");
-    writelog(LOG_ERROR, "Execution of testfilter failed %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Execution of testfilter failed %s:%d", __FILE__, __LINE__);
     return -1;
   }
 
   /*
    * cleanup sandbox
    */
-  rc = closesandbox(sandbox);
+  rc = rsstclosesandbox(sandbox);
   if(rc != 0){
     printf("Closing sandbox failed.\n");
-    writelog(LOG_ERROR, "Closing sandbox falied %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Closing sandbox falied %s:%d", __FILE__, __LINE__);
     return -1;
   }
 

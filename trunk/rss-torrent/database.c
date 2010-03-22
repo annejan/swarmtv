@@ -123,7 +123,7 @@ static int dbexecscript(sqlite3 *db, const char *script)
 	/*
 	 * Copy to local buffer for strtok to modify
 	 */
-	alloccopy(&local, script, strlen(script));
+	rsstalloccopy(&local, script, strlen(script));
 
 	/*
 	 * Use strtok to seperate the lines
@@ -144,12 +144,12 @@ static int dbexecscript(sqlite3 *db, const char *script)
 		/*
 		 * Execute line by line
 		 */
-		rc = executequery(db, line, NULL);
+		rc = rsstexecutequery(db, line, NULL);
 		if(rc < 0) {
 			/*
 			 * On error print report, and break loop.
 			 */
-			writelog(LOG_ERROR, "Error in script on line %d : %s", linenr, line);
+			rsstwritelog(LOG_ERROR, "Error in script on line %d : %s", linenr, line);
 			retval = -1;
 		}
 
@@ -184,7 +184,7 @@ static void genregexpfunc(sqlite3_context *db, int num, sqlite3_value **sqlite3_
    * sanity check
    */
   if(num != 2) {
-    writelog(LOG_ERROR, "on line: %d, in file: %s, the wrong number of arguments were called: %d",
+    rsstwritelog(LOG_ERROR, "on line: %d, in file: %s, the wrong number of arguments were called: %d",
       __LINE__,
       __FILE__,
       num);
@@ -203,7 +203,7 @@ static void genregexpfunc(sqlite3_context *db, int num, sqlite3_value **sqlite3_
   re = pcre_compile( var1, opt, &error, 
       &errOffset, NULL); 
   if (re == NULL) { 
-    writelog(LOG_ERROR, "Regexp compilation failed at " 
+    rsstwritelog(LOG_ERROR, "Regexp compilation failed at " 
         "offset %d: %s %s:%d\n", errOffset, error, __FILE__, __LINE__); 
     exit(1); 
   } 
@@ -218,15 +218,15 @@ static void genregexpfunc(sqlite3_context *db, int num, sqlite3_value **sqlite3_
       match = 0; 
       break; 
     case PCRE_ERROR_BADOPTION: 
-      writelog(LOG_ERROR, "An unrecognized bit was set in the " 
+      rsstwritelog(LOG_ERROR, "An unrecognized bit was set in the " 
           "options argument %s:%d", __FILE__, __LINE__); 
       break; 
     case PCRE_ERROR_NOMEMORY: 
-      writelog(LOG_ERROR, "Not enough memory available. %s:%d", __FILE__, __LINE__); 
+      rsstwritelog(LOG_ERROR, "Not enough memory available. %s:%d", __FILE__, __LINE__); 
       break; 
     default: 
       if (rc < 0) { 
-        writelog(LOG_ERROR, "A regexp match error " 
+        rsstwritelog(LOG_ERROR, "A regexp match error " 
             "occured: %d %s:%d", rc, __FILE__, __LINE__); 
       } 
       else { 
@@ -286,7 +286,7 @@ static int getdbversion(sqlite3 *db, int *version)
 	/*
 	 * Test if version table exists
 	 */
-	rc = executequery(db, existquery, NULL);
+	rc = rsstexecutequery(db, existquery, NULL);
 	free(text);
 	if(rc != 1) {
 		/*
@@ -300,7 +300,7 @@ static int getdbversion(sqlite3 *db, int *version)
 	 * Execute query.
 	 * translate value when found
 	 */
-	rc = dosingletextquery(db, (unsigned char const**)&text, query, NULL);
+	rc = rsstdosingletextquery(db, (unsigned char const**)&text, query, NULL);
 	if(rc == 0) {
 		*version = atoi(text);
 	}
@@ -317,7 +317,7 @@ static int getdbversion(sqlite3 *db, int *version)
  * @return
  * 0 on succes, -1 on failure
  */
-int rundbinitscript(sqlite3 *db)
+int rsstrundbinitscript(sqlite3 *db)
 {
 	int rc=0;
 
@@ -336,7 +336,7 @@ int rundbinitscript(sqlite3 *db)
 /*
  * Open database, and add regexp functionality.
  */
-int initdatabase(
+int rsstinitdatabase(
 		const char *filename,   /* Database filename (UTF-8) */
 		sqlite3   **ppDb)       /* OUT: SQLite db handle */
 {
@@ -348,7 +348,7 @@ int initdatabase(
 	/*
 	 * Complete the filename is it contains a ~ as homedir
 	 */
-	completepath(filename, &dbpath);
+	rsstcompletepath(filename, &dbpath);
 
 	/*
    * Open the sqlite database.
@@ -374,7 +374,7 @@ int initdatabase(
 		 * Create new DB
 		 */
 		printf("Running create databasescript.\n");
-		rc = rundbinitscript(*ppDb);
+		rc = rsstrundbinitscript(*ppDb);
 		if(rc == -1){
 			fprintf(stderr, "Can't open database, initscript failed!\n");
 			sqlite3_close(*ppDb);
@@ -442,7 +442,7 @@ int initdatabase(
  * @return
  * 0 on succes, -1 on failure
  */
-int dosingletextquery(sqlite3 *db, const unsigned char **text, const char *query, char *fmt, ...) 
+int rsstdosingletextquery(sqlite3 *db, const unsigned char **text, const char *query, char *fmt, ...) 
 {
   sqlite3_stmt 	*ppStmt=NULL;
   const char 		*pzTail=NULL;
@@ -475,8 +475,8 @@ int dosingletextquery(sqlite3 *db, const unsigned char **text, const char *query
       &pzTail              /* OUT: Pointer to unused portion of zSql */
       );
   if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
-    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+    rsstwritelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
     retval = -1;
   }
 
@@ -492,9 +492,9 @@ int dosingletextquery(sqlite3 *db, const unsigned char **text, const char *query
           s = va_arg(ap, char *);
           rc = sqlite3_bind_text(ppStmt, count, s, -1, SQLITE_TRANSIENT);
           if( rc!=SQLITE_OK ){
-            writelog(LOG_ERROR, "sqlite3_bind_text failed on argument '%d'\n'%s'\n'%s' %s:%d", 
+            rsstwritelog(LOG_ERROR, "sqlite3_bind_text failed on argument '%d'\n'%s'\n'%s' %s:%d", 
                 count, query, fmt, __FILE__, __LINE__);  
-            writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+            rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
             sqlite3_free(zErrMsg);
             retval=-1;
           }
@@ -503,9 +503,9 @@ int dosingletextquery(sqlite3 *db, const unsigned char **text, const char *query
           d = va_arg(ap, int);
           rc = sqlite3_bind_int(ppStmt, count, d);
           if( rc!=SQLITE_OK ){
-            writelog(LOG_ERROR, "sqlite3_bind_int failed on argument '%d'\n'%s'\n'%s' %s:%d",
+            rsstwritelog(LOG_ERROR, "sqlite3_bind_int failed on argument '%d'\n'%s'\n'%s' %s:%d",
                 count, query, fmt, __FILE__, __LINE__);  
-            writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+            rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
             sqlite3_free(zErrMsg);
             retval=-1;
           }
@@ -514,15 +514,15 @@ int dosingletextquery(sqlite3 *db, const unsigned char **text, const char *query
           f = va_arg(ap, double);
           rc = sqlite3_bind_double(ppStmt, count, f);
           if( rc!=SQLITE_OK ){
-            writelog(LOG_ERROR, "sqlite3_bind_double failed on argument '%d'\n'%s'\n'%s' %s:%d",
+            rsstwritelog(LOG_ERROR, "sqlite3_bind_double failed on argument '%d'\n'%s'\n'%s' %s:%d",
                 count, query, fmt, __FILE__, __LINE__);  
-            writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+            rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
             sqlite3_free(zErrMsg);
             retval=-1;
           }
           break;
         default:
-          writelog(LOG_ERROR, "Unknown format '%c' on position '%d'\nQuery: '%s'\nFmt: '%s'",
+          rsstwritelog(LOG_ERROR, "Unknown format '%c' on position '%d'\nQuery: '%s'\nFmt: '%s'",
               *fmt, count, query, fmt);
           retval=-1;
       }
@@ -549,15 +549,15 @@ int dosingletextquery(sqlite3 *db, const unsigned char **text, const char *query
         /*
          * Move result to premanent own location.
          */
-				alloccopy((char**)text,(char*) temptext, strlen((char*)temptext));
+				rsstalloccopy((char**)text,(char*) temptext, strlen((char*)temptext));
 
         break;
       case SQLITE_DONE:
         *text=NULL;
         break;
       default:
-        writelog(LOG_ERROR, "sqlite3_step, %d %s:%d", step_rc, __FILE__, __LINE__);
-        writelog(LOG_ERROR, "in statement : \'%s\'", query);
+        rsstwritelog(LOG_ERROR, "sqlite3_step, %d %s:%d", step_rc, __FILE__, __LINE__);
+        rsstwritelog(LOG_ERROR, "in statement : \'%s\'", query);
 
         *text=NULL;
         retval=-1;
@@ -587,7 +587,7 @@ int dosingletextquery(sqlite3 *db, const unsigned char **text, const char *query
  * return 0 on no rows returned
  * returns -1 on error
  */
-int executequery(sqlite3 *db, const char *query, char *fmt, ...) 
+int rsstexecutequery(sqlite3 *db, const char *query, char *fmt, ...) 
 {
   sqlite3_stmt 	*ppStmt=NULL;
   const char 		*pzTail=NULL;
@@ -620,8 +620,8 @@ int executequery(sqlite3 *db, const char *query, char *fmt, ...)
       &pzTail              /* OUT: Pointer to unused portion of zSql */
       );
   if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
-    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+    rsstwritelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
     sqlite3_free(zErrMsg);
     retval=-1;
   }
@@ -637,9 +637,9 @@ int executequery(sqlite3 *db, const char *query, char *fmt, ...)
         s = va_arg(ap, char *);
         rc = sqlite3_bind_text(ppStmt, count, s, -1, SQLITE_TRANSIENT);
         if( rc!=SQLITE_OK ){
-          writelog(LOG_ERROR, "sqlite3_bind_text failed on argument '%d'\n'%s'\n'%s' %s:%d", 
+          rsstwritelog(LOG_ERROR, "sqlite3_bind_text failed on argument '%d'\n'%s'\n'%s' %s:%d", 
               count, query, fmt, __FILE__, __LINE__);  
-          writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+          rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
           sqlite3_free(zErrMsg);
           retval=-1;
         }
@@ -648,9 +648,9 @@ int executequery(sqlite3 *db, const char *query, char *fmt, ...)
         d = va_arg(ap, int);
         rc = sqlite3_bind_int(ppStmt, count, d);
         if( rc!=SQLITE_OK ){
-          writelog(LOG_ERROR, "sqlite3_bind_int failed on argument '%d'\n'%s'\n'%s' %s:%d",
+          rsstwritelog(LOG_ERROR, "sqlite3_bind_int failed on argument '%d'\n'%s'\n'%s' %s:%d",
               count, query, fmt, __FILE__, __LINE__);  
-          writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+          rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
           sqlite3_free(zErrMsg);
           retval=-1;
         }
@@ -659,15 +659,15 @@ int executequery(sqlite3 *db, const char *query, char *fmt, ...)
         f = va_arg(ap, double);
         rc = sqlite3_bind_double(ppStmt, count, f);
         if( rc!=SQLITE_OK ){
-          writelog(LOG_ERROR, "sqlite3_bind_double failed on argument '%d'\n'%s'\n'%s' %s:%d",
+          rsstwritelog(LOG_ERROR, "sqlite3_bind_double failed on argument '%d'\n'%s'\n'%s' %s:%d",
               count, query, fmt, __FILE__, __LINE__);  
-          writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+          rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
           sqlite3_free(zErrMsg);
           retval=-1;
         }
         break;
       default:
-        writelog(LOG_ERROR, "Unknown format '%c' on position '%d'\nQuery: '%s'\nFmt: '%s'",
+        rsstwritelog(LOG_ERROR, "Unknown format '%c' on position '%d'\nQuery: '%s'\nFmt: '%s'",
           *fmt, count, query, fmt);
         retval=-1;
     }
@@ -690,8 +690,8 @@ int executequery(sqlite3 *db, const char *query, char *fmt, ...)
         retval=ROWS_CONSTRAINT; 
         break;
       default:
-        writelog(LOG_ERROR, "sqlite3_step, %d %s:%d", step_rc, __FILE__, __LINE__);
-        writelog(LOG_ERROR, "in statement : \'%s\'", query);
+        rsstwritelog(LOG_ERROR, "sqlite3_step, %d %s:%d", step_rc, __FILE__, __LINE__);
+        rsstwritelog(LOG_ERROR, "in statement : \'%s\'", query);
         retval=ROWS_ERROR;
     }
   }
@@ -723,7 +723,7 @@ int executequery(sqlite3 *db, const char *query, char *fmt, ...)
  * return 0 when okay.
  * return -1 on error.
  */
-int printquery(sqlite3 *db, const char *query)
+int rsstprintquery(sqlite3 *db, const char *query)
 {
   sqlite3_stmt  *ppStmt=NULL;
   const char    *pzTail=NULL;
@@ -745,8 +745,8 @@ int printquery(sqlite3 *db, const char *query)
       &pzTail              /* OUT: Pointer to unused portion of zSql */
       );
   if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
-    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+    rsstwritelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
     sqlite3_free(zErrMsg);
     return -1;
   }

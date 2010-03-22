@@ -59,7 +59,7 @@ void cleanup(){
   /*
    * Close logfile.
    */
-  closelog();
+  rsstcloselog();
 }
 
 
@@ -102,7 +102,7 @@ int main(int argc, char **argv){
 	/*
 	 * Test if basedir is present
 	 */
-	rc = initrsstorrent(); 
+	rc = rsstinitrsstorrent(); 
 	if(rc != 0) {
     fprintf(stderr, "Initializing basedir : \'%s\' failed", RSS_BASEDIR);
     exit(1);
@@ -111,7 +111,7 @@ int main(int argc, char **argv){
   /*
    * Initialize the database
    */
-  rc = initdatabase( DBFILE, &db);  
+  rc = rsstinitdatabase( DBFILE, &db);  
   if( rc!=SQLITE_OK ){
     fprintf(stderr, "Initializing db : \'%s\' failed\n", argv[1]);
     exit(1);
@@ -126,17 +126,17 @@ int main(int argc, char **argv){
   /*
    * open logfile
    */
-  rc = initlogdb(db);
+  rc = rsstinitlogdb(db);
   if(rc != 0) {
     fprintf(stderr, "Can't open logfile!\n");
     exit(1);
   }
-  writelog(LOG_DEBUG, "Start rss-torrent");
+  rsstwritelog(LOG_DEBUG, "Start rss-torrent");
 
 	/*
 	 * Handle commandline options
 	 */
-	handleopts(db, argc, argv);
+	rssthandleopts(db, argc, argv);
 
   /*
    * Cleanup the rest of the libaries

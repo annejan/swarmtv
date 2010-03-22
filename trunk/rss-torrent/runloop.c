@@ -77,7 +77,7 @@ static int parserdownload(sqlite3 *db, char *name, char *url, char *filter, Memo
   /*
    * When no filter found.
    */
-  writelog(LOG_ERROR, "No filter found '%s', ignoring file %s:%d", filter, __FILE__, __LINE__);
+  rsstwritelog(LOG_ERROR, "No filter found '%s', ignoring file %s:%d", filter, __FILE__, __LINE__);
   return -1;
 }
 
@@ -94,9 +94,9 @@ static void deleteold(sqlite3 *db)
 	/*
 	 * Get the config value.
 	 */
-	rc = configgetint(db, CONF_RETAIN, &days);
+	rc = rsstconfiggetint(db, CONF_RETAIN, &days);
 	if(rc != 0) {
-		writelog(LOG_ERROR, "config value %s not set ! %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "config value %s not set ! %s:%d", __FILE__, __LINE__);
 		exit(1);
 	}
 
@@ -104,9 +104,9 @@ static void deleteold(sqlite3 *db)
 	/*
 	 * Delete the content.
 	 */
-	rc = deloldnewtorents(db, (unsigned int) days);
+	rc = rsstdeloldnewtorents(db, (unsigned int) days);
 	if(rc == -1) {
-		writelog(LOG_ERROR, "Database inconsistent, could not remove old newtorrent entries!", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Database inconsistent, could not remove old newtorrent entries!", __FILE__, __LINE__);
 		exit(1);
 	}
 }
@@ -140,8 +140,8 @@ static void dowork(sqlite3 *db){
       &pzTail              /* OUT: Pointer to unused portion of zSql */
       );
   if( rc!=SQLITE_OK ){
-    writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
-    writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+    rsstwritelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
     sqlite3_free(zErrMsg);
     return;
   }
@@ -158,25 +158,25 @@ static void dowork(sqlite3 *db){
     url     = (char *) sqlite3_column_text(ppStmt, 1);
     parser  = (char *) sqlite3_column_text(ppStmt, 2); 
   
-    rc = downloadtobuffer(url, &rssfile);
+    rc = rsstdownloadtobuffer(url, &rssfile);
     if(rc == 0) {
       /*
        * Download succeded.
        */
-      writelog(LOG_DEBUG, "Download succeded for %s : %s", name, url);
+      rsstwritelog(LOG_DEBUG, "Download succeded for %s : %s", name, url);
 
       /*
        * Filter the stuff and add it to the database.
        */
       rc = parserdownload(db, name, url, parser, &rssfile);
       if(rc != 0) {
-        writelog(LOG_ERROR, "Filtering failed for %s : %s %s:%d", name, url, __FILE__, __LINE__);
+        rsstwritelog(LOG_ERROR, "Filtering failed for %s : %s %s:%d", name, url, __FILE__, __LINE__);
       }
       
     } else {
-      writelog(LOG_ERROR, "Download failed for %s : %s %s:%d", name, url, __FILE__, __LINE__);
+      rsstwritelog(LOG_ERROR, "Download failed for %s : %s %s:%d", name, url, __FILE__, __LINE__);
     }
-    freedownload(&rssfile);
+    rsstfreedownload(&rssfile);
   }
 
   /*
@@ -194,7 +194,7 @@ static void dowork(sqlite3 *db){
  * Returns
  * 0 for now.
  */
-int runloop(sqlite3 *db, LOOPMODE onetime)
+int rsstrunloop(sqlite3 *db, LOOPMODE onetime)
 {
   int rc;
   int timewait;
@@ -202,11 +202,11 @@ int runloop(sqlite3 *db, LOOPMODE onetime)
   time_t after;
   int    timeleft;
 
-  rc = configgetint(db, CONF_REFRESH, &timewait);
+  rc = rsstconfiggetint(db, CONF_REFRESH, &timewait);
 	if(onetime == 0) {
-		writelog(LOG_NORMAL, "Starting daemon, refresh %ds", timewait);
+		rsstwritelog(LOG_NORMAL, "Starting daemon, refresh %ds", timewait);
 	} else {
-		writelog(LOG_NORMAL, "Running once.");
+		rsstwritelog(LOG_NORMAL, "Running once.");
 	}
 
 	/*
@@ -217,7 +217,7 @@ int runloop(sqlite3 *db, LOOPMODE onetime)
     /*
      * work through the sources and process them
      */
-    writelog(LOG_DEBUG,"Downloading RSS feed(s)");
+    rsstwritelog(LOG_DEBUG,"Downloading RSS feed(s)");
     dowork(db);
  
     /*
@@ -232,14 +232,14 @@ int runloop(sqlite3 *db, LOOPMODE onetime)
 		/*
 		 * Execute SQL and simple filters on new entries.
 		 */
-    writelog(LOG_DEBUG,"Checking for new torrents to download.");
-    downloadtorrents(db);
-    downloadsimple(db, 0);
+    rsstwritelog(LOG_DEBUG,"Checking for new torrents to download.");
+    rsstdownloadtorrents(db);
+    rsstdownloadsimple(db, 0);
 
     /*
      * Torrents are no longer new
      */
-    nonewtorrents(db);
+    rsstnonewtorrents(db);
 		deleteold(db);
 
     /*
@@ -249,7 +249,7 @@ int runloop(sqlite3 *db, LOOPMODE onetime)
       break;
     }
 
-    writelog(LOG_NORMAL,"Refresh done, sleeping %d seconds.", timeleft); 
+    rsstwritelog(LOG_NORMAL,"Refresh done, sleeping %d seconds.", timeleft); 
 
     /*
      * Sleep timeout

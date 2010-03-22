@@ -112,7 +112,7 @@ static int tbl_dictkey(void *ctx, char *value, size_t length)
   /*
    * terminate string
    */
-	alloccopy(&string, value, length);
+	rsstalloccopy(&string, value, length);
 
   /*
    * set state
@@ -169,7 +169,7 @@ static int parsetorrent(MemoryStruct *buffer, torprops **props)
    */
 	err = tbl_parse(&callbacks, state, buffer->memory, buffer->memory+buffer->size);
   if(err != TBL_E_NONE){
-    writelog(LOG_ERROR, "Error while parsing bencoded data.");
+    rsstwritelog(LOG_ERROR, "Error while parsing bencoded data.");
     return -1;
   }
 
@@ -185,7 +185,7 @@ static int parsetorrent(MemoryStruct *buffer, torprops **props)
 /*
  * Free torrentprop struct.
  */
-void freetorprops(torprops *props)
+void rsstfreetorprops(torprops *props)
 {
   free(props);
 }
@@ -195,7 +195,7 @@ void freetorprops(torprops *props)
  * returns a struct containing some of the props of the torrent.
  * free struct afterwards
  */
-int gettorrentinfo(char *url, torprops **props)
+int rsstgettorrentinfo(char *url, torprops **props)
 {
   MemoryStruct *buffer=NULL;
   int           rc=0;
@@ -205,9 +205,9 @@ int gettorrentinfo(char *url, torprops **props)
   /*
    * Download to buffer
    */
-  rc = findtorrent(url, &torurl, &buffer, RECURSE);
+  rc = rsstfindtorrent(url, &torurl, &buffer, RECURSE);
   if(rc != 1){
-    writelog(LOG_NORMAL, "could not find torrent '%s' %s:%d", url, __FILE__, __LINE__);
+    rsstwritelog(LOG_NORMAL, "could not find torrent '%s' %s:%d", url, __FILE__, __LINE__);
     *props=NULL;
     retval=-1;
   }
@@ -222,7 +222,7 @@ int gettorrentinfo(char *url, torprops **props)
   if(retval == 0) {
     rc = parsetorrent(buffer, props);
     if(rc != 0){
-      writelog(LOG_ERROR, "could not parse torrent '%s' %s:%d", url, __FILE__, __LINE__);
+      rsstwritelog(LOG_ERROR, "could not parse torrent '%s' %s:%d", url, __FILE__, __LINE__);
       *props=NULL;
       retval=-1;
     }
@@ -231,7 +231,7 @@ int gettorrentinfo(char *url, torprops **props)
   /*
    * free buffer
    */
-  freedownload(buffer);
+  rsstfreedownload(buffer);
   free(buffer);
 
   return retval;

@@ -61,8 +61,8 @@ static int uninteresting(char *url)
   /*
    * Do the matching.
    */
-  rc = comregexp(NODOWN_EXT, url);
-  rc |= comregexp(NODOWN_TEXT, url);
+  rc = rsstcomregexp(NODOWN_EXT, url);
+  rc |= rsstcomregexp(NODOWN_TEXT, url);
 
   /*
    * return result.
@@ -108,15 +108,6 @@ static xmlXPathObjectPtr htmlextacthrefs(xmlDocPtr doc, const xmlChar* xpathExpr
   return(xpathObj);
 }
 
-/*
- * Free all claimed resources
- */
-void htmlcleanup(xmlXPathObjectPtr xpathObj)
-{
-  /* Cleanup of XPath data */
-  xmlXPathFreeObject(xpathObj);
-}
-
 
 /*
  * Extract base name from url
@@ -150,7 +141,7 @@ static void getbasename(char *url, char **basename)
    * Copy the basename to the outputbuffer
    */
   basesize=cur-url;    
-	alloccopy(basename, url, basesize);
+	rsstalloccopy(basename, url, basesize);
 }
 
 
@@ -272,7 +263,7 @@ static int testiftorrent(char *url, char *mimetype)
  * The url the torrent was found in torrenturl.
  * Don't forget to free buffer and torrenturl !
  */
-int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recurse) 
+int rsstfindtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recurse) 
 {
   int               rc = 0;
   MemoryStruct      buffer;
@@ -296,7 +287,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
    */
   memset(&buffer, 0, sizeof(MemoryStruct));
 
-  writelog(LOG_DEBUG, "Scan url: '%s'", url);
+  rsstwritelog(LOG_DEBUG, "Scan url: '%s'", url);
 
   /*
    * Make sure no garbage is in here
@@ -307,22 +298,22 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
   /*
    * Download content
    */
-  rc = downloadtobuffer( url, &buffer);
+  rc = rsstdownloadtobuffer( url, &buffer);
   if(rc != 0) {
-    //writelog(LOG_NORMAL,  "%s: Failed to download.", url);
-	  freedownload(&buffer);
+    //rsstwritelog(LOG_NORMAL,  "%s: Failed to download.", url);
+	  rsstfreedownload(&buffer);
     return 0;
   }
 
   /*
    * try to get the Content type from the header
    */
-  rc = getheadersvalue(HTTP_CONTENTTYPE, &filetype, &buffer);
+  rc = rsstgetheadersvalue(HTTP_CONTENTTYPE, &filetype, &buffer);
   if(rc == -1) {
     /*
      * No header found ignore this link.
      */
-		freedownload(&buffer);
+		rsstfreedownload(&buffer);
 		return 0;
   }
 
@@ -335,7 +326,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
      * Copy and allocate the url + buffer
      * Both should be freed after use !
      */
-		alloccopy(torrenturl, url, strlen(url));
+		rsstalloccopy(torrenturl, url, strlen(url));
     *torbuffer = calloc(1, sizeof(MemoryStruct)+1);
     memcpy(*torbuffer, &buffer, sizeof(MemoryStruct));
 
@@ -351,7 +342,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
    * We are not interested in other content then torrents, so returning 0
    */
   if(recurse <= 0) {
-		freedownload(&buffer); 
+		rsstfreedownload(&buffer); 
     return 0;
   }
 
@@ -366,8 +357,8 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
     html =  htmlReadDoc((unsigned char*)(buffer.memory), "", NULL, 
         HTML_PARSE_NOWARNING | HTML_PARSE_NOERROR | HTML_PARSE_NOBLANKS | HTML_PARSE_RECOVER);
     if(html == NULL) {
-      writelog(LOG_NORMAL, "%s: failed to create reader, although MIME suggested html\n", url);      
-      freedownload(&buffer);
+      rsstwritelog(LOG_NORMAL, "%s: failed to create reader, although MIME suggested html\n", url);      
+      rsstfreedownload(&buffer);
 			free(filetype);
       return 0;
     }
@@ -394,7 +385,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
       resolvrel(url, linkaddr, &fulllink);
 
       if(strlen(fulllink) == 0) {
-        writelog(LOG_DEBUG, "url: '%s' linkaddr: '%s' fulllink: '%s'", url, linkaddr, fulllink);
+        rsstwritelog(LOG_DEBUG, "url: '%s' linkaddr: '%s' fulllink: '%s'", url, linkaddr, fulllink);
       }
 
       switch(*fulllink){
@@ -404,7 +395,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
           free(fulllink);
           xmlXPathFreeObject(allas);
           free(filetype);
-          freedownload(&buffer);
+          rsstfreedownload(&buffer);
           return 0;
       }
 
@@ -412,7 +403,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
        * recurse
        * When one of the children returns 1, return 1 to.
        */
-      rc = findtorrent(fulllink, torrenturl, torbuffer, recurse-1); 
+      rc = rsstfindtorrent(fulllink, torrenturl, torbuffer, recurse-1); 
       if(rc == 1) {
         /*
          * We found the torrent !
@@ -433,7 +424,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
     }
   }
 
-  writelog(LOG_NORMAL, "Nothing found at '%s'", url);
+  rsstwritelog(LOG_NORMAL, "Nothing found at '%s'", url);
 
   /*
    * Clean up
@@ -441,7 +432,7 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
   xmlXPathFreeObject(allas);
   xmlFreeDoc(html); 
   free(filetype);
-  freedownload(&buffer);
+  rsstfreedownload(&buffer);
 
   return 0;
 }
@@ -450,41 +441,41 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
 /*
  * Finds and writes torrent to file
  */
-int findtorrentwrite(char *url, char *name)
+int rsstfindtorrentwrite(char *url, char *name)
 {
   int             rc = 0;
   int             rv = 0;
   char            *torurl = NULL;
   MemoryStruct    *buffer = NULL;
 
-  writelog(LOG_DEBUG, "Writing torrent '%s' to file '%s'", url, name);
+  rsstwritelog(LOG_DEBUG, "Writing torrent '%s' to file '%s'", url, name);
 
   /*
    * Get the buffer and url to the torrent in there
    */
-  rc = findtorrent(url, &torurl, &buffer, RECURSE);
+  rc = rsstfindtorrent(url, &torurl, &buffer, RECURSE);
   if(rc != 1) {
-    writelog(LOG_NORMAL, "Torrent not found in %s", url);
-		freedownload(buffer);
+    rsstwritelog(LOG_NORMAL, "Torrent not found in %s", url);
+		rsstfreedownload(buffer);
     rv=-1;
   }
 
   /*
    * Print to result
    */
-  //int writelog(int level, char *str,...);
+  //int rsstwritelog(int level, char *str,...);
   if(rv == 0 && strcmp(url, torurl) != 0) {
-    writelog(LOG_NORMAL, "Origional url : %s", url);
-    writelog(LOG_NORMAL, "Torrent url   : %s", torurl);
+    rsstwritelog(LOG_NORMAL, "Origional url : %s", url);
+    rsstwritelog(LOG_NORMAL, "Torrent url   : %s", torurl);
   }
 
   /*
    * Save file to name
    */
   if(rv == 0) {
-    rc = writebuffer(name, buffer);
+    rc = rsstwritebuffer(name, buffer);
     if(rc != 0){
-      writelog(LOG_ERROR, "Writing torrent '%s' failed.", name);
+      rsstwritelog(LOG_ERROR, "Writing torrent '%s' failed.", name);
       rv = -1;
     }
   }
@@ -493,7 +484,7 @@ int findtorrentwrite(char *url, char *name)
    * free the result
    */
   free(torurl);
-  freedownload(buffer);
+  rsstfreedownload(buffer);
   free(buffer);
 
   return rv;

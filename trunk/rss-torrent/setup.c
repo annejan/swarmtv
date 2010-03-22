@@ -37,9 +37,9 @@ static int testrsstorrentdir()
 	int 	rc=0;
 	char 	*fullpath=NULL;
 
-	completepath(RSS_BASEDIR, &fullpath);
+	rsstcompletepath(RSS_BASEDIR, &fullpath);
 
-	rc = fsexists(fullpath);
+	rc = rsstfsexists(fullpath);
 
 	free(fullpath);
 
@@ -60,8 +60,8 @@ static int makersstorrentdir()
 	/*
 	 * Resolv path and create directory
 	 */
-	completepath(RSS_BASEDIR, &fullpath);
-	rc = makedir(fullpath);
+	rsstcompletepath(RSS_BASEDIR, &fullpath);
+	rc = rsstmakedir(fullpath);
 
 	free(fullpath);
 	return rc;
@@ -74,7 +74,7 @@ static int makersstorrentdir()
  * @Arguments none
  * @returns 	0 when succes otherwise -1
  */
-int initrsstorrent()
+int rsstinitrsstorrent()
 {
 	int		rc=0;
 	int		retval=0;

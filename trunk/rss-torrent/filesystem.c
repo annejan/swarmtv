@@ -39,7 +39,7 @@
  * origpath	The path containing '~' and stuff
  * destpath	The path compleded and all
  */
-void completepath(const char *origpath, char **destpath)
+void rsstcompletepath(const char *origpath, char **destpath)
 {
   int   lenght=0;
   char *homedir=NULL;
@@ -73,7 +73,7 @@ void completepath(const char *origpath, char **destpath)
     /*
      * if not copy origpath to destpath and allocate memory
      */
-		alloccopy(destpath, (char*) origpath, strlen(origpath));
+		rsstalloccopy(destpath, (char*) origpath, strlen(origpath));
   }
 }
 
@@ -86,7 +86,7 @@ void completepath(const char *origpath, char **destpath)
  * returns
  * 0 on success, -1 on error (or when not found).
  */
-int fsexists(const char *path) 
+int rsstfsexists(const char *path) 
 {
   struct stat st;
   int rc=0;
@@ -108,7 +108,7 @@ int fsexists(const char *path)
  * Return
  * 0 on succes, -1 on failure (not writable)
  */
-int testwrite(const char *path)
+int rssttestwrite(const char *path)
 {
   int   rc=0;
   int   fsock=0;
@@ -160,7 +160,7 @@ int testwrite(const char *path)
  * returns
  * 0 on succes, -1 on failure
  */
-int makedir(char *path)
+int rsstmakedir(char *path)
 {
 	int rc;
 

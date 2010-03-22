@@ -40,7 +40,7 @@
  * newtor structure pointer
  * returns void, exits on failure
  */
-void freenewtor(newtorrents_struct *newtor)
+void rsstfreenewtor(newtorrents_struct *newtor)
 {
 	free(newtor->title);
 	free(newtor->link);
@@ -54,7 +54,7 @@ void freenewtor(newtorrents_struct *newtor)
  * Returns
  * 0 on succes, exits on -1 on failure
  */
-int addnewtorrent(sqlite3 *db, newtorrents_struct *newtor)
+int rsstaddnewtorrent(sqlite3 *db, newtorrents_struct *newtor)
 {
   int           rc;
 
@@ -62,7 +62,7 @@ int addnewtorrent(sqlite3 *db, newtorrents_struct *newtor)
                 "VALUES (?1, ?2, date(?3, 'unixepoch'), ?4, ?5, ?6, ?7, ?8, ?9, 'Y')";
   
   // DEBUG
-  writelog(LOG_DEBUG, "############\n"
+  rsstwritelog(LOG_DEBUG, "############\n"
       "title:    %s\n"
       "link:     %s\n"
       "pubdate:  %s\n"
@@ -78,7 +78,7 @@ int addnewtorrent(sqlite3 *db, newtorrents_struct *newtor)
   /*
    * execute query
    */
-  rc = executequery(db, query, "ssdsddddf", 
+  rc = rsstexecutequery(db, query, "ssdsddddf", 
 			newtor->title, newtor->link, newtor->pubdate, newtor->category, newtor->season, 
 			newtor->episode, newtor->seeds, newtor->peers, (double)(newtor->size));
   switch(rc) {
@@ -87,10 +87,10 @@ int addnewtorrent(sqlite3 *db, newtorrents_struct *newtor)
       // print nothing all is okay
       break;
     case ROWS_CONSTRAINT:
-      writelog(LOG_DEBUG, "Torrent allready in DB"); 
+      rsstwritelog(LOG_DEBUG, "Torrent allready in DB"); 
       break;
     default:
-      writelog(LOG_ERROR, "SQL statement failed %d! %s:%d", rc, __FILE__, __LINE__);
+      rsstwritelog(LOG_ERROR, "SQL statement failed %d! %s:%d", rc, __FILE__, __LINE__);
       exit(1);
   }
 
@@ -107,7 +107,7 @@ int addnewtorrent(sqlite3 *db, newtorrents_struct *newtor)
  * downed			pointer to struct holding values to add to the db.
  * simulate		0 to log addition, 1 adds anyway, but does not log at all.
  */
-void adddownloaded(sqlite3 *db, downloaded_struct *downed, SIM  simulate)
+void rsstadddownloaded(sqlite3 *db, downloaded_struct *downed, SIM  simulate)
 {
   int           rc=0;
   time_t        now=0;
@@ -124,7 +124,7 @@ void adddownloaded(sqlite3 *db, downloaded_struct *downed, SIM  simulate)
    * Do not log downloading when we are testing filters.
    */
   if(simulate == (SIM) real){
-    writelog(LOG_NORMAL, "##### Download #######\n"
+    rsstwritelog(LOG_NORMAL, "##### Download #######\n"
         "title:    %s\n"
         "link:     %s\n"
         "pubdate:  %s\n"
@@ -137,7 +137,7 @@ void adddownloaded(sqlite3 *db, downloaded_struct *downed, SIM  simulate)
   /*
    * execute query, when failed return -1
    */
-  rc = executequery(db, query, "ssssddd", downed->title, downed->link, downed->pubdate, downed->category, 
+  rc = rsstexecutequery(db, query, "ssssddd", downed->title, downed->link, downed->pubdate, downed->category, 
 			downed->season, downed->episode, now); 
   switch(rc) {
     case ROWS_EMPTY:
@@ -145,11 +145,11 @@ void adddownloaded(sqlite3 *db, downloaded_struct *downed, SIM  simulate)
       // print nothing all is okay
       break;
     case ROWS_CONSTRAINT:
-      writelog(LOG_ERROR, "Torrent '%s' allready downloaded, please check no double filters for '%s'. %s:%d", 
+      rsstwritelog(LOG_ERROR, "Torrent '%s' allready downloaded, please check no double filters for '%s'. %s:%d", 
 					downed->link, downed->title, __FILE__, __LINE__); 
       break;
     default:
-      writelog(LOG_ERROR, "SQL statement failed %d! %s:%d", rc, __FILE__, __LINE__);
+      rsstwritelog(LOG_ERROR, "SQL statement failed %d! %s:%d", rc, __FILE__, __LINE__);
       exit(1);
   }
 } 
@@ -158,17 +158,17 @@ void adddownloaded(sqlite3 *db, downloaded_struct *downed, SIM  simulate)
  * When Torrents are prosessed, they are no longer new
  * this method removes the new flag
  */
-void nonewtorrents(sqlite3 *db)
+void rsstnonewtorrents(sqlite3 *db)
 {
   int           rc;
 
   const char *query = "UPDATE newtorrents SET new='N' WHERE new='Y'";
 
-  writelog(LOG_DEBUG,"New torrents are marked old now !");
+  rsstwritelog(LOG_DEBUG,"New torrents are marked old now !");
 
-  rc = executequery(db, query, NULL); 
+  rc = rsstexecutequery(db, query, NULL); 
   if(rc == SQLITE_ERROR){
-      writelog(LOG_ERROR, "SQL statement failed %d! %s:%d", rc, __FILE__, __LINE__);
+      rsstwritelog(LOG_ERROR, "SQL statement failed %d! %s:%d", rc, __FILE__, __LINE__);
       exit(1);
   }
 
@@ -186,7 +186,7 @@ void nonewtorrents(sqlite3 *db)
  * returns
  * -1 on error, 0 on succes
  */
-int deloldnewtorents(sqlite3 *db, unsigned int days)
+int rsstdeloldnewtorents(sqlite3 *db, unsigned int days)
 {
 	char daystr[BUFSIZE+1];
 	int  rc=0;
@@ -205,7 +205,7 @@ int deloldnewtorents(sqlite3 *db, unsigned int days)
 	/*
 	 * Execute query
 	 */
-	rc = executequery(db, query, "s", daystr);
+	rc = rsstexecutequery(db, query, "s", daystr);
 	if(rc == -1) {
 		return -1;
 	}
@@ -214,9 +214,9 @@ int deloldnewtorents(sqlite3 *db, unsigned int days)
 	 * Log if we deleted old newtorrents records.
 	 */
 	if(rc == 1) {
-		writelog(LOG_DEBUG, "Deleted old torrents.");
+		rsstwritelog(LOG_DEBUG, "Deleted old torrents.");
 	} else {
-		writelog(LOG_DEBUG, "No newtorrent records have aged enough.");
+		rsstwritelog(LOG_DEBUG, "No newtorrent records have aged enough.");
 	}
 
 	return 0;

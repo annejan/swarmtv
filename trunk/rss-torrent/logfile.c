@@ -50,12 +50,12 @@
 
 
 
-int initlog(char *logpath);
+int rsstinitlog(char *logpath);
 
 /*
  * Open logfile getting path from database
  */
-int initlogdb(sqlite3 *db)
+int rsstinitlogdb(sqlite3 *db)
 {
   char  *configpath = NULL;
   int   rc;
@@ -64,12 +64,12 @@ int initlogdb(sqlite3 *db)
    * Get path
    * int configgetproperty(sqlite3 *db, char *prop, char **value);
    */
-  rc = configgetproperty(db, CONF_LOGFILE, &configpath);
+  rc =rsstconfiggetproperty(db, CONF_LOGFILE, &configpath);
 
   /*
    * open log file
    */
-  rc = initlog(configpath);
+  rc = rsstinitlog(configpath);
 
   /*
    * clean up
@@ -88,12 +88,12 @@ int initlogdb(sqlite3 *db)
  * Return 0 when succes
  * Return !0 when fail
  */
-int initlog(char *logpath)
+int rsstinitlog(char *logpath)
 {
 	FILE *log=NULL;
   char *fullpath=NULL;
 
-  completepath(logpath, &fullpath);
+  rsstcompletepath(logpath, &fullpath);
 
   log = fopen(fullpath,"a+");
 	fclose(log);
@@ -109,7 +109,7 @@ int initlog(char *logpath)
 /*
  * Log an entry
  */
-int writelog(int level, char *str,...)
+int rsstwritelog(int level, char *str,...)
 {
   char s[30];
   size_t i;
@@ -158,7 +158,7 @@ int writelog(int level, char *str,...)
 /*
  * Close logfile
  */
-void closelog()
+void rsstcloselog()
 {
   /*
    * Closing logfile.

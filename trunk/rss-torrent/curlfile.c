@@ -89,7 +89,7 @@ static size_t WriteHeaderCallback(void *ptr, size_t size, size_t nmemb, void *da
 /*
  * Download url and put the resulting data in chunk.
  */
-int downloadtobuffer(char *url, MemoryStruct *chunk)
+int rsstdownloadtobuffer(char *url, MemoryStruct *chunk)
 {
   CURL *curl_handle=NULL;
   int 	rc=0;
@@ -106,7 +106,7 @@ int downloadtobuffer(char *url, MemoryStruct *chunk)
 	/*
 	 * Determine if the url holdes usernames and passwords.
 	 */
-	rc = getusernamepassword(url, &cleanurl, &userpass);
+	rc = rsstgetusernamepassword(url, &cleanurl, &userpass);
 	switch(rc) {
 		case 0:
 			/*
@@ -114,15 +114,15 @@ int downloadtobuffer(char *url, MemoryStruct *chunk)
 			 */
 			realurl=calloc(1, strlen(url)+1);
 			strncpy(realurl, url, strlen(url));
-			writelog(LOG_DEBUG, "realurl			: %s\n", realurl);
+			rsstwritelog(LOG_DEBUG, "realurl			: %s\n", realurl);
 			break;
 		case 1:
 			/*
 			 * Password found 
 			 */
-			writelog(LOG_DEBUG, "passwd_url			: %s\n", url);
-			writelog(LOG_DEBUG, "userpass				: %s\n", userpass);
-			writelog(LOG_DEBUG, "cleanurl				: %s\n", cleanurl);
+			rsstwritelog(LOG_DEBUG, "passwd_url			: %s\n", url);
+			rsstwritelog(LOG_DEBUG, "userpass				: %s\n", userpass);
+			rsstwritelog(LOG_DEBUG, "cleanurl				: %s\n", cleanurl);
 
 		default:
 			/*
@@ -222,7 +222,7 @@ static size_t curlfwrite(void *buffer, size_t size, size_t nmemb, void *stream)
  * return
  * return 0 on succes and -1 on failure.
  */
-int downloadtofile(char *url, char *path)
+int rsstdownloadtofile(char *url, char *path)
 {
   CURL *curl;
   CURLcode res;
@@ -264,7 +264,7 @@ int downloadtofile(char *url, char *path)
 
     if(CURLE_OK != res) {
       /* we failed */ 
-      writelog(LOG_ERROR, "curl told us %d %s:%d", res, __FILE__, __LINE__);
+      rsstwritelog(LOG_ERROR, "curl told us %d %s:%d", res, __FILE__, __LINE__);
       rc = -1; // Set Error 
     }
   }
@@ -283,7 +283,7 @@ int downloadtofile(char *url, char *path)
  * Arguments :
  * chunk 	pointer to downloaded data, NULL pointers are ignored.
  */
-void freedownload(MemoryStruct *chunk)
+void rsstfreedownload(MemoryStruct *chunk)
 {
   if(chunk != NULL) {
     free(chunk->memory);
@@ -305,7 +305,7 @@ void freedownload(MemoryStruct *chunk)
  * Return
  * 0 on success, -1 on failure
  */
-int getheadersvalue(char *name, char **value, MemoryStruct *chunk)
+int rsstgetheadersvalue(char *name, char **value, MemoryStruct *chunk)
 {
   char *header=NULL;
   char *latest=NULL;
@@ -324,7 +324,7 @@ int getheadersvalue(char *name, char **value, MemoryStruct *chunk)
   /*
    * Copy the inputbuffer to tempbuffer.
    */
-	alloccopy(&header, chunk->header, strlen(chunk->header));
+	rsstalloccopy(&header, chunk->header, strlen(chunk->header));
 
   /*
    * Create regexp for getting header
@@ -339,9 +339,9 @@ int getheadersvalue(char *name, char **value, MemoryStruct *chunk)
     /*
 		 * Get the first match from the header
 		 */
-    rc =  capturefirstmatch(regexp, 0, token, value);
+    rc =  rsstcapturefirstmatch(regexp, 0, token, value);
     if(rc == 0) {
-      writelog(LOG_DEBUG, "Found '%s'->'%s'", token, *value);
+      rsstwritelog(LOG_DEBUG, "Found '%s'->'%s'", token, *value);
 			/*
 			 * We want the last matching value only.
 			 * Free previous found value.
@@ -376,20 +376,20 @@ int getheadersvalue(char *name, char **value, MemoryStruct *chunk)
  * return
  * 0 on succes -1 on failure
  */
-int writebuffer(char *filename, MemoryStruct *buffer) 
+int rsstwritebuffer(char *filename, MemoryStruct *buffer) 
 {
   FILE          *file;
   int           rc;
   unsigned int  cur_char;
 
-  writelog(LOG_DEBUG,"Writing to : '%s' lenght '%ld' %s:%d", filename, buffer->size, __FILE__, __LINE__);
+  rsstwritelog(LOG_DEBUG,"Writing to : '%s' lenght '%ld' %s:%d", filename, buffer->size, __FILE__, __LINE__);
 
   /*
    * Save file to test.torrent
    */
   file = fopen(filename, "w+"); 
   if(file == NULL) {
-    writelog(LOG_ERROR, "Could not open file : '%s'", strerror(errno));
+    rsstwritelog(LOG_ERROR, "Could not open file : '%s'", strerror(errno));
     return -1;
   }
 
@@ -397,7 +397,7 @@ int writebuffer(char *filename, MemoryStruct *buffer)
   for (cur_char = 0; cur_char < buffer->size; ++cur_char) {
     rc = fputc(*(buffer->memory + cur_char), file);
     if(rc == EOF) {
-      writelog(LOG_ERROR, "Could not write to file");
+      rsstwritelog(LOG_ERROR, "Could not write to file");
       fclose(file);
       return -1;
     }

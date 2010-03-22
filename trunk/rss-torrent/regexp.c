@@ -43,7 +43,7 @@ static const char* unitmatch  = "BKMGTPEZY";
  * This function copies and allocates the destination memory.
  * don't forget to free the destination after use.
  */
-int alloccopy(char **dest, const char *src, const size_t size)
+int rsstalloccopy(char **dest, const char *src, const size_t size)
 {
 	/*
 	 * Allocate the memory
@@ -68,7 +68,7 @@ int alloccopy(char **dest, const char *src, const size_t size)
  * the first ':' found is the one plitting name and value
  * When the splitting failed '-1' is returned
  */
-int splitnameval(char *input,char **name, char **value) 
+int rsstsplitnameval(char *input,char **name, char **value) 
 {
   pcre *p;
   const char *errmsg;
@@ -83,7 +83,7 @@ int splitnameval(char *input,char **name, char **value)
   p = pcre_compile("^([^:]+):(.+)$", 0, &errmsg, &errpos, 0);
   if (p == NULL) {
     /* should not happen, because init1 has already tested and set to NULL on error */
-    writelog(LOG_ERROR, "Ouch! Can't compile regular expression: %s (char %i) %s:%d",
+    rsstwritelog(LOG_ERROR, "Ouch! Can't compile regular expression: %s (char %i) %s:%d",
         errmsg, errpos, __FILE__, __LINE__);
   }
 
@@ -102,11 +102,11 @@ int splitnameval(char *input,char **name, char **value)
   if (rc < 0) {
     switch (rc) {
       case PCRE_ERROR_NOMATCH:
-        writelog(LOG_ERROR, "String could not be split. %s:%d", __FILE__, __LINE__);
+        rsstwritelog(LOG_ERROR, "String could not be split. %s:%d", __FILE__, __LINE__);
         break;
 
       default:
-        writelog(LOG_ERROR, "Error while matching: %d %s:%d", rc, __FILE__, __LINE__);
+        rsstwritelog(LOG_ERROR, "Error while matching: %d %s:%d", rc, __FILE__, __LINE__);
         break;
     }
     free(p);
@@ -137,7 +137,7 @@ int splitnameval(char *input,char **name, char **value)
 /*
  * Cleanup strings from XML
  */
-void cleanupstring(char *string)
+void rsstcleanupstring(char *string)
 {
   char *cur;
 
@@ -182,7 +182,7 @@ void cleanupstring(char *string)
  * 1 match
  * -1 error
  */
-int comregexp(char *regexp, char *string)
+int rsstcomregexp(char *regexp, char *string)
 {
   pcre *p;
   const char *errmsg;
@@ -199,7 +199,7 @@ int comregexp(char *regexp, char *string)
     /* 
 		 * Should not happen, because init1 has already tested and set to NULL on error 
 		 */ 
-    writelog(LOG_ERROR, "Ouch! Can't compile regular expression: %s (char %i) %s:%d",
+    rsstwritelog(LOG_ERROR, "Ouch! Can't compile regular expression: %s (char %i) %s:%d",
         errmsg, errpos, __FILE__, __LINE__);
   }
 
@@ -222,7 +222,7 @@ int comregexp(char *regexp, char *string)
     outval=0;
   } 
   else if (rc == PCRE_ERROR_MATCHLIMIT) {
-    writelog(LOG_ERROR, "PCRE hitted PCRE_ERROR_MATCHLIMIT for regexp '%s' and text '%s'", regexp, string);
+    rsstwritelog(LOG_ERROR, "PCRE hitted PCRE_ERROR_MATCHLIMIT for regexp '%s' and text '%s'", regexp, string);
     outval=-1;
   } else {
     /*
@@ -243,7 +243,7 @@ int comregexp(char *regexp, char *string)
 /*
  * This routine returns a string pointing to the first captured string.
  */
-int capturefirstmatch(char *regexp, int flag, char *string, char **match)
+int rsstcapturefirstmatch(char *regexp, int flag, char *string, char **match)
 {
   pcre *p;
   const char *errmsg;
@@ -258,7 +258,7 @@ int capturefirstmatch(char *regexp, int flag, char *string, char **match)
   p = pcre_compile(regexp, 0, &errmsg, &errpos, 0);
   if (p == NULL) {
     /* should not happen, because init1 has already tested and set to NULL on error */
-    //writelog(LOG_ERROR, "Ouch! Can't compile regular expression: %s (char %i) %s:%d",
+    //rsstwritelog(LOG_ERROR, "Ouch! Can't compile regular expression: %s (char %i) %s:%d",
     //    errmsg, errpos, __FILE__, __LINE__);
     fprintf(stderr, "Ouch! Can't compile regular expression: %s (char %i) %s:%d", errmsg, errpos, __FILE__, __LINE__);
     return -1;
@@ -279,13 +279,13 @@ int capturefirstmatch(char *regexp, int flag, char *string, char **match)
   if (rc < 0) {
     switch (rc) {
       case PCRE_ERROR_NOMATCH:
-        //writelog(LOG_ERROR, "String could not be split. %s:%d", __FILE__, __LINE__);
+        //rsstwritelog(LOG_ERROR, "String could not be split. %s:%d", __FILE__, __LINE__);
         //fprintf(stderr, "No match found '%s'. %s:%d", regexp, __FILE__, __LINE__);
         break;
 
       default:
         fprintf(stderr, "Error in regexp matching '%s'. %s:%d\n", regexp, __FILE__, __LINE__);
-        //writelog(LOG_ERROR, "Error while matching: %d %s:%d", rc, __FILE__, __LINE__);
+        //rsstwritelog(LOG_ERROR, "Error while matching: %d %s:%d", rc, __FILE__, __LINE__);
         break;
     }
     free(p);
@@ -318,7 +318,7 @@ int capturefirstmatch(char *regexp, int flag, char *string, char **match)
  * returns 0 on no username/passwd
  * When returning 1 cleanurl and userpass are both set, and should be freed after use.
  */
-int getusernamepassword(char *url, char **cleanurl, char **userpass)
+int rsstgetusernamepassword(char *url, char **cleanurl, char **userpass)
 {
   pcre 		*p=NULL;
   int   	ovector[OVECSIZE];
@@ -374,7 +374,7 @@ int getusernamepassword(char *url, char **cleanurl, char **userpass)
 				return 0;
         break;
       default:
-        writelog(LOG_ERROR, "Error while matching url. %d %s:%d", rc, __FILE__, __LINE__);
+        rsstwritelog(LOG_ERROR, "Error while matching url. %d %s:%d", rc, __FILE__, __LINE__);
         break;
     }
     free(p);
@@ -417,7 +417,7 @@ int getusernamepassword(char *url, char **cleanurl, char **userpass)
  * buf must be a pre-allocated buffer with size BUFSIZE+1
  * returns the char * to the converted string.
  */
-char* sizetohuman(size_t size/*in bytes*/, char *buf) 
+char* rsstsizetohuman(size_t size/*in bytes*/, char *buf) 
 {
   int i = 0;
   double tempsize;
@@ -438,7 +438,7 @@ char* sizetohuman(size_t size/*in bytes*/, char *buf)
  * returns 0 and -1 on error
  * size in bytes is returned in argument size
  */
-int humantosize(char *buf, double *size) 
+int rssthumantosize(char *buf, double *size) 
 {
   char    upcasenum[BUFSIZE+1];
   char    *unit=NULL;
@@ -450,7 +450,7 @@ int humantosize(char *buf, double *size)
    * When buf or size = NULL, return -1
    */
   if( buf == NULL || size == NULL){
-    writelog(LOG_ERROR, "Invalid pointer passed to humantosize function. %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Invalid pointer passed to humantosize function. %s:%d", __FILE__, __LINE__);
     return -1;
   }
 
@@ -515,7 +515,7 @@ int humantosize(char *buf, double *size)
  *
  * **Str must not be on stack, because the memory block could be reallocced.
  */ 
-int strrepl(char **Str, char *OldStr, char *NewStr)
+int rsststrrepl(char **Str, char *OldStr, char *NewStr)
 {
   size_t OldLen;
   size_t NewLen;

@@ -51,21 +51,21 @@ static int copyfile(char *outfile, char *infile)
   int bytes;
   int rc;
 
-  completepath(outfile, &fulloutfile);
-  completepath(infile, &fullinfile);
+  rsstcompletepath(outfile, &fulloutfile);
+  rsstcompletepath(infile, &fullinfile);
 
   /*
    * Open input and output file.
    */
   if((inF = open(fullinfile, O_RDONLY)) == -1) {
-    writelog(LOG_ERROR, "Could not open read file '%s' %s:%d", infile, __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Could not open read file '%s' %s:%d", infile, __FILE__, __LINE__);
     free(fulloutfile);
     free(fullinfile);
     return -1;
   }
 
   if((ouF = open(fulloutfile, O_WRONLY | O_CREAT, S_IRWXU )) == -1) {
-    writelog(LOG_ERROR, "Could not open write file '%s' %s:%d", outfile, __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Could not open write file '%s' %s:%d", outfile, __FILE__, __LINE__);
     close(inF);
     free(fulloutfile);
     free(fullinfile);
@@ -84,12 +84,12 @@ static int copyfile(char *outfile, char *infile)
   while((bytes = read(inF, line, sizeof(line))) > 0){
     rc = write(ouF, line, bytes);
     if(rc == -1) {
-      writelog(LOG_ERROR, "Error writing to file '%s' %s:%d", outfile, __FILE__, __LINE__);
+      rsstwritelog(LOG_ERROR, "Error writing to file '%s' %s:%d", outfile, __FILE__, __LINE__);
       break;
     }
   }
   if(bytes == -1){
-    writelog(LOG_ERROR, "Error reading from file '%s' %s:%d", infile, __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Error reading from file '%s' %s:%d", infile, __FILE__, __LINE__);
   }
 
   /*
@@ -111,7 +111,7 @@ static int copyfile(char *outfile, char *infile)
  * return
  * returns pointer to sandbox db.
  */
-sandboxdb *createsandbox(char *sourcedbname, char *sandboxdbname)
+sandboxdb *rsstcreatesandbox(char *sourcedbname, char *sandboxdbname)
 {
   int       rc=0;
   sandboxdb *sandbox=NULL;
@@ -134,9 +134,9 @@ sandboxdb *createsandbox(char *sourcedbname, char *sandboxdbname)
   /*
    * create pointer to database
    */
-  rc = initdatabase(sandboxdbname, &(sandbox->db)); 
+  rc = rsstinitdatabase(sandboxdbname, &(sandbox->db)); 
   if(rc != SQLITE_OK) {
-    writelog(LOG_ERROR, "Sandbox database initialization failed %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Sandbox database initialization failed %s:%d", __FILE__, __LINE__);
     return NULL;
   }
 
@@ -155,12 +155,12 @@ sandboxdb *createsandbox(char *sourcedbname, char *sandboxdbname)
  * Return
  * 0 on succes otherwise -1
  */
-int closesandbox(sandboxdb *sandbox)
+int rsstclosesandbox(sandboxdb *sandbox)
 {
   int   rc=0;
   char *fullpath=NULL;
 
-  completepath(sandbox->filename, &fullpath);
+  rsstcompletepath(sandbox->filename, &fullpath);
 
   /*
    * Close the sqlite database.
@@ -173,7 +173,7 @@ int closesandbox(sandboxdb *sandbox)
    */
   rc = remove(fullpath);
   if(rc != 0) {
-    writelog(LOG_ERROR, "Removing sandbox db file '%s' failed %s:%d", sandbox->filename, __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "Removing sandbox db file '%s' failed %s:%d", sandbox->filename, __FILE__, __LINE__);
   }
 
   /*

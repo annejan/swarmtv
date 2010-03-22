@@ -30,7 +30,7 @@
 /*
  * Fork process to daemon.
  */
-void daemonize(char *path)
+void rsstdaemonize(char *path)
 {
   pid_t pid, sid;
 
@@ -70,13 +70,13 @@ void daemonize(char *path)
 /*
  * check Lockfile 
  */
-void lockfile (const char *lockpath)
+void rsstlockfile (const char *lockpath)
 {
   int  lfp;
   char str[10];
   char *fullpath=NULL;
 
-  completepath(lockpath, &fullpath);
+  rsstcompletepath(lockpath, &fullpath);
 
   lfp=open(fullpath, O_RDWR|O_CREAT, 0640);
 

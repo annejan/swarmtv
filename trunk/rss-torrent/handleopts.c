@@ -158,8 +158,8 @@ static void setconfigvalue(sqlite3 *db, char *configval)
 	char 	*name;
 	char	*value;
 
-	splitnameval(configval, &name, &value);
-	rc = setconfigitem(db, name, value);
+	rsstsplitnameval(configval, &name, &value);
+	rc = rsstsetconfigitem(db, name, value);
 	if(rc == -1) {
 		fprintf(stderr, "Value not found in config\n");
 	} else {
@@ -178,14 +178,14 @@ static void optdeletefilter(sqlite3 *db, char *name)
 	 * Name "all" deletes all filters.
 	 */
 	if(!strcmp(name, "all")) {
-		rc = delallfilters(db);
+		rc = rsstdelallfilters(db);
 		if(rc == 0) {
 			printf("Delete all filters succesful\n");
 		} else {
 			fprintf(stderr, "Deletion of all filters failed\n");
 		}
 	} else {
-		rc = delfilter(db, name);
+		rc = rsstdelfilter(db, name);
 		if(rc == 0) {
 			printf("Delete filter: %s succesful\n", name);
 		} else {
@@ -302,7 +302,7 @@ static void testmail(sqlite3 *db, char *testtxt)
 	/*
 	 * Test if mail is enabled.
 	 */
-	rc = configgetproperty(db, CONF_SMTPENABLE, &enable);
+	rc = rsstconfiggetproperty(db, CONF_SMTPENABLE, &enable);
 	if(strcmp(enable, "Y") != 0){
 		printf("Email notifications are not enabled.\n");
 		printf("Please enable them by putting value 'Y' in config value '%s'.\n", CONF_SMTPENABLE);
@@ -314,7 +314,7 @@ static void testmail(sqlite3 *db, char *testtxt)
 	/*
 	 * Test mail settings.
 	 */
-	rc = sendrssmail(db, testtxt, testtxt);
+	rc = rsstsendrssmail(db, testtxt, testtxt);
 	if(rc == 0) {
 		printf("Testmail sent successful!\n");
 	} else {
@@ -327,7 +327,7 @@ static void reinitdb(sqlite3 *db)
 	int rc=0;
 
 	printf("Running reinitializion script on database...\n");
-	rc = rundbinitscript(db);
+	rc = rsstrundbinitscript(db);
 	if(rc != 0) {
 		fprintf(stderr, "Reinitializing database failed!\n");
 	} else {
@@ -358,27 +358,27 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
         stopop = 1; // no more
         break;
       case 'c':
-        printconfigitems(db);
+        rsstprintconfigitems(db);
         break;
       case 'C': // Set config value
 				setconfigvalue(db, optarg);
         break;
       case 'f': // list filters
-        printfilters(db);
+        rsstprintfilters(db);
         stopop = 1; // no more
         break;
       case 'F': // set download filter
-				alloccopy(&(opts->filter), optarg, strlen(optarg));
+				rsstalloccopy(&(opts->filter), optarg, strlen(optarg));
         break;
       case 'p': // print filter en shell format
-        printshellfilter(db, argv[0], optarg);
+        rsstprintshellfilter(db, argv[0], optarg);
 				break;
       case 't': // set source filter type
         if( opts->sourcefilter != NULL) {
           fprintf(stderr, "Warning: ignoring second doublefilter parameter.\n");
           break;
         }
-				alloccopy(&(opts->sourcefilter), optarg, strlen(optarg));
+				rsstalloccopy(&(opts->sourcefilter), optarg, strlen(optarg));
 				break;
       case 'q': // set filtertest flag
         opts->testfilt=1;
@@ -388,7 +388,7 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
           fprintf(stderr, "Warning: ignoring second sourcefilter parameter.\n");
           break;
         }
-				alloccopy(&(opts->doublefilter), optarg, strlen(optarg));
+				rsstalloccopy(&(opts->doublefilter), optarg, strlen(optarg));
         break;
       case 'd': // delete filter
 				optdeletefilter(db, optarg);
@@ -399,14 +399,14 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
           fprintf(stderr, "Warning: ignoring second source parameter.\n");
           break;
         }
-				alloccopy(&(opts->source), optarg, strlen(optarg));
+				rsstalloccopy(&(opts->source), optarg, strlen(optarg));
         break;
       case 'S': // List available sources
-        printsources(db);
+        rsstprintsources(db);
         stopop = 1; // no more
         break;
       case 'D': // delete rss source
-        rc = delsource(db, optarg);
+        rc = rsstdelsource(db, optarg);
         break;
       case 'r': // run as daemon 
         opts->run = 1;
@@ -422,26 +422,26 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
         stopop = 1; // no more
         break;
       case 'J': // List simple filter
-        listsimple(db);
+        rsstlistsimple(db);
         stopop = 1; // no more
         break;
       case 'P': // Print A simple filter in shell format
-        printsimple(db, optarg);
+        rsstprintsimple(db, optarg);
         stopop =1; // no more
         break;
       case 'A': // Print A simple filter in shell format
-        printallsimple(db);
+        rsstprintallsimple(db);
         stopop =1; // no more
         break;
       case 'j': // Del simple filter
-        rc = delsimple(db, optarg);
+        rc = rsstdelsimple(db, optarg);
         if(rc == 0) {
           printf("Deletion of simple filters '%s' Successful.\n", optarg);
         }
         stopop =1; // no more
         break;
       case 'k': // Del all simple filters
-        rc = delallsimple(db);
+        rc = rsstdelallsimple(db);
         if(rc == 0) {
           printf("Deletion of all simple filters Successful.\n");
         }
@@ -452,63 +452,63 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
           fprintf(stderr, "Warning: ignoring second simple filter addition.\n");
           break;
         }
-				alloccopy(&(opts->simplename), optarg, strlen(optarg));
+				rsstalloccopy(&(opts->simplename), optarg, strlen(optarg));
         break;
       case 'N': // Add simple exclude regexp
         if( opts->simpleexclude != NULL) {
           fprintf(stderr, "Warning: ignoring second exclude addition.\n");
           break;
         }
-				alloccopy(&(opts->simpleexclude), optarg, strlen(optarg));
+				rsstalloccopy(&(opts->simpleexclude), optarg, strlen(optarg));
         break;
       case 'U': // Add simple category regexp
         if( opts->simplecategory != NULL) {
           fprintf(stderr, "Warning: ignoring second exclude addition.\n");
           break;
         }
-        alloccopy(&(opts->simplecategory), optarg, strlen(optarg));
+        rsstalloccopy(&(opts->simplecategory), optarg, strlen(optarg));
         break;
       case 'E': // Add title-filter argument
         if( opts->simpletitle != NULL) {
           fprintf(stderr, "Warning: ignoring second simple filter addition.\n");
           break;
         }
-        alloccopy(&(opts->simpletitle), optarg, strlen(optarg));
+        rsstalloccopy(&(opts->simpletitle), optarg, strlen(optarg));
         break;
       case 'O': // Add 'max size' argument
         if( opts->simplemaxsize != NULL) {
           fprintf(stderr, "Warning: ignoring second 'max size' argument.\n");
           break;
         }
-        alloccopy(&(opts->simplemaxsize), optarg, strlen(optarg));
+        rsstalloccopy(&(opts->simplemaxsize), optarg, strlen(optarg));
         break;
       case 'o': // Add 'min size' argument
         if( opts->simpleminsize != NULL) {
           fprintf(stderr, "Warning: ignoring second 'min size' argument.\n");
           break;
         }
-				alloccopy(&(opts->simpleminsize), optarg, strlen(optarg));
+				rsstalloccopy(&(opts->simpleminsize), optarg, strlen(optarg));
         break;
       case 'u': // Add 'min size' argument
         if( opts->simplenodup != NULL) {
           fprintf(stderr, "Warning: ignoring second nodup argument.\n");
           break;
         }
-				alloccopy(&(opts->simplenodup), optarg, strlen(optarg));
+				rsstalloccopy(&(opts->simplenodup), optarg, strlen(optarg));
         break;
       case 'g': // Add 'min size' argument
         if( opts->simpleseason != NULL) {
           fprintf(stderr, "Warning: ignoring second 'from season' argument.\n");
           break;
         }
-				alloccopy(&(opts->simpleseason), optarg, strlen(optarg));
+				rsstalloccopy(&(opts->simpleseason), optarg, strlen(optarg));
         break;
       case 'G': // Add 'min size' argument
         if( opts->simpleepisode != NULL) {
           fprintf(stderr, "Warning: ignoring second 'from episode' argument.\n");
           break;
         }
-				alloccopy(&(opts->simpleepisode), optarg, strlen(optarg));
+				rsstalloccopy(&(opts->simpleepisode), optarg, strlen(optarg));
         break;
       case 'K': // Reinitialize the database
 				reinitdb(db);
@@ -547,20 +547,20 @@ void handlemultiple(sqlite3 *db, opts_struct *opts)
 	 * Handle here because a type could be set
 	 */
 	if(opts->source != NULL) {
-		splitnameval(opts->source, &name, &value);
-		addsource(db, name, value, opts->sourcefilter);
+		rsstsplitnameval(opts->source, &name, &value);
+		rsstaddsource(db, name, value, opts->sourcefilter);
 	}
 
 	/*
 	 * When a filter is set, evaluate it here
 	 */
 	if(opts->filter != NULL) {
-		splitnameval(opts->filter, &name, &value);
+		rsstsplitnameval(opts->filter, &name, &value);
 		/*
 		 * Add the filter 
 		 */
 		if(opts->testfilt == 0) { 
-			rc = addfilter(db, name, value, opts->doublefilter);
+			rc = rsstaddfilter(db, name, value, opts->doublefilter);
 			if(rc == 0) {
 				printf("new filter : %s\n"
 						"filter : %s\n"
@@ -575,7 +575,7 @@ void handlemultiple(sqlite3 *db, opts_struct *opts)
 		 * Test the filter
 		 */
     if(opts->testfilt != 0) { 
-      rc =  dofiltertest(value, opts->doublefilter);
+      rc =  rsstdofiltertest(value, opts->doublefilter);
       if(rc != 0) {
         printf("new filter : %s\n"
             "filter : %s\n"
@@ -595,7 +595,7 @@ void handlemultiple(sqlite3 *db, opts_struct *opts)
 		 * Add the simple filter 
 		 */
 		if(opts->testfilt == 0) { 
-			rc = addsimplefilter(db, opts);
+			rc = rsstaddsimplefilter(db, opts);
 			if(rc != 0){
 				fprintf(stderr, "Adding filter failed.\n");
 			} else {
@@ -608,7 +608,7 @@ void handlemultiple(sqlite3 *db, opts_struct *opts)
 		 * Test simple filter
 		 */
 		if(opts->testfilt != 0) { 
-			rc = dosimpletest(opts);
+			rc = rsstdosimpletest(opts);
 			if(rc != 0) {
 				printf("new filter : '%s' Test failed\n",
 						opts->simplename);
@@ -663,9 +663,9 @@ static void runmode(sqlite3 *db, opts_struct *opts)
 	/*
 	 * Test if torrent directory is writable
 	 */
-	rc = testtorrentdir(db);
+	rc = rssttesttorrentdir(db);
 	if(rc != 0) {
-		writelog(LOG_ERROR, "Torrent directory not usable exiting.");
+		rsstwritelog(LOG_ERROR, "Torrent directory not usable exiting.");
 		fprintf(stderr, "Torrent directory is not usable, please look in log to find out why!\n");
 	} else {
 		/*
@@ -675,12 +675,12 @@ static void runmode(sqlite3 *db, opts_struct *opts)
 		 */
 		if(opts->nodetach == 0 && opts->onetime == (LOOPMODE) loop) {
 			printf("Forking to background.\n");
-			rc = configgetproperty(db, CONF_LOGFILE, &logpath);
+			rc = rsstconfiggetproperty(db, CONF_LOGFILE, &logpath);
 			if(rc == 0) {
-				completepath(logpath, &logfullpath);
-				daemonize(logpath);
+				rsstcompletepath(logpath, &logfullpath);
+				rsstdaemonize(logpath);
 			} else {
-				daemonize("/dev/null");
+				rsstdaemonize("/dev/null");
 			}
 		} else {
 			printf("No forking, running on shell.\n");
@@ -689,8 +689,8 @@ static void runmode(sqlite3 *db, opts_struct *opts)
 		/*
 		 * Check and lock lockfile
 		 */
-		configgetproperty(db, CONF_LOCKFILE, &lockpath);
-		lockfile(lockpath);
+		rsstconfiggetproperty(db, CONF_LOCKFILE, &lockpath);
+		rsstlockfile(lockpath);
 		free(lockpath);
 		free(logpath);
 		free(logfullpath);
@@ -698,14 +698,14 @@ static void runmode(sqlite3 *db, opts_struct *opts)
 		/*
 		 * Call main loop here.
 		 */
-		runloop(db, opts->onetime);
+		rsstrunloop(db, opts->onetime);
 	}
 }
 
 /*
  * Handles the arguments, and Calls the subroutines when needed.
  */
-void handleopts(sqlite3 *db, int argc, char *argv[])
+void rssthandleopts(sqlite3 *db, int argc, char *argv[])
 {
 	int 				rc=0;
 	opts_struct opts; 

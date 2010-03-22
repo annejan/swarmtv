@@ -44,13 +44,13 @@
 #define unused      __attribute__((unused))
 
 const char *readlinefp_cb (void **buf, int *len, void *arg);
-void monitor_cb (const char *buf, int buflen, int writing, void *arg);
-void print_recipient_status (smtp_recipient_t recipient,
+/* static void monitor_cb (const char *buf, int buflen, int writing, void *arg); */
+static void print_recipient_status (smtp_recipient_t recipient,
     const char *mailbox, void *arg);
-int authinteract (auth_client_request_t request, char **result, int fields,
-    void *arg);
-int tlsinteract (char *buf, int buflen, int rwflag, void *arg);
-void event_cb (int event_no, void *arg, ...);
+/* static int authinteract (auth_client_request_t request, char **result, int fields, 
+    void *arg); */
+/* static int tlsinteract (char *buf, int buflen, int rwflag, void *arg); */
+/* static void event_cb (int event_no, void *arg, ...); */
 void usage (void);
 void version (void);
 
@@ -58,7 +58,7 @@ void version (void);
 /*
  * predeclaration
  */
-int sendmail(const char *host, const char *from, const char *to, const char *subject, const char *msgtxt);
+int rsstsendmail(const char *host, const char *from, const char *to, const char *subject, const char *msgtxt);
 
 /*
  * Send email, using settings in the config database.
@@ -69,7 +69,7 @@ int sendmail(const char *host, const char *from, const char *to, const char *sub
  * returns
  * 0 on success, -1 on error
  */
-int sendrssmail(sqlite3 *db, const char *subject, const char *msgtxt)
+int rsstsendrssmail(sqlite3 *db, const char *subject, const char *msgtxt)
 {
   int  rc;
   char *smtpenable = NULL;
@@ -81,7 +81,7 @@ int sendrssmail(sqlite3 *db, const char *subject, const char *msgtxt)
   /*
    * Test if mailing is enabled
    */
-  configgetproperty(db, CONF_SMTPENABLE, &smtpenable);
+  rsstconfiggetproperty(db, CONF_SMTPENABLE, &smtpenable);
   if(smtpenable == NULL || *smtpenable != 'Y') {
     /*
      * Mailing disabled, moving on.
@@ -93,9 +93,9 @@ int sendrssmail(sqlite3 *db, const char *subject, const char *msgtxt)
   /*
    * Get the rest of the settings
    */
-  configgetproperty(db, CONF_SMTPTO, &smtpto);
-  configgetproperty(db, CONF_SMTPFROM, &smtpfrom);
-  configgetproperty(db, CONF_SMTPHOST, &smtphost);
+  rsstconfiggetproperty(db, CONF_SMTPTO, &smtpto);
+  rsstconfiggetproperty(db, CONF_SMTPFROM, &smtpfrom);
+  rsstconfiggetproperty(db, CONF_SMTPHOST, &smtphost);
 
   /*
    * add '\r\n' to beginning and end of messagetext
@@ -106,7 +106,7 @@ int sendrssmail(sqlite3 *db, const char *subject, const char *msgtxt)
   /*
    * send message
    */
-  rc = sendmail(smtphost, smtpfrom, smtpto, subject, sendmessage);
+  rc = rsstsendmail(smtphost, smtpfrom, smtpto, subject, sendmessage);
 
   /*
    * cleanup 
@@ -133,7 +133,7 @@ int sendrssmail(sqlite3 *db, const char *subject, const char *msgtxt)
  * returns :
  * 0 on succes, else -1
  */
-int sendmail(const char *host, const char *from, const char *to, const char *subject, const char *msgtxt)
+int rsstsendmail(const char *host, const char *from, const char *to, const char *subject, const char *msgtxt)
 {
 	int						 retval=0;
   smtp_session_t session;
@@ -218,7 +218,7 @@ int sendmail(const char *host, const char *from, const char *to, const char *sub
   {
     char buf[128];
 
-    writelog (LOG_ERROR, "SMTP server problem %s\n",
+    rsstwritelog (LOG_ERROR, "SMTP server problem %s\n",
         smtp_strerror (smtp_errno (), buf, sizeof buf));
 		retval = -1;
   }
@@ -228,7 +228,7 @@ int sendmail(const char *host, const char *from, const char *to, const char *sub
 		 * Report on the success or otherwise of the mail transfer.
 		 */
     status = smtp_message_transfer_status (message);
-    writelog(LOG_DEBUG, "%d %s", status->code,
+    rsstwritelog(LOG_DEBUG, "%d %s", status->code,
         (status->text != NULL) ? status->text : "\n");
     smtp_enumerate_recipients (message, print_recipient_status, NULL);
   }
@@ -250,13 +250,13 @@ int sendmail(const char *host, const char *from, const char *to, const char *sub
  * recipient	
  * mailbox		
  */
-void print_recipient_status(smtp_recipient_t recipient,
+static void print_recipient_status(smtp_recipient_t recipient,
     												const char *mailbox, void *arg unused)
 {
   const smtp_status_t *status;
 
   status = smtp_recipient_status (recipient);
-  writelog(LOG_DEBUG, "%s: %d %s", mailbox, status->code, status->text);
+  rsstwritelog(LOG_DEBUG, "%s: %d %s", mailbox, status->code, status->text);
 }
 
 /* Callback function to read the message from a file.  Since libESMTP
@@ -275,7 +275,8 @@ void print_recipient_status(smtp_recipient_t recipient,
    */
 #define BUFLEN	8192
 
-void monitor_cb (const char *buf, int buflen, int writing, void *arg)
+#if 0
+static void monitor_cb (const char *buf, int buflen, int writing, void *arg)
 {
   FILE *fp = arg;
 
@@ -291,11 +292,13 @@ void monitor_cb (const char *buf, int buflen, int writing, void *arg)
   if (buf[buflen - 1] != '\n')
     putc ('\n', fp);
 }
+#endif
 
+#if 0
 /* 
  * Callback to request user/password info.  Not thread safe. 
  */
-int authinteract (auth_client_request_t request, char **result, int fields, void *arg unused)
+static int authinteract (auth_client_request_t request, char **result, int fields, void *arg unused)
 {
   char prompt[64];
   static char resp[512];
@@ -331,8 +334,9 @@ int authinteract (auth_client_request_t request, char **result, int fields, void
   }
   return 1;
 }
+#endif
 
-
+#if 0
 /*
  * Arguments
  * buf
@@ -341,7 +345,7 @@ int authinteract (auth_client_request_t request, char **result, int fields, void
  * arg
  * return
  */
-int tlsinteract (char *buf, int buflen, int rwflag unused, void *arg unused)
+static int tlsinteract (char *buf, int buflen, int rwflag unused, void *arg unused)
 {
   char *pw;
   int len;
@@ -353,12 +357,14 @@ int tlsinteract (char *buf, int buflen, int rwflag unused, void *arg unused)
   strcpy (buf, pw);
   return len;
 }
+#endif
 
 
+#if 0
 /*
  * handles peer certificate
  */
-int handle_invalid_peer_certificate(long vfy_result)
+static int handle_invalid_peer_certificate(long vfy_result)
 {
   const char *k ="rare error";
   switch(vfy_result) {
@@ -417,11 +423,13 @@ int handle_invalid_peer_certificate(long vfy_result)
     case X509_V_ERR_CERT_REJECTED:
       k="X509_V_ERR_CERT_REJECTED"; break;
   }
-  writelog(LOG_DEBUG, "SMTP_EV_INVALID_PEER_CERTIFICATE: %ld: %s\n", vfy_result, k);
+  rsstwritelog(LOG_DEBUG, "SMTP_EV_INVALID_PEER_CERTIFICATE: %ld: %s\n", vfy_result, k);
   return 1; /* Accept the problem */
 }
+#endif
 
-void event_cb(int event_no, void *arg,...)
+#if 0
+static void event_cb(int event_no, void *arg,...)
 {
   va_list alist;
   int *ok;
@@ -437,11 +445,11 @@ void event_cb(int event_no, void *arg,...)
     case SMTP_EV_WEAK_CIPHER: {
                                 int bits;
                                 bits = va_arg(alist, long); ok = va_arg(alist, int*);
-                                writelog(LOG_DEBUG, "SMTP_EV_WEAK_CIPHER, bits=%d - accepted.\n", bits);
+                                rsstwritelog(LOG_DEBUG, "SMTP_EV_WEAK_CIPHER, bits=%d - accepted.\n", bits);
                                 *ok = 1; break;
                               }
     case SMTP_EV_STARTTLS_OK:
-                             writelog(LOG_DEBUG, "SMTP_EV_STARTTLS_OK - TLS started here."); 
+                             rsstwritelog(LOG_DEBUG, "SMTP_EV_STARTTLS_OK - TLS started here."); 
                              break;
     case SMTP_EV_INVALID_PEER_CERTIFICATE: {
                                              long vfy_result;
@@ -451,22 +459,23 @@ void event_cb(int event_no, void *arg,...)
                                            }
     case SMTP_EV_NO_PEER_CERTIFICATE: {
                                         ok = va_arg(alist, int*); 
-                                        writelog(LOG_DEBUG, "SMTP_EV_NO_PEER_CERTIFICATE - accepted.");
+                                        rsstwritelog(LOG_DEBUG, "SMTP_EV_NO_PEER_CERTIFICATE - accepted.");
                                         *ok = 1; break;
                                       }
     case SMTP_EV_WRONG_PEER_CERTIFICATE: {
                                            ok = va_arg(alist, int*);
-                                           writelog(LOG_DEBUG, "SMTP_EV_WRONG_PEER_CERTIFICATE - accepted.");
+                                           rsstwritelog(LOG_DEBUG, "SMTP_EV_WRONG_PEER_CERTIFICATE - accepted.");
                                            *ok = 1; break;
                                          }
     case SMTP_EV_NO_CLIENT_CERTIFICATE: {
                                           ok = va_arg(alist, int*); 
-                                          writelog(LOG_DEBUG, "SMTP_EV_NO_CLIENT_CERTIFICATE - accepted.");
+                                          rsstwritelog(LOG_DEBUG, "SMTP_EV_NO_CLIENT_CERTIFICATE - accepted.");
                                           *ok = 1; break;
                                         }
     default:
-                                        writelog(LOG_DEBUG, "Got event: %d - ignored.\n", event_no);
+                                        rsstwritelog(LOG_DEBUG, "Got event: %d - ignored.\n", event_no);
   }
   va_end(alist);
 }
+#endif
 

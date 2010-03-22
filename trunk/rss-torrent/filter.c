@@ -37,7 +37,7 @@
  * format varname : value
  * All from database
  */
-void printfilters(sqlite3 *db) 
+void rsstprintfilters(sqlite3 *db) 
 {
   /*
    * header
@@ -46,7 +46,7 @@ void printfilters(sqlite3 *db)
   printf("Filters.\n");
   printf("#############\n");
 
-  printquery(db, "select name, filter, nodouble from 'filters'");
+  rsstprintquery(db, "select name, filter, nodouble from 'filters'");
 
   /*
    * Footer
@@ -59,7 +59,7 @@ void printfilters(sqlite3 *db)
  * Deletes all filters from filtertable.
  * On succes 0 is returned.
  */
-int delallfilters(sqlite3 *db)
+int rsstdelallfilters(sqlite3 *db)
 {
   int           rc;
 
@@ -74,18 +74,18 @@ int delallfilters(sqlite3 *db)
    * Execute query
    * When name is all, delete all filters.
    */
-  rc = executequery(db, query, NULL);
+  rc = rsstexecutequery(db, query, NULL);
   switch(rc) {
     case(ROWS_CHANGED):
       return 0;
       break;
     case(ROWS_EMPTY):
 			printf("No filters left, delete all did nothing %s:%d\n", __FILE__, __LINE__);
-			writelog(LOG_ERROR, "No filters left, delete all did nothing %s:%d", __FILE__, __LINE__);
+			rsstwritelog(LOG_ERROR, "No filters left, delete all did nothing %s:%d", __FILE__, __LINE__);
 			return -1;
 			break;
 		default: 
-			writelog(LOG_ERROR, "Query error during delallfilters %s:%d",  __FILE__, __LINE__);
+			rsstwritelog(LOG_ERROR, "Query error during delallfilters %s:%d",  __FILE__, __LINE__);
 			return -1;
 	}
 }
@@ -95,7 +95,7 @@ int delallfilters(sqlite3 *db)
  * When allready existing -1 is returned.
  * On succes 0 is returned.
  */
-int delfilter(sqlite3 *db, const char *name)
+int rsstdelfilter(sqlite3 *db, const char *name)
 {
 	int         rc=0;
 
@@ -110,18 +110,18 @@ int delfilter(sqlite3 *db, const char *name)
 	 * Execute query
 	 * When name is all, delete all filters.
 	 */
-	rc = executequery(db, query, "s", name);
+	rc = rsstexecutequery(db, query, "s", name);
 	switch(rc) {
 		case(ROWS_CHANGED):
 			return 0;
 			break;
 		case(ROWS_EMPTY):
 			fprintf(stderr, "Could not delete filter '%s' %s:%di\n", name,  __FILE__, __LINE__);
-			writelog(LOG_ERROR, "Could not delete filter '%s' %s:%d", name,  __FILE__, __LINE__);
+			rsstwritelog(LOG_ERROR, "Could not delete filter '%s' %s:%d", name,  __FILE__, __LINE__);
 			return -1;
 			break;
 		default: 
-			writelog(LOG_ERROR, "Query error during delfilter %s:%d",  __FILE__, __LINE__);
+			rsstwritelog(LOG_ERROR, "Query error during delfilter %s:%d",  __FILE__, __LINE__);
 			return -1;
 	}
 }
@@ -140,7 +140,7 @@ static int checkfilter(sqlite3 *db, const char *name)
 	/*
 	 * execute query
 	 */
-	rc = executequery(db, query, "s", name);
+	rc = rsstexecutequery(db, query, "s", name);
 
 	return rc;
 }
@@ -150,7 +150,7 @@ static int checkfilter(sqlite3 *db, const char *name)
  * When allready existing -1 is returned.
  * On succes 0 is returned.
  */
-int addfilter(sqlite3 *db, const char *name, const char *filter, const char *doublefilter)
+int rsstaddfilter(sqlite3 *db, const char *name, const char *filter, const char *doublefilter)
 {
 	int         rc;
 	const char *locdouble; // holds pointer to doublefilter or empty
@@ -160,7 +160,7 @@ int addfilter(sqlite3 *db, const char *name, const char *filter, const char *dou
 	 * No filters can be added that have the name all.
 	 */
 	if(strcmp(name, "all") == 0){
-		writelog(LOG_NORMAL, "No filter can be added with name 'all'");
+		rsstwritelog(LOG_NORMAL, "No filter can be added with name 'all'");
 		fprintf(stderr, "No filter can be added with name 'all'\n");
 		return -1;
 	}
@@ -175,12 +175,12 @@ int addfilter(sqlite3 *db, const char *name, const char *filter, const char *dou
 			strncpy(query, "INSERT INTO 'filters' (name, filter, nodouble) VALUES(?1, ?2, ?3)", MAXLENGHT);
 			break;
 		case 1:
-			writelog(LOG_NORMAL, "filter '%s' exists, updating.", name);
+			rsstwritelog(LOG_NORMAL, "filter '%s' exists, updating.", name);
 			printf("filter '%s' exists, updating.\n", name);
 			strncpy(query, "UPDATE 'filters' SET filter=?2, nodouble=?3 WHERE name=?1", MAXLENGHT);
 			break;
 		default:
-      writelog(LOG_ERROR, "Filter table corrupt !! %s:%d", __FILE__, __LINE__);
+      rsstwritelog(LOG_ERROR, "Filter table corrupt !! %s:%d", __FILE__, __LINE__);
       fprintf(stderr, "Filter table in database corrupt!\n");
       return -1;
   }
@@ -188,9 +188,9 @@ int addfilter(sqlite3 *db, const char *name, const char *filter, const char *dou
   /*
    * Debug
    */
-  writelog(LOG_NORMAL, "new filter name : %s", name);
-  writelog(LOG_NORMAL, "filter : %s", filter);
-  writelog(LOG_NORMAL, "nodouble filter : %s", doublefilter);
+  rsstwritelog(LOG_NORMAL, "new filter name : %s", name);
+  rsstwritelog(LOG_NORMAL, "filter : %s", filter);
+  rsstwritelog(LOG_NORMAL, "nodouble filter : %s", doublefilter);
 
   /*
    * if no 'no double' filter is provided insert an empty string
@@ -205,9 +205,9 @@ int addfilter(sqlite3 *db, const char *name, const char *filter, const char *dou
    * Execute query to add filter
    * When no rows are changed return error.
    */
-  rc = executequery(db, query, "sss", name, filter, doublefilter);
+  rc = rsstexecutequery(db, query, "sss", name, filter, doublefilter);
   if(rc != ROWS_CHANGED) {
-    writelog(LOG_ERROR, "No rows changed, inserting filter failed. %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "No rows changed, inserting filter failed. %s:%d", __FILE__, __LINE__);
     return -1;
   }
 
@@ -224,7 +224,7 @@ int addfilter(sqlite3 *db, const char *name, const char *filter, const char *dou
  * appname		The name of the executable
  * filtername	The name of the filter to print. 	
  */
-void printshellfilter(sqlite3 *db, char *appname, char *filtername)
+void rsstprintshellfilter(sqlite3 *db, char *appname, char *filtername)
 {
   sqlite3_stmt  *ppStmt;
   const char    *pzTail;
@@ -249,8 +249,8 @@ void printshellfilter(sqlite3 *db, char *appname, char *filtername)
 			&pzTail              /* OUT: Pointer to unused portion of zSql */
 			);
 	if( rc!=SQLITE_OK ){
-		writelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
-		writelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+		rsstwritelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
 		sqlite3_free(zErrMsg);
 		return;
 	}
@@ -260,7 +260,7 @@ void printshellfilter(sqlite3 *db, char *appname, char *filtername)
 	 */
 	rc = sqlite3_bind_text(ppStmt, 1, filtername, -1, SQLITE_TRANSIENT);
 	if( rc!=SQLITE_OK ){
-		writelog(LOG_ERROR, "sqlite3_bind_text failed on name %s:%d" __FILE__, __LINE__);  
+		rsstwritelog(LOG_ERROR, "sqlite3_bind_text failed on name %s:%d" __FILE__, __LINE__);  
 		return;
 	}
 
