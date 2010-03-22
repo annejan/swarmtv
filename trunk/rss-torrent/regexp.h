@@ -30,7 +30,7 @@
  * @return
  * 0 when okay, otherwise !0
  */
-int alloccopy(char **dest, const char *src, const size_t size);
+int rsstalloccopy(char **dest, const char *src, const size_t size);
 
 /*
  * Split options
@@ -43,14 +43,14 @@ int alloccopy(char **dest, const char *src, const size_t size);
  * @return
  * When the splitting failed '-1' is returned
  */
-int splitnameval(char *input, char **name, char **value);
+int rsstsplitnameval(char *input, char **name, char **value);
 
 /*
  * Cleanup strings from XML
  * @arguments
  * string pointer to string to clean up
  */
-void cleanupstring(char *string);
+void rsstcleanupstring(char *string);
 
 /*
  * Simple routine to compare a string to a regexp
@@ -62,7 +62,7 @@ void cleanupstring(char *string);
  * 0 when no match
  * -1 on error
  */
-int comregexp(char *regexp, char *string);
+int rsstcomregexp(char *regexp, char *string);
 
 /*
  * This routine returns a string pointing to the first captured string.
@@ -75,7 +75,7 @@ int comregexp(char *regexp, char *string);
  * 0 on success
  * -1 on error
  */
-int capturefirstmatch(char *regexp, int flag, char *string, char **match);
+int rsstcapturefirstmatch(char *regexp, int flag, char *string, char **match);
 
 /*
  * Extract username and password from url
@@ -90,7 +90,7 @@ int capturefirstmatch(char *regexp, int flag, char *string, char **match);
  * return 1 when username and password are found
  * else return 0
  */
-int getusernamepassword(char *url, char **cleanurl, char **userpass);
+int rsstgetusernamepassword(char *url, char **cleanurl, char **userpass);
 
 /*
  * buf must be a pre-allocated buffer with size BUFSIZE+1
@@ -101,7 +101,7 @@ int getusernamepassword(char *url, char **cleanurl, char **userpass);
  * @return 
  * returns pointer to the converted size
  */
-char* sizetohuman(size_t size/*in bytes*/, char *buf);
+char* rsstsizetohuman(size_t size/*in bytes*/, char *buf);
 
 /*
  * buf must be a pre-allocated buffer with size BUFSIZE+1
@@ -114,7 +114,7 @@ char* sizetohuman(size_t size/*in bytes*/, char *buf);
  * -1 on error
  * 0 on success
  */
-int humantosize(char *buf, double *size); 
+int rssthumantosize(char *buf, double *size); 
 
 /*
  * strrepl: Replace OldStr by NewStr in string Str.
@@ -130,7 +130,7 @@ int humantosize(char *buf, double *size);
  * 0  When replace succesful
  * -1  When no replace was done
  */ 
-int strrepl(char **Str, char *OldStr, char *NewStr);
+int rsststrrepl(char **Str, char *OldStr, char *NewStr);
 
 #if 0
 

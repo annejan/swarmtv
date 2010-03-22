@@ -27,7 +27,7 @@
  * origpath the original path
  * destpath the expanded (complete) path
  */
-void completepath(const char *origpath, char **destpath);
+void rsstcompletepath(const char *origpath, char **destpath);
 
 /*
  * Test if a file or directory exists
@@ -36,7 +36,7 @@ void completepath(const char *origpath, char **destpath);
  * @returns
  * return 0 when found, -1 if not found
  */
-int fsexists(char *path);
+int rsstfsexists(char *path);
 
 /*
  * Test if a directory is writable
@@ -47,7 +47,7 @@ int fsexists(char *path);
  * @returns
  * return 0 when found, -1 if not found
  */
-int testwrite(const char *path);
+int rssttestwrite(const char *path);
 
 /*
  * Create directory
@@ -56,5 +56,5 @@ int testwrite(const char *path);
  * @returns
  * 0 on succes, -1 on failure
  */
-int makedir(char *path);
+int rsstmakedir(char *path);
 

@@ -25,7 +25,7 @@
  * @arguments
  * newtor newtor structure pointer
  */
-void freenewtor(newtorrents_struct *newtor);
+void rsstfreenewtor(newtorrents_struct *newtor);
 
 /*
  * Add a torrent to the newtorrent table.
@@ -34,7 +34,7 @@ void freenewtor(newtorrents_struct *newtor);
  * @returns
  * 0 on succes, exits on -1 on failure
  */
-int addnewtorrent(sqlite3 *db, newtorrents_struct *newtor);
+int rsstaddnewtorrent(sqlite3 *db, newtorrents_struct *newtor);
 
 /*
  * Add a torrent to the downloaded table.
@@ -42,13 +42,13 @@ int addnewtorrent(sqlite3 *db, newtorrents_struct *newtor);
  * downed			pointer to struct holding values to add to the db.
  * simulate		0 to log addition, 1 adds anyway, but does not log at all. (used for filtertest)
  */
-void adddownloaded(sqlite3 *db, downloaded_struct *downed, SIM  simulate);
+void rsstadddownloaded(sqlite3 *db, downloaded_struct *downed, SIM  simulate);
 
 /*
  * When Torrents are prosessed, they are no longer new
  * this method removes the new flag
  */
-void nonewtorrents(sqlite3 *db);
+void rsstnonewtorrents(sqlite3 *db);
 
 /*
  * Delete all newtorrents entris older the x days
@@ -58,5 +58,5 @@ void nonewtorrents(sqlite3 *db);
  * @return
  * returns 0 on succes, -1 on error.
  */
-int deloldnewtorents(sqlite3 *db, unsigned int days);
+int rsstdeloldnewtorents(sqlite3 *db, unsigned int days);
 

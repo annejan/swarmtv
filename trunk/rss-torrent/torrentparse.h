@@ -55,13 +55,13 @@ typedef struct {
  * @return
  * returns -1 on failure to parse url, otherwise 0 is returned.
  */
-int gettorrentinfo(char *url, torprops **props);
+int rsstgettorrentinfo(char *url, torprops **props);
 
 /*
  * Free torrentprop struct.
  * @arguments
  * props structure to be freed
  */
-void freetorprops(torprops *props);
+void rsstfreetorprops(torprops *props);
 
 #endif

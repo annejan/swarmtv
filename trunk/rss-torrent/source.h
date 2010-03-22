@@ -23,7 +23,7 @@
  * format varname : value
  * All from database
  */
-void printsources(sqlite3 *db); 
+void rsstprintsources(sqlite3 *db); 
 
 /*
  * Add source item
@@ -35,7 +35,7 @@ void printsources(sqlite3 *db);
  * When allready existing -1 is returned.
  * On succes 0 is returned.
  */
-int addsource(sqlite3 *db, const char *name, const char *url, char *parsertype);
+int rsstaddsource(sqlite3 *db, const char *name, const char *url, char *parsertype);
 
 /*
  * del source item
@@ -45,5 +45,5 @@ int addsource(sqlite3 *db, const char *name, const char *url, char *parsertype);
  * When allready existing -1 is returned.
  * On succes 0 is returned.
  */
-int delsource(sqlite3 *db, const char *name);
+int rsstdelsource(sqlite3 *db, const char *name);
 

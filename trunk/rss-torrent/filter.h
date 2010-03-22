@@ -23,7 +23,7 @@
  * format varname : value
  * All from database
  */
-void printfilters(sqlite3 *db);
+void rsstprintfilters(sqlite3 *db);
 
 
 /*
@@ -32,7 +32,7 @@ void printfilters(sqlite3 *db);
  * @returns
  * On succes 0 is returned.
  */
-int delallfilters(sqlite3 *db);
+int rsstdelallfilters(sqlite3 *db);
 
 /*
  * del source item
@@ -42,7 +42,7 @@ int delallfilters(sqlite3 *db);
  * @return
  * On succes 0 is returned.
  */
-int delfilter(sqlite3 *db, const char *name);
+int rsstdelfilter(sqlite3 *db, const char *name);
 
 
 /*
@@ -55,7 +55,7 @@ int delfilter(sqlite3 *db, const char *name);
  * When allready existing -1 is returned.
  * On succes 0 is returned.
  */
-int addfilter(sqlite3 *db, const char *name, const char *filter, const char *doublefilter);
+int rsstaddfilter(sqlite3 *db, const char *name, const char *filter, const char *doublefilter);
 
 
 /*
@@ -64,5 +64,5 @@ int addfilter(sqlite3 *db, const char *name, const char *filter, const char *dou
  * appname the name of the rsstorrent executable
  * filtername the filtername to print
  */
-void printshellfilter(sqlite3 *db, char *appname, char *filtername);
+void rsstprintshellfilter(sqlite3 *db, char *appname, char *filtername);
 

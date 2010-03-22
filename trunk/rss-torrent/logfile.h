@@ -33,7 +33,7 @@
  * 0 when succesfull
  * !0 when fail
  */
-int initlogdb(sqlite3 *db);
+int rsstinitlogdb(sqlite3 *db);
 
 /*
  * Initialize logfile
@@ -43,7 +43,7 @@ int initlogdb(sqlite3 *db);
  * 0 when succesfull
  * !0 when fail
  */
-int initlog(char *logpath);
+int rsstinitlog(char *logpath);
 
 /*
  * Log an entry
@@ -55,9 +55,9 @@ int initlog(char *logpath);
  * @return
  * returns 1 for now in all cases
  */
-int writelog(int level, char *str,...);
+int rsstwritelog(int level, char *str,...);
 
 /*
  * Close logfile
  */
-void closelog();
+void rsstcloselog();

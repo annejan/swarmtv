@@ -43,14 +43,14 @@
  * @returns
  * 0 when the value was found, otherwise -1.
  */
-int configgetproperty(sqlite3 *db, char *prop, char **value);
+int rsstconfiggetproperty(sqlite3 *db, char *prop, char **value);
 
 /*
  * Print all available config items to the screen.
  * format varname : value
  * All from database
  */
-void printconfigitems(sqlite3 *db); 
+void rsstprintconfigitems(sqlite3 *db); 
 
 /*
  * Set config item
@@ -61,7 +61,7 @@ void printconfigitems(sqlite3 *db);
  * When not found -1 is returned.
  * On succes 0 is returned.
  */
-int setconfigitem(sqlite3 *db, char *prop, char *value);
+int rsstsetconfigitem(sqlite3 *db, char *prop, char *value);
 
 /*
  * Get value of a config object.
@@ -72,7 +72,7 @@ int setconfigitem(sqlite3 *db, char *prop, char *value);
  * When not found -1 is returned.
  * On succes 0 is returned.
  */
-int configgetint(sqlite3 *db, char *prop, int *number);
+int rsstconfiggetint(sqlite3 *db, char *prop, int *number);
 
 /*
  * Get value of a config object.
@@ -83,5 +83,5 @@ int configgetint(sqlite3 *db, char *prop, int *number);
  * When not found -1 is returned.
  * On succes 0 is returned.
  */
-int configgetlong(sqlite3 *db, char *prop, long *number);
+int rsstconfiggetlong(sqlite3 *db, char *prop, long *number);
 

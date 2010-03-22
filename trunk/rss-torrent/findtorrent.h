@@ -41,7 +41,7 @@
  * 0 when nothing is found
  * 1 when the torrent was found
  */
-int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recurse);
+int rsstfindtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recurse);
 
 /*
  * Finds and writes torrent to file
@@ -52,4 +52,4 @@ int findtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recu
  * 0 on success
  * -1 when torrent was not found or could not be stored.
  */
-int findtorrentwrite(char *url, char *name);
+int rsstfindtorrentwrite(char *url, char *name);

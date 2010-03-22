@@ -36,14 +36,14 @@
  * chunk 
  * @returns
  */
-int downloadtobuffer(char *url, MemoryStruct *chunk);
+int rsstdownloadtobuffer(char *url, MemoryStruct *chunk);
 
 /*
  * Free the download and clean the leftovers
  * @arguments
  * chuck pointer to MemoryStruct to free content of.
  */
-void freedownload(MemoryStruct *chunk);
+void rsstfreedownload(MemoryStruct *chunk);
 
 /*
  * Download to file.
@@ -54,7 +54,7 @@ void freedownload(MemoryStruct *chunk);
  * 0 when all goes well
  * -1 when not found
  */
-int downloadtofile(char *url, char *path);
+int rsstdownloadtofile(char *url, char *path);
 
 /*
  * extract from HTTP-header
@@ -68,7 +68,7 @@ int downloadtofile(char *url, char *path);
  * @returns
  * 0 on succes, -1 on failure
  */
-int getheadersvalue(char *name, char **value, MemoryStruct *chunk);
+int rsstgetheadersvalue(char *name, char **value, MemoryStruct *chunk);
 
 /*
  * Write retrieved buffer to file.
@@ -78,6 +78,6 @@ int getheadersvalue(char *name, char **value, MemoryStruct *chunk);
  * @returns
  * 0 on success, else -1
  */
-int writebuffer(char *filename, MemoryStruct *buffer);
+int rsstwritebuffer(char *filename, MemoryStruct *buffer);
 
 #endif

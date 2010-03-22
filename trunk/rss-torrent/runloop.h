@@ -25,5 +25,5 @@
  * @return
  * 0 for now.
  */
-int runloop(sqlite3 *db, LOOPMODE onetime);
+int rsstrunloop(sqlite3 *db, LOOPMODE onetime);
 

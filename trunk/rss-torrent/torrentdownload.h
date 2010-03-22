@@ -26,7 +26,7 @@
  * @return
  * SQLITE_DONE on success, -1 on error.
  */
-int downloadtorrents(sqlite3 *db);
+int rsstdownloadtorrents(sqlite3 *db);
 
 /*
  * Apply the filters from the query.
@@ -40,12 +40,12 @@ int downloadtorrents(sqlite3 *db);
  * *fmt				:	Format of the arguments to insert into the filter sql 
  * ...				:	Arguments for the filter SQL.
  */
-void applyfilter(sqlite3 *db, char *name, char* nodouble, SIM simulate, char *filter, char *fmt, ...);
+void rsstapplyfilter(sqlite3 *db, char *name, char* nodouble, SIM simulate, char *filter, char *fmt, ...);
 
 /*
  * Test torrentdir
  * @return
  * 0 when writabe, -1 if not.
  */
-int testtorrentdir(sqlite3 *db);
+int rssttesttorrentdir(sqlite3 *db);
 

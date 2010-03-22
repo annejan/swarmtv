@@ -28,7 +28,7 @@
  * -1 on error
  * 0 on success
  */
-int dofiltertest(char *filter, char *nodouble);
+int rsstdofiltertest(char *filter, char *nodouble);
 
 /*
  * Do filter test
@@ -38,5 +38,5 @@ int dofiltertest(char *filter, char *nodouble);
  * @return
  * return 0 on succes, return -1 on failure.
  */
-int dosimpletest(opts_struct *opts);
+int rsstdosimpletest(opts_struct *opts);
 

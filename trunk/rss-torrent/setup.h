@@ -31,4 +31,5 @@
  * @Arguments none
  * @returns 	0 when succes otherwise -1
  */
-int initrsstorrent(); 
+int rsstinitrsstorrent(); 
+

@@ -42,7 +42,7 @@
  * @returns 
  * returns SQLITE_OK when all did go well.
  */
-int initdatabase(
+int rsstinitdatabase(
     const char *filename,   /* Database filename (UTF-8) */
     sqlite3 **ppDb          /* OUT: SQLite db handle */
     ); 
@@ -62,7 +62,7 @@ int initdatabase(
  * @return
  * 0 on succes, -1 on failure
  */
-int dosingletextquery(sqlite3 *db, const unsigned char **text, const char *query, char *fmt, ...);
+int rsstdosingletextquery(sqlite3 *db, const unsigned char **text, const char *query, char *fmt, ...);
 
 /*
  * Execute a query
@@ -78,7 +78,7 @@ int dosingletextquery(sqlite3 *db, const unsigned char **text, const char *query
  * return 0 on no rows returned
  * returns -1 on error
  */
-int executequery(sqlite3 *db, const char *query, char *fmt, ...);
+int rsstexecutequery(sqlite3 *db, const char *query, char *fmt, ...);
 
 /*
  * Prints columns from query to standard out.
@@ -89,12 +89,12 @@ int executequery(sqlite3 *db, const char *query, char *fmt, ...);
  * return 0 when okay
  * return -1 on error
  */
-int printquery(sqlite3 *db, const char *query);
+int rsstprintquery(sqlite3 *db, const char *query);
 
 /*
  * Run the Database init script.
  * @return
  * 0 on succes, -1 on failure
  */
-int rundbinitscript(sqlite3 *db);
+int rsstrundbinitscript(sqlite3 *db);
 

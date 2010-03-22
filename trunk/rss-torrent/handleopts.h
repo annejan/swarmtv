@@ -34,5 +34,5 @@
  * argc from main
  * argv from main
  */
-void handleopts(sqlite3 *db, int argc, char *argv[]);
+void rssthandleopts(sqlite3 *db, int argc, char *argv[]);
 

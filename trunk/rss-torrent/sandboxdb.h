@@ -27,7 +27,7 @@
  * @return
  * pointer not sandbox database
  */
-sandboxdb *createsandbox(char *sourcedbname, char *sandboxdbname);
+sandboxdb *rsstcreatesandbox(char *sourcedbname, char *sandboxdbname);
 
 /*
  * Close the database.
@@ -37,5 +37,5 @@ sandboxdb *createsandbox(char *sourcedbname, char *sandboxdbname);
  * @returns
  * 0 on succes otherwise -1 
  */
-int closesandbox(sandboxdb *db);
+int rsstclosesandbox(sandboxdb *db);
 

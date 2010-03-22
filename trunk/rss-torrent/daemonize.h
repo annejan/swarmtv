@@ -24,12 +24,12 @@
  * @arguments
  * path path to file to write standard in and out to
  */
-void daemonize(char *path);
+void rsstdaemonize(char *path);
 
 /*
  * check Lockfile 
  * @arguments
  * lockpath the path to the lockfile
  */
-void lockfile (const char *lockpath);
+void rsstlockfile (const char *lockpath);
 
