@@ -28,11 +28,14 @@
 #include "regexp.h"
 #include "logfile.h"
 
-#define REGEXPSIZE  40
-
-#define HEADEREOL   "\r\n"
-
-#define MAX_REDIR   10
+/* Size of array to store regexp match pointers in */
+#define REGEXPSIZE      40      
+/* End of line Character sequence in http header */
+#define HEADEREOL       "\r\n"  
+/* The max amount of redirs  to folow before failing */
+#define MAX_REDIR       3       
+/* Time to wait before connection timeout on curl download */
+#define CONNECT_TIMEOUT 20  
 
 /*
  * realloc 
@@ -166,6 +169,9 @@ int rsstdownloadtobuffer(char *url, MemoryStruct *chunk)
 
   /* Set max redirects */
   curl_easy_setopt(curl_handle, CURLOPT_MAXREDIRS, MAX_REDIR);
+
+  /* Set connection timeout on 1 minute */
+  curl_easy_setopt(curl_handle, CURLOPT_CONNECTTIMEOUT, CONNECT_TIMEOUT);
 
 	/* If a username and password is set add it to the options */
 	if(userpass != NULL) {

@@ -37,7 +37,7 @@
  * When the current version does not match the version in the version field
  * The database is recreated
  */
-#define DB_VERSION 1
+#define DB_VERSION 2
 
 /*
  * End of line character
@@ -50,7 +50,7 @@
 #define SCRIPT_SYM "--"
 
 /*
- * Database create script
+ * Database create script version 2
  */
 static const char *dbinitscript = 
 "BEGIN TRANSACTION"
@@ -66,11 +66,11 @@ static const char *dbinitscript =
 "\n"
 "-- Create versioning field\n"
 "create table version (version INTEGER);\n"
-"INSERT INTO 'version' VALUES(1);\n"
+"INSERT INTO 'version' VALUES(2);\n"
 "\n"
 "-- Create the newtorrents table\n"
 "create table newtorrents (id INTEGER PRIMARY KEY,title TEXT, link TEXT UNIQUE, pubdate DATE, "
-"category TEXT, season INTEGER, episode INTEGER, seeds INTEGER DEFAULT 0, peers INTEGER DEFAULT 0, size INTEGER, new TEXT DEFAULT 'Y');\n"
+"category TEXT, season INTEGER, episode INTEGER, seeds INTEGER DEFAULT 0, peers INTEGER DEFAULT 0, size INTEGER,  parser TEXT DEFAULT 'unknown', new TEXT DEFAULT 'Y');\n"
 "\n"
 "-- Create the downloaded table\n"
 "create table downloaded (id INTEGER PRIMARY KEY,title TEXT, link TEXT UNIQUE, pubdate DATE, "
@@ -97,6 +97,21 @@ static const char *dbinitscript =
 "INSERT INTO 'config' (prop, value, descr) VALUES('smtp_from', 'user@somehost.nl', 'The from email-address in the mail headers.');\n"
 "INSERT INTO 'config' (prop, value, descr) VALUES('smtp_host', 'smtp.foobar.nl:25', 'The STMP server used to send the notifications.');\n"
 "INSERT INTO 'config' (prop, value, descr) VALUES('min_size', '4000000', 'When size is smaller then this, download torrent and check.');\n"
+""
+"COMMIT"
+"\n";
+
+/*
+ * Database update script v1 to v2
+ */
+static const char *updatev1tov2 = 
+"BEGIN TRANSACTION"
+""
+"-- Add parser column to newtorrents table\n"
+"ALTER TABLE newtorrents ADD COLUMN parser TEXT DEFAULT 'unknowns';\n"
+""
+"-- Up databaseversion from version 1 to 2\n"
+"update version set version = '2';"
 ""
 "COMMIT"
 "\n";
@@ -313,6 +328,44 @@ static int getdbversion(sqlite3 *db, int *version)
 }
 
 /*
+ * Create a complete database if needed, otherwise run updatescripts.
+ * @arguments 
+ * version current datbase version
+ * @return
+ * 0 on succes, -1 on failure
+ */
+static int fixdb(sqlite3 *db, int version) 
+{
+  int rc=0;
+
+  /*
+   * When version is < 1 database state unknown reinitialize whole db
+   */
+  if(version < 1) {
+    rc = rsstrundbinitscript(db);
+    return rc;
+  } 
+
+  /*
+   * When the database version < 2 run this script to update it to version 2.
+   */
+  if(version < 2) {
+    rsstwritelog(LOG_NORMAL, "Updating database from version 1 to version 2.");
+    rc = dbexecscript(db, updatev1tov2); 
+    if(rc < 0) {
+      rsstwritelog(LOG_ERROR, "Update script version 1 to version 2 Failed!");
+      rsstwritelog(LOG_ERROR, "Update aborted.");
+      return rc;
+    }
+  }
+
+  /*
+   * All updatescripts done, return result
+   */
+  return rc;
+}
+
+/*
  * Run the Database init script.
  * @return
  * 0 on succes, -1 on failure
@@ -374,7 +427,7 @@ int rsstinitdatabase(
 		 * Create new DB
 		 */
 		printf("Running create databasescript.\n");
-		rc = rsstrundbinitscript(*ppDb);
+    rc = fixdb(*ppDb, version); 
 		if(rc == -1){
 			fprintf(stderr, "Can't open database, initscript failed!\n");
 			sqlite3_close(*ppDb);
