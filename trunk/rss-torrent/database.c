@@ -111,7 +111,7 @@ static const char *updatev1tov2 =
 "ALTER TABLE newtorrents ADD COLUMN parser TEXT DEFAULT 'unknowns';\n"
 ""
 "-- Up databaseversion from version 1 to 2\n"
-"update version set version = '2';"
+"update version set version = '2';\n"
 ""
 "COMMIT"
 "\n";
