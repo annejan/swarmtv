@@ -23,6 +23,7 @@
  */
 typedef struct {
 	sqlite3 *db;
+	char 		*source;
 	char 		*title;
 	char		*link;
 	char		*torrentlink;
@@ -31,13 +32,13 @@ typedef struct {
 	char		*description;
 	char		*comments;
 	char		*guid;
-	int			seeds;
-	int			peers;
-	size_t	size;
-	size_t	enclosurelength;
+	int			 seeds;
+	int			 peers;
+	size_t	 size;
+	size_t	 enclosurelength;
 	char		*enclosuretype;
 	char		*enclosureurl;
-	int			verified;
+	int			 verified;
 } rssdatastruct;
 
 /*

@@ -17,9 +17,7 @@ Build this program :
 # cmake .
 # make
 
-To create database
-
-# ./createdb.sh
+# make install
 
 To create some example filters and sources in the database
 

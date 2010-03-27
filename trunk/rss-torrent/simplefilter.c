@@ -59,6 +59,7 @@ static char *sqlfilter="SELECT link, title, pubdate, category, season, episode F
 		"(season > ?4 OR episode >= ?5 OR ?5 = 0) AND "
 		"(NOT IREGEXP(?6, title) OR ?6 = '') AND "
 		"IREGEXP(?7, category) AND "
+		"IREGEXP(?8, source) AND "
 		"new = 'Y'";
 
 
@@ -166,6 +167,11 @@ static int optstosimple(opts_struct *opts, simplefilter_struct *simple)
   } else {
     rsstalloccopy(&(simple->category), "", 1);
   }
+  if(opts->simplesource != NULL) {
+    rsstalloccopy(&(simple->source),  opts->simplesource,  strlen(opts->simplesource));
+  } else {
+    rsstalloccopy(&(simple->source), "", 1);
+  }
 
   /*
    * Convert units 
@@ -225,9 +231,9 @@ static int insertsimplefilter(sqlite3 *db, simplefilter_struct *simple)
    * Query and format used to insert the simple filter into the database
    */
   static char *query = "insert into 'simplefilters' "
-		"(name, title, exclude, category, maxsize, minsize, nodup, fromseason, fromepisode) "
-		"VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)";
-  static char *fmt   = "ssssffsdd";
+		"(name, title, exclude, category, maxsize, minsize, nodup, fromseason, fromepisode, source) "
+		"VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)";
+  static char *fmt   = "ssssffsdds";
 
   /*
    * Call database execute query function
@@ -241,7 +247,8 @@ static int insertsimplefilter(sqlite3 *db, simplefilter_struct *simple)
       simple->minsize,
       simple->nodup,
       simple->fromseason,
-      simple->fromepisode);
+      simple->fromepisode,
+			simple->source);
 
   /*
    * Handle output
@@ -483,24 +490,25 @@ int rsstdelsimple(sqlite3 *db, const char *name)
  */
 void rsstprintsimple(sqlite3 *db, char *filtername)
 {
-  sqlite3_stmt  *ppStmt;
-  const char    *pzTail;
-  int           rc;
-  int           cols;
-  char          *zErrMsg = 0;
-  const unsigned char *titlestring;
-  unsigned char maxsizestring[BUFSIZE+1];
-  double              maxsizedouble;
-  unsigned char minsizestring[BUFSIZE+1];
-  double              minsizedouble;
-  const unsigned char *nodupstring;
-  unsigned int        seasonint;
-  unsigned int        episodeint;
-  const unsigned char *excludestring;
-  const unsigned char *categorystring;
+  sqlite3_stmt  			*ppStmt=NULL;
+  const char    			*pzTail=NULL;
+  int           			rc=0;
+  int           			cols=0;
+  char          			*zErrMsg = 0;
+  const unsigned char *titlestring=NULL;
+  unsigned char 			maxsizestring[BUFSIZE+1];
+  double              maxsizedouble=0;
+  unsigned char 			minsizestring[BUFSIZE+1];
+  double              minsizedouble=0;
+  const unsigned char *nodupstring=NULL;
+  unsigned int        seasonint=0;
+  unsigned int        episodeint=0;
+  const unsigned char *excludestring=NULL;
+  const unsigned char *categorystring=NULL;
+  const unsigned char *sourcestring=NULL;
 
 
-  char *query =  "select title, maxsize, minsize, nodup, fromseason, fromepisode, exclude, category from 'simplefilters' where name=?1";
+  char *query =  "select title, maxsize, minsize, nodup, fromseason, fromepisode, exclude, category, source from 'simplefilters' where name=?1";
 
   /*
    * Prepare the sqlite statement
@@ -554,6 +562,7 @@ void rsstprintsimple(sqlite3 *db, char *filtername)
   episodeint      = sqlite3_column_int(ppStmt,    5);
   excludestring   = sqlite3_column_text(ppStmt,   6);
   categorystring  = sqlite3_column_text(ppStmt,   7);
+  sourcestring  	= sqlite3_column_text(ppStmt,   8);
 
   /*
    * Print the components that are set
@@ -576,6 +585,13 @@ void rsstprintsimple(sqlite3 *db, char *filtername)
    */
   if(strlen((char*)categorystring) != 0){
     printf("--category='%s' ", categorystring);
+  }
+
+  /*
+   * Category
+   */
+  if(strlen((char*)sourcestring) != 0){
+    printf("--source='%s' ", sourcestring);
   }
 
   /*
@@ -627,6 +643,7 @@ int rsstdownloadsimple(sqlite3 *db, SIM simulate)
   char          *title=NULL;
   char          *exclude=NULL;
   char          *category=NULL;
+  char          *source=NULL;
   char          *nodup=NULL;
  	double        maxsize=0.0;
   double        minsize=0.0;
@@ -638,7 +655,7 @@ int rsstdownloadsimple(sqlite3 *db, SIM simulate)
 	/*
 	 * Query to retrieve filters from simplefilters table.
 	 */ 
-	char *query = "select name, title, maxsize, minsize, nodup, fromseason, fromepisode, exclude, category from simplefilters";
+	char *query = "select name, title, maxsize, minsize, nodup, fromseason, fromepisode, exclude, category, source from simplefilters";
 
 	/*
 	 * Prepare the sqlite statement
@@ -675,6 +692,7 @@ int rsstdownloadsimple(sqlite3 *db, SIM simulate)
     episode  = sqlite3_column_int(ppStmt,    6);
     exclude  = (char*) sqlite3_column_text(ppStmt, 7);
     category = (char*) sqlite3_column_text(ppStmt, 8);
+    source   = (char*) sqlite3_column_text(ppStmt, 9);
 
     /*
      * Generate SQL-filter and SQL-nodup
@@ -696,7 +714,7 @@ int rsstdownloadsimple(sqlite3 *db, SIM simulate)
      * call apply filter
      */
     rsstapplyfilter(db, name, sqlnodup, simulate, sqlfilter, 
-				"sffddss", title, maxsize, minsize, season, episode, exclude, category);
+				"sffddsss", title, maxsize, minsize, season, episode, exclude, category, source);
 
     /*
      * Cleanup

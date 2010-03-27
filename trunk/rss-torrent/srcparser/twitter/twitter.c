@@ -36,14 +36,26 @@
 
 static int newtweet(void *data)
 {
+	char *source=NULL;
+
 	twitterdata *local = (twitterdata*) data;
 
 	rsstwritelog(LOG_DEBUG, "New Tweet\n");
 
 	/*
+	 * Save statics
+	 */
+	source = local->source;
+
+	/*
 	 * Clear tweet struct
 	 */
 	memset(&(local->tweet), 0, sizeof(tweetdata));
+
+	/*
+	 * Restore statics
+	 */
+	local->source = source;
 
 	return 0;
 }
@@ -90,6 +102,8 @@ static int endtweet(void *data)
 		 */
 		return -1;
 	}
+	newtor.source=local->source;
+	newtor.size=(long) props->size;
 
 	/*
 	 * Print stuff.
@@ -163,6 +177,7 @@ int twitter(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssf
 	 * Init data.
 	 */
 	twitdata.db=db;
+	twitdata.source=name;
 
 	/*
 	 * Initialize parser callbacks.

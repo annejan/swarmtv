@@ -63,6 +63,7 @@ typedef struct {
 	char *simpletitle;		// Simple title regexp
 	char *simpleexclude;	// Simple exclude regexp
   char *simplecategory; // Simple category regexp
+	char *simplesource;   // Simple source regexp
 	char *simplemaxsize;	// Simple max size
 	char *simpleminsize;	// Simple minimal size
 	char *simplenodup;	  // Simple no double filter type
@@ -87,6 +88,7 @@ typedef struct {
 	char *title;		// Simple title regexp
 	char *exclude;	// Simple exclude regexp
   char *category; // Simple category
+	char *source;		// Source the newtorrent originated from
 	double maxsize;	// Simple max size
 	double minsize;	// Simple minimal size
 	char *nodup;	// Simple no double filter type
@@ -102,6 +104,7 @@ typedef struct {
 	char *link;
 	time_t pubdate;
 	char *category;
+	char *source;
 	int		season;
 	int		episode;
 	int		seeds;

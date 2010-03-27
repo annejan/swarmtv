@@ -58,8 +58,8 @@ int rsstaddnewtorrent(sqlite3 *db, newtorrents_struct *newtor)
 {
   int           rc;
 
-  char *query = "INSERT INTO newtorrents (title, link, pubdate, category, season, episode, seeds, peers, size, new) "
-                "VALUES (?1, ?2, date(?3, 'unixepoch'), ?4, ?5, ?6, ?7, ?8, ?9, 'Y')";
+  char *query = "INSERT INTO newtorrents (title, link, pubdate, category, source, season, episode, seeds, peers, size, new) "
+                "VALUES (?1, ?2, date(?3, 'unixepoch'), ?4, ?5, ?6, ?7, ?8, ?9, ?10, 'Y')";
   
   // DEBUG
   rsstwritelog(LOG_DEBUG, "############\n"
@@ -67,19 +67,20 @@ int rsstaddnewtorrent(sqlite3 *db, newtorrents_struct *newtor)
       "link:     %s\n"
       "pubdate:  %s\n"
       "category: %s\n"
+			"source:   %s\n"
       "season:   %d\n"
       "episode:  %d\n"
       "seeds:    %d\n"
       "peers:    %d\n"
-      "size:     %ln",
-      	newtor->title, newtor->link, ctime(&(newtor->pubdate)), newtor->category, newtor->season, 
-				newtor->episode, newtor->seeds, newtor->peers, newtor->size);
+      "size:     %ld\n",
+      	newtor->title, newtor->link, ctime(&(newtor->pubdate)), newtor->category, newtor->source, 
+				newtor->season, newtor->episode, newtor->seeds, newtor->peers, newtor->size);
 
   /*
    * execute query
    */
-  rc = rsstexecutequery(db, query, "ssdsddddf", 
-			newtor->title, newtor->link, newtor->pubdate, newtor->category, newtor->season, 
+  rc = rsstexecutequery(db, query, "ssdssddddf", 
+			newtor->title, newtor->link, newtor->pubdate, newtor->category, newtor->source, newtor->season, 
 			newtor->episode, newtor->seeds, newtor->peers, (double)(newtor->size));
   switch(rc) {
     case ROWS_EMPTY:

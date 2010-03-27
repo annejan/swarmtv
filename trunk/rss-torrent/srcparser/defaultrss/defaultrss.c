@@ -231,15 +231,25 @@ static int handleguid(void *data, char *string)
 static int handlestart(void *data)
 {
 	sqlite3 *db;
+	char    *source;
 	rssdatastruct *rssdata = (rssdatastruct *) data;
 
+	/*
+	 * store statics
+	 */
+	db=rssdata->db;
+	source=rssdata->source;
 
 	/*
 	 * NULL all pointers
 	 */
-	db=rssdata->db;
 	memset(rssdata, 0, sizeof(rssdatastruct));
+
+	/*
+	 * Restore statics.
+	 */
 	rssdata->db=db;
+	rssdata->source=source;
 
 	return 0;
 }
@@ -344,6 +354,7 @@ static int handleend(void *data)
 	 */
 	rssdatastruct *rssdata = (rssdatastruct *) data;
 	memset(&newtor, 0, sizeof(newtorrents_struct));
+	newtor.source = rssdata->source;
 
 	/*
 	 * Disect the data.
@@ -450,9 +461,10 @@ int defaultrss(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *r
 	memset(&data, 0, sizeof(rssdatastruct));
 
 	/*
-	 * Add functions to data
+	 * Add statics to data
 	 */
 	data.db = db;
+	data.source = name;
 
 	/*
 	 * Initialize the callback struct.

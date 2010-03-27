@@ -70,7 +70,7 @@ static const char *dbinitscript =
 "\n"
 "-- Create the newtorrents table\n"
 "create table newtorrents (id INTEGER PRIMARY KEY,title TEXT, link TEXT UNIQUE, pubdate DATE, "
-"category TEXT, season INTEGER, episode INTEGER, seeds INTEGER DEFAULT 0, peers INTEGER DEFAULT 0, size INTEGER,  parser TEXT DEFAULT 'unknown', new TEXT DEFAULT 'Y');\n"
+"category TEXT, season INTEGER, episode INTEGER, seeds INTEGER DEFAULT 0, peers INTEGER DEFAULT 0, size INTEGER, source TEXT DEFAULT 'unknown', new TEXT DEFAULT 'Y');\n"
 "\n"
 "-- Create the downloaded table\n"
 "create table downloaded (id INTEGER PRIMARY KEY,title TEXT, link TEXT UNIQUE, pubdate DATE, "
@@ -78,8 +78,8 @@ static const char *dbinitscript =
 "\n"
 "-- Create the filters table\n"
 "create table filters (id INTEGER PRIMARY KEY, name TEXT UNIQUE, filter TEXT, nodouble TEXT DEFAULT '');\n"
-"CREATE TABLE simplefilters (id INTEGER PRIMARY KEY, name TEXT UNIQUE, title TEXT, exclude TEXT, category TEXT, maxsize INTEGER DEFAULT 0, "
-"minsize INTEGER DEFAULT 0, nodup TEXT NOT NULL, fromseason INTEGER DEFAULT 0, fromepisode INTEGER DEFAULT0 );\n"
+"CREATE TABLE simplefilters (id INTEGER PRIMARY KEY, name TEXT UNIQUE, title TEXT, exclude TEXT, category TEXT, source TEXT, maxsize INTEGER DEFAULT 0, "
+"minsize INTEGER DEFAULT 0, nodup TEXT NOT NULL, fromseason INTEGER DEFAULT 0, fromepisode INTEGER DEFAULT 0 );\n"
 "\n"
 "-- Create the sources table\n"
 "create table sources (id INTEGER PRIMARY KEY, name TEXT UNIQUE, url TEXT, parser TEXT);\n"
@@ -108,7 +108,10 @@ static const char *updatev1tov2 =
 "BEGIN TRANSACTION"
 ""
 "-- Add parser column to newtorrents table\n"
-"ALTER TABLE newtorrents ADD COLUMN parser TEXT DEFAULT 'unknowns';\n"
+"ALTER TABLE newtorrents ADD COLUMN source TEXT DEFAULT 'unknown';\n"
+""
+"-- Add parser column to simplefilters table\n"
+"ALTER TABLE simplefilters ADD COLUMN source TEXT DEFAULT '';\n"
 ""
 "-- Up databaseversion from version 1 to 2\n"
 "update version set version = '2';\n"
@@ -188,8 +191,8 @@ static int dbexecscript(sqlite3 *db, const char *script)
  */
 static void genregexpfunc(sqlite3_context *db, int num, sqlite3_value **sqlite3_value, int opt){
   int   			rc=0;
-  const char 	*var1=0;
-  const char 	*var2=0;
+  const char 	*var1=NULL;
+  const char 	*var2=NULL;
   pcre 				*re = NULL; 
   const char 	*error = NULL; 
   int 				errOffset = 0; 
@@ -211,6 +214,14 @@ static void genregexpfunc(sqlite3_context *db, int num, sqlite3_value **sqlite3_
    */
   var1 = (const char*) sqlite3_value_text(sqlite3_value[0]);
   var2 = (const char*) sqlite3_value_text(sqlite3_value[1]);
+
+	/*
+	 * When NULL is provided, match failes.
+	 */
+	if(var2 == NULL) {
+		sqlite3_result_int(db, 0);
+		return;
+	}
 
   /*
    * Compile regular expression

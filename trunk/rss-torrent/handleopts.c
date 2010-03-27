@@ -46,7 +46,7 @@
 /*
  * optstring what options do we allow
  */
-static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:kAU:K";
+static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:";
 
 /*
  * Long opts
@@ -85,6 +85,7 @@ static const struct option optLong[] =
 	{"title",									required_argument, 0, 'E'},
 	{"exclude",								required_argument, 0, 'N'},
   {"category",              required_argument, 0, 'U'},
+  {"source",              	required_argument, 0, 'l'},
 	{"max-size", 							required_argument, 0, 'O'},
 	{"min-size", 							required_argument, 0, 'o'},
 	{"nodup", 							  required_argument, 0, 'u'},
@@ -133,6 +134,7 @@ static void printhelp(void)
           "title            -E <regexp>      : Title expression\n"
           "exclude          -N <regexp>      : Exclude expression\n"
           "category         -U <regexp>      : Category expression\n"
+          "source           -l <regexp>      : Source expression\n"
           "max-size         -O <size>        : Maximal size of downloaded torrent\n"
           "min-size         -o <size>        : Minimal size of downloaded torrent\n"
           "nodup            -u <type>        : No duplicate filter type (unique, newer, link, none)\n"
@@ -265,6 +267,7 @@ static int verifyarguments(opts_struct *opts)
 			 opts->simpleminsize  ||
 			 opts->simplenodup    ||
 			 opts->simpleseason   ||
+			 opts->simplesource   ||
 			 opts->simpleepisode)) {
 		fprintf(stderr, "Error, you can not use simple filter argument without adding a simple filter.\n");
 		retval=-1;
@@ -463,10 +466,17 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
         break;
       case 'U': // Add simple category regexp
         if( opts->simplecategory != NULL) {
-          fprintf(stderr, "Warning: ignoring second exclude addition.\n");
+          fprintf(stderr, "Warning: ignoring second category addition.\n");
           break;
         }
         rsstalloccopy(&(opts->simplecategory), optarg, strlen(optarg));
+        break;
+      case 'l': // Add simple category regexp
+        if( opts->simplesource != NULL) {
+          fprintf(stderr, "Warning: ignoring second source addition.\n");
+          break;
+        }
+        rsstalloccopy(&(opts->simplesource), optarg, strlen(optarg));
         break;
       case 'E': // Add title-filter argument
         if( opts->simpletitle != NULL) {
@@ -643,6 +653,7 @@ static void freeopts(opts_struct *opts)
 	free(opts->simplenodup);	
 	free(opts->simpleseason);		
 	free(opts->simpleepisode);	
+	free(opts->simplesource);	
 
 	/*
 	 * NULL the whole struct

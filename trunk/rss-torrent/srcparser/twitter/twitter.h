@@ -32,6 +32,7 @@ typedef struct {
 typedef struct {
 	sqlite3 	*db;
 	tweetdata tweet;
+	char 			*source; // Static, not changed during parsing
 } twitterdata;
 
 /*
