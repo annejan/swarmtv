@@ -81,6 +81,23 @@ int rsstdosingletextquery(sqlite3 *db, const unsigned char **text, const char *q
 int rsstexecutequery(sqlite3 *db, const char *query, char *fmt, ...);
 
 /*
+ * Execute a query
+ * query, format, arguments 
+ * format string accepts 
+ * d = int , s = string, f = double, NULL pointer when no arguments.
+ * @arguments
+ * ppstmt pointer carying the results of the query
+ * query pointer to query string:
+ * fmt format string
+ * ... arguments to fill out in query
+ * @returns
+ * returns 1 on 1 row returned
+ * return 0 on no rows returned
+ * returns -1 on error
+ */
+int rsstexecqueryresult(sqlite3 *db, sqlite3_stmt **ppstmt, const char *query, char *fmt, ...);
+
+/*
  * Prints columns from query to standard out.
  * third argumnt is the number of rows returned.
  * @Arguments

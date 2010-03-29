@@ -46,7 +46,7 @@
 /*
  * optstring what options do we allow
  */
-static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:";
+static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:";
 
 /*
  * Long opts
@@ -92,6 +92,7 @@ static const struct option optLong[] =
 	{"from-season", 				  required_argument, 0, 'g'},
 	{"from-episode", 				  required_argument, 0, 'G'},
 	{"reinit-database", 		  no_argument, 			 0, 'K'},
+	{"id-download",           required_argument, 0, 'i'},
 	{0, 0, 0, 0}
 };
 
@@ -110,6 +111,8 @@ static void printhelp(void)
           "test-mail        -m <text>        : Send testmail notification.\n"  
           "version          -v               : Print version.\n"  
 					"reinit-database  -K               : Reinitialize the database. (warning: data is lost)\n"
+					"\nDownload manually\n"
+					"id-download      -i               : Download torrents by entering id (use --test to retrieve id's)\n"
           "\nConfig settings\n"
           "list-config      -c               : List config Items and their values.\n"  
           "set-config       -C <name:value>  : Set a config value.\n"  
@@ -524,6 +527,10 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
 				reinitdb(db);
         stopop =1; // no more
         break;
+			case 'i': // Download by id
+				rsstdownloadbyidstr(db, optarg);
+        stopop =1; // no more
+				break;
       case 'h':   /* fall-through is intentional */
       case '?':
         /*

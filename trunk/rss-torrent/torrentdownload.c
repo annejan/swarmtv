@@ -33,6 +33,7 @@
 #include "mailmsg.h"
 #include "findtorrent.h"
 #include "filesystem.h"
+#include "database.h"
 
 /*
  * Max message and subject lenght for notification email
@@ -402,12 +403,8 @@ int rssttesttorrentdir(sqlite3 *db)
 /*
  * Do download.
  * take url, create name and call curl routine
- * Arguments 
- * link			Link to the download
- * title		Document title
- * season   Season number
- * episode	Episode number
- * pubdate	Date the torrent was published.
+ * @Arguments 
+ * 
  */
 static int dodownload(sqlite3 *db, downloaded_struct *downed) 
 {
@@ -441,5 +438,117 @@ static int dodownload(sqlite3 *db, downloaded_struct *downed)
   free(fullpath);
 
 	return retval;
+}
+
+
+/*
+ * This routine function downloads the torrent indicated by ID.
+ * The routine looks throught the newtorrents table to pick the torrent by id.
+ * @arguments
+ * torid	The id that points to the torrent
+ * @returns
+ * 0 on success
+ * -1 on failure
+ */
+int rsstdownloadbyid(sqlite3 *db, int torid)
+{
+	int 							rc=0;
+	sqlite3_stmt 			*ppstmt=NULL;
+	downloaded_struct downed;
+	int								retval=0;
+	int								step_rc=0;
+
+	static char *manualquery = "select link, title, pubdate, category, season, episode from newtorrents where id = ?1";
+
+	/*
+	 * Retrieve record from newtor table
+	 */
+	rc = rsstexecqueryresult(db, &ppstmt, manualquery, "d", torid);
+
+	/*
+	 * Get the first record
+	 */
+	step_rc = sqlite3_step(ppstmt);
+	if(step_rc != SQLITE_ROW) {
+		/*
+		 * No Records found
+		 */
+		retval = -1;
+	}
+
+	if(retval == 0) {
+		/*
+		 * initiate download
+		 */
+		memset(&downed, 0, sizeof(downloaded_struct));
+		downed.link      = (char*) sqlite3_column_text(ppstmt, 0);
+		downed.title     = (char*) sqlite3_column_text(ppstmt, 1);
+		downed.pubdate   = (char*) sqlite3_column_text(ppstmt, 2);
+		downed.category  = (char*) sqlite3_column_text(ppstmt, 3);
+		downed.season    =  sqlite3_column_int(ppstmt, 4);
+		downed.episode   =  sqlite3_column_int(ppstmt, 5);
+
+		/*
+		 * Execute download
+		 */
+		rc = dodownload(db, &downed);
+		if(rc == 0) {
+			/* 
+			 * Download successfull
+			 * Add download to downloaded database
+			 */
+			rsstadddownloaded(db, &downed, 0);
+		} else {
+			/*
+			 * Download failed torrent not found
+			 */
+			retval = -1;
+		}	
+	}
+
+	/*
+	 * Done with query, finalizing.
+	 */
+	rc = sqlite3_finalize(ppstmt);
+
+	return retval;
+}
+
+/*
+ * This routine function downloads the torrent indicated by ID.
+ * The routine looks throught the newtorrents table to pick the torrent by id.
+ * @arguments
+ * torid The id that points to the torrent
+ * @returns
+ * 0 on success
+ * -1 on failure
+ */
+int rsstdownloadbyidstr(sqlite3 *db, char *torid)
+{
+	int rc=0;
+	int i_torid=0;
+
+	/*
+	 * convert torid to int
+	 */
+	i_torid=atoi(torid);
+
+	/*
+	 * call real routine
+	 */
+	rc = rsstdownloadbyid(db, i_torid);
+	if(rc == 0){
+		/*
+		 * Download successfull
+		 */
+		printf("Torrentdownload successful.\n");
+	} else {
+		/*
+		 * Download failed
+		 */
+		printf("Torrentdownload failed.\n");
+	}
+
+	return rc;
 }
 

@@ -121,7 +121,8 @@ int rsstdofiltertest(char *filter, char *nodouble)
 {
   int rc=0;
   sandboxdb *sandbox;
-  char *query="select title, season, episode, pubdate from downloaded"; // get values from downloaded table
+  char *query="select newtorrents.id, downloaded.title, downloaded.season, downloaded.episode from newtorrents, downloaded "
+							"where newtorrents.link = downloaded.link order by newtorrents.id"; // get values from downloaded table
 
   /*
    * Init sandbok db
@@ -145,7 +146,7 @@ int rsstdofiltertest(char *filter, char *nodouble)
   /*
    * Print content of downloaded
    */
-  printf("Title                     | Season                    | Episode                   | Pubdate\n");
+  printf(" Id                        | Title                     | Season                    | Episode\n");
   rc = rsstprintquery(sandbox->db, query);
   if(rc != 0){
     printf("Listing of download queue failed.\n");
@@ -227,7 +228,8 @@ int rsstdosimpletest(opts_struct *opts)
 {
   int rc=0;
   sandboxdb *sandbox;
-  char *query="select title, season, episode, pubdate from downloaded"; // get values from downloaded table
+  char *query="select newtorrents.id, downloaded.title, downloaded.season, downloaded.episode from newtorrents, downloaded "
+							"where newtorrents.link = downloaded.link order by newtorrents.id"; // get values from downloaded table
 
   /*
    * Init sandbok db
@@ -251,7 +253,7 @@ int rsstdosimpletest(opts_struct *opts)
   /*
    * Print content of downloaded
    */
-  printf("Title                     | Season                    | Episode                   | Pubdate\n");
+  printf(" Id                        | Title                     | Season                    | Episode\n");
   rc = rsstprintquery(sandbox->db, query);
   if(rc != 0){
     printf("Listing of download queue failed.\n");

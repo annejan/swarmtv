@@ -779,6 +779,109 @@ int rsstexecutequery(sqlite3 *db, const char *query, char *fmt, ...)
 }
 
 /*
+ * Execute a query
+ * query, format, arguments 
+ * format string accepts 
+ * d = int , s = string, f = double, NULL pointer when no arguments.
+ * @arguments
+ * ppstmt pointer carying the results of the query
+ * query pointer to query string:
+ * fmt format string
+ * ... arguments to fill out in query
+ * @returns
+ * returns 1 on 1 row returned
+ * return 0 on no rows returned
+ * returns -1 on error
+ */
+int rsstexecqueryresult(sqlite3 *db, sqlite3_stmt **ppstmt, const char *query, char *fmt, ...)
+{
+  //sqlite3_stmt 	*ppStmt=NULL;
+  const char 		*pzTail=NULL;
+  va_list     	ap;
+  int         	rc=0;
+  int         	retval=0; 
+  char       		*zErrMsg = 0;
+  char        	*s=NULL;
+  int          	d=0;
+  double       	f=0.0;
+  int          	count=0;
+
+  /*
+   * fmt pointer to NULL is do not substitutes
+   */
+  if(fmt == NULL){
+    fmt = "";
+  }
+
+  /*
+   * Prepare the sqlite statement
+   */
+  rc = sqlite3_prepare_v2(
+      db,                 /* Database handle */
+      query,            /* SQL statement, UTF-8 encoded */
+      strlen(query),    /* Maximum length of zSql in bytes. */
+      ppstmt,             /* OUT: Statement handle */
+      &pzTail              /* OUT: Pointer to unused portion of zSql */
+      );
+  if( rc!=SQLITE_OK ){
+    rsstwritelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+    sqlite3_free(zErrMsg);
+    retval=-1;
+  }
+
+  /*
+   * Handle the arguments
+   */
+  va_start(ap, fmt);
+  while (*fmt != '\0' && retval == 0){
+    count++; // next item
+    switch(*fmt++) {
+      case 's':            /* string */
+        s = va_arg(ap, char *);
+        rc = sqlite3_bind_text(*ppstmt, count, s, -1, SQLITE_TRANSIENT);
+        if( rc!=SQLITE_OK ){
+          rsstwritelog(LOG_ERROR, "sqlite3_bind_text failed on argument '%d'\n'%s'\n'%s' %s:%d", 
+              count, query, fmt, __FILE__, __LINE__);  
+          rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+          sqlite3_free(zErrMsg);
+          retval=-1;
+        }
+        break;
+      case 'd':            /* int */
+        d = va_arg(ap, int);
+        rc = sqlite3_bind_int(*ppstmt, count, d);
+        if( rc!=SQLITE_OK ){
+          rsstwritelog(LOG_ERROR, "sqlite3_bind_int failed on argument '%d'\n'%s'\n'%s' %s:%d",
+              count, query, fmt, __FILE__, __LINE__);  
+          rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+          sqlite3_free(zErrMsg);
+          retval=-1;
+        }
+        break;
+      case 'f':            /* int */
+        f = va_arg(ap, double);
+        rc = sqlite3_bind_double(*ppstmt, count, f);
+        if( rc!=SQLITE_OK ){
+          rsstwritelog(LOG_ERROR, "sqlite3_bind_double failed on argument '%d'\n'%s'\n'%s' %s:%d",
+              count, query, fmt, __FILE__, __LINE__);  
+          rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+          sqlite3_free(zErrMsg);
+          retval=-1;
+        }
+        break;
+      default:
+        rsstwritelog(LOG_ERROR, "Unknown format '%c' on position '%d'\nQuery: '%s'\nFmt: '%s'",
+          *fmt, count, query, fmt);
+        retval=-1;
+    }
+  }
+  va_end(ap);
+
+  return retval;
+}
+
+/*
  * Prints columns from query to standard out.
  * third argumnt is the number of rows returned.
  * Arguments
