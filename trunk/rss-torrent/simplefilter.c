@@ -348,7 +348,7 @@ void rsstlistsimple(sqlite3 *db)
   "#############\n");
 
 
-  rc = rsstprintquery(db, query);
+  rc = rsstprintquery(db, query, NULL);
   if(rc != 0) {
     fprintf(stderr, "Listing simple filters failed!\n");
   }

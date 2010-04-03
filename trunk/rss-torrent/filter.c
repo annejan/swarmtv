@@ -46,7 +46,7 @@ void rsstprintfilters(sqlite3 *db)
   printf("Filters.\n");
   printf("#############\n");
 
-  rsstprintquery(db, "select name, filter, nodouble from 'filters'");
+  rsstprintquery(db, "select name, filter, nodouble from 'filters'", NULL);
 
   /*
    * Footer

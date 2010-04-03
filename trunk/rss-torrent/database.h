@@ -98,15 +98,34 @@ int rsstexecutequery(sqlite3 *db, const char *query, char *fmt, ...);
 int rsstexecqueryresult(sqlite3 *db, sqlite3_stmt **ppstmt, const char *query, char *fmt, ...);
 
 /*
+ * Execute a query
+ * query, format, arguments 
+ * format string accepts 
+ * d = int , s = string, f = double, NULL pointer when no arguments.
+ * @arguments
+ * ppstmt pointer carying the results of the query
+ * query pointer to query string:
+ * fmt format string
+ * ap va_list argument list
+ * @returns
+ * returns 1 on 1 row returned
+ * return 0 on no rows returned
+ * returns -1 on error
+ */
+int rsstexecqueryresultva(sqlite3 *db, sqlite3_stmt **ppstmt, const char *query, char *fmt, va_list ap);
+
+/*
  * Prints columns from query to standard out.
  * third argumnt is the number of rows returned.
  * @Arguments
  * query the query that retrieves the values to print
+ * fmt format string that goes with the query
+ * ... Arguments
  * @Returns
  * return 0 when okay
  * return -1 on error
  */
-int rsstprintquery(sqlite3 *db, const char *query);
+int rsstprintquery(sqlite3 *db, const char *query, char *fmt, ...);
 
 /*
  * Run the Database init script.

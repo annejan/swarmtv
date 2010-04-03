@@ -46,7 +46,7 @@ void rsstprintsources(sqlite3 *db)
   printf("Name : url : parser\n");
   printf("#############\n");
 
-  rsstprintquery(db, "select name, url, parser from sources");
+  rsstprintquery(db, "select name, url, parser from sources", NULL);
 
   /*
    * Footer

@@ -223,3 +223,25 @@ int rsstdeloldnewtorents(sqlite3 *db, unsigned int days)
 	return 0;
 }
 
+
+/*
+ * Delete from downloaded table
+ * @arguments
+ * id 	id of the downloaded torrent to delete from downed table
+ * @returns
+ * 0 	On success
+ * -1 on failure
+ */
+int rsstdeldownloaded(sqlite3 *db, char *id)
+{
+	int rc=0;
+	
+	static char *query="delete from downloaded where id=?1;";
+	
+	/*
+	 * Execute query to delete 
+	 */
+	rc = rsstexecutequery(db, query, "s", id);
+
+	return rc;
+}

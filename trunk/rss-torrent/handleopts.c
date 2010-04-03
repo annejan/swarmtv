@@ -42,11 +42,12 @@
 #include "testfilter.h"
 #include "simplefilter.h"
 #include "filesystem.h"
+#include "torrentdb.h"
 
 /*
  * optstring what options do we allow
  */
-static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:";
+static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:M:La:";
 
 /*
  * Long opts
@@ -93,6 +94,9 @@ static const struct option optLong[] =
 	{"from-episode", 				  required_argument, 0, 'G'},
 	{"reinit-database", 		  no_argument, 			 0, 'K'},
 	{"id-download",           required_argument, 0, 'i'},
+	{"id-del-downed",					required_argument, 0, 'M'},
+	{"find",									no_argument,			 0, 'L'},
+	{"find-downed",           required_argument, 0, 'a'},
 	{0, 0, 0, 0}
 };
 
@@ -112,7 +116,10 @@ static void printhelp(void)
           "version          -v               : Print version.\n"  
 					"reinit-database  -K               : Reinitialize the database. (warning: data is lost)\n"
 					"\nDownload manually\n"
-					"id-download      -i               : Download torrents by entering id (use --test to retrieve id's)\n"
+					"id-download      -i <id>          : Download torrents by entering id (use --test to retrieve id's)\n"
+					"id-del-downed    -M <id>          : Remove downloaded torrent from puplicate check table.\n"
+					"find             -L               : Find torrents. (use with simple options)\n"
+					"find-downed      -a <regexp>      : Find entries in the downloaded table.\n"
           "\nConfig settings\n"
           "list-config      -c               : List config Items and their values.\n"  
           "set-config       -C <name:value>  : Set a config value.\n"  
@@ -262,7 +269,8 @@ static int verifyarguments(opts_struct *opts)
 	/*
 	 * Simple filter arguments are not allowed without the add filter argument
 	 */
-	if( !opts->simplename     && 
+	if( (!opts->simplename    &&
+			 !opts->findtorid)    && 
 			(opts->simpletitle    || 
 			 opts->simpleexclude  || 
 			 opts->simplecategory || 
@@ -531,6 +539,22 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
 				rsstdownloadbyidstr(db, optarg);
         stopop =1; // no more
 				break;
+			case 'M': // Delete a entry from the downed table
+				rc = rsstdeldownloaded(db, optarg);
+			  if(rc == ROWS_CHANGED){
+					printf("Deletion of %s succesfull.\n", optarg);
+				} else {
+					printf("Deletion of %s failed.\n", optarg);
+				}
+        stopop =1; // no more
+				break;
+			case 'L': // find torrents, use simple filters to describe conditions
+				opts->findtorid = 1;
+				break;
+			case 'a': // find downloaded by name
+				rsstfinddowned(db, optarg);
+        stopop =1; // no more
+				break;
       case 'h':   /* fall-through is intentional */
       case '?':
         /*
@@ -585,7 +609,6 @@ void handlemultiple(sqlite3 *db, opts_struct *opts)
 						"Was added succesfully\n",
 						name, value, opts->doublefilter);
       }
-
     } 
 
 		/*
@@ -602,6 +625,13 @@ void handlemultiple(sqlite3 *db, opts_struct *opts)
       }
     }
   }
+
+	/*
+	 * Find Torrent ids
+	 */
+	if(opts->findtorid != 0){
+		rc = rsstfindtorrentids(opts);
+	}
 
   /*
    * When add simple filter is set

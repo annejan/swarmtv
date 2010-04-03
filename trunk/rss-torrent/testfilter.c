@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <sqlite3.h>
+#include <string.h>
 
 #include "types.h"
 #include "sandboxdb.h"
@@ -31,8 +32,16 @@
 #include "handleopts.h"
 #include "simplefilter.h"
 #include "torrentdownload.h"
+#include "regexp.h"
 
 #define  DBSANDBOX "~/.rsstorrent/sandbox.db"
+
+#define  FINDNAME 	"filter"
+#define  FINDNODUP	"none"
+/*
+ * The max number of results in a search result.
+ */
+#define  PAGE_LIMIT "100"
 
 /*
  * Copy content to downloaded
@@ -147,7 +156,7 @@ int rsstdofiltertest(char *filter, char *nodouble)
    * Print content of downloaded
    */
   printf(" Id                        | Title                     | Season                    | Episode\n");
-  rc = rsstprintquery(sandbox->db, query);
+  rc = rsstprintquery(sandbox->db, query, NULL);
   if(rc != 0){
     printf("Listing of download queue failed.\n");
     rsstwritelog(LOG_ERROR, "Execution of testfilter failed %s:%d", __FILE__, __LINE__);
@@ -228,8 +237,7 @@ int rsstdosimpletest(opts_struct *opts)
 {
   int rc=0;
   sandboxdb *sandbox;
-  char *query="select newtorrents.id, downloaded.title, downloaded.season, downloaded.episode from newtorrents, downloaded "
-							"where newtorrents.link = downloaded.link order by newtorrents.id"; // get values from downloaded table
+  char *query="select season, episode, title from downloaded;"; // get values from downloaded table
 
   /*
    * Init sandbok db
@@ -253,8 +261,8 @@ int rsstdosimpletest(opts_struct *opts)
   /*
    * Print content of downloaded
    */
-  printf(" Id                        | Title                     | Season                    | Episode\n");
-  rc = rsstprintquery(sandbox->db, query);
+  printf("Season                    | Episode                   | Title\n");
+  rc = rsstprintquery(sandbox->db, query, NULL);
   if(rc != 0){
     printf("Listing of download queue failed.\n");
     rsstwritelog(LOG_ERROR, "Execution of testfilter failed %s:%d", __FILE__, __LINE__);
@@ -272,5 +280,103 @@ int rsstdosimpletest(opts_struct *opts)
   }
 
   return 0;
+}
+
+
+/*
+ * Do filter test
+ * show first 10 matches
+ * Takes opts_struct * as argument.
+ * return 0 on succes, return -1 on failure.
+ */
+int rsstfindtorrentids(opts_struct *opts)
+{
+  int rc=0;
+  sandboxdb *sandbox;
+  char *query="SELECT newtorrents.id, downloaded.title, downloaded.season, downloaded.episode FROM newtorrents, downloaded "
+							"WHERE newtorrents.link = downloaded.link ORDER BY newtorrents.id LIMIT " PAGE_LIMIT ""; // get values from downloaded table
+
+	/*
+	 * Add bogus name and nodup to filter
+	 */
+	if(opts->simplename == NULL) {
+		rsstalloccopy(&(opts->simplename), FINDNAME, strlen(FINDNAME));
+	}
+	if(opts->simplenodup == NULL) {
+		rsstalloccopy(&(opts->simplenodup), FINDNODUP, strlen(FINDNODUP));
+	}
+
+  /*
+   * Init sandbok db
+   */
+  sandbox = initfiltertest();
+  if(sandbox == NULL){
+    rsstwritelog(LOG_ERROR, "Sandbox creaton failed %s:%d", __FILE__, __LINE__);
+    return -1;
+  }
+
+  /*
+   * Execute testfilter
+   */
+	rc = createsimpledownloaded(sandbox, opts);
+  if(rc != 0){
+    printf("Execution of testfilter failed.\n");
+    rsstwritelog(LOG_ERROR, "Execution of testfilter failed %s:%d", __FILE__, __LINE__);
+    return -1;
+  }
+
+  /*
+   * Print content of downloaded
+   */
+  printf("Id                        | Title                     | Season                    | Episode\n");
+  rc = rsstprintquery(sandbox->db, query, NULL);
+  if(rc != 0){
+    printf("Listing of download queue failed.\n");
+    rsstwritelog(LOG_ERROR, "Execution of testfilter failed %s:%d", __FILE__, __LINE__);
+    return -1;
+  }
+
+  /*
+   * cleanup sandbox
+   */
+  rc = rsstclosesandbox(sandbox);
+  if(rc != 0){
+    printf("Closing sandbox failed.\n");
+    rsstwritelog(LOG_ERROR, "Closing sandbox falied %s:%d", __FILE__, __LINE__);
+    return -1;
+  }
+
+  return 0;
+}
+
+/*
+ * This routine retrieves the records from the downloaded table.
+ * A selection is based on name.
+ * This routine should not be here namewise, but sinds the other function ended up here
+ * I'll place it here for now.
+ * @Arguments
+ * db
+ * optarg
+ * @return
+ * 0 on success
+ * -1 on error
+ */
+int rsstfinddowned(sqlite3 *db, char *optarg)
+{
+	int rc=0;
+
+	static char *query = "SELECT id, season, episode, title FROM downloaded WHERE IREGEXP(?1, title);";
+
+	/*
+	 * print results
+	 */
+  rc = rsstprintquery(db, query, "s", optarg);
+  if(rc != 0){
+    printf("Listing of download queue failed.\n");
+    rsstwritelog(LOG_ERROR, "Execution of testfilter failed %s:%d", __FILE__, __LINE__);
+    return -1;
+  }
+
+	return 0;
 }
 

@@ -795,9 +795,41 @@ int rsstexecutequery(sqlite3 *db, const char *query, char *fmt, ...)
  */
 int rsstexecqueryresult(sqlite3 *db, sqlite3_stmt **ppstmt, const char *query, char *fmt, ...)
 {
+	int rc=0;
+	va_list ap;
+
+	/*
+	 * Execute real function
+	 */
+	va_start(ap, fmt);
+	rc = rsstexecqueryresultva(db, ppstmt, query, fmt, ap);
+	va_end(ap);
+
+	/*
+	 * Done
+	 */
+	return rc;
+}
+
+/*
+ * Execute a query
+ * query, format, arguments 
+ * format string accepts 
+ * d = int , s = string, f = double, NULL pointer when no arguments.
+ * @arguments
+ * ppstmt pointer carying the results of the query
+ * query pointer to query string:
+ * fmt format string
+ * ap va_list argument list
+ * @returns
+ * returns 1 on 1 row returned
+ * return 0 on no rows returned
+ * returns -1 on error
+ */
+int rsstexecqueryresultva(sqlite3 *db, sqlite3_stmt **ppstmt, const char *query, char *fmt, va_list ap)
+{
   //sqlite3_stmt 	*ppStmt=NULL;
   const char 		*pzTail=NULL;
-  va_list     	ap;
   int         	rc=0;
   int         	retval=0; 
   char       		*zErrMsg = 0;
@@ -833,7 +865,6 @@ int rsstexecqueryresult(sqlite3 *db, sqlite3_stmt **ppstmt, const char *query, c
   /*
    * Handle the arguments
    */
-  va_start(ap, fmt);
   while (*fmt != '\0' && retval == 0){
     count++; // next item
     switch(*fmt++) {
@@ -876,7 +907,6 @@ int rsstexecqueryresult(sqlite3 *db, sqlite3_stmt **ppstmt, const char *query, c
         retval=-1;
     }
   }
-  va_end(ap);
 
   return retval;
 }
@@ -890,51 +920,46 @@ int rsstexecqueryresult(sqlite3 *db, sqlite3_stmt **ppstmt, const char *query, c
  * return 0 when okay.
  * return -1 on error.
  */
-int rsstprintquery(sqlite3 *db, const char *query)
+int rsstprintquery(sqlite3 *db, const char *query, char *fmt, ...)
 {
-  sqlite3_stmt  *ppStmt=NULL;
-  const char    *pzTail=NULL;
+  sqlite3_stmt  *ppstmt=NULL;
   int           rc=0;
   int           step_rc=0;
   int           cols=0;
   char          *zErrMsg=0;
   int           count=0;
   const unsigned char *text=NULL;
+	va_list				ap;
 
   /*
    * Prepare the sqlite statement
    */
-  rc = sqlite3_prepare_v2(
-      db,                 /* Database handle */
-      query,            /* SQL statement, UTF-8 encoded */
-      strlen(query),    /* Maximum length of zSql in bytes. */
-      &ppStmt,             /* OUT: Statement handle */
-      &pzTail              /* OUT: Pointer to unused portion of zSql */
-      );
+	va_start(ap, fmt);
+	rc = rsstexecqueryresultva(db, &ppstmt, query, fmt, ap);
   if( rc!=SQLITE_OK ){
     rsstwritelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
     rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
     sqlite3_free(zErrMsg);
     return -1;
   }
+	va_end(ap);
 
   /*
    * Get number of columns
    * int sqlite3_column_count(sqlite3_stmt *pStmt);
    */
-  cols = sqlite3_column_count(ppStmt);
-
+  cols = sqlite3_column_count(ppstmt);
 
   /*
    * loop until the end of the dataset is found
    */
-  while( SQLITE_DONE != (step_rc = sqlite3_step(ppStmt))) {
+  while( SQLITE_DONE != (step_rc = sqlite3_step(ppstmt))) {
 
     for(count=0; count<cols; count++){
       /*
        * Print the content of the row
        */
-      text = sqlite3_column_text(ppStmt, count);
+      text = sqlite3_column_text(ppstmt, count);
       printf("%-25s", text);
       if(count+1 < cols){
         printf(" : ");
@@ -952,7 +977,7 @@ int rsstprintquery(sqlite3 *db, const char *query)
   /*
    * Done with query, finalizing.
    */
-  rc = sqlite3_finalize(ppStmt);
+  rc = sqlite3_finalize(ppstmt);
 
   /*
    * All gone well

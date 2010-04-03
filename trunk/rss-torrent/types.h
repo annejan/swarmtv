@@ -52,8 +52,9 @@ typedef enum {loop=0, once} LOOPMODE;
  */
 typedef struct {
   int run;							// run 
-  int nodetach;					// run in forground 
+  int nodetach;					// run in foreground 
   int testfilt;					// Only test the filter
+	int findtorid;				// Find torrent id
   LOOPMODE onetime;			// run once then exit
 	char *sourcefilter; 	// source filter 
 	char *source;					// source

@@ -5,7 +5,7 @@ rsstorrent \- Forwards shows from RSS to your torrent program.
 .B rsstorrent
 [\-hnRrqvcSfJk] [\-m text] [\-C name:value] [\-s name:url] [\-D name] [\-t type] [\-d name] [\-p name] 
 [\-F name:query] [\-T query] [\-P name] [\-j name] [\-e name] [\-E regexp] [\-N regexp] [\-O size] [\-o size] 
-[\-u type] [\-g value] [\-G value] 
+[\-u type] [\-g value] [\-G value] [\-i id] [\-M id] [\-L] [\-a regexp]
 .SH DESCRIPTION
 Most bittorrent sites on the internet have RSS streams announcing
 the new content they provide. RSS-torrent searches there announcements
@@ -89,6 +89,15 @@ Drop all tables and reinitialize the empty database. (Warning all data stored in
 .TP
 \-i \-\-id\-download
 Download a torrent providing it's id.
+.TP
+\-M \-\-id\-del\-downed
+Delete a record in the downloaded table.
+.TP
+\-L \-\-find
+Find torrents. (use with simple options)
+.TP
+\-a \-\-find\-downed
+Find entries in the downloaded table.
 .TP
 \-e \-\-add\-simple name
 Add a new simple filter providing it's name.

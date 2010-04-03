@@ -40,3 +40,25 @@ int rsstdofiltertest(char *filter, char *nodouble);
  */
 int rsstdosimpletest(opts_struct *opts);
 
+/*
+ * Do filter test
+ * show first 10 matches
+ * Takes opts_struct * as argument.
+ * return 0 on succes, return -1 on failure.
+ */
+int rsstfindtorrentids(opts_struct *opts);
+
+/*
+ * This routine retrieves the records from the downloaded table.
+ * A selection is based on name.
+ * This routine should not be here namewise, but sinds the other function ended up here
+ * I'll place it here for now.
+ * @Arguments
+ * db
+ * optarg
+ * @return
+ * 0 on success
+ * -1 on error
+ */
+int rsstfinddowned(sqlite3 *db, char *optarg);
+

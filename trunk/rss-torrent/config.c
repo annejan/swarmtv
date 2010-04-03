@@ -118,7 +118,7 @@ void rsstprintconfigitems(sqlite3 *db)
   printf("Available config items.\n");
   printf("#############\n");
   // select prop, value from config 
-  rsstprintquery(db, "select prop, value, descr from config");
+  rsstprintquery(db, "select prop, value, descr from config", NULL);
 
   /*
    * Footer
