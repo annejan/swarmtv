@@ -36,6 +36,7 @@
 #define MAX_REDIR       3       
 /* Time to wait before connection timeout on curl download */
 #define CONNECT_TIMEOUT 20  
+#define CURL_TIMEOUT 60  
 
 /*
  * realloc 
@@ -172,6 +173,7 @@ int rsstdownloadtobuffer(char *url, MemoryStruct *chunk)
 
   /* Set connection timeout on 1 minute */
   curl_easy_setopt(curl_handle, CURLOPT_CONNECTTIMEOUT, CONNECT_TIMEOUT);
+  curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, CURL_TIMEOUT);
 
 	/* If a username and password is set add it to the options */
 	if(userpass != NULL) {

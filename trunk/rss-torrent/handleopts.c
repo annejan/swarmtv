@@ -285,6 +285,23 @@ static int verifyarguments(opts_struct *opts)
 	}
 
 	/*
+	 * When find is used without extra filters error
+	 */
+	if(opts->findtorid == 1 &&
+			(!opts->simpletitle &&
+			 !opts->simpleexclude &&
+			 !opts->simplecategory &&
+			 !opts->simplemaxsize &&
+			 !opts->simpleminsize &&
+			 !opts->simplenodup &&
+			 !opts->simpleseason &&
+			 !opts->simplesource &&
+			 !opts->simpleepisode)) {
+		fprintf(stderr, "Error, no filter options found, use simple options to specify filter.\n");
+		retval=-1;
+	}
+
+	/*
 	 * No dup is mandatory when adding a simple filter.
 	 */
 	if(opts->simplename && !opts->simplenodup) {
@@ -641,7 +658,7 @@ void handlemultiple(sqlite3 *db, opts_struct *opts)
 		/*
 		 * Add the simple filter 
 		 */
-		if(opts->testfilt == 0) { 
+		if(opts->testfilt == 0 && opts->findtorid == 0) { 
 			rc = rsstaddsimplefilter(db, opts);
 			if(rc != 0){
 				fprintf(stderr, "Adding filter failed.\n");

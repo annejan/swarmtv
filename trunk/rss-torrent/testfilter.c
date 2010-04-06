@@ -237,7 +237,8 @@ int rsstdosimpletest(opts_struct *opts)
 {
   int rc=0;
   sandboxdb *sandbox;
-  char *query="select season, episode, title from downloaded;"; // get values from downloaded table
+  char *query="select title, season, episode from downloaded;"; // get values from downloaded table
+	char *names[]={"Title", "Season", "Episode", "Torrent"};
 
   /*
    * Init sandbok db
@@ -261,8 +262,7 @@ int rsstdosimpletest(opts_struct *opts)
   /*
    * Print content of downloaded
    */
-  printf("Season                    | Episode                   | Title\n");
-  rc = rsstprintquery(sandbox->db, query, NULL);
+  rc = rsstprintquerylist(sandbox->db, query, names, NULL);
   if(rc != 0){
     printf("Listing of download queue failed.\n");
     rsstwritelog(LOG_ERROR, "Execution of testfilter failed %s:%d", __FILE__, __LINE__);
@@ -295,6 +295,7 @@ int rsstfindtorrentids(opts_struct *opts)
   sandboxdb *sandbox;
   char *query="SELECT newtorrents.id, downloaded.title, downloaded.season, downloaded.episode FROM newtorrents, downloaded "
 							"WHERE newtorrents.link = downloaded.link ORDER BY newtorrents.id LIMIT " PAGE_LIMIT ""; // get values from downloaded table
+	char *names[]={"Id", "Title", "Season", "Episode", "Torrent"};
 
 	/*
 	 * Add bogus name and nodup to filter
@@ -328,8 +329,7 @@ int rsstfindtorrentids(opts_struct *opts)
   /*
    * Print content of downloaded
    */
-  printf("Id                        | Title                     | Season                    | Episode\n");
-  rc = rsstprintquery(sandbox->db, query, NULL);
+  rc = rsstprintquerylist(sandbox->db, query, names, NULL);
   if(rc != 0){
     printf("Listing of download queue failed.\n");
     rsstwritelog(LOG_ERROR, "Execution of testfilter failed %s:%d", __FILE__, __LINE__);
@@ -365,12 +365,13 @@ int rsstfinddowned(sqlite3 *db, char *optarg)
 {
 	int rc=0;
 
-	static char *query = "SELECT id, season, episode, title FROM downloaded WHERE IREGEXP(?1, title);";
+	static char *query  = "SELECT id, season, episode, title FROM downloaded WHERE IREGEXP(?1, title);";
+	static char *names[] = {"Id", "Season", "Episode", "Title", "Downloaded torrent"};
 
 	/*
 	 * print results
 	 */
-  rc = rsstprintquery(db, query, "s", optarg);
+  rc = rsstprintquerylist(db, query, names, "s", optarg);
   if(rc != 0){
     printf("Listing of download queue failed.\n");
     rsstwritelog(LOG_ERROR, "Execution of testfilter failed %s:%d", __FILE__, __LINE__);

@@ -134,3 +134,16 @@ int rsstprintquery(sqlite3 *db, const char *query, char *fmt, ...);
  */
 int rsstrundbinitscript(sqlite3 *db);
 
+/*
+ * Prints columns from query to standard out.
+ * third argumnt is the number of rows returned.
+ * Arguments
+ * query	Query to print.
+ * names	The names that should be printed infront of values.
+ * fmt		Format string describing the. 
+ * Return
+ * return 0 when okay.
+ * return -1 on error.
+ */
+int rsstprintquerylist(sqlite3 *db, const char *query, char *names[], char *fmt, ...);
+

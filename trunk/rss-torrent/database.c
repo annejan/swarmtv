@@ -985,3 +985,79 @@ int rsstprintquery(sqlite3 *db, const char *query, char *fmt, ...)
   return rc;
 }
 
+
+/*
+ * Prints columns from query to standard out.
+ * third argumnt is the number of rows returned.
+ * Arguments
+ * query	Query to print.
+ * names	The names that should be printed infront of values.
+ * fmt		Format string describing the. 
+ * Return
+ * return 0 when okay.
+ * return -1 on error.
+ */
+int rsstprintquerylist(sqlite3 *db, const char *query, char *names[], char *fmt, ...)
+{
+  sqlite3_stmt  *ppstmt=NULL;
+  int           rc=0;
+  int           step_rc=0;
+  int           cols=0;
+  char          *zErrMsg=0;
+  int           count=0;
+  const unsigned char *text=NULL;
+	va_list				ap;
+
+  /*
+   * Prepare the sqlite statement
+   */
+	va_start(ap, fmt);
+	rc = rsstexecqueryresultva(db, &ppstmt, query, fmt, ap);
+  if( rc!=SQLITE_OK ){
+    rsstwritelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
+    rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+    sqlite3_free(zErrMsg);
+    return -1;
+  }
+	va_end(ap);
+
+  /*
+   * Get number of columns
+   * int sqlite3_column_count(sqlite3_stmt *pStmt);
+   */
+  cols = sqlite3_column_count(ppstmt);
+
+  /*
+   * loop until the end of the dataset is found
+   */
+  while( SQLITE_DONE != (step_rc = sqlite3_step(ppstmt))) {
+
+    for(count=0; count<cols; count++){
+      /*
+       * Print the content of the row
+       */
+      if(count == 0){
+        printf("%s\n", names[cols]);
+      }
+      text = sqlite3_column_text(ppstmt, count);
+      printf("%-15s : %s\n", names[count], text);
+    }
+
+    /*
+     * new line at end of record.
+     */
+    if(step_rc == SQLITE_ROW){
+      printf("\n");
+    }
+  }
+
+  /*
+   * Done with query, finalizing.
+   */
+  rc = sqlite3_finalize(ppstmt);
+
+  /*
+   * All gone well
+   */
+  return rc;
+}
