@@ -147,3 +147,83 @@ int rsstrundbinitscript(sqlite3 *db);
  */
 int rsstprintquerylist(sqlite3 *db, const char *query, char *names[], char *fmt, ...);
 
+/*
+ * Database abstraction functions
+ */
+
+/*
+ * Get all config settings
+ * @Arguments
+ * configitems The container to store the configitems in
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstgetallconfig(sqlite3 *db, config_container **configitems);
+
+/*
+ * Delete content from confeg_container struct
+ * @Arguments
+ * container Pointer to configcontainer to free content of
+ * @Return
+ * 0 on success, -1 on failure
+ */
+int rsstfreeconfigcontainer(config_container *container);
+
+
+/*
+ * Get downloaded torrents
+ * @arguments
+ * downloaded The container to store the downloaded in
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstgetdownloaded(sqlite3 *db, downloaded_container **downloaded, int limit, int offset);
+
+/*
+ * Delete content from source_container struct
+ * @Arguments
+ * container downloaded container content needs freeing
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstfreedownloadedcontainer(downloaded_container *container);
+
+/*
+ * Get all RSS-sources
+ * @arguments
+ * sources The container to store the sources in
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstgetallsources(sqlite3 *db, source_container **sources);
+
+/*
+ * Delete content from source_container struct
+ * @Arguments
+ * container sources container content needs freeing
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstfreesourcecontainer(source_container *sources);
+
+/*
+ * Find newtorrents entries
+ * @Arguments
+ * filter simplefilterstruct to filter out the newtorrent entries we want
+ * newtorrents container handling newtorrents entries
+ * limit is the amount of rows we want to retrieve
+ * offset is the amount of rows we want to skip at the start
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstfindnewtorrents(simplefilter_struct *filter, newtorrents_container **newtorrents, int limit, int offset);
+
+/*
+ * Delete content from newtorrents_container
+ * @Arguments
+ * container newtorrents container the content needs freeing
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstfreenewtorrentscontainer(newtorrents_container *newtorrents);
+

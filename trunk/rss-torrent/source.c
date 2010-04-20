@@ -24,6 +24,7 @@
 #include <pcre.h>
 #include <sqlite3.h>
 
+#include "types.h"
 #include "config.h"
 #include "database.h"
 #include "logfile.h"
@@ -32,12 +33,16 @@
 #define  MAXLENGHT 400
 
 /*
- * Print all available config items to the screen.
+ * Print all available source items to the screen.
  * format varname : value
  * All from database
  */
 void rsstprintsources(sqlite3 *db) 
 {
+	int rc=0;
+	int count=0;
+	source_container *container=NULL;
+
   /*
    * header
    */
@@ -46,7 +51,35 @@ void rsstprintsources(sqlite3 *db)
   printf("Name : url : parser\n");
   printf("#############\n");
 
-  rsstprintquery(db, "select name, url, parser from sources", NULL);
+	/*
+	 * Get source values.
+	 */
+	rc = rsstgetallsources(db, &container);
+	if(rc != 0){
+		fprintf(stderr, "Retrieving of source failed !\n");
+		exit(1);
+	}	
+
+	/*
+	 * Print source values.
+	 */
+	for(count=0; count < container->nr; count++) {
+		printf("%-25s : %-15s : %s\n", 
+				container->source[count].name,
+				container->source[count].parser,
+				container->source[count].url);
+	}
+
+	/*
+	 * Free the results
+	 */
+	rc = rsstfreesourcecontainer(container);
+	if(rc != 0) {
+		fprintf(stderr, "Freeing of the container failed !\n");
+		exit(1);
+	}
+
+  //rsstprintquery(db, "select name, url, parser from sources", NULL);
 
   /*
    * Footer

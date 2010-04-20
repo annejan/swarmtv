@@ -62,3 +62,19 @@ int rsstfindtorrentids(opts_struct *opts);
  */
 int rsstfinddowned(sqlite3 *db, char *optarg);
 
+/*
+ * Cleanout the sandbox for filter processing
+ * @Arguments
+ * sandbox the sandbox to cleanout
+ * @retun
+ * 0 on success, otherwise -1
+ */
+int rsstcleanoutdb(sandboxdb *sandbox);
+
+/*
+ * Prepare the filter test database
+ * @return
+ * pointer to new database struct on success, on failure NULL
+ */
+sandboxdb *rsstinitfiltertest();
+

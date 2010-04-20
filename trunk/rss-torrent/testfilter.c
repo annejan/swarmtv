@@ -94,7 +94,7 @@ static int setnewtorrentflags(sandboxdb *sandbox)
 /*
  * Prepare the filter test database
  */
-static sandboxdb *initfiltertest()
+sandboxdb *rsstinitfiltertest()
 {
   int       rc;
   sandboxdb *sandbox;
@@ -136,7 +136,7 @@ int rsstdofiltertest(char *filter, char *nodouble)
   /*
    * Init sandbok db
    */
-  sandbox = initfiltertest();
+  sandbox = rsstinitfiltertest();
   if(sandbox == NULL){
     rsstwritelog(LOG_ERROR, "Sandbox creaton failed %s:%d", __FILE__, __LINE__);
     return -1;
@@ -176,16 +176,16 @@ int rsstdofiltertest(char *filter, char *nodouble)
   return 0;
 }
 
-
 /*
- * Copy content to downloaded
- * Prevent doubles from occuring.
- * match all records that match the filter, and copy them to the no double
+ * Cleanout the sandbox for filter processing
+ * @Arguments
+ * sandbox the sandbox to cleanout
+ * @retun
+ * 0 on success, otherwise -1
  */
-static int createsimpledownloaded(sandboxdb *sandbox, opts_struct *filter)
+int rsstcleanoutdb(sandboxdb *sandbox)
 {
   int 	rc=0;
-	char 	*nodupsql=NULL;
   char 	*delquery="DELETE FROM downloaded";
   char 	*delsimplequery="DELETE FROM simplefilters";
 
@@ -206,6 +206,29 @@ static int createsimpledownloaded(sandboxdb *sandbox, opts_struct *filter)
     rsstwritelog(LOG_ERROR, "Deleting simplefilters failed %s:%d", __FILE__, __LINE__);
     return -1;
   }
+
+	return 0;
+}
+
+
+/*
+ * Copy content to downloaded
+ * Prevent doubles from occuring.
+ * match all records that match the filter, and copy them to the no double
+ */
+static int createsimpledownloaded(sandboxdb *sandbox, opts_struct *filter)
+{
+  int 	rc=0;
+	char 	*nodupsql=NULL;
+
+	/*
+	 * Remove unwanted data from sandbox.
+	 */
+	rc = rsstcleanoutdb(sandbox);
+	if(rc != 0){
+    rsstwritelog(LOG_ERROR, "Cleaning out sandbox failed %s:%d", __FILE__, __LINE__);
+		return -1;
+	}
 
 	/*
 	 * Add filter to sandbox
@@ -243,7 +266,7 @@ int rsstdosimpletest(opts_struct *opts)
   /*
    * Init sandbok db
    */
-  sandbox = initfiltertest();
+  sandbox = rsstinitfiltertest();
   if(sandbox == NULL){
     rsstwritelog(LOG_ERROR, "Sandbox creaton failed %s:%d", __FILE__, __LINE__);
     return -1;
@@ -292,10 +315,16 @@ int rsstdosimpletest(opts_struct *opts)
 int rsstfindtorrentids(opts_struct *opts)
 {
   int rc=0;
-  sandboxdb *sandbox;
-  char *query="SELECT newtorrents.id, downloaded.title, downloaded.season, downloaded.episode FROM newtorrents, downloaded "
-							"WHERE newtorrents.link = downloaded.link ORDER BY newtorrents.id LIMIT " PAGE_LIMIT ""; // get values from downloaded table
-	char *names[]={"Id", "Title", "Season", "Episode", "Torrent"};
+	int retval=0;
+	int count=0;
+	char humansize[20];
+	simplefilter_struct filter;
+	newtorrents_container *newtorrents=NULL;
+
+	/*
+	 * NULL filter
+	 */
+	memset(&filter, 0, sizeof(simplefilter_struct));
 
 	/*
 	 * Add bogus name and nodup to filter
@@ -308,9 +337,50 @@ int rsstfindtorrentids(opts_struct *opts)
 	}
 
   /*
+   * Translate argument to usable data
+   */
+  rc = rsstoptstosimple(opts, &filter);
+  if(rc != 0){
+    return -1;
+  }
+	
+	rc = rsstfindnewtorrents(&filter, &newtorrents, 100, 0);
+  if(rc != 0){
+    retval=-1;
+  }
+
+	if(retval == 0){
+		/*
+		 * Print results
+		 */
+		for(count=0; count < newtorrents->nr; count++){
+			rsstsizetohuman(newtorrents->newtorrent[count].size, humansize);
+			printf("id: %d, name: %s , size: %s\n", 
+					newtorrents->newtorrent[count].id,
+					newtorrents->newtorrent[count].title,
+					humansize);
+			printf("url: %s\n\n", 
+					newtorrents->newtorrent[count].link);
+		}
+	}
+	
+	rc = rsstfreenewtorrentscontainer(newtorrents);
+  if(rc != 0){
+    retval=-1;
+  }
+
+	return retval;
+#if 0
+  sandboxdb *sandbox;
+  char *query="SELECT newtorrents.id, downloaded.title, downloaded.season, downloaded.episode FROM newtorrents, downloaded "
+							"WHERE newtorrents.link = downloaded.link ORDER BY newtorrents.id LIMIT " PAGE_LIMIT ""; // get values from downloaded table
+	char *names[]={"Id", "Title", "Season", "Episode", "Torrent"};
+
+
+  /*
    * Init sandbok db
    */
-  sandbox = initfiltertest();
+  sandbox = rsstinitfiltertest();
   if(sandbox == NULL){
     rsstwritelog(LOG_ERROR, "Sandbox creaton failed %s:%d", __FILE__, __LINE__);
     return -1;
@@ -347,6 +417,7 @@ int rsstfindtorrentids(opts_struct *opts)
   }
 
   return 0;
+#endif
 }
 
 /*

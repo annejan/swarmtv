@@ -48,17 +48,33 @@ SET(RSS_SRC man/rsstorrent.1)
 SET(RSS_MAN man/rsstorrent.1.gz)
 
 # All other sources
-SET(SRC setup rsstorrent database config regexp source
-  filter runloop curlfile torrentdb torrentdownload logfile
-  daemonize mailmsg findtorrent sandboxdb testfilter
-  filesystem tbl torrentparse handleopts simplefilter)
+SET(LIBSRC setup database config regexp source
+		filter runloop curlfile torrentdb torrentdownload logfile
+		daemonize mailmsg findtorrent sandboxdb testfilter
+		filesystem tbl torrentparse simplefilter)
+
+SET(SRC rsstorrent handleopts)
+
+#SET(SRC setup rsstorrent database config regexp source
+#  filter runloop curlfile torrentdb torrentdownload logfile
+#  daemonize mailmsg findtorrent sandboxdb testfilter
+#  filesystem tbl torrentparse handleopts simplefilter)
 
 # Subdirectories
 INCLUDE(srcparser/parsers.cmake)
 
 # Add executable
-add_executable (rsstorrent ${SRC} ${RSS_MAN}) 
+add_executable (rsstorrent ${SRC} ${LIBSRC} ${RSS_MAN}) 
 TARGET_LINK_LIBRARIES(rsstorrent ${optionalLibs} )
+
+# Add library
+add_library (rsstor SHARED ${LIBSRC} ${RSS_MAN})
+TARGET_LINK_LIBRARIES(rsstor ${optionalLibs} )
+# Set the build version (VERSION) and the API version (SOVERSION)
+SET_TARGET_PROPERTIES(rsstor
+		PROPERTIES
+		VERSION 1.0.0
+		SOVERSION 1)
 
 # Compression of the manuals
 FOREACH(man ${RSS_SRC})
@@ -77,6 +93,15 @@ INSTALL(PROGRAMS rsstorrent DESTINATION /usr/local/bin)
   INSTALL(FILES man/rsstorrent.1.gz
       DESTINATION "share/man/man1"
       PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
+
+# Installation of the library
+INSTALL(TARGETS rsstor
+		DESTINATION lib
+		PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
+
+INSTALL(FILES rsstor.h
+		DESTINATION include
+		PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
 
 # Implement uninstall
 CONFIGURE_FILE(

@@ -141,7 +141,7 @@ static int validearguments(opts_struct *opts)
  * Takes takes a opts_struct argument and a simplefilter_struct as argument.
  * returns 0 on succes, -1 on error.
  */
-static int optstosimple(opts_struct *opts, simplefilter_struct *simple)
+int rsstoptstosimple(opts_struct *opts, simplefilter_struct *simple)
 {
   /*
    * Copy strings
@@ -223,7 +223,7 @@ static void freestructsimple(simplefilter_struct *simple)
  * returns    : 0 when added succesfully
  * returns    : -1 when adding failed
  */
-static int insertsimplefilter(sqlite3 *db, simplefilter_struct *simple)
+int rsstinsertsimplefilter(sqlite3 *db, simplefilter_struct *simple)
 {
   int rc=0;
 
@@ -253,7 +253,8 @@ static int insertsimplefilter(sqlite3 *db, simplefilter_struct *simple)
   /*
    * Handle output
    */
-  if(rc != 1) {
+  //if(rc != 1) {
+  if(rc < 1) {
     return -1;
   } else {
     return 0;
@@ -304,7 +305,7 @@ int rsstaddsimplefilter(sqlite3 *db, opts_struct *opts)
   /*
    * Translate argument to usable data
    */
-  rc = optstosimple(opts, &simple);
+  rc = rsstoptstosimple(opts, &simple);
   if(rc != 0){
     retval=-1;
   }
@@ -320,7 +321,7 @@ int rsstaddsimplefilter(sqlite3 *db, opts_struct *opts)
   /*
    * Add Record
    */
-  insertsimplefilter(db, &simple);
+  rsstinsertsimplefilter(db, &simple);
 
   /*
    * Done.

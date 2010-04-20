@@ -19,6 +19,12 @@
  */
 
 /*
+ * Include the rsstor structs in the types
+ * Not the most best solution ever, but will work for now.
+ */
+#include "rsstor.h"
+
+/*
  * real = Download torrent, send mails and log download
  * sim  = Just run the database code, no downloading no logging.
  */
@@ -80,49 +86,4 @@ typedef struct {
   sqlite3* db;
   char *filename;
 } sandboxdb;
-
-/*
- * Struct holding the values to add to the database
- */
-typedef struct {
-	char *name;			// Simple filter name
-	char *title;		// Simple title regexp
-	char *exclude;	// Simple exclude regexp
-  char *category; // Simple category
-	char *source;		// Source the newtorrent originated from
-	double maxsize;	// Simple max size
-	double minsize;	// Simple minimal size
-	char *nodup;	// Simple no double filter type
-	int fromseason;		// From what season to download
-	int fromepisode;	// From episode
-} simplefilter_struct;
-
-/*
- * Struct holding the values to enter into the newtorrents table.
- */
-typedef struct {
-	char *title;
-	char *link;
-	time_t pubdate;
-	char *category;
-	char *source;
-	int		season;
-	int		episode;
-	int		seeds;
-	int		peers;
-  size_t	size;
-	// 'new' is set by the routine. 
-} newtorrents_struct;
-
-/*
- * Struct holding the values to enter into the downloaded table
- */
-typedef struct {
-	char *title;
-	char *link;
-	char *pubdate;
-	char *category;
-	int  season;
-	int  episode;
-} downloaded_struct;
 

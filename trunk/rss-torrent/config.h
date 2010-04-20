@@ -61,7 +61,7 @@ void rsstprintconfigitems(sqlite3 *db);
  * When not found -1 is returned.
  * On succes 0 is returned.
  */
-int rsstsetconfigitem(sqlite3 *db, char *prop, char *value);
+int rsstsetconfigitem(sqlite3 *db, const char *prop, const char *value);
 
 /*
  * Get value of a config object.

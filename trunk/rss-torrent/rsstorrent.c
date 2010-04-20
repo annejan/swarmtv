@@ -26,6 +26,7 @@
 #include <libxml/parser.h>
 #include <signal.h>
 
+#include "types.h"
 #include "database.h"
 #include "logfile.h"
 #include "handleopts.h"

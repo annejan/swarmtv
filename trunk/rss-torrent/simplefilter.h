@@ -75,3 +75,22 @@ int rsstdelsimple(sqlite3 *db, const char *name);
  */
 int rsstdownloadsimple(sqlite3 *db, SIM simulate);
 
+/*
+ * Add simple filter adds the filter to the database
+ * Arguments  : simplefilter_struct * 
+ * returns    : 0 when added succesfully
+ * returns    : -1 when adding failed
+ */
+int rsstinsertsimplefilter(sqlite3 *db, simplefilter_struct *simple);
+
+/*
+ * optstosimple
+ * Takes takes a opts_struct argument and a simplefilter_struct as argument.
+ * @Arguments
+ * opts the opts structure to retrieve the arguments from.
+ * simple the simple filter struct to store the filters settings in.
+ * @Return
+ * returns 0 on succes, -1 on error.
+ */
+int rsstoptstosimple(opts_struct *opts, simplefilter_struct *simple);
+
