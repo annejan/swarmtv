@@ -172,6 +172,12 @@ int rsstoptstosimple(opts_struct *opts, simplefilter_struct *simple)
   } else {
     rsstalloccopy(&(simple->source), "", 1);
   }
+  if(opts->simpleseason != NULL) {
+    simple->fromseason=atoi(opts->simpleseason); 
+  } 
+  if(opts->simpleepisode != NULL) {
+    simple->fromepisode=atoi(opts->simpleepisode); 
+  } 
 
   /*
    * Convert units 
@@ -611,6 +617,20 @@ void rsstprintsimple(sqlite3 *db, char *filtername)
     rsstsizetohuman(minsizedouble, (char*) minsizestring);
 
     printf("--min-size='%s' ", minsizestring);
+  }
+
+  /*
+   * From season
+   */
+  if(seasonint != 0) {
+    printf("--from-season='%d' ", seasonint);
+  }
+
+  /*
+   * From episode
+   */
+  if(episodeint != 0) {
+    printf("--from-episode='%d' ", episodeint);
   }
 
   /*
