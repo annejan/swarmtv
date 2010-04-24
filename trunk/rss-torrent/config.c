@@ -115,6 +115,13 @@ void rsstprintconfigitems(sqlite3 *db)
 	int 							rc=0;
 	int								count=0;
 	config_container *container=NULL;
+	rsstor_handle     handle;
+
+	/*
+	 * Create handle for now.
+	 * REMOVE IN FUTURE !!!!
+	 */
+	handle.db = db;
 
   /*
    * header
@@ -127,7 +134,7 @@ void rsstprintconfigitems(sqlite3 *db)
 	/*
 	 * Get config values.
 	 */
-	rc = rsstgetallconfig(db, &container);
+	rc = rsstgetallconfig(&handle, &container);
 	if(rc != 0){
 		fprintf(stderr, "Retrieving of config failed !\n");
 		exit(1);
@@ -171,12 +178,18 @@ void rsstprintconfigitems(sqlite3 *db)
  * When not found -1 is returned.
  * On succes 0 is returned.
  */
-int rsstsetconfigitem(sqlite3 *db, const char *prop, const char *value)
+int rsstsetconfigitem(rsstor_handle *handle, const char *prop, const char *value)
 {
   sqlite3_stmt  *ppStmt=NULL;
   const char    *pzTail=NULL;
   int           rc=0;
   char          *zErrMsg=NULL;
+	sqlite3       *db=NULL;
+
+	/*
+	 * Get database handle.
+	 */
+	db = handle->db;
 
   /*
    * Init query

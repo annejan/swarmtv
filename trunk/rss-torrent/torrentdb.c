@@ -232,16 +232,22 @@ int rsstdeloldnewtorents(sqlite3 *db, unsigned int days)
  * 0 	On success
  * -1 on failure
  */
-int rsstdeldownloaded(sqlite3 *db, char *id)
+int rsstdeldownloaded(rsstor_handle *handle, int id)
 {
-	int rc=0;
+	int      rc=0;
+	sqlite3 *db=NULL;
+
+	/*
+	 * Get db pointer
+	 */
+	db = handle->db;
 	
 	static char *query="delete from downloaded where id=?1;";
 	
 	/*
 	 * Execute query to delete 
 	 */
-	rc = rsstexecutequery(db, query, "s", id);
+	rc = rsstexecutequery(db, query, "d", id);
 
 	return rc;
 }

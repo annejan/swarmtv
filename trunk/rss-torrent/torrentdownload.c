@@ -450,13 +450,19 @@ static int dodownload(sqlite3 *db, downloaded_struct *downed)
  * 0 on success
  * -1 on failure
  */
-int rsstdownloadbyid(sqlite3 *db, int torid)
+int rsstdownloadbyid(rsstor_handle *handle, int torid)
 {
 	int 							rc=0;
 	sqlite3_stmt 			*ppstmt=NULL;
 	downloaded_struct downed;
 	int								retval=0;
 	int								step_rc=0;
+	sqlite3          *db=NULL;
+
+	/*
+	 * Get db pointer.
+	 */
+	db = handle->db;
 
 	static char *manualquery = "select link, title, pubdate, category, season, episode from newtorrents where id = ?1";
 
@@ -527,6 +533,12 @@ int rsstdownloadbyidstr(sqlite3 *db, char *torid)
 {
 	int rc=0;
 	int i_torid=0;
+	rsstor_handle handle;
+
+	/*
+	 * REMOVE IN THE FUTURE !!!!
+	 */
+	handle.db = db;
 
 	/*
 	 * convert torid to int
@@ -536,7 +548,7 @@ int rsstdownloadbyidstr(sqlite3 *db, char *torid)
 	/*
 	 * call real routine
 	 */
-	rc = rsstdownloadbyid(db, i_torid);
+	rc = rsstdownloadbyid(&handle, i_torid);
 	if(rc == 0){
 		/*
 		 * Download successfull

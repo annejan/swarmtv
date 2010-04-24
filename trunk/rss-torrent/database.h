@@ -158,7 +158,7 @@ int rsstprintquerylist(sqlite3 *db, const char *query, char *names[], char *fmt,
  * @Return
  * Returns 0 on success -1 on failure
  */
-int rsstgetallconfig(sqlite3 *db, config_container **configitems);
+int rsstgetallconfig(rsstor_handle *handle, config_container **configitems);
 
 /*
  * Delete content from confeg_container struct
@@ -177,7 +177,7 @@ int rsstfreeconfigcontainer(config_container *container);
  * @Return
  * Returns 0 on success -1 on failure
  */
-int rsstgetdownloaded(sqlite3 *db, downloaded_container **downloaded, int limit, int offset);
+int rsstgetdownloaded(rsstor_handle *handle, downloaded_container **downloaded, int limit, int offset);
 
 /*
  * Delete content from source_container struct
@@ -195,7 +195,7 @@ int rsstfreedownloadedcontainer(downloaded_container *container);
  * @Return
  * Returns 0 on success -1 on failure
  */
-int rsstgetallsources(sqlite3 *db, source_container **sources);
+int rsstgetallsources(rsstor_handle *handle, source_container **sources);
 
 /*
  * Delete content from source_container struct

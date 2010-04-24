@@ -24,6 +24,7 @@
 #include <stdarg.h>
 #include <sqlite3.h>
 
+#include "types.h"
 #include "config.h"
 #include "filesystem.h"
 

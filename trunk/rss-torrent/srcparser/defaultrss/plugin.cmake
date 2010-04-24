@@ -1,6 +1,6 @@
 SET(DEFAULTRSS_PATH srcparser/defaultrss)
 
-SET(SRC ${SRC} 
+SET(LIBSRC ${LIBSRC} 
 		${DEFAULTRSS_PATH}/defaultrss 
 		${DEFAULTRSS_PATH}/rssparse 
 		${DEFAULTRSS_PATH}/disectdate

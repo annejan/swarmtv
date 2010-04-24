@@ -35,7 +35,7 @@ void rsstprintsources(sqlite3 *db);
  * When allready existing -1 is returned.
  * On succes 0 is returned.
  */
-int rsstaddsource(sqlite3 *db, const char *name, const char *url, char *parsertype);
+int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char *parsertype);
 
 /*
  * del source item
@@ -45,5 +45,5 @@ int rsstaddsource(sqlite3 *db, const char *name, const char *url, char *parserty
  * When allready existing -1 is returned.
  * On succes 0 is returned.
  */
-int rsstdelsource(sqlite3 *db, const char *name);
+int rsstdelsource(rsstor_handle *handle, const char *name);
 

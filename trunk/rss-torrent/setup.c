@@ -22,10 +22,16 @@
 #include <stdlib.h>
 #include <time.h>
 #include <sqlite3.h>
+#include <curl/curl.h>
+#include <curl/types.h>
+#include <curl/easy.h>
+#include <libxml/parser.h>
 
 #include "types.h"
+#include "logfile.h"
 #include "filesystem.h"
 #include "setup.h"
+#include "database.h"
 
 /*
  * Test if rsstorrentdir exists
@@ -94,4 +100,83 @@ int rsstinitrsstorrent()
 	 * Done
 	 */
 	return retval;
+}
+
+/*
+ * Initialize RSS-torrent handle
+ * and make sure we have all subsystems operational
+ * @Return
+ * Pointer to handle on success, NULL on failure
+ */
+rsstor_handle *initrsstor()
+{
+	int rc=0;
+	rsstor_handle *handle=NULL;
+
+	/*
+	 * Allocate structure
+	 */
+	handle = calloc(1, sizeof(rsstor_handle));
+
+  /*
+   * Initialize the database
+   */
+  rc = rsstinitdatabase( DBFILE, &(handle->db));  
+  if( rc!=SQLITE_OK ){
+    fprintf(stderr, "Initializing db : \'%s\' failed\n", DBFILE);
+    exit(1);
+  }
+
+  /*
+   * Initialize lib curl
+   */
+  curl_global_init(CURL_GLOBAL_ALL);
+
+  /*
+   * open logfile
+   */
+  rc = rsstinitlogdb(handle->db);
+  if(rc != 0) {
+    fprintf(stderr, "Can't open logfile!\n");
+    exit(1);
+  }
+  rsstwritelog(LOG_DEBUG, "Start rss-torrent");
+
+	/*
+	 * Return handle to struct
+	 */
+	return handle;
+}
+
+/*
+ * Free RSS-torrent handle
+ * @Arguments
+ * handle pointer to RSS-torrent structure
+ */
+void freersstor(rsstor_handle *handle)
+{
+  /*
+   * Cleanup function for the XML library.
+   */
+  xmlCleanupParser();
+
+  /* 
+   * we're done with libcurl, so clean it up
+   */ 
+  curl_global_cleanup();
+
+  /*
+   * Close the sqlite database.
+   * No way to get dbpointer here
+   */
+  sqlite3_close(handle->db);
+
+  /*
+   * Close logfile.
+   */
+  rsstcloselog();
+	/*
+	 * Free the handle struct
+	 */
+	free(handle);
 }

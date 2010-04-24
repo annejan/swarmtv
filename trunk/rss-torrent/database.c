@@ -1169,13 +1169,19 @@ static int rsststoreconfigcontainer(sqlite3_stmt *result, config_container *cont
  * @Return
  * Returns 0 on success -1 on failure
  */
-int rsstgetallconfig(sqlite3 *db, config_container **configitems)
+int rsstgetallconfig(rsstor_handle *handle, config_container **configitems)
 {
 	int 					rc=0;
 	int 					retval=0;
 	sqlite3_stmt *ppstmt=NULL;
 	config_container *localitems=NULL;
 	char         *zErrMsg=NULL;
+	sqlite3      *db=NULL;
+
+	/*
+	 * Get db pointer.
+	 */
+	db = handle->db;
 
 	/*
 	 * Query to retrieve config items
@@ -1334,13 +1340,19 @@ static int rsststoredownloadedcontainer(sqlite3_stmt *result, downloaded_contain
  * @Return
  * Returns 0 on success -1 on failure
  */
-int rsstgetdownloaded(sqlite3 *db, downloaded_container **downloaded, int limit, int offset)
+int rsstgetdownloaded(rsstor_handle *handle, downloaded_container **downloaded, int limit, int offset)
 {
 	int 					rc=0;
 	int 					retval=0;
 	sqlite3_stmt *ppstmt=NULL;
 	downloaded_container *localitems=NULL;
 	char         *zErrMsg=NULL;
+	sqlite3      *db=NULL;
+
+	/*
+	 * handle
+	 */
+	db = handle->db;
 
 	/*
 	 * Query to retrieve downloaded items
@@ -1514,13 +1526,19 @@ static int rsststoresourcecontainer(sqlite3_stmt *result, source_container *cont
  * @Return
  * Returns 0 on success -1 on failure
  */
-int rsstgetallsources(sqlite3 *db, source_container **sources)
+int rsstgetallsources(rsstor_handle *handle, source_container **sources)
 {
 	int 					rc=0;
 	int 					retval=0;
 	sqlite3_stmt *ppstmt=NULL;
 	source_container *localitems=NULL;
 	char         *zErrMsg=NULL;
+	sqlite3      *db=NULL;
+
+	/*
+	 * Get db pointer
+	 */
+	db = handle->db;
 
 	/*
 	 * Query to retrieve source items

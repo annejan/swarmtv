@@ -17,6 +17,7 @@
  *
  *  Program written by Paul Honig 2009
  */
+#include <sqlite3.h>
 
 #ifndef RSSTOR
 #define RSSTOR
@@ -24,6 +25,15 @@
 /*
  * Structures containing data from rsstorrent database.
  */
+
+/*
+ * Rsstorrent handle.
+ * This handle will change when other database types are implemented, 
+ * so do not reference to components in this struct.
+ */
+typedef struct {
+	sqlite3 *db;
+} rsstor_handle;
 
 /*
  * Struct holding the values to add to the database
@@ -138,14 +148,28 @@ typedef struct {
  */
 
 /*
+ * Initialize RSS-torrent handle
+ * @Return
+ * Pointer to handle on success, NULL on failure
+ */
+rsstor_handle *initrsstor();
+
+/*
+ * Free RSS-torrent handle
+ * @Arguments
+ * handle pointer to RSS-torrent structure
+ */
+void freersstor(rsstor_handle *handle);
+
+/*
  * Get all config settings
  * @Arguments
- * db	sqlite3 pointer 
+ * handle RSS-torrent handle
  * configitems The container to store the configitems in
  * @Return
  * Returns 0 on success -1 on failure
  */
-int rsstgetallconfig(sqlite3 *db, config_container **configitems);
+int rsstgetallconfig(rsstor_handle *handle, config_container **configitems);
 
 /*
  * Delete content from confeg_container struct
@@ -159,13 +183,14 @@ int rsstfreeconfigcontainer(config_container *container);
 /*
  * Set config item
  * @arguments
+ * handle RSS-torrent handle
  * prop name of the propertie to change
  * value new value to enter
  * @returns
  * When not found -1 is returned.
  * On succes 0 is returned.
  */
-int rsstsetconfigitem(sqlite3 *db, const char *prop, const char *value);
+int rsstsetconfigitem(rsstor_handle *handle, const char *prop, const char *value);
 
 /*
  * == Functions to manipulate sources
@@ -174,12 +199,12 @@ int rsstsetconfigitem(sqlite3 *db, const char *prop, const char *value);
 /*
  * Get all RSS-sources
  * @arguments
- * db database pointer
+ * handle RSS-torrent handle
  * sources The container to store the sources in
  * @Return
  * Returns 0 on success -1 on failure
  */
-int rsstgetallsources(sqlite3 *db, source_container **sources);
+int rsstgetallsources(rsstor_handle *handle, source_container **sources);
 
 /*
  * Delete content from source_container struct
@@ -193,7 +218,7 @@ int rsstfreesourcecontainer(source_container *sources);
 /*
  * Add source item
  * @arguments
- * db database pointer
+ * handle RSS-torrent handle
  * name filtername
  * url source url
  * parsertype parser type
@@ -201,18 +226,18 @@ int rsstfreesourcecontainer(source_container *sources);
  * When allready existing -1 is returned.
  * On succes 0 is returned.
  */
-int rsstaddsource(sqlite3 *db, const char *name, const char *url, char *parsertype);
+int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char *parsertype);
 
 /*
  * del source item
  * @arguments
- * db database pointer
+ * handle RSS-torrent handle
  * name sourcename to delete
  * @return
  * When allready existing -1 is returned.
  * On succes 0 is returned.
  */
-int rsstdelsource(sqlite3 *db, const char *name);
+int rsstdelsource(rsstor_handle *handle, const char *name);
 
 /*
  * == Functions to manipulate downloaded database
@@ -221,11 +246,14 @@ int rsstdelsource(sqlite3 *db, const char *name);
 /*
  * Get downloaded torrents
  * @arguments
+ * handle RSS-torrent handle
  * downloaded The container to store the downloaded in
+ * limit amount of records to retrieve
+ * offset number of records to skip at beginning
  * @Return
  * Returns 0 on success -1 on failure
  */
-int rsstgetdownloaded(sqlite3 *db, downloaded_container **downloaded, int limit, int offset);
+int rsstgetdownloaded(rsstor_handle *handle, downloaded_container **downloaded, int limit, int offset);
 
 /*
  * Delete content from source_container struct
@@ -239,13 +267,13 @@ int rsstfreedownloadedcontainer(downloaded_container *container);
 /*
  * Delete from downloaded table
  * @arguments
- * db database pointer
+ * handle RSS-torrent handle
  * id id of the downloaded torrent to delete from downed table
  * @returns
  * 0 	On success
  * -1 on failure
  */
-int rsstdeldownloaded_i(sqlite3 *db, int id);
+int rsstdeldownloaded(rsstor_handle *handle, int id);
 
 /*
  * == Functions to manipulate newtorrents
@@ -276,11 +304,12 @@ int rsstfreenewtorrentscontainer(newtorrents_container *newtorrents);
  * This routine function downloads the torrent indicated by ID.
  * The routine looks throught the newtorrents table to pick the torrent by id.
  * @arguments
+ * handle RSS-torrent handle
  * id	The id that points to the torrent
  * @returns
  * 0 on success
  * -1 on failure
  */
-int rsstdownloadbyid(sqlite3 *db, int torid);
+int rsstdownloadbyid(rsstor_handle *handle, int torid);
 
 #endif

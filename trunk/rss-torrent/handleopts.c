@@ -166,12 +166,18 @@ static void printversion(void)
 
 static void setconfigvalue(sqlite3 *db, char *configval)
 {
-	int		rc;
-	char 	*name;
-	char	*value;
+	int						rc=0;
+	char 				 *name=NULL;
+	char				 *value=NULL;
+	rsstor_handle handle;
+
+	/*
+	 * REMOVE IN THE FUTURE
+	 */
+	handle.db = db;
 
 	rsstsplitnameval(configval, &name, &value);
-	rc = rsstsetconfigitem(db, name, value);
+	rc = rsstsetconfigitem(&handle, name, value);
 	if(rc == -1) {
 		fprintf(stderr, "Value not found in config\n");
 	} else {
@@ -372,11 +378,17 @@ static void reinitdb(sqlite3 *db)
  */
 static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opts)
 {
-	int					rc=0;
-	char        opt=0;
-	int 				stopop=0;
-	int 				optindex=0;
-	//char       	*name=NULL;
+	int						rc=0;
+	char        	opt=0;
+	int 					stopop=0;
+	int 					optindex=0;
+	int						torid=0;
+	rsstor_handle handle;
+
+	/*
+	 * REMOVE IN THE FUTURE !!
+	 */
+	handle.db=db;
 
   /*
    * Handle commandline options
@@ -437,7 +449,7 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
         stopop = 1; // no more
         break;
       case 'D': // delete rss source
-        rc = rsstdelsource(db, optarg);
+        rc = rsstdelsource(&handle, optarg);
         break;
       case 'r': // run as daemon 
         opts->run = 1;
@@ -557,13 +569,16 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
         stopop =1; // no more
 				break;
 			case 'M': // Delete a entry from the downed table
-				rc = rsstdeldownloaded(db, optarg);
-			  if(rc == ROWS_CHANGED){
-					printf("Deletion of %s succesfull.\n", optarg);
-				} else {
-					printf("Deletion of %s failed.\n", optarg);
+				if(strlen(optarg) > 0) {
+					torid = atoi(optarg);
+					rc = rsstdeldownloaded(&handle, torid);
+					if(rc == ROWS_CHANGED){
+						printf("Deletion of %s succesfull.\n", optarg);
+					} else {
+						printf("Deletion of %s failed.\n", optarg);
+					}
 				}
-        stopop =1; // no more
+				stopop =1; // no more
 				break;
 			case 'L': // find torrents, use simple filters to describe conditions
 				opts->findtorid = 1;
@@ -596,9 +611,15 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
  */
 void handlemultiple(sqlite3 *db, opts_struct *opts)
 {
-	int		rc;
-	char *name=NULL;
-	char *value=NULL;
+	int						rc=0;
+	char 				 *name=NULL;
+	char 				 *value=NULL;
+	rsstor_handle handle;
+
+	/*
+	 * REMOVE IN FUTURE
+	 */
+	handle.db = db;
 
 	/*
 	 * When source is set add it here.
@@ -606,7 +627,7 @@ void handlemultiple(sqlite3 *db, opts_struct *opts)
 	 */
 	if(opts->source != NULL) {
 		rsstsplitnameval(opts->source, &name, &value);
-		rsstaddsource(db, name, value, opts->sourcefilter);
+		rsstaddsource(&handle, name, value, opts->sourcefilter);
 	}
 
 	/*

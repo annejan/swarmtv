@@ -47,22 +47,13 @@ void rsstadddownloaded(sqlite3 *db, downloaded_struct *downed, SIM  simulate);
 /*
  * Delete from downloaded table
  * @arguments
+ * handle rsstor handle 
  * id 	id of the downloaded torrent to delete from downed table
  * @returns
  * 0 	On success
  * -1 on failure
  */
-int rsstdeldownloaded_i(sqlite3 *db, int id);
-
-/*
- * Delete from downloaded table
- * @arguments
- * id 	id of the downloaded torrent to delete from downed table
- * @returns
- * 0 	On success
- * -1 on failure
- */
-int rsstdeldownloaded(sqlite3 *db, char *id);
+int rsstdeldownloaded(rsstor_handle *handle, int id);
 
 /*
  * When Torrents are prosessed, they are no longer new

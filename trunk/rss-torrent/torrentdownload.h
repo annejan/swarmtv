@@ -69,5 +69,5 @@ int rsstdownloadbyidstr(sqlite3 *db, char *torid);
  * 0 on success
  * -1 on failure
  */
-int rsstdownloadbyid(sqlite3 *db, int torid);
+int rsstdownloadbyid(rsstor_handle *handle, int torid);
 

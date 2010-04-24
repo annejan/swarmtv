@@ -42,6 +42,12 @@ void rsstprintsources(sqlite3 *db)
 	int rc=0;
 	int count=0;
 	source_container *container=NULL;
+	rsstor_handle handle;
+
+	/*
+	 * REMOVE IN FUTURE !!!
+	 */
+	handle.db = db;
 
   /*
    * header
@@ -54,7 +60,7 @@ void rsstprintsources(sqlite3 *db)
 	/*
 	 * Get source values.
 	 */
-	rc = rsstgetallsources(db, &container);
+	rc = rsstgetallsources(&handle, &container);
 	if(rc != 0){
 		fprintf(stderr, "Retrieving of source failed !\n");
 		exit(1);
@@ -92,9 +98,15 @@ void rsstprintsources(sqlite3 *db)
  * When allready existing -1 is returned.
  * On succes 0 is returned.
  */
-int rsstdelsource(sqlite3 *db, const char *name)
+int rsstdelsource(rsstor_handle *handle, const char *name)
 {
-  int         rc;
+  int         rc=0;
+	sqlite3    *db=NULL;
+
+	/*
+	 * Get database pointer
+	 */
+	db = handle->db;
 
   /*
    * Init query
@@ -128,10 +140,16 @@ int rsstdelsource(sqlite3 *db, const char *name)
  * When allready existing -1 is returned.
  * On succes 0 is returned.
  */
-int rsstaddsource(sqlite3 *db, const char *name, const char *url, char *parsertype)
+int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char *parsertype)
 {
-  int         rc;
-  char       *localparser;
+  int         rc=0;
+  char       *localparser=NULL;
+	sqlite3    *db=NULL;
+
+	/*
+	 * Get db pointer
+	 */
+	db = handle->db;
 
   /*
    * Init query

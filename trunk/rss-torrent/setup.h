@@ -33,3 +33,16 @@
  */
 int rsstinitrsstorrent(); 
 
+/*
+ * Initialize RSS-torrent handle
+ * @Return
+ * Pointer to handle on success, NULL on failure
+ */
+rsstor_handle *initrsstor();
+
+/*
+ * Free RSS-torrent handle
+ * @Arguments
+ * handle pointer to RSS-torrent structure
+ */
+void freersstor(rsstor_handle *handle);

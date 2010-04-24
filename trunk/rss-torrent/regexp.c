@@ -536,13 +536,13 @@ int rsststrrepl(char **Str, char *OldStr, char *NewStr)
    */
   OldLen = strlen(OldStr);
   NewLen = strlen(NewStr);
-  TotalNew = (strlen(*Str) + NewLen - OldLen);
+  TotalNew = (strlen(*Str) + NewLen - OldLen + 1);
   
   /*
    * Alloc space for new string
    */
   if(TotalNew > strlen(*Str)){
-    *Str=realloc(*Str, TotalNew + 1);
+    *Str=realloc(*Str, TotalNew);
   }
 
   /*
