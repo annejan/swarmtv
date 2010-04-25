@@ -124,7 +124,7 @@ rsstor_handle *initrsstor()
   rc = rsstinitdatabase( DBFILE, &(handle->db));  
   if( rc!=SQLITE_OK ){
     fprintf(stderr, "Initializing db : \'%s\' failed\n", DBFILE);
-    exit(1);
+		return NULL;
   }
 
   /*
@@ -138,9 +138,8 @@ rsstor_handle *initrsstor()
   rc = rsstinitlogdb(handle->db);
   if(rc != 0) {
     fprintf(stderr, "Can't open logfile!\n");
-    exit(1);
+		return NULL;
   }
-  rsstwritelog(LOG_DEBUG, "Start rss-torrent");
 
 	/*
 	 * Return handle to struct

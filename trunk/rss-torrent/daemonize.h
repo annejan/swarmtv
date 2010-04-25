@@ -27,9 +27,9 @@
 void rsstdaemonize(char *path);
 
 /*
- * check Lockfile 
- * @arguments
- * lockpath the path to the lockfile
+ * Lock the rsstorrent lockfile
+ * This routine gets the path of the lockfile from the config settings.
+ * @Arguments
+ * handle RSS-torrent handle
  */
-void rsstlockfile (const char *lockpath);
-
+void rsstlock(rsstor_handle *handle);

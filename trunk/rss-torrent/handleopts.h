@@ -21,12 +21,12 @@
 /*
  * Program version
  */
-#define PROGVERSION "0.7"
+#define PROGVERSION "0.8"
 
 /*
  * Default timeout when no -i is provided
  */
-#define  DEFAULTSEC 3600
+#define  DEFAULTSEC 1800
 
 /*
  * Handles the arguments, and Calls the subroutines when needed.
@@ -34,5 +34,5 @@
  * argc from main
  * argv from main
  */
-void rssthandleopts(sqlite3 *db, int argc, char *argv[]);
+void rssthandleopts(rsstor_handle *handle, int argc, char *argv[]);
 

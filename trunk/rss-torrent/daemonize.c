@@ -27,6 +27,10 @@
 #include <string.h>
 #include "filesystem.h"
 
+#include "sqlite3.h"
+#include "types.h"
+#include "config.h"
+
 /*
  * Fork process to daemon.
  */
@@ -70,7 +74,7 @@ void rsstdaemonize(char *path)
 /*
  * check Lockfile 
  */
-void rsstlockfile (const char *lockpath)
+static void rsstlockfile (rsstor_handle *handle, const char *lockpath)
 {
   int  lfp;
   char str[10];
@@ -94,4 +98,76 @@ void rsstlockfile (const char *lockpath)
 
   snprintf(str, 9,"%d\n",getpid());
   write(lfp,str,strlen(str)); /* record pid to lockfile */
+
+	/* Store pointer in handle */
+	handle->lockfile = lfp;
+}
+
+/*
+ * Lock the rsstorrent lockfile
+ * This routine gets the path of the lockfile from the config settings.
+ * @Arguments
+ * handle RSS-torrent handle
+ */
+void rsstlock(rsstor_handle *handle)
+{
+	sqlite3 *db=NULL;
+	char    *lockpath=NULL;
+
+	/*
+	 * Get db pointer
+	 */
+	db = handle->db;
+
+	/*
+	 * Get the path the lockfile is in
+	 */
+	rsstconfiggetproperty(db, CONF_LOCKFILE, &lockpath);
+
+	/*
+	 * Lock the file
+	 */
+	rsstlockfile(handle, lockpath);
+
+	/*
+	 * Free the path
+	 */
+	free(lockpath);
+}
+
+/*
+ * Free lockfile
+ * This routine frees up the lockfile and leaves the database for other instances of RSS-torrent
+ * @Arguments 
+ * handle RSS-torrent handle
+ * @Return
+ * 0 on success otherwise -1
+ */
+int rsstunlock(rsstor_handle *handle)
+{
+  int  lfp;
+
+	lfp = handle->lockfile;
+
+	/*
+	 * Valid pointer ?
+	 */
+  if (lfp<=0){
+    fprintf(stderr, "no lockfile opened\n");
+    return -1;
+  }
+
+	/* Release filelock */
+  if (lockf(lfp,F_ULOCK,0)<0){ 
+    fprintf(stderr, "Can not unlock lockfile\n");
+    exit(0); /* can not lock */
+  }
+
+	/* Close the lockfile */
+	close(lfp);
+
+	/* Reset lockfile pointer */
+	handle->lockfile = 0;
+
+	return 0;
 }

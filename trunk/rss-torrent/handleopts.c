@@ -739,12 +739,17 @@ static void freeopts(opts_struct *opts)
 /*
  * Choose runmode.
  */
-static void runmode(sqlite3 *db, opts_struct *opts)
+static void runmode(rsstor_handle *handle, opts_struct *opts)
 {
 	int 		rc=0;
-	char    *lockpath=NULL;
 	char		*logpath=NULL;
 	char		*logfullpath=NULL;
+	sqlite3 *db=NULL;
+
+	/*
+	 * Get DB-pointer
+	 */
+	db = handle->db;
 
 	/*
 	 * Test if torrent directory is writable
@@ -775,26 +780,34 @@ static void runmode(sqlite3 *db, opts_struct *opts)
 		/*
 		 * Check and lock lockfile
 		 */
-		rsstconfiggetproperty(db, CONF_LOCKFILE, &lockpath);
-		rsstlockfile(lockpath);
-		free(lockpath);
+		rsstlock(handle);
+
+		/*
+		 * Free paths
+		 */
 		free(logpath);
 		free(logfullpath);
 
 		/*
 		 * Call main loop here.
 		 */
-		rsstrunloop(db, opts->onetime);
+		rsstrunloop(handle, opts->onetime);
 	}
 }
 
 /*
  * Handles the arguments, and Calls the subroutines when needed.
  */
-void rssthandleopts(sqlite3 *db, int argc, char *argv[])
+void rssthandleopts(rsstor_handle *handle, int argc, char *argv[])
 {
-	int 				rc=0;
-	opts_struct opts; 
+	int 					rc=0;
+	opts_struct 	opts; 
+	sqlite3 		 *db=NULL;
+
+	/*
+	 * Get db pointer
+	 */
+	db = handle->db;
 
 	/*
 	 * init opts struct
@@ -829,7 +842,7 @@ void rssthandleopts(sqlite3 *db, int argc, char *argv[])
 		 * When then run option is provided call the main loop
 		 */
 		if(opts.run == 1) {
-			runmode(db, &opts);
+			runmode(handle, &opts);
 		}
 	}
 

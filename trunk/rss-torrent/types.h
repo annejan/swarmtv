@@ -49,11 +49,6 @@ typedef struct{
 } MemoryStruct; 
 
 /*
- * Loopmode 
- */
-typedef enum {loop=0, once} LOOPMODE;
-
-/*
  * options for after the getopt loop.
  */
 typedef struct {

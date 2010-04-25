@@ -89,6 +89,7 @@ void Signal_Handler(int sig) /* signal handler function */
  * Temporary main function.
  */
 int main(int argc, char **argv){
+	rsstor_handle handle;
   sqlite3    *db=NULL;
   int         rc=0;
 
@@ -119,6 +120,12 @@ int main(int argc, char **argv){
   }
   cleandb=db;
 
+	/*
+	 * Create handle from db pointer.
+	 * REMOVE IN THE FUTURE
+	 */
+	handle.db = db;
+
   /*
    * Initialize lib curl
    */
@@ -137,7 +144,7 @@ int main(int argc, char **argv){
 	/*
 	 * Handle commandline options
 	 */
-	rssthandleopts(db, argc, argv);
+	rssthandleopts(&handle, argc, argv);
 
   /*
    * Cleanup the rest of the libaries

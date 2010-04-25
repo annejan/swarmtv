@@ -23,6 +23,15 @@
 #define RSSTOR
 
 /*
+ * Enums used by RSS-torrent
+ */
+
+/*
+ * Loopmode 
+ */
+typedef enum {loop=0, once} LOOPMODE;
+
+/*
  * Structures containing data from rsstorrent database.
  */
 
@@ -32,7 +41,8 @@
  * so do not reference to components in this struct.
  */
 typedef struct {
-	sqlite3 *db;
+	sqlite3 *db;			 // RSS-torrent database handle.
+	int			 lockfile; // Lock file handle.
 } rsstor_handle;
 
 /*
@@ -311,5 +321,37 @@ int rsstfreenewtorrentscontainer(newtorrents_container *newtorrents);
  * -1 on failure
  */
 int rsstdownloadbyid(rsstor_handle *handle, int torid);
+
+/*
+ * == Functions to run RSS-torrent
+ */
+
+/*
+ * Main loop, dispatches tasks
+ * @arguments
+ * handle RSS-torrent handle
+ * onetime Set loop for infinate loop, once for running the step just once
+ * @return
+ * 0 for now.
+ */
+int rsstrunloop(rsstor_handle *handle, LOOPMODE onetime);
+
+/*
+ * Lock the rsstorrent lockfile
+ * This routine gets the path of the lockfile from the config settings.
+ * @Arguments
+ * handle RSS-torrent handle
+ */
+void rsstlock(rsstor_handle *handle);
+
+/*
+ * Free lockfile
+ * This routine frees up the lockfile and leaves the database for other instances of RSS-torrent
+ * @Arguments 
+ * handle RSS-torrent handle
+ * @Return
+ * 0 on success otherwise -1
+ */
+int rsstunlock(rsstor_handle *handle);
 
 #endif

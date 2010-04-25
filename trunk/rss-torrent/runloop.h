@@ -21,9 +21,10 @@
 /*
  * Main loop, dispatches tasks
  * @arguments
+ * handle RSS-torrent handle
  * onetime When onetime != 0 run once then exit
  * @return
  * 0 for now.
  */
-int rsstrunloop(sqlite3 *db, LOOPMODE onetime);
+int rsstrunloop(rsstor_handle *handle, LOOPMODE onetime);
 

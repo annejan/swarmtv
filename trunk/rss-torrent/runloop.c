@@ -189,18 +189,24 @@ static void dowork(sqlite3 *db){
 /*
  * Main loop, dispatches tasks
  * When onetime != 0 run once then exit
- * Argument
+ * @Argument
  * onetime when ! 0 runloop only runs one time.
- * Returns
+ * @Return
  * 0 for now.
  */
-int rsstrunloop(sqlite3 *db, LOOPMODE onetime)
+int rsstrunloop(rsstor_handle *handle, LOOPMODE onetime)
 {
-  int rc;
-  int timewait;
-  time_t before;
-  time_t after;
-  int    timeleft;
+  int 			rc=0;
+  int				timewait=0;
+  time_t 		before=0;
+  time_t 		after=0;
+  int    		timeleft=0;
+	sqlite3  *db=NULL;
+
+	/*
+	 * Get DB pointer
+	 */
+	db = handle->db;
 
   rc = rsstconfiggetint(db, CONF_REFRESH, &timewait);
 	if(onetime == 0) {
