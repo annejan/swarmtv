@@ -23,7 +23,7 @@
  * format varname : value
  * All from database
  */
-void rsstprintfilters(sqlite3 *db);
+void rsstprintfilters(rsstor_handle *handle);
 
 
 /*
@@ -32,7 +32,7 @@ void rsstprintfilters(sqlite3 *db);
  * @returns
  * On succes 0 is returned.
  */
-int rsstdelallfilters(sqlite3 *db);
+int rsstdelallfilters(rsstor_handle *handle);
 
 /*
  * del source item
@@ -42,12 +42,13 @@ int rsstdelallfilters(sqlite3 *db);
  * @return
  * On succes 0 is returned.
  */
-int rsstdelfilter(sqlite3 *db, const char *name);
+int rsstdelfilter(rsstor_handle *handle, const char *name);
 
 
 /*
  * Add source item
- * @arguments
+ * @Arguments
+ * handle RSS-torrent handle
  * name name of the filter
  * filter SQL query to sort out the candidates
  * doublefilter SQL query to root out the candidates that are already downloaded.
@@ -55,7 +56,7 @@ int rsstdelfilter(sqlite3 *db, const char *name);
  * When allready existing -1 is returned.
  * On succes 0 is returned.
  */
-int rsstaddfilter(sqlite3 *db, const char *name, const char *filter, const char *doublefilter);
+int rsstaddfilter(rsstor_handle *handle, const char *name, const char *filter, const char *doublefilter);
 
 
 /*
@@ -64,5 +65,5 @@ int rsstaddfilter(sqlite3 *db, const char *name, const char *filter, const char 
  * appname the name of the rsstorrent executable
  * filtername the filtername to print
  */
-void rsstprintshellfilter(sqlite3 *db, char *appname, char *filtername);
+void rsstprintshellfilter(rsstor_handle *handle, char *appname, char *filtername);
 

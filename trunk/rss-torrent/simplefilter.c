@@ -229,9 +229,15 @@ static void freestructsimple(simplefilter_struct *simple)
  * returns    : 0 when added succesfully
  * returns    : -1 when adding failed
  */
-int rsstinsertsimplefilter(sqlite3 *db, simplefilter_struct *simple)
+int rsstinsertsimplefilter(rsstor_handle *handle, simplefilter_struct *simple)
 {
-  int rc=0;
+  int 			rc=0;
+	sqlite3  *db=NULL;
+
+	/*
+	 * Get db pointer
+	 */
+	db = handle->db;
 
   /*
    * Query and format used to insert the simple filter into the database
@@ -292,13 +298,19 @@ static int checksimple(sqlite3 *db, const char *name)
  * Add simple filter
  * returns 0 on succes, else -1
  */
-int rsstaddsimplefilter(sqlite3 *db, opts_struct *opts)
+int rsstaddsimplefilter(rsstor_handle *handle, opts_struct *opts)
 {
   int rc=0;
   int retval=0;
   simplefilter_struct simple;
+	sqlite3 *db=NULL;
 
   memset(&simple, 0, sizeof(simplefilter_struct));
+
+	/*
+	 * Get db pointer
+	 */
+	db = handle->db;
 
   /*
    * Make sure the entries are valid.
@@ -321,13 +333,13 @@ int rsstaddsimplefilter(sqlite3 *db, opts_struct *opts)
    */
   rc = checksimple(db, opts->simplename);
   if(rc == 1){
-    rsstdelsimple(db, opts->simplename);
+    rsstdelsimple(handle, opts->simplename);
   }
 
   /*
    * Add Record
    */
-  rsstinsertsimplefilter(db, &simple);
+  rsstinsertsimplefilter(handle, &simple);
 
   /*
    * Done.
@@ -339,10 +351,18 @@ int rsstaddsimplefilter(sqlite3 *db, opts_struct *opts)
 
 /*
  * List Simple filters.
+ * @Arguments
+ * handle RSS-torrent handle
  */
-void rsstlistsimple(sqlite3 *db)
+void rsstlistsimple(rsstor_handle *handle)
 {
-  int rc;
+  int rc=0;
+	sqlite3 *db=NULL;
+
+	/*
+	 * get db pointer
+	 */
+	db = handle->db;
 
   /*
    * Query to list Simple filters
@@ -369,9 +389,15 @@ void rsstlistsimple(sqlite3 *db)
  * When the name is not found -1 is returned.
  * On succes 0 is returned.
  */
-int rsstdelallsimple(sqlite3 *db)
+int rsstdelallsimple(rsstor_handle *handle)
 {
   int         rc=0;
+	sqlite3    *db=NULL;
+
+	/*
+	 * Get db pointer
+	 */
+	db = handle->db;
 
   /*
    * Init query
@@ -401,18 +427,24 @@ int rsstdelallsimple(sqlite3 *db)
 /*
  * Print all simple filters in shell format.
  */
-void rsstprintallsimple(sqlite3 *db)
+void rsstprintallsimple(rsstor_handle *handle)
 {
   sqlite3_stmt  *ppStmt=NULL;
   const char    *pzTail=NULL;
   int           rc=0;
   int           step_rc=0;
   int           cols=0;
-  char          *zErrMsg = 0;
+  char          *zErrMsg=0;
   int           count=0;
   const unsigned char *text=NULL;
+	sqlite3				*db=NULL;
 
 	char *query="select name from simplefilters";
+
+	/*
+	 * Get db pointer
+	 */
+	db=handle->db;
 
   /*
    * Prepare the sqlite statement
@@ -446,7 +478,7 @@ void rsstprintallsimple(sqlite3 *db)
 		 * Print the content of the row
 		 */
 		text = sqlite3_column_text(ppStmt, count);
-		rsstprintsimple(db, (char*) text);
+		rsstprintsimple(handle, (char*) text);
 	}
 
 	/*
@@ -461,14 +493,20 @@ void rsstprintallsimple(sqlite3 *db)
  * When the name is not found -1 is returned.
  * On succes 0 is returned.
  */
-int rsstdelsimple(sqlite3 *db, const char *name)
+int rsstdelsimple(rsstor_handle *handle, const char *name)
 {
   int         rc=0;
+	sqlite3		 *db=NULL;
 
   /*
    * Init query
    */
   const char* query = "delete from 'simplefilters' where name=?1";
+
+	/*
+	 * Get db pointer
+	 */
+	db = handle->db;
 
   /*
    * Execute query
@@ -495,7 +533,7 @@ int rsstdelsimple(sqlite3 *db, const char *name)
  * Print filter in shell format
  * Prints the names of the simple filters + a header.
  */
-void rsstprintsimple(sqlite3 *db, char *filtername)
+void rsstprintsimple(rsstor_handle *handle, char *filtername)
 {
   sqlite3_stmt  			*ppStmt=NULL;
   const char    			*pzTail=NULL;
@@ -513,9 +551,15 @@ void rsstprintsimple(sqlite3 *db, char *filtername)
   const unsigned char *excludestring=NULL;
   const unsigned char *categorystring=NULL;
   const unsigned char *sourcestring=NULL;
+	sqlite3							*db=NULL;
 
 
   char *query =  "select title, maxsize, minsize, nodup, fromseason, fromepisode, exclude, category, source from 'simplefilters' where name=?1";
+
+	/*
+	 * Get db pointer
+	 */
+	db=handle->db;
 
   /*
    * Prepare the sqlite statement

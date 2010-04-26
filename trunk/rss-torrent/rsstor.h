@@ -172,6 +172,24 @@ rsstor_handle *initrsstor();
 void freersstor(rsstor_handle *handle);
 
 /*
+ * Lock the rsstorrent lockfile
+ * This routine gets the path of the lockfile from the config settings.
+ * @Arguments
+ * handle RSS-torrent handle
+ */
+void rsstlock(rsstor_handle *handle);
+
+/*
+ * Free lockfile
+ * This routine frees up the lockfile and leaves the database for other instances of RSS-torrent
+ * @Arguments 
+ * handle RSS-torrent handle
+ * @Return
+ * 0 on success otherwise -1
+ */
+int rsstunlock(rsstor_handle *handle);
+
+/*
  * Get all config settings
  * @Arguments
  * handle RSS-torrent handle
@@ -336,22 +354,5 @@ int rsstdownloadbyid(rsstor_handle *handle, int torid);
  */
 int rsstrunloop(rsstor_handle *handle, LOOPMODE onetime);
 
-/*
- * Lock the rsstorrent lockfile
- * This routine gets the path of the lockfile from the config settings.
- * @Arguments
- * handle RSS-torrent handle
- */
-void rsstlock(rsstor_handle *handle);
-
-/*
- * Free lockfile
- * This routine frees up the lockfile and leaves the database for other instances of RSS-torrent
- * @Arguments 
- * handle RSS-torrent handle
- * @Return
- * 0 on success otherwise -1
- */
-int rsstunlock(rsstor_handle *handle);
 
 #endif

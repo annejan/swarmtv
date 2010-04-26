@@ -23,7 +23,7 @@
  * format varname : value
  * All from database
  */
-void rsstprintsources(sqlite3 *db); 
+void rsstprintsources(rsstor_handle *handle); 
 
 /*
  * Add source item

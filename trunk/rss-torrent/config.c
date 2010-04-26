@@ -39,10 +39,16 @@
  * returns
  * 0 when the value was found, otherwise -1.
  */
-int rsstconfiggetproperty(sqlite3 *db, char *prop, char **value) 
+int rsstconfiggetproperty(rsstor_handle *handle, char *prop, char **value) 
 {
   char  *query;
   int   rc=0;
+	sqlite3 *db=NULL;
+
+	/*
+	 * get db pointer
+	 */
+	db = handle->db;
   
   query="select value from config where prop = ?1";
 
@@ -67,8 +73,14 @@ int rsstconfiggetint(sqlite3 *db, char *prop, int *number)
 {
   char *value;
   int rc=0;
+	rsstor_handle handle;
 
-  rc = rsstconfiggetproperty(db, prop,(char**) &value);
+	/*
+	 * REMOVE IN FUTURE
+	 */
+	handle.db = db;
+
+  rc = rsstconfiggetproperty(&handle, prop,(char**) &value);
   if(rc == 0){
     *number = atoi(value);
     free(value);
@@ -92,8 +104,14 @@ int rsstconfiggetlong(sqlite3 *db, char *prop, long *number)
 {
   char *value;
   int rc=0;
+	rsstor_handle handle;
 
-  rc = rsstconfiggetproperty(db, prop,(char**) &value);
+	/*
+	 * REMOVE IN THE FUTURE
+	 */
+	handle.db = db;
+
+  rc = rsstconfiggetproperty(&handle, prop,(char**) &value);
   if(rc == 0){
     *number = atol(value);
     free(value);
@@ -110,18 +128,11 @@ int rsstconfiggetlong(sqlite3 *db, char *prop, long *number)
  * format varname : value
  * All from database
  */
-void rsstprintconfigitems(sqlite3 *db) 
+void rsstprintconfigitems(rsstor_handle *handle) 
 {
 	int 							rc=0;
 	int								count=0;
 	config_container *container=NULL;
-	rsstor_handle     handle;
-
-	/*
-	 * Create handle for now.
-	 * REMOVE IN FUTURE !!!!
-	 */
-	handle.db = db;
 
   /*
    * header
@@ -134,7 +145,7 @@ void rsstprintconfigitems(sqlite3 *db)
 	/*
 	 * Get config values.
 	 */
-	rc = rsstgetallconfig(&handle, &container);
+	rc = rsstgetallconfig(handle, &container);
 	if(rc != 0){
 		fprintf(stderr, "Retrieving of config failed !\n");
 		exit(1);

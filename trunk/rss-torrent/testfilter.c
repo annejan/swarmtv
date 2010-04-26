@@ -218,8 +218,14 @@ int rsstcleanoutdb(sandboxdb *sandbox)
  */
 static int createsimpledownloaded(sandboxdb *sandbox, opts_struct *filter)
 {
-  int 	rc=0;
-	char 	*nodupsql=NULL;
+  int 					 rc=0;
+	char 					*nodupsql=NULL;
+	rsstor_handle  handle;
+
+	/*
+	 * Get sandbox db
+	 */
+	handle.db=sandbox->db;
 
 	/*
 	 * Remove unwanted data from sandbox.
@@ -233,7 +239,7 @@ static int createsimpledownloaded(sandboxdb *sandbox, opts_struct *filter)
 	/*
 	 * Add filter to sandbox
 	 */
-	rsstaddsimplefilter(sandbox->db, filter);
+	rsstaddsimplefilter(&handle, filter);
 
 	/*
 	 * Execute filter
@@ -432,12 +438,18 @@ int rsstfindtorrentids(opts_struct *opts)
  * 0 on success
  * -1 on error
  */
-int rsstfinddowned(sqlite3 *db, char *optarg)
+int rsstfinddowned(rsstor_handle *handle, char *optarg)
 {
 	int rc=0;
+	sqlite3 *db=NULL;
 
 	static char *query  = "SELECT id, season, episode, title FROM downloaded WHERE IREGEXP(?1, title);";
 	static char *names[] = {"Id", "Season", "Episode", "Title", "Downloaded torrent"};
+
+	/*
+	 * Get db pointer
+	 */
+	db = handle->db;
 
 	/*
 	 * print results

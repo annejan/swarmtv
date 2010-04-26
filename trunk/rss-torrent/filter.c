@@ -37,8 +37,15 @@
  * format varname : value
  * All from database
  */
-void rsstprintfilters(sqlite3 *db) 
+void rsstprintfilters(rsstor_handle *handle) 
 {
+	sqlite3 *db=NULL;
+
+	/*
+	 * Get db pointer
+	 */
+	db  = handle->db;
+
   /*
    * header
    */
@@ -59,9 +66,15 @@ void rsstprintfilters(sqlite3 *db)
  * Deletes all filters from filtertable.
  * On succes 0 is returned.
  */
-int rsstdelallfilters(sqlite3 *db)
+int rsstdelallfilters(rsstor_handle *handle)
 {
-  int           rc;
+	sqlite3	*db=NULL;
+  int      rc=0;
+
+	/*
+	 * Get db pointer
+	 */
+	db = handle->db;
 
   /*
    * Init query
@@ -95,9 +108,15 @@ int rsstdelallfilters(sqlite3 *db)
  * When allready existing -1 is returned.
  * On succes 0 is returned.
  */
-int rsstdelfilter(sqlite3 *db, const char *name)
+int rsstdelfilter(rsstor_handle *handle, const char *name)
 {
+	sqlite3    *db=NULL;
 	int         rc=0;
+
+	/*
+	 * Get db pointer.
+	 */
+	db = handle->db;
 
 	/*
 	 * Init query
@@ -133,7 +152,7 @@ int rsstdelfilter(sqlite3 *db, const char *name)
  */
 static int checkfilter(sqlite3 *db, const char *name)
 {
-	int rc;
+	int rc=0;
 
 	char *query = "select * from filters where name=?1";
 
@@ -150,11 +169,17 @@ static int checkfilter(sqlite3 *db, const char *name)
  * When allready existing -1 is returned.
  * On succes 0 is returned.
  */
-int rsstaddfilter(sqlite3 *db, const char *name, const char *filter, const char *doublefilter)
+int rsstaddfilter(rsstor_handle *handle, const char *name, const char *filter, const char *doublefilter)
 {
-	int         rc;
-	const char *locdouble; // holds pointer to doublefilter or empty
+	int         rc=0;
+	const char *locdouble=NULL; // holds pointer to doublefilter or empty
 	char        query[MAXLENGHT+1];
+	sqlite3 	 *db=NULL;
+
+	/*
+	 * Get db pointer
+	 */
+	db = handle->db;
 
 	/*
 	 * No filters can be added that have the name all.
@@ -220,21 +245,28 @@ int rsstaddfilter(sqlite3 *db, const char *name, const char *filter, const char 
 
 /*
  * Print filter in a way it could be modified and reentered
- * Arguments 
+ * @Arguments 
+ * handle RSS-torrent handle
  * appname		The name of the executable
  * filtername	The name of the filter to print. 	
  */
-void rsstprintshellfilter(sqlite3 *db, char *appname, char *filtername)
+void rsstprintshellfilter(rsstor_handle *handle, char *appname, char *filtername)
 {
-  sqlite3_stmt  *ppStmt;
-  const char    *pzTail;
-  int           rc;
-  int           cols;
+  sqlite3_stmt  *ppStmt=NULL;
+  const char    *pzTail=NULL;
+  int           rc=0;
+  int           cols=0;
   char          *zErrMsg = 0;
-  const unsigned char *filterstring;
-  const unsigned char *nodoublestring;
+  const unsigned char *filterstring=NULL;
+  const unsigned char *nodoublestring=NULL;
+	sqlite3				*db=NULL;
 
   char *query =  "select filter, nodouble from 'filters' where name=?1";
+	
+	/*
+	 * Get db pointer
+	 */
+	db = handle->db;
 
   // Get filter from filters
 

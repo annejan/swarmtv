@@ -122,7 +122,7 @@ void rsstlock(rsstor_handle *handle)
 	/*
 	 * Get the path the lockfile is in
 	 */
-	rsstconfiggetproperty(db, CONF_LOCKFILE, &lockpath);
+	rsstconfiggetproperty(handle, CONF_LOCKFILE, &lockpath);
 
 	/*
 	 * Lock the file

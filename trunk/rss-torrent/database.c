@@ -355,15 +355,21 @@ static int getdbversion(sqlite3 *db, int *version)
  * @return
  * 0 on succes, -1 on failure
  */
-static int fixdb(sqlite3 *db, int version) 
+static int fixdb(rsstor_handle *handle, int version) 
 {
-  int rc=0;
+  int 			rc=0;
+	sqlite3  *db=NULL;
+
+	/*
+	 * get db pointer
+	 */
+	db = handle->db;
 
   /*
    * When version is < 1 database state unknown reinitialize whole db
    */
   if(version < 1) {
-    rc = rsstrundbinitscript(db);
+    rc = rsstrundbinitscript(handle);
     return rc;
   } 
 
@@ -391,14 +397,14 @@ static int fixdb(sqlite3 *db, int version)
  * @return
  * 0 on succes, -1 on failure
  */
-int rsstrundbinitscript(sqlite3 *db)
+int rsstrundbinitscript(rsstor_handle *handle)
 {
 	int rc=0;
 
 	/*
 	 * Execute query
 	 */
-	rc = dbexecscript(db, dbinitscript); 
+	rc = dbexecscript(handle->db, dbinitscript); 
 
 	/*
 	 * return result
@@ -409,15 +415,20 @@ int rsstrundbinitscript(sqlite3 *db)
 
 /*
  * Open database, and add regexp functionality.
+ * @Arguments
+ * filename Database filenam
+ * ppDb SQLite db handle
+ * @Returns
+ *
  */
-int rsstinitdatabase(
-		const char *filename,   /* Database filename (UTF-8) */
-		sqlite3   **ppDb)       /* OUT: SQLite db handle */
+//int rsstinitdatabase(const char *filename, sqlite3 **ppDb)       
+int rsstinitdatabase(const char *filename, rsstor_handle *handle)
 {
 	int         rc=0; /* return code */
 	int					version=0;
 	char       *zErrMsg = 0;
 	char       *dbpath = NULL;
+	sqlite3    *db=NULL;
 
 	/*
 	 * Complete the filename is it contains a ~ as homedir
@@ -427,10 +438,10 @@ int rsstinitdatabase(
 	/*
    * Open the sqlite database.
    */
-  rc = sqlite3_open(dbpath, ppDb);
+  rc = sqlite3_open(dbpath, &db);
   if( rc ){
-    fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(*ppDb));
-    sqlite3_close(*ppDb);
+    fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+    sqlite3_close(db);
     return !SQLITE_OK;
   }
 
@@ -442,16 +453,16 @@ int rsstinitdatabase(
 	/*
 	 * Test if database is initialized and of the right version.
 	 */
-	rc = getdbversion(*ppDb, &version);
+	rc = getdbversion(db, &version);
 	if(rc != 0 || version != DB_VERSION){
 		/*
 		 * Create new DB
 		 */
 		printf("Running create databasescript.\n");
-    rc = fixdb(*ppDb, version); 
+    rc = fixdb(handle, version); 
 		if(rc == -1){
 			fprintf(stderr, "Can't open database, initscript failed!\n");
-			sqlite3_close(*ppDb);
+			sqlite3_close(db);
 			return !SQLITE_OK;
 		}
 	}
@@ -461,7 +472,7 @@ int rsstinitdatabase(
    */
   typedef struct sqlite3_value sqlite3_value;
   rc = sqlite3_create_function(
-      *ppDb,
+      db,
       "regexp",       // name of the function
       2,              // number of arguments
       SQLITE_UTF8,    // Kind of encoding we expect
@@ -478,7 +489,7 @@ int rsstinitdatabase(
   }
 
   rc = sqlite3_create_function(
-      *ppDb,
+      db,
       "iregexp",       // name of the function
       2,              // number of arguments
       SQLITE_UTF8,    // Kind of encoding we expect
@@ -493,6 +504,11 @@ int rsstinitdatabase(
     sqlite3_free(zErrMsg);
     return !SQLITE_OK;
   }
+
+	/*
+	 * Store db pointer
+	 */
+	handle->db = db;
 
   /*
    * All went well.
@@ -1708,6 +1724,8 @@ int rsstfindnewtorrents(simplefilter_struct *filter, newtorrents_container **new
 	sandboxdb 		*sandbox=NULL;
 	sqlite3_stmt 	*ppstmt=NULL;
 	char         	*zErrMsg=NULL;
+	rsstor_handle  handle;
+
 
 	/*
 	 * Query to retrieve the data from the sandbox after all te work is done.
@@ -1726,6 +1744,11 @@ int rsstfindnewtorrents(simplefilter_struct *filter, newtorrents_container **new
 	}
 
 	/*
+	 * Dirty but needed
+	 */
+	handle.db=sandbox->db;
+
+	/*
 	 * Remove unwanted data from sandbox.
 	 */
 	rc = rsstcleanoutdb(sandbox);
@@ -1737,7 +1760,7 @@ int rsstfindnewtorrents(simplefilter_struct *filter, newtorrents_container **new
 	/*
 	 * Add simple filter
 	 */
-	rc = rsstinsertsimplefilter(sandbox->db, filter);
+	rc = rsstinsertsimplefilter(&handle, filter);
 	if(rc != 0){
 		rsstwritelog(LOG_ERROR, "Inserting simple filter failed %s:%d", __FILE__, __LINE__);
 		return -1;

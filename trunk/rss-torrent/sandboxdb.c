@@ -113,8 +113,9 @@ static int copyfile(char *outfile, char *infile)
  */
 sandboxdb *rsstcreatesandbox(char *sourcedbname, char *sandboxdbname)
 {
-  int       rc=0;
-  sandboxdb *sandbox=NULL;
+  int       		 rc=0;
+  sandboxdb 		*sandbox=NULL;
+	rsstor_handle	 handle;
 
   /*
    * Init struct
@@ -134,11 +135,16 @@ sandboxdb *rsstcreatesandbox(char *sourcedbname, char *sandboxdbname)
   /*
    * create pointer to database
    */
-  rc = rsstinitdatabase(sandboxdbname, &(sandbox->db)); 
+  rc = rsstinitdatabase(sandboxdbname, &handle); 
   if(rc != SQLITE_OK) {
     rsstwritelog(LOG_ERROR, "Sandbox database initialization failed %s:%d", __FILE__, __LINE__);
     return NULL;
   }
+
+	/*
+	 * Get db pointer to sandbox
+	 */
+	sandbox->db = handle.db;
 
   /*
    * Done !

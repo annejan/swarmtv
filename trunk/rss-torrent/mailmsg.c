@@ -78,11 +78,17 @@ int rsstsendrssmail(sqlite3 *db, const char *subject, const char *msgtxt)
   char *smtpfrom = NULL;
   char *smtphost = NULL;
   char *sendmessage = NULL;
+	rsstor_handle handle;
+
+	/*
+	 * REMOVE IN FUTURE
+	 */
+	handle.db=db;
 
   /*
    * Test if mailing is enabled
    */
-  rsstconfiggetproperty(db, CONF_SMTPENABLE, &smtpenable);
+  rsstconfiggetproperty(&handle, CONF_SMTPENABLE, &smtpenable);
   if(smtpenable == NULL || *smtpenable != 'Y') {
     /*
      * Mailing disabled, moving on.
@@ -94,9 +100,9 @@ int rsstsendrssmail(sqlite3 *db, const char *subject, const char *msgtxt)
   /*
    * Get the rest of the settings
    */
-  rsstconfiggetproperty(db, CONF_SMTPTO, &smtpto);
-  rsstconfiggetproperty(db, CONF_SMTPFROM, &smtpfrom);
-  rsstconfiggetproperty(db, CONF_SMTPHOST, &smtphost);
+  rsstconfiggetproperty(&handle, CONF_SMTPTO, &smtpto);
+  rsstconfiggetproperty(&handle, CONF_SMTPFROM, &smtpfrom);
+  rsstconfiggetproperty(&handle, CONF_SMTPHOST, &smtphost);
 
   /*
    * add '\r\n' to beginning and end of messagetext
@@ -243,6 +249,45 @@ int rsstsendmail(const char *host, const char *from, const char *to, const char 
   auth_client_exit ();
   //exit (0);
   return retval;
+}
+
+/*
+ * Uses the mail routine to send a testmail.
+ * Arguments :
+ * testxt, test message to send.
+ */
+void rssttestmail(rsstor_handle *handle, char *testtxt)
+{
+	int 		rc=0;
+	char 		*enable=NULL;
+	sqlite3 *db=NULL;
+
+	/*
+	 * Get db pointer
+	 */
+	db = handle->db;
+
+	/*
+	 * Test if mail is enabled.
+	 */
+	rc = rsstconfiggetproperty(handle, CONF_SMTPENABLE, &enable);
+	if(strcmp(enable, "Y") != 0){
+		printf("Email notifications are not enabled.\n");
+		printf("Please enable them by putting value 'Y' in config value '%s'.\n", CONF_SMTPENABLE);
+		free(enable);
+		return;
+	}
+	free(enable);
+
+	/*
+	 * Test mail settings.
+	 */
+	rc = rsstsendrssmail(db, testtxt, testtxt);
+	if(rc == 0) {
+		printf("Testmail sent successful!\n");
+	} else {
+		printf("Testmail sending failed!\n");
+	}
 }
 
 /*

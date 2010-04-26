@@ -90,7 +90,7 @@ void Signal_Handler(int sig) /* signal handler function */
  */
 int main(int argc, char **argv){
 	rsstor_handle handle;
-  sqlite3    *db=NULL;
+  //sqlite3    *db=NULL;
   int         rc=0;
 
 	/*
@@ -113,18 +113,12 @@ int main(int argc, char **argv){
   /*
    * Initialize the database
    */
-  rc = rsstinitdatabase( DBFILE, &db);  
+  rc = rsstinitdatabase( DBFILE, &handle);  
   if( rc!=SQLITE_OK ){
     fprintf(stderr, "Initializing db : \'%s\' failed\n", argv[1]);
     exit(1);
   }
-  cleandb=db;
-
-	/*
-	 * Create handle from db pointer.
-	 * REMOVE IN THE FUTURE
-	 */
-	handle.db = db;
+  cleandb=handle.db;
 
   /*
    * Initialize lib curl
@@ -134,7 +128,7 @@ int main(int argc, char **argv){
   /*
    * open logfile
    */
-  rc = rsstinitlogdb(db);
+  rc = rsstinitlogdb(handle.db);
   if(rc != 0) {
     fprintf(stderr, "Can't open logfile!\n");
     exit(1);

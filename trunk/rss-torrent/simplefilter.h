@@ -25,13 +25,13 @@
  * @returns 
  * 0 on succes, else -1
  */
-int rsstaddsimplefilter(sqlite3 *db, opts_struct *opts);
+int rsstaddsimplefilter(rsstor_handle *handle, opts_struct *opts);
 
 /*
  * Print filter in shell format
  * Prints the names of the simple filters + a header.
  */
-void rsstlistsimple(sqlite3 *db);
+void rsstlistsimple(rsstor_handle *handle);
 
 /*
  * Print filter in shell format
@@ -39,20 +39,20 @@ void rsstlistsimple(sqlite3 *db);
  * @variables
  * filtername name to print
  */
-void rsstprintsimple(sqlite3 *db, char *filtername);
+void rsstprintsimple(rsstor_handle *handle, char *filtername);
 
 /*
  * Print filter in shell format
  * Prints the names of the simple filters + a header.
  */
-void rsstprintallsimple(sqlite3 *db);
+void rsstprintallsimple(rsstor_handle *handle);
 
 /*
  *  * del filter item
  *   * When the name is not found -1 is returned.
  *    * On succes 0 is returned.
  *     */
-int rsstdelallsimple(sqlite3 *db);
+int rsstdelallsimple(rsstor_handle *handle);
 
 /*
  * del filter item
@@ -62,7 +62,7 @@ int rsstdelallsimple(sqlite3 *db);
  * @returns
  * On succes 0 is returned.
  */
-int rsstdelsimple(sqlite3 *db, const char *name);
+int rsstdelsimple(rsstor_handle *handle, const char *name);
 
 /*
  * Apply filters
@@ -81,7 +81,7 @@ int rsstdownloadsimple(sqlite3 *db, SIM simulate);
  * returns    : 0 when added succesfully
  * returns    : -1 when adding failed
  */
-int rsstinsertsimplefilter(sqlite3 *db, simplefilter_struct *simple);
+int rsstinsertsimplefilter(rsstor_handle *handle, simplefilter_struct *simple);
 
 /*
  * optstosimple

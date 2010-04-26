@@ -358,16 +358,22 @@ void rsstapplyfilter(sqlite3 *db, char *name, char* nodouble, SIM simulate, char
  * returns 
  * 0 on succes otherwise -1
  */
-int rssttesttorrentdir(sqlite3 *db)
+int rssttesttorrentdir(rsstor_handle *handle)
 {
   int rc=0;
   char *path = NULL;
   char *fullpath = NULL;
+	sqlite3 *db=NULL;
+
+	/*
+	 * Get db pointer
+	 */
+	db = handle->db;
 
   /*
    * get path to put torrent in
    */
-  rsstconfiggetproperty(db, CONF_TORRENTDIR, &path);
+  rsstconfiggetproperty(handle, CONF_TORRENTDIR, &path);
   rsstcompletepath(path, &fullpath);
   
   /*
@@ -412,12 +418,17 @@ static int dodownload(sqlite3 *db, downloaded_struct *downed)
   char *path = NULL;
   char *fullpath = NULL;
 	int  retval=0;
+	rsstor_handle handle;
 
+	/*
+	 * REMOVE IN THE FUTURE
+	 */
+	handle.db=db;
   
   /*
    * get path to put torrent in
    */
-  rsstconfiggetproperty(db, CONF_TORRENTDIR, &path);
+  rsstconfiggetproperty(&handle, CONF_TORRENTDIR, &path);
   rsstcompletepath(path, &fullpath);
 
   /*
@@ -529,16 +540,10 @@ int rsstdownloadbyid(rsstor_handle *handle, int torid)
  * 0 on success
  * -1 on failure
  */
-int rsstdownloadbyidstr(sqlite3 *db, char *torid)
+int rsstdownloadbyidstr(rsstor_handle *handle, char *torid)
 {
 	int rc=0;
 	int i_torid=0;
-	rsstor_handle handle;
-
-	/*
-	 * REMOVE IN THE FUTURE !!!!
-	 */
-	handle.db = db;
 
 	/*
 	 * convert torid to int
@@ -548,7 +553,7 @@ int rsstdownloadbyidstr(sqlite3 *db, char *torid)
 	/*
 	 * call real routine
 	 */
-	rc = rsstdownloadbyid(&handle, i_torid);
+	rc = rsstdownloadbyid(handle, i_torid);
 	if(rc == 0){
 		/*
 		 * Download successfull

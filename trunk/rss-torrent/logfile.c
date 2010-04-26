@@ -60,12 +60,18 @@ int rsstinitlogdb(sqlite3 *db)
 {
   char  *configpath = NULL;
   int   rc;
+	rsstor_handle handle;
+
+	/*
+	 * REMOVE IN THE FUTURE
+	 */
+	handle.db = db;
 
   /*
    * Get path
    * int configgetproperty(sqlite3 *db, char *prop, char **value);
    */
-  rc =rsstconfiggetproperty(db, CONF_LOGFILE, &configpath);
+  rc =rsstconfiggetproperty(&handle, CONF_LOGFILE, &configpath);
 
   /*
    * open log file

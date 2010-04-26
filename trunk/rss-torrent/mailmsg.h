@@ -34,3 +34,9 @@ int rsstsendrssmail(sqlite3 *db, const char *subject, const char *msgtxt);
  */
 int rsstsendmail(const char *host, const char *from, const char *to, const char *subject, const char *message);
 
+/*
+ * Uses the mail routine to send a testmail.
+ * Arguments :
+ * testxt, test message to send.
+ */
+void rssttestmail(rsstor_handle *handle, char *testtxt);

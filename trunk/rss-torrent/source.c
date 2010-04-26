@@ -37,17 +37,11 @@
  * format varname : value
  * All from database
  */
-void rsstprintsources(sqlite3 *db) 
+void rsstprintsources(rsstor_handle *handle) 
 {
 	int rc=0;
 	int count=0;
 	source_container *container=NULL;
-	rsstor_handle handle;
-
-	/*
-	 * REMOVE IN FUTURE !!!
-	 */
-	handle.db = db;
 
   /*
    * header
@@ -60,7 +54,7 @@ void rsstprintsources(sqlite3 *db)
 	/*
 	 * Get source values.
 	 */
-	rc = rsstgetallsources(&handle, &container);
+	rc = rsstgetallsources(handle, &container);
 	if(rc != 0){
 		fprintf(stderr, "Retrieving of source failed !\n");
 		exit(1);
@@ -161,7 +155,7 @@ int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char
    * When parsertype is not set use the default.
    */
   if(parsertype == NULL){
-    rsstconfiggetproperty(db, CONF_DEFPARSER, &localparser);
+    rsstconfiggetproperty(handle, CONF_DEFPARSER, &localparser);
   } else {
 		rsstalloccopy(&localparser, parsertype, strlen(parsertype));
   }

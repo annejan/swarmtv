@@ -43,14 +43,14 @@
  * @returns
  * 0 when the value was found, otherwise -1.
  */
-int rsstconfiggetproperty(sqlite3 *db, char *prop, char **value);
+int rsstconfiggetproperty(rsstor_handle *handle, char *prop, char **value);
 
 /*
  * Print all available config items to the screen.
  * format varname : value
  * All from database
  */
-void rsstprintconfigitems(sqlite3 *db); 
+void rsstprintconfigitems(rsstor_handle *handle); 
 
 /*
  * Set config item

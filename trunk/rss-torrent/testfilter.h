@@ -60,7 +60,7 @@ int rsstfindtorrentids(opts_struct *opts);
  * 0 on success
  * -1 on error
  */
-int rsstfinddowned(sqlite3 *db, char *optarg);
+int rsstfinddowned(rsstor_handle *handle, char *optarg);
 
 /*
  * Cleanout the sandbox for filter processing

@@ -39,13 +39,13 @@
 
 /*
  * Open database, and add regexp functionality.
+ * @Arguments
+ * filename Filename of database to open 
+ * handle RSS-torrent handle
  * @returns 
  * returns SQLITE_OK when all did go well.
  */
-int rsstinitdatabase(
-    const char *filename,   /* Database filename (UTF-8) */
-    sqlite3 **ppDb          /* OUT: SQLite db handle */
-    ); 
+int rsstinitdatabase(const char *filename, rsstor_handle *handle); 
 
 /*
  * Do a query, and bind value's to the query in one step
@@ -132,7 +132,7 @@ int rsstprintquery(sqlite3 *db, const char *query, char *fmt, ...);
  * @return
  * 0 on succes, -1 on failure
  */
-int rsstrundbinitscript(sqlite3 *db);
+int rsstrundbinitscript(rsstor_handle *handle);
 
 /*
  * Prints columns from query to standard out.

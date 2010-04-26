@@ -121,7 +121,7 @@ rsstor_handle *initrsstor()
   /*
    * Initialize the database
    */
-  rc = rsstinitdatabase( DBFILE, &(handle->db));  
+  rc = rsstinitdatabase(DBFILE, handle);  
   if( rc!=SQLITE_OK ){
     fprintf(stderr, "Initializing db : \'%s\' failed\n", DBFILE);
 		return NULL;

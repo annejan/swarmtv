@@ -23,7 +23,6 @@
 #include <getopt.h>
 #include <unistd.h>
 #include <string.h>
-#include <sqlite3.h>
 
 #include "types.h"
 #include "database.h"
@@ -164,20 +163,18 @@ static void printversion(void)
 	printf("Version %s \n", PROGVERSION);
 }
 
-static void setconfigvalue(sqlite3 *db, char *configval)
+static void setconfigvalue(rsstor_handle *handle, char *configval)
 {
 	int						rc=0;
 	char 				 *name=NULL;
 	char				 *value=NULL;
-	rsstor_handle handle;
 
 	/*
 	 * REMOVE IN THE FUTURE
 	 */
-	handle.db = db;
 
 	rsstsplitnameval(configval, &name, &value);
-	rc = rsstsetconfigitem(&handle, name, value);
+	rc = rsstsetconfigitem(handle, name, value);
 	if(rc == -1) {
 		fprintf(stderr, "Value not found in config\n");
 	} else {
@@ -188,7 +185,7 @@ static void setconfigvalue(sqlite3 *db, char *configval)
 	free(value);
 }
 
-static void optdeletefilter(sqlite3 *db, char *name)
+static void optdeletefilter(rsstor_handle *handle, char *name)
 {
 	int rc;
 
@@ -196,14 +193,14 @@ static void optdeletefilter(sqlite3 *db, char *name)
 	 * Name "all" deletes all filters.
 	 */
 	if(!strcmp(name, "all")) {
-		rc = rsstdelallfilters(db);
+		rc = rsstdelallfilters(handle);
 		if(rc == 0) {
 			printf("Delete all filters succesful\n");
 		} else {
 			fprintf(stderr, "Deletion of all filters failed\n");
 		}
 	} else {
-		rc = rsstdelfilter(db, name);
+		rc = rsstdelfilter(handle, name);
 		if(rc == 0) {
 			printf("Delete filter: %s succesful\n", name);
 		} else {
@@ -326,45 +323,13 @@ static int verifyarguments(opts_struct *opts)
 	return retval;
 }
 
-/*
- * Uses the mail routine to send a testmail.
- * Arguments :
- * testxt, test message to send.
- */
-static void testmail(sqlite3 *db, char *testtxt)
-{
-	int 	rc=0;
-	char *enable=NULL;
 
-	/*
-	 * Test if mail is enabled.
-	 */
-	rc = rsstconfiggetproperty(db, CONF_SMTPENABLE, &enable);
-	if(strcmp(enable, "Y") != 0){
-		printf("Email notifications are not enabled.\n");
-		printf("Please enable them by putting value 'Y' in config value '%s'.\n", CONF_SMTPENABLE);
-		free(enable);
-		return;
-	}
-	free(enable);
-
-	/*
-	 * Test mail settings.
-	 */
-	rc = rsstsendrssmail(db, testtxt, testtxt);
-	if(rc == 0) {
-		printf("Testmail sent successful!\n");
-	} else {
-		printf("Testmail sending failed!\n");
-	}
-}
-
-static void reinitdb(sqlite3 *db)
+static void reinitdb(rsstor_handle *handle)
 {
 	int rc=0;
 
 	printf("Running reinitializion script on database...\n");
-	rc = rsstrundbinitscript(db);
+	rc = rsstrundbinitscript(handle);
 	if(rc != 0) {
 		fprintf(stderr, "Reinitializing database failed!\n");
 	} else {
@@ -376,19 +341,13 @@ static void reinitdb(sqlite3 *db)
  * handle Commandline options, setting up the structure for the complex 
  * arguments.
  */
-static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opts)
+static void parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_struct *opts)
 {
 	int						rc=0;
 	char        	opt=0;
 	int 					stopop=0;
 	int 					optindex=0;
 	int						torid=0;
-	rsstor_handle handle;
-
-	/*
-	 * REMOVE IN THE FUTURE !!
-	 */
-	handle.db=db;
 
   /*
    * Handle commandline options
@@ -401,20 +360,20 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
         stopop = 1; // no more
         break;
       case 'c':
-        rsstprintconfigitems(db);
+        rsstprintconfigitems(handle);
         break;
       case 'C': // Set config value
-				setconfigvalue(db, optarg);
+				setconfigvalue(handle, optarg);
         break;
       case 'f': // list filters
-        rsstprintfilters(db);
+        rsstprintfilters(handle);
         stopop = 1; // no more
         break;
       case 'F': // set download filter
 				rsstalloccopy(&(opts->filter), optarg, strlen(optarg));
         break;
       case 'p': // print filter en shell format
-        rsstprintshellfilter(db, argv[0], optarg);
+        rsstprintshellfilter(handle, argv[0], optarg);
 				break;
       case 't': // set source filter type
         if( opts->sourcefilter != NULL) {
@@ -434,7 +393,7 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
 				rsstalloccopy(&(opts->doublefilter), optarg, strlen(optarg));
         break;
       case 'd': // delete filter
-				optdeletefilter(db, optarg);
+				optdeletefilter(handle, optarg);
         stopop = 1; // no more
         break;
       case 's': // set rss source
@@ -445,11 +404,11 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
 				rsstalloccopy(&(opts->source), optarg, strlen(optarg));
         break;
       case 'S': // List available sources
-        rsstprintsources(db);
+        rsstprintsources(handle);
         stopop = 1; // no more
         break;
       case 'D': // delete rss source
-        rc = rsstdelsource(&handle, optarg);
+        rc = rsstdelsource(handle, optarg);
         break;
       case 'r': // run as daemon 
         opts->run = 1;
@@ -461,30 +420,30 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
         opts->nodetach = 1;
         break;
       case 'm': // Send test mail notification
-        testmail(db, optarg);
+        rssttestmail(handle, optarg);
         stopop = 1; // no more
         break;
       case 'J': // List simple filter
-        rsstlistsimple(db);
+        rsstlistsimple(handle);
         stopop = 1; // no more
         break;
       case 'P': // Print A simple filter in shell format
-        rsstprintsimple(db, optarg);
+        rsstprintsimple(handle, optarg);
         stopop =1; // no more
         break;
       case 'A': // Print A simple filter in shell format
-        rsstprintallsimple(db);
+        rsstprintallsimple(handle);
         stopop =1; // no more
         break;
       case 'j': // Del simple filter
-        rc = rsstdelsimple(db, optarg);
+        rc = rsstdelsimple(handle, optarg);
         if(rc == 0) {
           printf("Deletion of simple filters '%s' Successful.\n", optarg);
         }
         stopop =1; // no more
         break;
       case 'k': // Del all simple filters
-        rc = rsstdelallsimple(db);
+        rc = rsstdelallsimple(handle);
         if(rc == 0) {
           printf("Deletion of all simple filters Successful.\n");
         }
@@ -561,17 +520,17 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
 				rsstalloccopy(&(opts->simpleepisode), optarg, strlen(optarg));
         break;
       case 'K': // Reinitialize the database
-				reinitdb(db);
+				reinitdb(handle);
         stopop =1; // no more
         break;
 			case 'i': // Download by id
-				rsstdownloadbyidstr(db, optarg);
+				rsstdownloadbyidstr(handle, optarg);
         stopop =1; // no more
 				break;
 			case 'M': // Delete a entry from the downed table
 				if(strlen(optarg) > 0) {
 					torid = atoi(optarg);
-					rc = rsstdeldownloaded(&handle, torid);
+					rc = rsstdeldownloaded(handle, torid);
 					if(rc == ROWS_CHANGED){
 						printf("Deletion of %s succesfull.\n", optarg);
 					} else {
@@ -584,7 +543,7 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
 				opts->findtorid = 1;
 				break;
 			case 'a': // find downloaded by name
-				rsstfinddowned(db, optarg);
+				rsstfinddowned(handle, optarg);
         stopop =1; // no more
 				break;
       case 'h':   /* fall-through is intentional */
@@ -609,17 +568,11 @@ static void parsearguments(sqlite3 *db, int argc, char *argv[], opts_struct *opt
 /*
  * Handle commands that consist of more then one arguments
  */
-void handlemultiple(sqlite3 *db, opts_struct *opts)
+void handlemultiple(rsstor_handle *handle, opts_struct *opts)
 {
 	int						rc=0;
 	char 				 *name=NULL;
 	char 				 *value=NULL;
-	rsstor_handle handle;
-
-	/*
-	 * REMOVE IN FUTURE
-	 */
-	handle.db = db;
 
 	/*
 	 * When source is set add it here.
@@ -627,7 +580,7 @@ void handlemultiple(sqlite3 *db, opts_struct *opts)
 	 */
 	if(opts->source != NULL) {
 		rsstsplitnameval(opts->source, &name, &value);
-		rsstaddsource(&handle, name, value, opts->sourcefilter);
+		rsstaddsource(handle, name, value, opts->sourcefilter);
 	}
 
 	/*
@@ -639,7 +592,7 @@ void handlemultiple(sqlite3 *db, opts_struct *opts)
 		 * Add the filter 
 		 */
 		if(opts->testfilt == 0) { 
-			rc = rsstaddfilter(db, name, value, opts->doublefilter);
+			rc = rsstaddfilter(handle, name, value, opts->doublefilter);
 			if(rc == 0) {
 				printf("new filter : %s\n"
 						"filter : %s\n"
@@ -680,7 +633,7 @@ void handlemultiple(sqlite3 *db, opts_struct *opts)
 		 * Add the simple filter 
 		 */
 		if(opts->testfilt == 0 && opts->findtorid == 0) { 
-			rc = rsstaddsimplefilter(db, opts);
+			rc = rsstaddsimplefilter(handle, opts);
 			if(rc != 0){
 				fprintf(stderr, "Adding filter failed.\n");
 			} else {
@@ -744,17 +697,11 @@ static void runmode(rsstor_handle *handle, opts_struct *opts)
 	int 		rc=0;
 	char		*logpath=NULL;
 	char		*logfullpath=NULL;
-	sqlite3 *db=NULL;
-
-	/*
-	 * Get DB-pointer
-	 */
-	db = handle->db;
 
 	/*
 	 * Test if torrent directory is writable
 	 */
-	rc = rssttesttorrentdir(db);
+	rc = rssttesttorrentdir(handle);
 	if(rc != 0) {
 		rsstwritelog(LOG_ERROR, "Torrent directory not usable exiting.");
 		fprintf(stderr, "Torrent directory is not usable, please look in log to find out why!\n");
@@ -766,7 +713,7 @@ static void runmode(rsstor_handle *handle, opts_struct *opts)
 		 */
 		if(opts->nodetach == 0 && opts->onetime == (LOOPMODE) loop) {
 			printf("Forking to background.\n");
-			rc = rsstconfiggetproperty(db, CONF_LOGFILE, &logpath);
+			rc = rsstconfiggetproperty(handle, CONF_LOGFILE, &logpath);
 			if(rc == 0) {
 				rsstcompletepath(logpath, &logfullpath);
 				rsstdaemonize(logpath);
@@ -802,12 +749,6 @@ void rssthandleopts(rsstor_handle *handle, int argc, char *argv[])
 {
 	int 					rc=0;
 	opts_struct 	opts; 
-	sqlite3 		 *db=NULL;
-
-	/*
-	 * Get db pointer
-	 */
-	db = handle->db;
 
 	/*
 	 * init opts struct
@@ -825,7 +766,7 @@ void rssthandleopts(rsstor_handle *handle, int argc, char *argv[])
 	 * Parse all options, calling simple actions directly.
 	 * Fill the opts truct to handle complex arguments later.
 	 */
-	parsearguments(db, argc, argv, &opts);
+	parsearguments(handle, argc, argv, &opts);
 
 	/*
 	 * Test the argumentcombinations.
@@ -836,7 +777,7 @@ void rssthandleopts(rsstor_handle *handle, int argc, char *argv[])
 		/*
 		 * Handle commands, that consist of more then one arguments.
 		 */
-		handlemultiple(db, &opts);
+		handlemultiple(handle, &opts);
 
 		/*
 		 * When then run option is provided call the main loop
