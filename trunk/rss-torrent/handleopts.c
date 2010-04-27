@@ -42,6 +42,7 @@
 #include "simplefilter.h"
 #include "filesystem.h"
 #include "torrentdb.h"
+#include "present.h"
 
 /*
  * optstring what options do we allow
@@ -157,12 +158,9 @@ static void printhelp(void)
           "################\n\n");  
 }
 
-static void printversion(void)
-{
-	printf("RSSTorrent by Paul Honig 2009-2010\n");
-	printf("Version %s \n", PROGVERSION);
-}
-
+/*
+ * Set config value, and handle failure
+ */
 static void setconfigvalue(rsstor_handle *handle, char *configval)
 {
 	int						rc=0;
@@ -356,7 +354,7 @@ static void parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_s
   while( opt != -1 && stopop == 0) {
     switch( opt ) {
       case 'v':
-				printversion();
+				rsstprintversion();
         stopop = 1; // no more
         break;
       case 'c':

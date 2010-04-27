@@ -34,20 +34,6 @@ int rsstaddsimplefilter(rsstor_handle *handle, opts_struct *opts);
 void rsstlistsimple(rsstor_handle *handle);
 
 /*
- * Print filter in shell format
- * Prints the names of the simple filters + a header.
- * @variables
- * filtername name to print
- */
-void rsstprintsimple(rsstor_handle *handle, char *filtername);
-
-/*
- * Print filter in shell format
- * Prints the names of the simple filters + a header.
- */
-void rsstprintallsimple(rsstor_handle *handle);
-
-/*
  *  * del filter item
  *   * When the name is not found -1 is returned.
  *    * On succes 0 is returned.

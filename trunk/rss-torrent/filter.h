@@ -18,12 +18,6 @@
  *  Program written by Paul Honig 2009
  */
 
-/*
- * Print all available config items to the screen.
- * format varname : value
- * All from database
- */
-void rsstprintfilters(rsstor_handle *handle);
 
 
 /*
@@ -59,11 +53,4 @@ int rsstdelfilter(rsstor_handle *handle, const char *name);
 int rsstaddfilter(rsstor_handle *handle, const char *name, const char *filter, const char *doublefilter);
 
 
-/*
- * Print filter in a way it could be modified and reentered
- * @arguments
- * appname the name of the rsstorrent executable
- * filtername the filtername to print
- */
-void rsstprintshellfilter(rsstor_handle *handle, char *appname, char *filtername);
 

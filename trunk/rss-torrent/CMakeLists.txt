@@ -53,7 +53,7 @@ SET(LIBSRC setup database config regexp source
 		daemonize mailmsg findtorrent sandboxdb testfilter
 		filesystem tbl torrentparse simplefilter)
 
-SET(SRC rsstorrent handleopts)
+SET(SRC rsstorrent handleopts present)
 
 #SET(SRC setup rsstorrent database config regexp source
 #  filter runloop curlfile torrentdb torrentdownload logfile

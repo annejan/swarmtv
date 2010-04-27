@@ -122,64 +122,6 @@ int rsstconfiggetlong(sqlite3 *db, char *prop, long *number)
   return -1;
 }
 
-
-/*
- * Print all available config items to the screen.
- * format varname : value
- * All from database
- */
-void rsstprintconfigitems(rsstor_handle *handle) 
-{
-	int 							rc=0;
-	int								count=0;
-	config_container *container=NULL;
-
-  /*
-   * header
-   */
-  printf("#############\n");
-  printf("Available config items.\n");
-  printf("#############\n");
-	// New interface through the new dal 
-	
-	/*
-	 * Get config values.
-	 */
-	rc = rsstgetallconfig(handle, &container);
-	if(rc != 0){
-		fprintf(stderr, "Retrieving of config failed !\n");
-		exit(1);
-	}	
-
-	/*
-	 * Print config values.
-	 */
-	for(count=0; count < container->nr; count++) {
-		printf("%-25s : %-25s : %s\n", 
-				container->config[count].name,
-				container->config[count].value,
-				container->config[count].description);
-	}
-
-	/*
-	 * Free the results
-	 */
-	rc = rsstfreeconfigcontainer(container);
-	if(rc != 0) {
-		fprintf(stderr, "Freeing of the container failed !\n");
-		exit(1);
-	}
-
-  // select prop, value from config 
-  //rsstprintquery(db, "select prop, value, descr from config", NULL);
-
-  /*
-   * Footer
-   */
-  printf("\n#############\n");
-}
-
-
 /*
  * Set config item
  * Arguments

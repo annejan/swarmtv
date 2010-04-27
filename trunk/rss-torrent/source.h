@@ -19,13 +19,6 @@
  */
 
 /*
- * Print all available config items to the screen.
- * format varname : value
- * All from database
- */
-void rsstprintsources(rsstor_handle *handle); 
-
-/*
  * Add source item
  * @arguments
  * name filtername

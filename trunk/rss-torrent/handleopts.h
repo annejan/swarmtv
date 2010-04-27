@@ -19,11 +19,6 @@
  */
 
 /*
- * Program version
- */
-#define PROGVERSION "0.8"
-
-/*
  * Default timeout when no -i is provided
  */
 #define  DEFAULTSEC 1800

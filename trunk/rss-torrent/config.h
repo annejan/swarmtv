@@ -46,13 +46,6 @@
 int rsstconfiggetproperty(rsstor_handle *handle, char *prop, char **value);
 
 /*
- * Print all available config items to the screen.
- * format varname : value
- * All from database
- */
-void rsstprintconfigitems(rsstor_handle *handle); 
-
-/*
  * Set config item
  * @arguments
  * prop name of the propertie to change
