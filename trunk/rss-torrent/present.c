@@ -66,7 +66,6 @@ void rsstprintconfigitems(rsstor_handle *handle)
   printf("#############\n");
   printf("Available config items.\n");
   printf("#############\n");
-	// New interface through the new dal 
 	
 	/*
 	 * Get config values.
@@ -111,8 +110,50 @@ void rsstprintconfigitems(rsstor_handle *handle)
  * format varname : value
  * All from database
  */
-void rsstprintfilters(rsstor_handle *handle) 
+void rsstprintfilters(rsstor_handle *handle, char *appname) 
 {
+	filter_container *container=NULL;
+	int								count=0;
+	int								rc=0;
+
+
+	/*
+	 * Get container with SQL filters.
+	 */
+	rc = rsstgetallfilter(handle, &container);
+	if(rc != 0) {
+		rsstwritelog(LOG_ERROR, "Get all filters failed! %s:%d", __FILE__, __LINE__);
+		return;
+	}
+
+	/*
+	 * Loop through the SQLs.
+	 */
+	for(count=0; count < container->nr; count++)
+	{
+		/*
+		 * Print the SQL filters.
+		 * int   id;       // Id of the filter
+		 * char *name;     // Name of the filter
+		 * char *filter;   // SQL of the filter
+		 * char *nodup;    // SQL of the avoiding duplicates filter
+		 */
+		printf ( "#%s \\\n -F \'%s:%s\' \\\n -T \'%s\'\n", 
+				appname,
+				container->filter[count].name,  
+				container->filter[count].filter, 
+				container->filter[count].nodup);
+	}
+
+	/*
+	 * Free container
+	 */
+	rc = rsstfreefiltercontainer(container);
+	if(rc != 0) {
+		rsstwritelog(LOG_ERROR, "Freeing filter container failed! %s:%d", __FILE__, __LINE__);
+		return;
+	}
+#if 0
 	sqlite3 *db=NULL;
 
 	/*
@@ -133,6 +174,7 @@ void rsstprintfilters(rsstor_handle *handle)
    * Footer
    */
   printf("\n#############\n");
+#endif
 }
 
 

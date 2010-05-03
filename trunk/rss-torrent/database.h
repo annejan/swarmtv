@@ -161,7 +161,7 @@ int rsstprintquerylist(sqlite3 *db, const char *query, char *names[], char *fmt,
 int rsstgetallconfig(rsstor_handle *handle, config_container **configitems);
 
 /*
- * Delete content from confeg_container struct
+ * Delete content from config_container struct
  * @Arguments
  * container Pointer to configcontainer to free content of
  * @Return
@@ -226,4 +226,23 @@ int rsstfindnewtorrents(simplefilter_struct *filter, newtorrents_container **new
  * Returns 0 on success -1 on failure
  */
 int rsstfreenewtorrentscontainer(newtorrents_container *newtorrents);
+
+/*
+ * Delete content from config_container struct
+ * @Arguments
+ * container Pointer to configcontainer to free content of
+ * @Return
+ * 0 on success, -1 on failure
+ */
+int rsstfreefiltercontainer(filter_container *container);
+
+/*
+ * Get all SQL filter settings
+ * @Arguments
+ * handle RSS-torrent handle
+ * container The container to store the SQL filters in
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstgetallfilter(rsstor_handle *handle, filter_container **filteritem);
 

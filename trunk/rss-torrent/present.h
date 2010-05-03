@@ -35,7 +35,7 @@ void rsstprintconfigitems(rsstor_handle *handle);
  * format varname : value
  * All from database
  */
-void rsstprintfilters(rsstor_handle *handle);
+void rsstprintfilters(rsstor_handle *handle, char *appname);
 
 /*
  * Print filter in a way it could be modified and reentered

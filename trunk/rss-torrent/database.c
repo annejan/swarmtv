@@ -1254,7 +1254,7 @@ void rsstfreeconfig(config_struct *config)
 }
 
 /*
- * Delete content from confeg_container struct
+ * Delete content from config_container struct
  * @Arguments
  * container Pointer to configcontainer to free content of
  * @Return
@@ -1286,6 +1286,172 @@ int rsstfreeconfigcontainer(config_container *container)
 	free(container);
 
 	return 0;
+}
+
+/*
+ * Free config struct
+ * @Arguments
+ * config pointer to config structure
+ */
+void rsstfreefilter(filter_struct *filter)
+{
+	free(filter->name);
+	free(filter->filter);
+	free(filter->nodup);
+}
+
+/*
+ * Delete content from config_container struct
+ * @Arguments
+ * container Pointer to configcontainer to free content of
+ * @Return
+ * 0 on success, -1 on failure
+ */
+int rsstfreefiltercontainer(filter_container *container)
+{
+	int count=0;
+
+	/*
+	 * Sanity checks
+	 */
+	if(container->filter == NULL) {
+		return -1;
+	}
+
+	/*
+	 * Free config values tructures in container
+	 */
+	for(count=0; count < container->nr; count++)
+	{
+		rsstfreefilter(container->filter+count);
+	}
+
+	/*
+	 * free the container itself
+	 */
+	free(container->filter);
+	free(container);
+
+	return 0;
+}
+
+/*
+ * Store databaseresult into struct
+ * @Arguments 
+ * result
+ * container
+ * @returns
+ * 0 on succes otherwise -1
+ */
+static int rsststorefiltercontainer(sqlite3_stmt *result, filter_container *container)
+{
+	int 		count=0;
+	int 		allocrecords=0;
+	char 	 *column=NULL;
+
+	/*
+	 * prealloc for START_ELEMENTS number of records
+	 */ 
+	allocrecords = START_ELEMENTS;
+	container->filter = calloc(allocrecords, sizeof(filter_struct));
+	if(container->filter == NULL) {
+		rsstwritelog(LOG_ERROR, "calloc failed ! %s:%d", __FILE__, __LINE__);
+		return -1;
+	}
+
+  /*
+   * loop until the end of the dataset is found
+	 * Copy results to struct
+   */
+  while( SQLITE_DONE != sqlite3_step(result)) {
+		/*
+		 * Store values
+		 */
+		container->filter[count].id = sqlite3_column_int(result, 0);
+		column = (char*) sqlite3_column_text(result, 1);
+		rsstalloccopy(&(container->filter[count].name), column, strlen(column));
+		column = (char*)sqlite3_column_text(result, 2);
+		rsstalloccopy(&(container->filter[count].filter), column, strlen(column));
+		column = (char*)sqlite3_column_text(result, 3);
+		rsstalloccopy(&(container->filter[count].nodup), column, strlen(column));
+		count++;
+
+		/*
+		 * realloc goes here
+		 */
+		container->filter = rsstmakespace(container->filter, &allocrecords, count, sizeof(filter_struct));
+  }
+
+	/*
+	 * Save number of records retrieved
+	 */
+	container->nr=count;
+
+	return 0;
+}
+
+/*
+ * Get all SQL filter settings
+ * @Arguments
+ * handle RSS-torrent handle
+ * container The container to store the container in
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstgetallfilter(rsstor_handle *handle, filter_container **container)
+{
+	int 					rc=0;
+	int 					retval=0;
+	sqlite3_stmt *ppstmt=NULL;
+	filter_container *localitems=NULL;
+	char         *zErrMsg=NULL;
+	sqlite3      *db=NULL;
+
+	/*
+	 * Get db pointer.
+	 */
+	db = handle->db;
+
+	/*
+	 * Query to retrieve filter items
+	 */
+	const char *query = "select id, name, filter, nodouble from 'filters'";
+
+	/*
+	 * Alloc the container
+	 */
+	localitems = calloc(1, sizeof(filter_container));
+	if(localitems == NULL) {
+		rsstwritelog(LOG_ERROR, "calloc failed ! %s:%d", __FILE__, __LINE__);
+		exit(1);
+	}
+
+	/*
+	 * Execute query
+	 */
+	rc = rsstexecqueryresult(db, &ppstmt, query, NULL);
+	if( rc!=SQLITE_OK ){
+		rsstwritelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+		sqlite3_free(zErrMsg);
+		return -1;
+	}
+
+	/*
+	 * Store result into container
+	 */
+	rc = rsststorefiltercontainer(ppstmt, localitems);
+
+	/*
+	 * Set output.
+	 */
+	*container = localitems;
+
+  /*
+   * Done with query, finalizing.
+   */
+  rc = sqlite3_finalize(ppstmt);
+	return retval;
 }
 
 

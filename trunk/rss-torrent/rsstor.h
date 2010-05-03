@@ -67,8 +67,26 @@ typedef struct {
  */
 typedef struct {
 	int nr;
-	simplefilter_struct *simplefilter[];
+	simplefilter_struct *simplefilter;
 } simplefilter_container;
+
+/*
+ * Filter container
+ */
+typedef struct {
+	int 	id;				// Id of the filter
+	char *name;			// Name of the filter
+	char *filter;		// SQL of the filter
+	char *nodup;		// SQL of the avoiding duplicates filter
+} filter_struct;
+
+/*
+ * Simple filters container
+ */
+typedef struct {
+	int nr;
+	filter_struct *filter;
+} filter_container;
 
 /*
  * Struct holding the values to enter into the newtorrents table.
@@ -339,6 +357,39 @@ int rsstfreenewtorrentscontainer(newtorrents_container *newtorrents);
  * -1 on failure
  */
 int rsstdownloadbyid(rsstor_handle *handle, int torid);
+
+/*
+ * Functions to manipulate the SQL filters
+ */
+
+/*
+ * Delete content from config_container struct
+ * @Arguments
+ * container Pointer to configcontainer to free content of
+ * @Return
+ * 0 on success, -1 on failure
+ */
+int rsstfreefiltercontainer(filter_container *container);
+
+/*
+ * Get all SQL filter settings
+ * @Arguments
+ * handle RSS-torrent handle
+ * container The container to store the SQL filters in
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstgetallfilter(rsstor_handle *handle, filter_container **filteritem);
+
+/*
+ * Delete a filter
+ * TO BE DONE
+ */
+
+/*
+ * Add a filter
+ * TO BE DONE
+ */
 
 /*
  * == Functions to run RSS-torrent
