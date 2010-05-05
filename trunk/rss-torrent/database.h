@@ -246,3 +246,39 @@ int rsstfreefiltercontainer(filter_container *container);
  */
 int rsstgetallfilter(rsstor_handle *handle, filter_container **filteritem);
 
+/*
+ * Get all SQL filter settings
+ * @Arguments
+ * handle RSS-torrent handle
+ * container The container to store the container in
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstgetfilterbyname(rsstor_handle *handle, char *name, filter_container **container);
+
+/*
+ * Get simplefilter torrents
+ * @arguments
+ * simplefilter The container to store the simplefilter in
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstgetallsimplefilter(rsstor_handle *handle, simplefilter_container **simplefilter, int limit, int offset);
+
+/*
+ * Get simplefilter torrents
+ * @arguments
+ * simplefilter The container to store the simplefilter in
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstgetsimplefilter(rsstor_handle *handle, simplefilter_container **simplefilter, char *name);
+
+/*
+ * Delete content from source_container struct
+ * @Arguments
+ * container simplefilter container content needs freeing
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstfreesimplefiltercontainer(simplefilter_container *container);

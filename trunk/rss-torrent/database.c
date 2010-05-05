@@ -1454,6 +1454,77 @@ int rsstgetallfilter(rsstor_handle *handle, filter_container **container)
 	return retval;
 }
 
+/*
+ * Get all SQL filter settings
+ * @Arguments
+ * handle RSS-torrent handle
+ * container The container to store the container in
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstgetfilterbyname(rsstor_handle *handle, char *name, filter_container **container)
+{
+	int 					rc=0;
+	int 					retval=0;
+	sqlite3_stmt *ppstmt=NULL;
+	filter_container *localitems=NULL;
+	char         *zErrMsg=NULL;
+	sqlite3      *db=NULL;
+
+	/*
+	 * Sanity check
+	 */
+	if(name == NULL){
+		return -1;
+	}
+
+	/*
+	 * Get db pointer.
+	 */
+	db = handle->db;
+
+	/*
+	 * Query to retrieve filter items
+	 */
+	const char *query = "select id, name, filter, nodouble from 'filters' where name = ?1";
+
+	/*
+	 * Alloc the container
+	 */
+	localitems = calloc(1, sizeof(filter_container));
+	if(localitems == NULL) {
+		rsstwritelog(LOG_ERROR, "calloc failed ! %s:%d", __FILE__, __LINE__);
+		exit(1);
+	}
+
+	/*
+	 * Execute query
+	 */
+	rc = rsstexecqueryresult(db, &ppstmt, query, "s", name);
+	if( rc!=SQLITE_OK ){
+		rsstwritelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+		sqlite3_free(zErrMsg);
+		return -1;
+	}
+
+	/*
+	 * Store result into container
+	 */
+	rc = rsststorefiltercontainer(ppstmt, localitems);
+
+	/*
+	 * Set output.
+	 */
+	*container = localitems;
+
+  /*
+   * Done with query, finalizing.
+   */
+  rc = sqlite3_finalize(ppstmt);
+	return retval;
+}
+
 
 /*
  * Store databaseresult into struct
@@ -1636,6 +1707,269 @@ int rsstfreedownloadedcontainer(downloaded_container *container)
 	 * free the array itself
 	 */
 	free(container->downloaded);
+	free(container);
+
+	return 0;
+}
+
+
+/*
+ * Store databaseresult into struct
+ * @Arguments 
+ * result
+ * container
+ * @returns
+ * 0 on succes otherwise -1
+ */
+static int rsststoresimplecontainer(sqlite3_stmt *result, simplefilter_container *container)
+{
+	int 		count=0;
+	int 		allocrecords=0;
+	char 	 *column=NULL;
+
+	/*
+	 * prealloc for START_ELEMENTS number of records
+	 */ 
+	allocrecords = START_ELEMENTS;
+	container->simplefilter = calloc(allocrecords, sizeof(simplefilter_struct));
+	if(container->simplefilter == NULL) {
+		rsstwritelog(LOG_ERROR, "calloc failed ! %s:%d", __FILE__, __LINE__);
+		return -1;
+	}
+
+  /*
+   * loop until the end of the dataset is found
+	 * Copy results to struct
+   */
+  while( SQLITE_DONE != sqlite3_step(result)) {
+		/*
+		 * Store values
+		 *
+		 * int   id;				// Id of the filter
+		 * char *name;			// Simple filter name
+		 * char *title;		// Simple title regexp
+		 * char *exclude;	// Simple exclude regexp
+		 * char *category; // Simple category
+		 * char *source;		// Source the newtorrent originated from
+		 * double maxsize;	// Simple max size
+		 * double minsize;	// Simple minimal size
+		 * char *nodup;	// Simple no double filter type
+		 * int fromseason;		// From what season to download
+		 * int fromepisode;	// From episode
+		 */
+		container->simplefilter[count].id = sqlite3_column_int(result, 0);
+		column = (char*) sqlite3_column_text(result, 1);
+		rsstalloccopy(&(container->simplefilter[count].name), column, strlen(column));
+		column = (char*) sqlite3_column_text(result, 2);
+		rsstalloccopy(&(container->simplefilter[count].title), column, strlen(column));
+		column = (char*) sqlite3_column_text(result, 3);
+		rsstalloccopy(&(container->simplefilter[count].exclude), column, strlen(column));
+		column = (char*)sqlite3_column_text(result, 4);
+		rsstalloccopy(&(container->simplefilter[count].category), column, strlen(column));
+		column = (char*)sqlite3_column_text(result, 5);
+		rsstalloccopy(&(container->simplefilter[count].source), column, strlen(column));
+		container->simplefilter[count].maxsize = sqlite3_column_double(result, 6);
+		container->simplefilter[count].minsize = sqlite3_column_double(result, 7);
+		column = (char*)sqlite3_column_text(result, 8);
+		rsstalloccopy(&(container->simplefilter[count].nodup), column, strlen(column));
+		container->simplefilter[count].fromseason  = sqlite3_column_double(result, 9);
+		container->simplefilter[count].fromepisode = sqlite3_column_double(result, 10);
+		count++;
+
+		/*
+		 * realloc goes here
+		 */
+		container->simplefilter = rsstmakespace(container->simplefilter, &allocrecords, count, sizeof(simplefilter_struct));
+	}
+
+	/*
+	 * Save number of records retrieved
+	 */
+	container->nr=count;
+
+	return 0;
+}
+
+
+/*
+ * Get simplefilter torrents
+ * @arguments
+ * simplefilter The container to store the simplefilter in
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstgetallsimplefilter(rsstor_handle *handle, simplefilter_container **simplefilter, int limit, int offset)
+{
+	int 					rc=0;
+	int 					retval=0;
+	sqlite3_stmt *ppstmt=NULL;
+	simplefilter_container *localitems=NULL;
+	char         *zErrMsg=NULL;
+	sqlite3      *db=NULL;
+
+	/*
+	 * handle
+	 */
+	db = handle->db;
+
+	/*
+	 * Query to retrieve simplefilter items
+	 */
+	const char *query =  "SELECT id, name, title, exclude, category, source, maxsize, minsize, nodup, fromseason, fromepisode "
+											 "FROM 'simplefilters' LIMIT ?1 OFFSET ?2";
+
+	/*
+	 * Alloc the container
+	 */
+	localitems = calloc(1, sizeof(simplefilter_container));
+	if(localitems == NULL) {
+		rsstwritelog(LOG_ERROR, "calloc failed ! %s:%d", __FILE__, __LINE__);
+		exit(1);
+	}
+
+	/*
+	 * Execute query
+	 */
+	rc = rsstexecqueryresult(db, &ppstmt, query, "dd", limit, offset);
+	if( rc!=SQLITE_OK ){
+		rsstwritelog(LOG_ERROR, "rsstexecqueryresult failed %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+		sqlite3_free(zErrMsg);
+		return -1;
+	}
+
+	/*
+	 * Store result into container
+	 */
+	rc = rsststoresimplecontainer(ppstmt, localitems);
+
+	/*
+	 * Set output.
+	 */
+	*simplefilter = localitems;
+
+	/*
+	 * Done with query, finalizing.
+	 */
+	rc = sqlite3_finalize(ppstmt);
+	return retval;
+}
+
+
+/*
+ * Get simplefilter torrents
+ * @arguments
+ * simplefilter The container to store the simplefilter in
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstgetsimplefilter(rsstor_handle *handle, simplefilter_container **simplefilter, char *name)
+{
+	int 					rc=0;
+	int 					retval=0;
+	sqlite3_stmt *ppstmt=NULL;
+	simplefilter_container *localitems=NULL;
+	char         *zErrMsg=NULL;
+	sqlite3      *db=NULL;
+
+	/*
+	 * handle
+	 */
+	db = handle->db;
+
+	/*
+	 * Query to retrieve simplefilter items
+	 */
+	const char *query =  "SELECT id, name, title, exclude, category, source, maxsize, minsize, nodup, fromseason, fromepisode "
+											 "FROM 'simplefilters' WHERE name=?1";
+
+	/*
+	 * Alloc the container
+	 */
+	localitems = calloc(1, sizeof(simplefilter_container));
+	if(localitems == NULL) {
+		rsstwritelog(LOG_ERROR, "calloc failed ! %s:%d", __FILE__, __LINE__);
+		exit(1);
+	}
+
+	/*
+	 * Execute query
+	 */
+	rc = rsstexecqueryresult(db, &ppstmt, query, "s", name);
+	if( rc!=SQLITE_OK ){
+		rsstwritelog(LOG_ERROR, "rsstexecqueryresult failed %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+		sqlite3_free(zErrMsg);
+		return -1;
+	}
+
+	/*
+	 * Store result into container
+	 */
+	rc = rsststoresimplecontainer(ppstmt, localitems);
+
+	/*
+	 * Set output.
+	 */
+	*simplefilter = localitems;
+
+	/*
+	 * Done with query, finalizing.
+	 */
+	rc = sqlite3_finalize(ppstmt);
+	return retval;
+}
+
+
+/*
+ * Free simplefilter structure
+ * @Arguments
+ * simplefilter pointer to simplefilter struct to be freeed
+ */
+void rsstfreesimplefilter(simplefilter_struct *simplefilter)
+{
+	/*
+	 * Free all strings
+	 */
+	free(simplefilter->name);
+	free(simplefilter->title);
+	free(simplefilter->exclude);
+	free(simplefilter->category);
+	free(simplefilter->source);
+	free(simplefilter->nodup);
+}
+
+
+/*
+ * Delete content from source_container struct
+ * @Arguments
+ * container simplefilter container content needs freeing
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstfreesimplefiltercontainer(simplefilter_container *container)
+{
+	int count=0;
+
+	/*
+	 * Sanity checks
+	 */
+	if(container->simplefilter == NULL) {
+		return -1;
+	}
+
+	/*
+	 * Free config values tructures in container
+	 */
+	for(count=0; count < container->nr; count++)
+	{
+		rsstfreesimplefilter(container->simplefilter+count);
+	}
+
+	/*
+	 * free the array itself
+	 */
+	free(container->simplefilter);
 	free(container);
 
 	return 0;

@@ -138,7 +138,7 @@ void rsstprintfilters(rsstor_handle *handle, char *appname)
 		 * char *filter;   // SQL of the filter
 		 * char *nodup;    // SQL of the avoiding duplicates filter
 		 */
-		printf ( "#%s \\\n -F \'%s:%s\' \\\n -T \'%s\'\n", 
+		printf ( "# %s \\\n -F \'%s:%s\' \\\n -T \'%s\'\n", 
 				appname,
 				container->filter[count].name,  
 				container->filter[count].filter, 
@@ -153,28 +153,11 @@ void rsstprintfilters(rsstor_handle *handle, char *appname)
 		rsstwritelog(LOG_ERROR, "Freeing filter container failed! %s:%d", __FILE__, __LINE__);
 		return;
 	}
-#if 0
-	sqlite3 *db=NULL;
 
 	/*
-	 * Get db pointer
+	 * All done
 	 */
-	db  = handle->db;
-
-  /*
-   * header
-   */
-  printf("#############\n");
-  printf("Filters.\n");
-  printf("#############\n");
-
-  rsstprintquery(db, "select name, filter, nodouble from 'filters'", NULL);
-
-  /*
-   * Footer
-   */
-  printf("\n#############\n");
-#endif
+	return;
 }
 
 
@@ -185,90 +168,44 @@ void rsstprintfilters(rsstor_handle *handle, char *appname)
  * appname		The name of the executable
  * filtername	The name of the filter to print. 	
  */
-void rsstprintshellfilter(rsstor_handle *handle, char *appname, char *filtername)
+int rsstprintshellfilter(rsstor_handle *handle, char *appname, char *filtername)
 {
-  sqlite3_stmt  *ppStmt=NULL;
-  const char    *pzTail=NULL;
-  int           rc=0;
-  int           cols=0;
-  char          *zErrMsg = 0;
-  const unsigned char *filterstring=NULL;
-  const unsigned char *nodoublestring=NULL;
-	sqlite3				*db=NULL;
+  int           		rc=0;
+	filter_container 	*container=NULL;
+	int								retval=0;
 
-  char *query =  "select filter, nodouble from 'filters' where name=?1";
-	
 	/*
-	 * Get db pointer
+	 * Retieve container
 	 */
-	db = handle->db;
+	rc = rsstgetfilterbyname(handle, filtername, &container);
+	if(rc != 0){
+		retval=-1;
+	}
 
-  // Get filter from filters
+	if(retval == 0) {
+		/*
+		 * Print the filter
+		 */
+		printf ( "# %s \\\n -F \'%s:%s\' \\\n -T \'%s\'\n", 
+				appname,
+				container->filter[0].name,  
+				container->filter[0].filter, 
+				container->filter[0].nodup);
 
-  /*
-   * Prepare the sqlite statement
-   */
-	rc = sqlite3_prepare_v2(
-			db,                 /* Database handle */
-			query,            /* SQL statement, UTF-8 encoded */
-			strlen(query),    /* Maximum length of zSql in bytes. */
-			&ppStmt,             /* OUT: Statement handle */
-			&pzTail              /* OUT: Pointer to unused portion of zSql */
-			);
-	if( rc!=SQLITE_OK ){
-		rsstwritelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
-		rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
-		sqlite3_free(zErrMsg);
-		return;
+		/*
+		 * Free container
+		 */
+		rc = rsstfreefiltercontainer(container);
+		if(rc != 0) {
+			rsstwritelog(LOG_ERROR, "Freeing filter container failed! %s:%d", __FILE__, __LINE__);
+			retval = -1;
+		}
 	}
 
 	/*
-	 * bind property and value to the query
+	 * All done
 	 */
-	rc = sqlite3_bind_text(ppStmt, 1, filtername, -1, SQLITE_TRANSIENT);
-	if( rc!=SQLITE_OK ){
-		rsstwritelog(LOG_ERROR, "sqlite3_bind_text failed on name %s:%d" __FILE__, __LINE__);  
-		return;
-	}
-
-	/*
-	 * Get number of columns
-	 * int sqlite3_column_count(sqlite3_stmt *pStmt);
-	 */
-	cols = sqlite3_column_count(ppStmt);
-
-	/*
-	 * Execute query.
-	 */
-	rc = sqlite3_step(ppStmt);
-	if(rc == SQLITE_DONE) {
-		printf("Filter with name '%s' not found\n", filtername);
-		return;
-	}
-
-	/*
-	 * Get Values
-	 */
-  filterstring = sqlite3_column_text(ppStmt, 0);
-  nodoublestring = sqlite3_column_text(ppStmt, 1);
-
-  /*
-   * Print the shell line 
-   */
-  printf ( "#%s \\\n -F \"%s:%s\" \\\n -T \"%s\"\n", 
-    appname, filtername,  filterstring, nodoublestring);
-
-  /*
-   * Done with query, finalizing.
-   */
-  sqlite3_finalize(ppStmt);
-
-  /*
-   * All gone well
-   */
-  return;
-  
-  // print filter shell line 
+	return retval;
 }
 
 /*
@@ -282,10 +219,10 @@ void rsstprintsources(rsstor_handle *handle)
 	int count=0;
 	source_container *container=NULL;
 
-  /*
-   * header
-   */
-  printf("#############\n");
+	/*
+	 * header
+	 */
+	printf("#############\n");
   printf("Sources\n");
   printf("Name : url : parser\n");
   printf("#############\n");
@@ -318,136 +255,58 @@ void rsstprintsources(rsstor_handle *handle)
 		exit(1);
 	}
 
-  //rsstprintquery(db, "select name, url, parser from sources", NULL);
-
   /*
    * Footer
    */
   printf("\n#############\n");
 }
 
-
 /*
- * Print filter in shell format
- * Prints the names of the simple filters + a header.
+ * Print a simple filter struct in shell format
+ * @Arguments
+ *
+ * @return
  */
-void rsstprintsimple(rsstor_handle *handle, char *filtername)
+static void printsimplestruct(simplefilter_struct *simple)
 {
-  sqlite3_stmt  			*ppStmt=NULL;
-  const char    			*pzTail=NULL;
-  int           			rc=0;
-  int           			cols=0;
-  char          			*zErrMsg = 0;
-  const unsigned char *titlestring=NULL;
   unsigned char 			maxsizestring[BUFSIZE+1];
-  double              maxsizedouble=0;
   unsigned char 			minsizestring[BUFSIZE+1];
-  double              minsizedouble=0;
-  const unsigned char *nodupstring=NULL;
-  unsigned int        seasonint=0;
-  unsigned int        episodeint=0;
-  const unsigned char *excludestring=NULL;
-  const unsigned char *categorystring=NULL;
-  const unsigned char *sourcestring=NULL;
-	sqlite3							*db=NULL;
-
-
-  char *query =  "select title, maxsize, minsize, nodup, fromseason, fromepisode, exclude, category, source from 'simplefilters' where name=?1";
-
-	/*
-	 * Get db pointer
-	 */
-	db=handle->db;
-
-  /*
-   * Prepare the sqlite statement
-   */
-  rc = sqlite3_prepare_v2(
-      db,                 /* Database handle */
-      query,            /* SQL statement, UTF-8 encoded */
-      strlen(query),    /* Maximum length of zSql in bytes. */
-      &ppStmt,             /* OUT: Statement handle */
-      &pzTail              /* OUT: Pointer to unused portion of zSql */
-      );
-  if( rc!=SQLITE_OK ){
-    rsstwritelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
-    rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
-    sqlite3_free(zErrMsg);
-    return;
-  }
-
-  /*
-   * bind property and value to the query
-   */
-  rc = sqlite3_bind_text(ppStmt, 1, filtername, -1, SQLITE_TRANSIENT);
-  if( rc!=SQLITE_OK ){
-    rsstwritelog(LOG_ERROR, "sqlite3_bind_text failed on name %s:%d" __FILE__, __LINE__);  
-    return;
-  }
-
-  /*
-   * Get number of columns
-   * int sqlite3_column_count(sqlite3_stmt *pStmt);
-   */
-  cols = sqlite3_column_count(ppStmt);
-
-  /*
-   * Execute query.
-   */
-  rc = sqlite3_step(ppStmt);
-  if(rc == SQLITE_DONE) {
-    printf("Simple Filter with name '%s' not found\n", filtername);
-    return;
-  }
-
-  /*
-   * Get Values
-   */
-  titlestring     = sqlite3_column_text(ppStmt,   0);
-  maxsizedouble   = sqlite3_column_double(ppStmt, 1);
-  minsizedouble   = sqlite3_column_double(ppStmt, 2);
-  nodupstring     = sqlite3_column_text(ppStmt,   3);
-  seasonint       = sqlite3_column_int(ppStmt,    4);
-  episodeint      = sqlite3_column_int(ppStmt,    5);
-  excludestring   = sqlite3_column_text(ppStmt,   6);
-  categorystring  = sqlite3_column_text(ppStmt,   7);
-  sourcestring  	= sqlite3_column_text(ppStmt,   8);
 
   /*
    * Print the components that are set
    */
-  printf("rsstorrent --add-simple='%s' --nodup='%s' ", filtername, nodupstring); 
+  printf("# rsstorrent --add-simple='%s' --nodup='%s' ", simple->name, simple->nodup); 
 
-  if(strlen((char*)titlestring) > 0) {
-    printf("--title='%s' ", titlestring);
+  if(strlen((char*)simple->title) > 0) {
+    printf("--title='%s' ", simple->title);
   }
 
   /*
    * Exclude
    */
-  if(strlen((char*)excludestring) != 0){
-    printf("--exclude='%s' ", excludestring);
+  if(strlen((char*)simple->exclude) != 0){
+    printf("--exclude='%s' ", simple->exclude);
   }
 
   /*
    * Category
    */
-  if(strlen((char*)categorystring) != 0){
-    printf("--category='%s' ", categorystring);
+  if(strlen((char*)simple->category) != 0){
+    printf("--category='%s' ", simple->category);
   }
 
   /*
    * Category
    */
-  if(strlen((char*)sourcestring) != 0){
-    printf("--source='%s' ", sourcestring);
+  if(strlen((char*)simple->source) != 0){
+    printf("--source='%s' ", simple->source);
   }
 
   /*
    * Maxsize
    */
-  if(maxsizedouble != 0){
-    rsstsizetohuman(maxsizedouble, (char*) maxsizestring);
+  if(simple->maxsize != 0){
+    rsstsizetohuman(simple->maxsize, (char*) maxsizestring);
 
     printf("--max-size='%s' ", maxsizestring);
   }
@@ -455,8 +314,8 @@ void rsstprintsimple(rsstor_handle *handle, char *filtername)
   /*
    * Minsize
    */
-  if(minsizedouble != 0){
-    rsstsizetohuman(minsizedouble, (char*) minsizestring);
+  if(simple->minsize != 0){
+    rsstsizetohuman(simple->minsize, (char*) minsizestring);
 
     printf("--min-size='%s' ", minsizestring);
   }
@@ -464,26 +323,54 @@ void rsstprintsimple(rsstor_handle *handle, char *filtername)
   /*
    * From season
    */
-  if(seasonint != 0) {
-    printf("--from-season='%d' ", seasonint);
+  if(simple->fromseason != 0) {
+    printf("--from-season='%d' ", simple->fromseason);
   }
 
   /*
    * From episode
    */
-  if(episodeint != 0) {
-    printf("--from-episode='%d' ", episodeint);
+  if(simple->fromepisode != 0) {
+    printf("--from-episode='%d' ", simple->fromepisode);
   }
 
   /*
    * Close print row
    */
   putchar('\n');
+}
 
-  /*
-   * Done with query, finalizing.
-   */
-  sqlite3_finalize(ppStmt);
+/*
+ * Print filter in shell format
+ * Prints the names of the simple filters + a header.
+ */
+void rsstprintsimple(rsstor_handle *handle, char *filtername)
+{
+  int           			rc=0;
+	simplefilter_container *simplefilter=NULL;
+
+	/*
+	 * Get simple container limit of -1 gets all records.
+	 */
+	rc = rsstgetsimplefilter(handle, &simplefilter, filtername);
+	if(rc != 0){
+    rsstwritelog(LOG_ERROR, "rsstgetsimplefilter failed %s:%d", __FILE__, __LINE__);
+		return;
+	}
+
+	/*
+	 * Print result
+	 */
+	printsimplestruct(simplefilter->simplefilter);
+
+	/*
+	 * Free container
+	 */
+	rc = rsstfreesimplefiltercontainer(simplefilter);
+	if(rc != 0){
+    rsstwritelog(LOG_ERROR, "rsstfreesimplefiltercontainer failed %s:%d", __FILE__, __LINE__);
+		return;
+	}
 }
 
 
@@ -492,6 +379,36 @@ void rsstprintsimple(rsstor_handle *handle, char *filtername)
  */
 void rsstprintallsimple(rsstor_handle *handle)
 {
+  int           					rc=0;
+	int											count=0;
+	simplefilter_container *simplefilter=NULL;
+
+	/*
+	 * Get simple container limit of -1 gets all records.
+	 */
+	rc = rsstgetallsimplefilter(handle, &simplefilter, -1, 0);
+	if(rc != 0){
+    rsstwritelog(LOG_ERROR, "rsstgetsimplefilter failed %s:%d", __FILE__, __LINE__);
+		return;
+	}
+
+	/*
+	 * Print result
+	 */
+	for(count=0; count < simplefilter->nr; count++) {
+		printsimplestruct((simplefilter->simplefilter)+count);
+	}
+
+	/*
+	 * Free container
+	 */
+	rc = rsstfreesimplefiltercontainer(simplefilter);
+	if(rc != 0){
+    rsstwritelog(LOG_ERROR, "rsstfreesimplefiltercontainer failed %s:%d", __FILE__, __LINE__);
+		return;
+	}
+
+#if 0
   sqlite3_stmt  *ppStmt=NULL;
   const char    *pzTail=NULL;
   int           rc=0;
@@ -548,6 +465,7 @@ void rsstprintallsimple(rsstor_handle *handle)
 	 * Done with query, finalizing.
 	 */
   rc = sqlite3_finalize(ppStmt);
+#endif
 }
 
 
