@@ -33,19 +33,6 @@
 int rsstalloccopy(char **dest, const char *src, const size_t size);
 
 /*
- * Split options
- * When options come in as <name>:<value> split them 
- * the first ':' found is the one plitting name and value
- * @arguments
- * input input string
- * name pointer the name is stored in
- * value pointer the value is stored in
- * @return
- * When the splitting failed '-1' is returned
- */
-int rsstsplitnameval(char *input, char **name, char **value);
-
-/*
  * Cleanup strings from XML
  * @arguments
  * string pointer to string to clean up
@@ -92,29 +79,6 @@ int rsstcapturefirstmatch(char *regexp, int flag, char *string, char **match);
  */
 int rsstgetusernamepassword(char *url, char **cleanurl, char **userpass);
 
-/*
- * buf must be a pre-allocated buffer with size BUFSIZE+1
- * returns the char * to the converted string.
- * @arguments
- * size sie to be converted
- * buf the buffer the human readable size is stored
- * @return 
- * returns pointer to the converted size
- */
-char* rsstsizetohuman(size_t size/*in bytes*/, char *buf);
-
-/*
- * buf must be a pre-allocated buffer with size BUFSIZE+1
- * returns 0
- * size in bytes is returned in argument size
- * @arguments
- * buf string of size in human format
- * size converted size
- * @return
- * -1 on error
- * 0 on success
- */
-int rssthumantosize(char *buf, double *size); 
 
 /*
  * strrepl: Replace OldStr by NewStr in string Str.

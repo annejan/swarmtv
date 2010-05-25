@@ -42,12 +42,6 @@ int rsstdownloadtorrents(sqlite3 *db);
  */
 void rsstapplyfilter(sqlite3 *db, char *name, char* nodouble, SIM simulate, char *filter, char *fmt, ...);
 
-/*
- * Test torrentdir
- * @return
- * 0 when writabe, -1 if not.
- */
-int rssttesttorrentdir(rsstor_handle *handle);
 
 /*
  * This routine function downloads the torrent indicated by ID.
@@ -70,4 +64,11 @@ int rsstdownloadbyidstr(rsstor_handle *handle, char *torid);
  * -1 on failure
  */
 int rsstdownloadbyid(rsstor_handle *handle, int torid);
+
+/*
+ * Test torrentdir
+ * @return
+ * 0 when writabe, -1 if not.
+ */
+int rssttesttorrentdir(rsstor_handle *handle);
 

@@ -24,7 +24,7 @@
  * @arguments
  * path path to file to write standard in and out to
  */
-void rsstdaemonize(char *path);
+void rssfdaemonize(char *path);
 
 /*
  * Lock the rsstorrent lockfile
@@ -32,4 +32,5 @@ void rsstdaemonize(char *path);
  * @Arguments
  * handle RSS-torrent handle
  */
-void rsstlock(rsstor_handle *handle);
+void rssflock(rsstor_handle *handle);
+

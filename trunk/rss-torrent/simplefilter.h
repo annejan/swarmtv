@@ -25,19 +25,21 @@
  * @returns 
  * 0 on succes, else -1
  */
-int rsstaddsimplefilter(rsstor_handle *handle, opts_struct *opts);
+int rsstaddsimplefilter(rsstor_handle *handle, simplefilter_struct *filter);
 
+#if 0
 /*
  * Print filter in shell format
  * Prints the names of the simple filters + a header.
  */
 void rsstlistsimple(rsstor_handle *handle);
+#endif
 
 /*
- *  * del filter item
- *   * When the name is not found -1 is returned.
- *    * On succes 0 is returned.
- *     */
+ * del filter item
+ * When the name is not found -1 is returned.
+ * On succes 0 is returned.
+ */
 int rsstdelallsimple(rsstor_handle *handle);
 
 /*
@@ -68,15 +70,4 @@ int rsstdownloadsimple(sqlite3 *db, SIM simulate);
  * returns    : -1 when adding failed
  */
 int rsstinsertsimplefilter(rsstor_handle *handle, simplefilter_struct *simple);
-
-/*
- * optstosimple
- * Takes takes a opts_struct argument and a simplefilter_struct as argument.
- * @Arguments
- * opts the opts structure to retrieve the arguments from.
- * simple the simple filter struct to store the filters settings in.
- * @Return
- * returns 0 on succes, -1 on error.
- */
-int rsstoptstosimple(opts_struct *opts, simplefilter_struct *simple);
 

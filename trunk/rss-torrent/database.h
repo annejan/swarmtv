@@ -24,20 +24,6 @@
 #define  DBFILE "~/.rsstorrent/rss.db"
 
 /*
- * Return values for executequery
- * ROWS_ERROR error occured
- * ROWS_EMPTY no rows found or changed
- * ROWS_FOUND select found rows
- * ROWS_CHANGED insert or update changed rows
- */
-#define ROWS_ERROR      -1
-#define ROWS_EMPTY      0
-#define ROWS_FOUND      1
-#define ROWS_CHANGED    2  
-#define ROWS_CONSTRAINT 3  
-
-
-/*
  * Open database, and add regexp functionality.
  * @Arguments
  * filename Filename of database to open 
@@ -275,6 +261,13 @@ int rsstgetallsimplefilter(rsstor_handle *handle, simplefilter_container **simpl
 int rsstgetsimplefilter(rsstor_handle *handle, simplefilter_container **simplefilter, char *name);
 
 /*
+ * Free simplefilter structure
+ * @Arguments
+ * simplefilter pointer to simplefilter struct to be freeed
+ */
+void rsstfreesimplefilter(simplefilter_struct *simplefilter);
+
+/*
  * Delete content from source_container struct
  * @Arguments
  * container simplefilter container content needs freeing
@@ -282,3 +275,4 @@ int rsstgetsimplefilter(rsstor_handle *handle, simplefilter_container **simplefi
  * Returns 0 on success -1 on failure
  */
 int rsstfreesimplefiltercontainer(simplefilter_container *container);
+

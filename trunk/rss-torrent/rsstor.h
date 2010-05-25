@@ -32,7 +32,20 @@
 typedef enum {loop=0, once} LOOPMODE;
 
 /*
- * Structures containing data from rsstorrent database.
+ * Return values for execute query inside RSS-torrent
+ * ROWS_ERROR error occured
+ * ROWS_EMPTY no rows found or changed
+ * ROWS_FOUND select found rows
+ * ROWS_CHANGED insert or update changed rows
+ */
+#define ROWS_ERROR      -1
+#define ROWS_EMPTY      0
+#define ROWS_FOUND      1
+#define ROWS_CHANGED    2  
+#define ROWS_CONSTRAINT 3  
+
+/*
+ * == Structures containing data from rsstorrent database.
  */
 
 /*
@@ -136,6 +149,21 @@ typedef struct {
 } downloaded_container;
 
 /*
+ * The config item names
+ */
+#define CONF_TORRENTDIR "torrentdir"
+#define CONF_LOGFILE    "logfile"
+#define CONF_REFRESH    "refresh"
+#define CONF_RETAIN     "retain"
+#define CONF_DEFPARSER  "default_parser"
+#define CONF_LOCKFILE   "lockfile"
+#define CONF_SMTPTO     "smtp_to"
+#define CONF_SMTPFROM   "smtp_from"
+#define CONF_SMTPHOST   "smtp_host"
+#define CONF_MIN_SIZE   "min_size"
+#define CONF_SMTPENABLE "smtp_enable"
+
+/*
  * Config record container
  */
 typedef struct {
@@ -183,29 +211,18 @@ typedef struct {
 rsstor_handle *initrsstor();
 
 /*
+ * Run the Database init script.
+ * @return
+ * 0 on succes, -1 on failure
+ */
+int rsstrundbinitscript(rsstor_handle *handle);
+
+/*
  * Free RSS-torrent handle
  * @Arguments
  * handle pointer to RSS-torrent structure
  */
 void freersstor(rsstor_handle *handle);
-
-/*
- * Lock the rsstorrent lockfile
- * This routine gets the path of the lockfile from the config settings.
- * @Arguments
- * handle RSS-torrent handle
- */
-void rsstlock(rsstor_handle *handle);
-
-/*
- * Free lockfile
- * This routine frees up the lockfile and leaves the database for other instances of RSS-torrent
- * @Arguments 
- * handle RSS-torrent handle
- * @Return
- * 0 on success otherwise -1
- */
-int rsstunlock(rsstor_handle *handle);
 
 /*
  * Get all config settings
@@ -237,6 +254,17 @@ int rsstfreeconfigcontainer(config_container *container);
  * On succes 0 is returned.
  */
 int rsstsetconfigitem(rsstor_handle *handle, const char *prop, const char *value);
+
+/*
+ * Get value of a config object.
+ * Make sure the free the value returned in the value pointer.
+ * @arguments
+ * prop name of config property to retrieve
+ * value pointer to the pointer that is going to hold the retrieved value.
+ * @returns
+ * 0 when the value was found, otherwise -1.
+ */
+int rsstconfiggetproperty(rsstor_handle *handle, char *prop, char **value);
 
 /*
  * == Functions to manipulate sources
@@ -322,6 +350,61 @@ int rsstfreedownloadedcontainer(downloaded_container *container);
 int rsstdeldownloaded(rsstor_handle *handle, int id);
 
 /*
+ * This routine retrieves the records from the downloaded table.
+ * A selection is based on name.
+ * This routine should not be here namewise, but sinds the other function ended up here
+ * I'll place it here for now.
+ * @Arguments
+ * db
+ * optarg
+ * @return
+ * 0 on success
+ * -1 on error
+ */
+int rsstfinddowned(rsstor_handle *handle, char *optarg);
+
+/*
+ * Function to download torrent
+ */
+
+/*
+ * Test torrentdir
+ * @return
+ * 0 when writabe, -1 if not.
+ */
+int rssttesttorrentdir(rsstor_handle *handle);
+
+/*
+ * Do filter test
+ * show first 10 matches
+ * Takes opts_struct * as argument.
+ * return 0 on succes, return -1 on failure.
+ */
+int rsstfindtorrentids(simplefilter_struct *filter);
+
+/*
+ * This routine function downloads the torrent indicated by ID.
+ * The routine looks throught the newtorrents table to pick the torrent by id.
+ * @arguments
+ * id	The id that points to the torrent
+ * @returns
+ * 0 on success
+ * -1 on failure
+ */
+int rsstdownloadbyid(rsstor_handle *handle, int torid);
+
+/*
+ * This routine function downloads the torrent indicated by ID.
+ * The routine looks throught the newtorrents table to pick the torrent by id.
+ * @arguments
+ * torid The id that points to the torrent
+ * @returns
+ * 0 on success
+ * -1 on failure
+ */
+int rsstdownloadbyidstr(rsstor_handle *handle, char *torid);
+
+/*
  * == Functions to manipulate newtorrents
  */
 
@@ -382,14 +465,141 @@ int rsstfreefiltercontainer(filter_container *container);
 int rsstgetallfilter(rsstor_handle *handle, filter_container **filteritem);
 
 /*
- * Delete a filter
- * TO BE DONE
+ * Get all SQL filter settings
+ * @Arguments
+ * handle RSS-torrent handle
+ * container The container to store the container in
+ * @Return
+ * Returns 0 on success -1 on failure
  */
+int rsstgetfilterbyname(rsstor_handle *handle, char *name, filter_container **container);
 
 /*
- * Add a filter
- * TO BE DONE
+ * Add source item
+ * @Arguments
+ * handle RSS-torrent handle
+ * name name of the filter
+ * filter SQL query to sort out the candidates
+ * doublefilter SQL query to root out the candidates that are already downloaded.
+ * @return
+ * When allready existing -1 is returned.
+ * On succes 0 is returned.
  */
+int rsstaddfilter(rsstor_handle *handle, const char *name, const char *filter, const char *doublefilter);
+
+/*
+ * Add simple filter
+ * @variables
+ * opts structure holding the options
+ * @returns 
+ * 0 on succes, else -1
+ */
+int rsstaddsimplefilter(rsstor_handle *handle, simplefilter_struct *filter);
+
+/*
+ * Get simplefilter torrents
+ * @arguments
+ * simplefilter The container to store the simplefilter in
+ * limit max number of simple filters retrieved
+ * offset the number of simple filters to skip
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstgetallsimplefilter(rsstor_handle *handle, simplefilter_container **simplefilter, int limit, int offset);
+
+/*
+ * Get simplefilter torrents
+ * @arguments
+ * simplefilter The container to store the simplefilter in
+ * name name of the simple filter
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstgetsimplefilter(rsstor_handle *handle, simplefilter_container **simplefilter, char *name);
+
+/*
+ * Free simplefilter structure
+ * @Arguments
+ * simplefilter pointer to simplefilter struct to be freeed
+ */
+void rsstfreesimplefilter(simplefilter_struct *simplefilter);
+
+/*
+ * Delete content from source_container struct
+ * @Arguments
+ * container simplefilter container content needs freeing
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstfreesimplefiltercontainer(simplefilter_container *container);
+
+/*
+ * Do filter test
+ * show first 10 matches
+ * @arguments
+ * filter filter SQL
+ * nodouble nodouble SQL
+ * @return
+ * -1 on error
+ * 0 on success
+ */
+int rsstdofiltertest(char *filter, char *nodouble);
+
+/*
+ * Do filter test
+ * show first 10 matches
+ * Takes opts_struct * as argument.
+ * return 0 on succes, return -1 on failure.
+ */
+int rsstdosimpletest(simplefilter_struct *filter);
+
+/*
+ * Del filter filter
+ * When allready existing -1 is returned.
+ * @variables
+ * name filtername to delete
+ * @returns
+ * On succes 0 is returned.
+ */
+int rsstdelsimple(rsstor_handle *handle, const char *name);
+
+/*
+ * del filter item
+ * When the name is not found -1 is returned.
+ * On succes 0 is returned.
+ */
+int rsstdelallsimple(rsstor_handle *handle);
+
+/*
+ * Delete SQL filter
+ * When allready existing -1 is returned.
+ * @arguments
+ * name the name of the SQL filter to delete
+ * @return
+ * On succes 0 is returned.
+ */
+int rsstdelfilter(rsstor_handle *handle, const char *name);
+
+/*
+ * Del all filters.
+ * Deletes all filters from filtertable.
+ * @returns
+ * On succes 0 is returned.
+ */
+int rsstdelallfilters(rsstor_handle *handle);
+
+/*
+ * Add source item
+ * @Arguments
+ * handle RSS-torrent handle
+ * name name of the filter
+ * filter SQL query to sort out the candidates
+ * doublefilter SQL query to root out the candidates that are already downloaded.
+ * @return
+ * When allready existing -1 is returned.
+ * On succes 0 is returned.
+ */
+int rsstaddfilter(rsstor_handle *handle, const char *name, const char *filter, const char *doublefilter);
 
 /*
  * == Functions to run RSS-torrent
@@ -405,5 +615,38 @@ int rsstgetallfilter(rsstor_handle *handle, filter_container **filteritem);
  */
 int rsstrunloop(rsstor_handle *handle, LOOPMODE onetime);
 
+/*
+ * == Logfile writing routines
+ */
+
+/*
+ * Loglevels
+ */
+#define LOG_DEBUG   1
+#define LOG_NORMAL  2
+#define LOG_ERROR   3
+
+/*
+ * Log an entry
+ * LOG_DEBUG, LOG_NORMAL, LOG_ERROR
+ * @arguments
+ * level the loglevel (see loglevel defines)
+ * str the string to log 
+ * ... the arguments to fill out in the log line
+ * @return
+ * returns 1 for now in all cases
+ */
+int rsstwritelog(int level, char *str,...);
+
+/*
+ * == Mail routines
+ */
+
+/*
+ * Uses the mail routine to send a testmail.
+ * Arguments :
+ * testxt, test message to send.
+ */
+void rssttestmail(rsstor_handle *handle, char *testtxt);
 
 #endif

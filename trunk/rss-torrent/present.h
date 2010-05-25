@@ -21,36 +21,36 @@
 /*
  * Print version 
  */
-void rsstprintversion(void);
+void rssfprintversion(void);
 
 /*
  * Print all available config items to the screen.
  * format varname : value
  * All from database
  */
-void rsstprintconfigitems(rsstor_handle *handle); 
+void rssfprintconfigitems(rsstor_handle *handle); 
 
 /*
  * Print all available config items to the screen.
  * format varname : value
  * All from database
  */
-void rsstprintfilters(rsstor_handle *handle, char *appname);
+void rssfprintfilters(rsstor_handle *handle, char *appname);
 
 /*
  * Print filter in a way it could be modified and reentered
  * @arguments
- * appname the name of the rsstorrent executable
+ * appname the name of the rssforrent executable
  * filtername the filtername to print
  */
-void rsstprintshellfilter(rsstor_handle *handle, char *appname, char *filtername);
+void rssfprintshellfilter(rsstor_handle *handle, char *appname, char *filtername);
 
 /*
  * Print all available config items to the screen.
  * format varname : value
  * All from database
  */
-void rsstprintsources(rsstor_handle *handle); 
+void rssfprintsources(rsstor_handle *handle); 
 
 /*
  * Print filter in shell format
@@ -58,11 +58,36 @@ void rsstprintsources(rsstor_handle *handle);
  * @variables
  * filtername name to print
  */
-void rsstprintsimple(rsstor_handle *handle, char *filtername);
+void rssfprintsimple(rsstor_handle *handle, char *filtername);
 
 /*
  * Print filter in shell format
  * Prints the names of the simple filters + a header.
  */
-void rsstprintallsimple(rsstor_handle *handle);
+void rssfprintallsimple(rsstor_handle *handle);
+
+/*
+ * Do filter test
+ * show first 10 matches
+ * @arguments
+ * opts Takes opts_struct * as argument.
+ * @return
+ * return 0 on succes, return -1 on failure.
+ */
+int rssfdosimpletest(simplefilter_struct *filter);
+
+/*
+ * Print all simple filters in shell format.
+ * @Arguments
+ * handle RSS-torrent handle
+ */
+void rssflistallsimple(rsstor_handle *handle);
+
+/*
+ * Do filter test
+ * show first 10 matches
+ * Takes opts_struct * as argument.
+ * return 0 on succes, return -1 on failure.
+ */
+int rssffindtorrentids(opts_struct *opts);
 

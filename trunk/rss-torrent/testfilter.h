@@ -33,20 +33,10 @@ int rsstdofiltertest(char *filter, char *nodouble);
 /*
  * Do filter test
  * show first 10 matches
- * @arguments
- * opts Takes opts_struct * as argument.
- * @return
- * return 0 on succes, return -1 on failure.
- */
-int rsstdosimpletest(opts_struct *opts);
-
-/*
- * Do filter test
- * show first 10 matches
  * Takes opts_struct * as argument.
  * return 0 on succes, return -1 on failure.
  */
-int rsstfindtorrentids(opts_struct *opts);
+int rsstfindtorrentids(simplefilter_struct *filter);
 
 /*
  * This routine retrieves the records from the downloaded table.
@@ -78,3 +68,10 @@ int rsstcleanoutdb(sandboxdb *sandbox);
  */
 sandboxdb *rsstinitfiltertest();
 
+/*
+ * Do filter test
+ * show first 10 matches
+ * Takes opts_struct * as argument.
+ * return 0 on succes, return -1 on failure.
+ */
+int rsstdosimpletest(simplefilter_struct *filter);
