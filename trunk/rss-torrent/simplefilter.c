@@ -115,7 +115,7 @@ static int findnodup(char *name, char *title, char **nodup)
  * takes opts_struct struct as argument
  * return on correct arguments, -1 on invalid arguments
  */
-static int validearguments(opts_struct *opts)
+static int validearguments(simplefilter_struct *filter)
 {
   int   rc=0;
   int   retval=0;
@@ -124,11 +124,11 @@ static int validearguments(opts_struct *opts)
   /*
    * Validate nodup argument
    */
-  rc = findnodup(opts->simplenodup, opts->simpletitle, &nodup);
+  rc = findnodup(filter->nodup, filter->title, &nodup);
   free(nodup);
   if(rc == -1) {
-    rsstwritelog(LOG_ERROR, "Nodup name '%s' is not valid. %s:%d", opts->simplenodup, __FILE__, __LINE__);
-    fprintf(stderr, "Nodup name '%s' is not valid.", opts->simplenodup);
+    rsstwritelog(LOG_ERROR, "Nodup name '%s' is not valid. %s:%d", filter->nodup, __FILE__, __LINE__);
+    fprintf(stderr, "Nodup name '%s' is not valid.", filter->nodup);
     retval=-1;
   }
 
@@ -136,70 +136,7 @@ static int validearguments(opts_struct *opts)
 }
 
 
-/*
- * optstosimple
- * Takes takes a opts_struct argument and a simplefilter_struct as argument.
- * returns 0 on succes, -1 on error.
- */
-int rsstoptstosimple(opts_struct *opts, simplefilter_struct *simple)
-{
-  /*
-   * Copy strings
-   */
-  rsstalloccopy(&(simple->name),   opts->simplename,   strlen(opts->simplename));
-  rsstalloccopy(&(simple->nodup),  opts->simplenodup,  strlen(opts->simplenodup));
-
-  /*
-   * Title filter is optional
-   */
-  if(opts->simpletitle != NULL) {
-    rsstalloccopy(&(simple->title),  opts->simpletitle,  strlen(opts->simpletitle));
-  } else {
-    rsstalloccopy(&(simple->title), "", 1);
-  }
-  if(opts->simpleexclude != NULL) {
-    rsstalloccopy(&(simple->exclude),  opts->simpleexclude,  strlen(opts->simpleexclude));
-  } else {
-    rsstalloccopy(&(simple->exclude), "", 1);
-  }
-  if(opts->simplecategory != NULL) {
-    rsstalloccopy(&(simple->category),  opts->simplecategory,  strlen(opts->simplecategory));
-  } else {
-    rsstalloccopy(&(simple->category), "", 1);
-  }
-  if(opts->simplesource != NULL) {
-    rsstalloccopy(&(simple->source),  opts->simplesource,  strlen(opts->simplesource));
-  } else {
-    rsstalloccopy(&(simple->source), "", 1);
-  }
-  if(opts->simpleseason != NULL) {
-    simple->fromseason=atoi(opts->simpleseason); 
-  } 
-  if(opts->simpleepisode != NULL) {
-    simple->fromepisode=atoi(opts->simpleepisode); 
-  } 
-
-  /*
-   * Convert units 
-   */
-  if(opts->simplemaxsize != NULL) {
-    rssthumantosize(opts->simplemaxsize, &(simple->maxsize));
-  } else {
-    simple->maxsize = 0;
-  }
-  if(opts->simpleminsize != NULL) {
-    rssthumantosize(opts->simpleminsize, &(simple->minsize));
-  } else {
-    simple->minsize = 0;
-  }
-
-  /*
-   * Done
-   */
-  return 0;
-}
-
-
+#if 0
 /*
  * Free simplefilter_struct content
  * returns nothing
@@ -217,10 +154,11 @@ static void freestructsimple(simplefilter_struct *simple)
   free(simple->nodup);
 
   /*
-   * Null all
+   * NULL all
    */
   memset(simple, 0, sizeof(simplefilter_struct));
 }
+#endif
 
 
 /*
@@ -298,14 +236,10 @@ static int checksimple(sqlite3 *db, const char *name)
  * Add simple filter
  * returns 0 on succes, else -1
  */
-int rsstaddsimplefilter(rsstor_handle *handle, opts_struct *opts)
+int rsstaddsimplefilter(rsstor_handle *handle, simplefilter_struct *simple)
 {
   int rc=0;
-  int retval=0;
-  simplefilter_struct simple;
 	sqlite3 *db=NULL;
-
-  memset(&simple, 0, sizeof(simplefilter_struct));
 
 	/*
 	 * Get db pointer
@@ -315,40 +249,31 @@ int rsstaddsimplefilter(rsstor_handle *handle, opts_struct *opts)
   /*
    * Make sure the entries are valid.
    */
-  rc = validearguments(opts);
+  rc = validearguments(simple);
   if(rc != 0){
     return -1;
   }
 
   /*
-   * Translate argument to usable data
-   */
-  rc = rsstoptstosimple(opts, &simple);
-  if(rc != 0){
-    retval=-1;
-  }
-
-  /*
    * When allready there delete the previous simple filter
    */
-  rc = checksimple(db, opts->simplename);
+  rc = checksimple(db, simple->name);
   if(rc == 1){
-    rsstdelsimple(handle, opts->simplename);
+    rsstdelsimple(handle, simple->name);
   }
 
   /*
    * Add Record
    */
-  rsstinsertsimplefilter(handle, &simple);
+  rsstinsertsimplefilter(handle, simple);
 
-  /*
-   * Done.
-   */
-  freestructsimple(&simple);
+	/*
+	 * Done
+	 */
   return 0;
 }
 
-
+#if 0
 /*
  * List Simple filters.
  * @Arguments
@@ -382,6 +307,7 @@ void rsstlistsimple(rsstor_handle *handle)
 
   printf("#############\n");
 }
+#endif
 
 
 /*

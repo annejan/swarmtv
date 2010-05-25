@@ -28,15 +28,12 @@
 #include "logfile.h"
 #include "regexp.h"
 
-// Number of output vectoritems
+/*
+ * Number of output vectoritems
+ */
 #define   OVECSIZE 20
 #define   MATCHSIZE 20
 
-/*
- * Used for unitconversion see humantosize and sizetohuman
- */
-static const char* units[]    = {"B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
-static const char* unitmatch  = "BKMGTPEZY";
 
 
 /*
@@ -61,78 +58,6 @@ int rsstalloccopy(char **dest, const char *src, const size_t size)
 	return !*dest;
 }
 
-
-/*
- * Split options
- * When options come in as <name>:<value> split them 
- * the first ':' found is the one plitting name and value
- * When the splitting failed '-1' is returned
- */
-int rsstsplitnameval(char *input,char **name, char **value) 
-{
-  pcre *p;
-  const char *errmsg;
-  int   errpos;
-  int   ovector[OVECSIZE];
-  int   rc;
-  int   i;
-
-  /*
-   * Compile the regexp te split the two strings.
-   */
-  p = pcre_compile("^([^:]+):(.+)$", 0, &errmsg, &errpos, 0);
-  if (p == NULL) {
-    /* should not happen, because init1 has already tested and set to NULL on error */
-    rsstwritelog(LOG_ERROR, "Ouch! Can't compile regular expression: %s (char %i) %s:%d",
-        errmsg, errpos, __FILE__, __LINE__);
-  }
-
-  /*
-   * execute regexp
-   */
-  rc = pcre_exec (
-      p,                   /* the compiled pattern */
-      0,                    /* no extra data - pattern was not studied */
-      input,                  /* the string to match */
-      strlen(input),          /* the length of the string */
-      0,                    /* start at offset 0 in the subject */
-      0,                    /* default options */
-      ovector,              /* output vector for substring information */
-      OVECSIZE);           /* number of elements in the output vector */
-  if (rc < 0) {
-    switch (rc) {
-      case PCRE_ERROR_NOMATCH:
-        rsstwritelog(LOG_ERROR, "String could not be split. %s:%d", __FILE__, __LINE__);
-        break;
-
-      default:
-        rsstwritelog(LOG_ERROR, "Error while matching: %d %s:%d", rc, __FILE__, __LINE__);
-        break;
-    }
-    free(p);
-    return -1;
-  }
-
-  /*
-   * extract both strings.
-   */
-  i = 1;
-  *name = calloc(1, ovector[2*i+1]-ovector[2*i]+1);
-  sprintf(*name, "%.*s", ovector[2*i+1] - ovector[2*i], input + ovector[2*i]);
-  i = 2;
-  *value = calloc(1, ovector[2*i+1]-ovector[2*i]+1);
-  sprintf(*value, "%.*s", ovector[2*i+1] - ovector[2*i], input + ovector[2*i]);
-
-
-  /*
-   * Get the 2 strings and put them in the output strings.
-   * Both need to be freed afterwards
-   */
-
-  pcre_free(p);
-
-  return 0;
-}
 
 /*
  * Cleanup strings from XML
@@ -410,96 +335,6 @@ int rsstgetusernamepassword(char *url, char **cleanurl, char **userpass)
 	free(hostpath);
 	
 	return 1;
-}
-
-
-/*
- * buf must be a pre-allocated buffer with size BUFSIZE+1
- * returns the char * to the converted string.
- */
-char* rsstsizetohuman(size_t size/*in bytes*/, char *buf) 
-{
-  int i = 0;
-  double tempsize;
-
-  tempsize = size;
-
-  while (tempsize / 1024 > 1) {
-    tempsize /= 1024;
-    i++;
-  }
-  snprintf(buf, BUFSIZE, "%.*f %s", i, (double) tempsize, units[i]);
-  return buf;
-}
-
-
-/*
- * buf must be a pre-allocated buffer with size BUFSIZE+1
- * returns 0 and -1 on error
- * size in bytes is returned in argument size
- */
-int rssthumantosize(char *buf, double *size) 
-{
-  char    upcasenum[BUFSIZE+1];
-  char    *unit=NULL;
-  int     i=0;
-  long double  tempsize=0.0;
-  int     power=0;
-
-  /*
-   * When buf or size = NULL, return -1
-   */
-  if( buf == NULL || size == NULL){
-    rsstwritelog(LOG_ERROR, "Invalid pointer passed to humantosize function. %s:%d", __FILE__, __LINE__);
-    return -1;
-  }
-
-  /*
-   * Initialize stuff
-   */
-  memset(upcasenum, 0, BUFSIZE+1);
-  strncpy(upcasenum, buf, BUFSIZE);
-
-  /*
-   * transform the humanreadable string to a power of 1024
-   */
-  for( i = 0; upcasenum[ i ]; i++) 
-  {
-    upcasenum[ i ] = toupper( upcasenum[ i ] );
-  }
-
-  /*
-   * returns a pointer to the first occurrence in string s1 of any character from string s2, or a null pointer if no character from s2 exists in s1
-   */
-  unit = strpbrk(upcasenum, unitmatch);
-
-  /*
-   * Get size 
-   */
-  tempsize = atof(upcasenum);
-  
-  /*
-   * when no unit is found use a power of 1024^0
-   * Otherwise calculate number of bytes
-   */
-  if(unit != NULL){
-    /*
-     * Calculate the number of bytes out.
-     */
-    while(*(unitmatch + power) != '\0'){
-      if(*unit == *(unitmatch + power)) {
-        break;
-      }
-      power++;
-    }
-  }
-
-  /*
-   * Calulate response
-   */
-  *size = (double) tempsize * pow(1024, power);
-
-  return 0;
 }
 
 

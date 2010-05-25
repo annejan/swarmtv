@@ -89,12 +89,23 @@ void rsstcompletepath(const char *origpath, char **destpath)
 int rsstfsexists(const char *path) 
 {
   struct stat st;
-  int rc=0;
+  int 		rc=0;
+	char 		*fullpath=NULL;
+
+	/*
+	 * Get full path
+	 */
+  rsstcompletepath(path, &fullpath);
 
   /*
    * Stat the file
    */
-  rc = stat(path, &st);
+  rc = stat(fullpath, &st);
+
+	/*
+	 * Cleanup
+	 */
+	free(fullpath);
 
   return rc;
 }
@@ -114,15 +125,21 @@ int rssttestwrite(const char *path)
   int   fsock=0;
   int   lenght=0;
   char  *filename=NULL;
+	char	*fullpath=NULL;
+
+	/*
+	 * Fullpath
+	 */
+	rsstcompletepath(path, &fullpath);
 
   /*
    * Create path
    */
-  lenght = strlen(path);
+  lenght = strlen(fullpath);
   lenght += strlen(TESTFILENAME);
   lenght++; // we add an extra '/' in the path
   filename = calloc(lenght+1, 1);
-  sprintf(filename, "%s/%s", path, TESTFILENAME);
+  sprintf(filename, "%s/%s", fullpath, TESTFILENAME);
 
   /*
    * Create testfile
@@ -141,6 +158,7 @@ int rssttestwrite(const char *path)
   }
 
   free(filename);
+	free(fullpath);
  
   /*
    * check tests
@@ -171,3 +189,4 @@ int rsstmakedir(char *path)
 
 	return rc;
 }
+

@@ -353,57 +353,6 @@ void rsstapplyfilter(sqlite3 *db, char *name, char* nodouble, SIM simulate, char
 }
 
 
-/*
- * Test torrentdir
- * returns 
- * 0 on succes otherwise -1
- */
-int rssttesttorrentdir(rsstor_handle *handle)
-{
-  int rc=0;
-  char *path = NULL;
-  char *fullpath = NULL;
-	sqlite3 *db=NULL;
-
-	/*
-	 * Get db pointer
-	 */
-	db = handle->db;
-
-  /*
-   * get path to put torrent in
-   */
-  rsstconfiggetproperty(handle, CONF_TORRENTDIR, &path);
-  rsstcompletepath(path, &fullpath);
-  
-  /*
-   * Test if the directory exists
-   */
-  rc = rsstfsexists(fullpath);
-  if(rc != 0) {
-    rsstwritelog(LOG_ERROR, "Torrent directory '%s' does not exist!", path);
-		rsstwritelog(LOG_ERROR, 
-				"Please create the directory, or alter torrent directory by setting 'torrentdir' in the config. (--set-config \"torrentdir:<path>\")");
-  }
-
-  /*
-   * Test if the directry is writable to us
-   */
-  if(rc == 0) {
-    rc |= rssttestwrite(fullpath);
-    if(rc != 0) {
-      rsstwritelog(LOG_ERROR, "Torrent directory '%s' is not writable!", path);
-    }
-  }
-
-  /*
-   * Cleanup
-   */
-  free(path);
-  free(fullpath);
-
-  return rc;
-}
 
 
 /*
@@ -567,5 +516,57 @@ int rsstdownloadbyidstr(rsstor_handle *handle, char *torid)
 	}
 
 	return rc;
+}
+
+
+/*
+ * Test torrentdir
+ * returns 
+ * 0 on succes otherwise -1
+ */
+int rssttesttorrentdir(rsstor_handle *handle)
+{
+  int rc=0;
+  char *path = NULL;
+  char *fullpath = NULL;
+	sqlite3 *db=NULL;
+
+	/*
+	 * Get db pointer
+	 */
+	db = handle->db;
+
+  /*
+   * get path to put torrent in
+   */
+  rsstconfiggetproperty(handle, CONF_TORRENTDIR, &path);
+  
+  /*
+   * Test if the directory exists
+   */
+  rc = rsstfsexists(path);
+  if(rc != 0) {
+    rsstwritelog(LOG_ERROR, "Torrent directory '%s' does not exist!", path);
+		rsstwritelog(LOG_ERROR, 
+				"Please create the directory, or alter torrent directory by setting 'torrentdir' in the config. (--set-config \"torrentdir:<path>\")");
+  }
+
+  /*
+   * Test if the directry is writable to us
+   */
+  if(rc == 0) {
+    rc |= rssttestwrite(path);
+    if(rc != 0) {
+      rsstwritelog(LOG_ERROR, "Torrent directory '%s' is not writable!", path);
+    }
+  }
+
+  /*
+   * Cleanup
+   */
+  free(path);
+  free(fullpath);
+
+  return rc;
 }
 

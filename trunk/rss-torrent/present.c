@@ -20,18 +20,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <getopt.h>
-#include <unistd.h>
 #include <string.h>
 
-#include "types.h"
-#include "config.h"
-#include "filter.h"
-#include "simplefilter.h"
-#include "source.h"
-#include "database.h"
-#include "logfile.h"
-#include "regexp.h"
+#include <rsstor.h>
+
+#include "handleopts.h"
+#include "frontfuncts.h"
 
 /*
  * Program version
@@ -39,9 +33,20 @@
 #define PROGVERSION "0.8"
 
 /*
+ * Buffer size used in present routines.
+ */
+#define   BUFSIZE 20
+
+/*
+ * Default filtername and nodup filter that will be added in findtorrent routine
+ */
+#define  FINDNAME 	"filter"
+#define  FINDNODUP	"none"
+
+/*
  * Print version 
  */
-void rsstprintversion(void)
+void rssfprintversion(void)
 {
 	printf("RSSTorrent by Paul Honig 2009-2010\n");
 	printf("Version %s \n", PROGVERSION);
@@ -54,7 +59,7 @@ void rsstprintversion(void)
  * @Arguments
  * handle RSS-torrent handle
  */
-void rsstprintconfigitems(rsstor_handle *handle) 
+void rssfprintconfigitems(rsstor_handle *handle) 
 {
 	int 							rc=0;
 	int								count=0;
@@ -95,9 +100,6 @@ void rsstprintconfigitems(rsstor_handle *handle)
 		exit(1);
 	}
 
-  // select prop, value from config 
-  //rsstprintquery(db, "select prop, value, descr from config", NULL);
-
   /*
    * Footer
    */
@@ -110,7 +112,7 @@ void rsstprintconfigitems(rsstor_handle *handle)
  * format varname : value
  * All from database
  */
-void rsstprintfilters(rsstor_handle *handle, char *appname) 
+void rssfprintfilters(rsstor_handle *handle, char *appname) 
 {
 	filter_container *container=NULL;
 	int								count=0;
@@ -168,7 +170,7 @@ void rsstprintfilters(rsstor_handle *handle, char *appname)
  * appname		The name of the executable
  * filtername	The name of the filter to print. 	
  */
-int rsstprintshellfilter(rsstor_handle *handle, char *appname, char *filtername)
+int rssfprintshellfilter(rsstor_handle *handle, char *appname, char *filtername)
 {
   int           		rc=0;
 	filter_container 	*container=NULL;
@@ -213,7 +215,7 @@ int rsstprintshellfilter(rsstor_handle *handle, char *appname, char *filtername)
  * format varname : value
  * All from database
  */
-void rsstprintsources(rsstor_handle *handle) 
+void rssfprintsources(rsstor_handle *handle) 
 {
 	int rc=0;
 	int count=0;
@@ -306,7 +308,7 @@ static void printsimplestruct(simplefilter_struct *simple)
    * Maxsize
    */
   if(simple->maxsize != 0){
-    rsstsizetohuman(simple->maxsize, (char*) maxsizestring);
+    rssfsizetohuman(simple->maxsize, (char*) maxsizestring);
 
     printf("--max-size='%s' ", maxsizestring);
   }
@@ -315,7 +317,7 @@ static void printsimplestruct(simplefilter_struct *simple)
    * Minsize
    */
   if(simple->minsize != 0){
-    rsstsizetohuman(simple->minsize, (char*) minsizestring);
+    rssfsizetohuman(simple->minsize, (char*) minsizestring);
 
     printf("--min-size='%s' ", minsizestring);
   }
@@ -344,7 +346,7 @@ static void printsimplestruct(simplefilter_struct *simple)
  * Print filter in shell format
  * Prints the names of the simple filters + a header.
  */
-void rsstprintsimple(rsstor_handle *handle, char *filtername)
+void rssfprintsimple(rsstor_handle *handle, char *filtername)
 {
   int           			rc=0;
 	simplefilter_container *simplefilter=NULL;
@@ -377,7 +379,7 @@ void rsstprintsimple(rsstor_handle *handle, char *filtername)
 /*
  * Print all simple filters in shell format.
  */
-void rsstprintallsimple(rsstor_handle *handle)
+void rssfprintallsimple(rsstor_handle *handle)
 {
   int           					rc=0;
 	int											count=0;
@@ -407,65 +409,107 @@ void rsstprintallsimple(rsstor_handle *handle)
     rsstwritelog(LOG_ERROR, "rsstfreesimplefiltercontainer failed %s:%d", __FILE__, __LINE__);
 		return;
 	}
-
-#if 0
-  sqlite3_stmt  *ppStmt=NULL;
-  const char    *pzTail=NULL;
-  int           rc=0;
-  int           step_rc=0;
-  int           cols=0;
-  char          *zErrMsg=0;
-  int           count=0;
-  const unsigned char *text=NULL;
-	sqlite3				*db=NULL;
-
-	char *query="select name from simplefilters";
-
-	/*
-	 * Get db pointer
-	 */
-	db=handle->db;
-
-  /*
-   * Prepare the sqlite statement
-   */
-  rc = sqlite3_prepare_v2(
-      db,                 /* Database handle */
-      query,            /* SQL statement, UTF-8 encoded */
-      strlen(query),    /* Maximum length of zSql in bytes. */
-      &ppStmt,             /* OUT: Statement handle */
-      &pzTail              /* OUT: Pointer to unused portion of zSql */
-      );
-  if( rc!=SQLITE_OK ){
-    rsstwritelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
-    rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
-    sqlite3_free(zErrMsg);
-    return;
-  }
-
-  /*
-   * Get number of columns
-   * int sqlite3_column_count(sqlite3_stmt *pStmt);
-   */
-  cols = sqlite3_column_count(ppStmt);
-
-
-  /*
-   * loop until the end of the dataset is found
-   */
-  while( SQLITE_DONE != (step_rc = sqlite3_step(ppStmt))) {
-		/*
-		 * Print the content of the row
-		 */
-		text = sqlite3_column_text(ppStmt, count);
-		rsstprintsimple(handle, (char*) text);
-	}
-
-	/*
-	 * Done with query, finalizing.
-	 */
-  rc = sqlite3_finalize(ppStmt);
-#endif
 }
 
 
+/*
+ * Print all simple filters in shell format.
+ * @Arguments
+ * handle RSS-torrent handle
+ */
+void rssflistallsimple(rsstor_handle *handle)
+{
+  int           					rc=0;
+	int											count=0;
+	simplefilter_container *simplefilter=NULL;
+
+	/*
+	 * Get simple container limit of -1 gets all records.
+	 */
+	rc = rsstgetallsimplefilter(handle, &simplefilter, -1, 0);
+	if(rc != 0){
+    rsstwritelog(LOG_ERROR, "rsstgetsimplefilter failed %s:%d", __FILE__, __LINE__);
+		return;
+	}
+
+	/*
+	 * Print result
+	 */
+	for(count=0; count < simplefilter->nr; count++) {
+		printf("(%d) %s\n", count, simplefilter->simplefilter[count].name);
+	}
+
+	/*
+	 * Free container
+	 */
+	rc = rsstfreesimplefiltercontainer(simplefilter);
+	if(rc != 0){
+    rsstwritelog(LOG_ERROR, "rsstfreesimplefiltercontainer failed %s:%d", __FILE__, __LINE__);
+		return;
+	}
+}
+
+
+/*
+ * Do filter test
+ * show first 10 matches
+ * Takes opts_struct * as argument.
+ * return 0 on succes, return -1 on failure.
+ */
+int rssffindtorrentids(opts_struct *opts)
+{
+  int rc=0;
+	int retval=0;
+	int count=0;
+	char humansize[20];
+	newtorrents_container *newtorrents=NULL;
+	simplefilter_struct filter;
+
+	/*
+	 * Clear filter struct
+	 */
+	memset(&filter, 0, sizeof(simplefilter_struct));
+
+	/*
+	 * Create filter struct
+	 */
+	rc = rssfoptstosimple(opts, &filter);
+
+
+	/*
+	 * Add bogus name and nodup to filter
+	 */
+	if(filter.name == NULL) {
+		rssfalloccopy(&(filter.name), FINDNAME, strlen(FINDNAME));
+	}
+	if(filter.nodup == NULL) {
+		rssfalloccopy(&(filter.nodup), FINDNODUP, strlen(FINDNODUP));
+	}
+
+	rc = rsstfindnewtorrents(&filter, &newtorrents, 100, 0);
+  if(rc != 0){
+    retval=-1;
+  }
+
+	if(retval == 0){
+		/*
+		 * Print results
+		 */
+		for(count=0; count < newtorrents->nr; count++){
+			rssfsizetohuman(newtorrents->newtorrent[count].size, humansize);
+			printf("id: %d, name: %s , size: %s\n", 
+					newtorrents->newtorrent[count].id,
+					newtorrents->newtorrent[count].title,
+					humansize);
+			printf("url: %s\n\n", 
+					newtorrents->newtorrent[count].link);
+		}
+	}
+	
+	rc = rsstfreenewtorrentscontainer(newtorrents);
+  if(rc != 0){
+    retval=-1;
+  }
+
+	return retval;
+}

@@ -23,26 +23,20 @@
 #include <getopt.h>
 #include <unistd.h>
 #include <string.h>
+#include <pcre.h>
 
-#include "types.h"
-#include "database.h"
-#include "config.h"
-#include "regexp.h"
-#include "filesystem.h"
-#include "source.h"
-#include "filter.h"
-#include "logfile.h"
+#include <rsstor.h>
+
 #include "daemonize.h"
-#include "mailmsg.h"
-#include "sandboxdb.h"
-#include "torrentdownload.h"
 #include "handleopts.h"
-#include "runloop.h"
-#include "testfilter.h"
-#include "simplefilter.h"
-#include "filesystem.h"
-#include "torrentdb.h"
+#include "frontfuncts.h"
 #include "present.h"
+
+/*
+ * Number of output vectoritems
+ */
+#define   OVECSIZE 20
+#define   MATCHSIZE 20
 
 /*
  * optstring what options do we allow
@@ -50,15 +44,10 @@
 static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:M:La:";
 
 /*
- * Long opts
+ * Long options structure
  */
 static const struct option optLong[] =
 {
-	/* These options set a flag. */
-	//{"verbose", no_argument,       &verbose_flag, 1},
-	//{"brief",   no_argument,       &verbose_flag, 0},
-	/* These options don't set a flag.
-		 We distinguish them by their indices. */
 	{"version",     					no_argument,       0, 'v'},
 	{"list-config",  					no_argument,       0, 'c'},
 	{"list-filters",					no_argument,       0, 'f'},
@@ -158,6 +147,9 @@ static void printhelp(void)
           "################\n\n");  
 }
 
+
+
+
 /*
  * Set config value, and handle failure
  */
@@ -171,7 +163,7 @@ static void setconfigvalue(rsstor_handle *handle, char *configval)
 	 * REMOVE IN THE FUTURE
 	 */
 
-	rsstsplitnameval(configval, &name, &value);
+	rssfsplitnameval(configval, &name, &value);
 	rc = rsstsetconfigitem(handle, name, value);
 	if(rc == -1) {
 		fprintf(stderr, "Value not found in config\n");
@@ -339,7 +331,7 @@ static void reinitdb(rsstor_handle *handle)
  * handle Commandline options, setting up the structure for the complex 
  * arguments.
  */
-static void parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_struct *opts)
+static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_struct *opts)
 {
 	int						rc=0;
 	char        	opt=0;
@@ -354,31 +346,32 @@ static void parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_s
   while( opt != -1 && stopop == 0) {
     switch( opt ) {
       case 'v':
-				rsstprintversion();
+				rssfprintversion();
         stopop = 1; // no more
         break;
       case 'c':
-        rsstprintconfigitems(handle);
+        rssfprintconfigitems(handle);
+        stopop = 1; // no more
         break;
       case 'C': // Set config value
 				setconfigvalue(handle, optarg);
         break;
       case 'f': // list filters
-        rsstprintfilters(handle, argv[0]);
+        rssfprintfilters(handle, argv[0]);
         stopop = 1; // no more
         break;
       case 'F': // set download filter
-				rsstalloccopy(&(opts->filter), optarg, strlen(optarg));
+				rssfalloccopy(&(opts->filter), optarg, strlen(optarg));
         break;
       case 'p': // print filter en shell format
-        rsstprintshellfilter(handle, argv[0], optarg);
+        rssfprintshellfilter(handle, argv[0], optarg);
 				break;
       case 't': // set source filter type
         if( opts->sourcefilter != NULL) {
           fprintf(stderr, "Warning: ignoring second doublefilter parameter.\n");
           break;
         }
-				rsstalloccopy(&(opts->sourcefilter), optarg, strlen(optarg));
+				rssfalloccopy(&(opts->sourcefilter), optarg, strlen(optarg));
 				break;
       case 'q': // set filtertest flag
         opts->testfilt=1;
@@ -388,7 +381,7 @@ static void parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_s
           fprintf(stderr, "Warning: ignoring second sourcefilter parameter.\n");
           break;
         }
-				rsstalloccopy(&(opts->doublefilter), optarg, strlen(optarg));
+				rssfalloccopy(&(opts->doublefilter), optarg, strlen(optarg));
         break;
       case 'd': // delete filter
 				optdeletefilter(handle, optarg);
@@ -399,10 +392,10 @@ static void parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_s
           fprintf(stderr, "Warning: ignoring second source parameter.\n");
           break;
         }
-				rsstalloccopy(&(opts->source), optarg, strlen(optarg));
+				rssfalloccopy(&(opts->source), optarg, strlen(optarg));
         break;
       case 'S': // List available sources
-        rsstprintsources(handle);
+        rssfprintsources(handle);
         stopop = 1; // no more
         break;
       case 'D': // delete rss source
@@ -422,15 +415,15 @@ static void parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_s
         stopop = 1; // no more
         break;
       case 'J': // List simple filter
-        rsstlistsimple(handle);
+				rssflistallsimple(handle);
         stopop = 1; // no more
         break;
       case 'P': // Print A simple filter in shell format
-        rsstprintsimple(handle, optarg);
+        rssfprintsimple(handle, optarg);
         stopop =1; // no more
         break;
       case 'A': // Print A simple filter in shell format
-        rsstprintallsimple(handle);
+        rssfprintallsimple(handle);
         stopop =1; // no more
         break;
       case 'j': // Del simple filter
@@ -452,70 +445,70 @@ static void parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_s
           fprintf(stderr, "Warning: ignoring second simple filter addition.\n");
           break;
         }
-				rsstalloccopy(&(opts->simplename), optarg, strlen(optarg));
+				rssfalloccopy(&(opts->simplename), optarg, strlen(optarg));
         break;
       case 'N': // Add simple exclude regexp
         if( opts->simpleexclude != NULL) {
           fprintf(stderr, "Warning: ignoring second exclude addition.\n");
           break;
         }
-				rsstalloccopy(&(opts->simpleexclude), optarg, strlen(optarg));
+				rssfalloccopy(&(opts->simpleexclude), optarg, strlen(optarg));
         break;
       case 'U': // Add simple category regexp
         if( opts->simplecategory != NULL) {
           fprintf(stderr, "Warning: ignoring second category addition.\n");
           break;
         }
-        rsstalloccopy(&(opts->simplecategory), optarg, strlen(optarg));
+        rssfalloccopy(&(opts->simplecategory), optarg, strlen(optarg));
         break;
       case 'l': // Add simple category regexp
         if( opts->simplesource != NULL) {
           fprintf(stderr, "Warning: ignoring second source addition.\n");
           break;
         }
-        rsstalloccopy(&(opts->simplesource), optarg, strlen(optarg));
+        rssfalloccopy(&(opts->simplesource), optarg, strlen(optarg));
         break;
       case 'E': // Add title-filter argument
         if( opts->simpletitle != NULL) {
           fprintf(stderr, "Warning: ignoring second simple filter addition.\n");
           break;
         }
-        rsstalloccopy(&(opts->simpletitle), optarg, strlen(optarg));
+        rssfalloccopy(&(opts->simpletitle), optarg, strlen(optarg));
         break;
       case 'O': // Add 'max size' argument
         if( opts->simplemaxsize != NULL) {
           fprintf(stderr, "Warning: ignoring second 'max size' argument.\n");
           break;
         }
-        rsstalloccopy(&(opts->simplemaxsize), optarg, strlen(optarg));
+        rssfalloccopy(&(opts->simplemaxsize), optarg, strlen(optarg));
         break;
       case 'o': // Add 'min size' argument
         if( opts->simpleminsize != NULL) {
           fprintf(stderr, "Warning: ignoring second 'min size' argument.\n");
           break;
         }
-				rsstalloccopy(&(opts->simpleminsize), optarg, strlen(optarg));
+				rssfalloccopy(&(opts->simpleminsize), optarg, strlen(optarg));
         break;
       case 'u': // Add 'min size' argument
         if( opts->simplenodup != NULL) {
           fprintf(stderr, "Warning: ignoring second nodup argument.\n");
           break;
         }
-				rsstalloccopy(&(opts->simplenodup), optarg, strlen(optarg));
+				rssfalloccopy(&(opts->simplenodup), optarg, strlen(optarg));
         break;
       case 'g': // Add 'min size' argument
         if( opts->simpleseason != NULL) {
           fprintf(stderr, "Warning: ignoring second 'from season' argument.\n");
           break;
         }
-				rsstalloccopy(&(opts->simpleseason), optarg, strlen(optarg));
+				rssfalloccopy(&(opts->simpleseason), optarg, strlen(optarg));
         break;
       case 'G': // Add 'min size' argument
         if( opts->simpleepisode != NULL) {
           fprintf(stderr, "Warning: ignoring second 'from episode' argument.\n");
           break;
         }
-				rsstalloccopy(&(opts->simpleepisode), optarg, strlen(optarg));
+				rssfalloccopy(&(opts->simpleepisode), optarg, strlen(optarg));
         break;
       case 'K': // Reinitialize the database
 				reinitdb(handle);
@@ -561,6 +554,11 @@ static void parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_s
 
 		opt = getopt_long (argc, argv, optString, optLong, &optindex);
   }
+
+	/*
+	 * Returned stopop
+	 */
+	return stopop;
 }
 
 /*
@@ -571,13 +569,19 @@ void handlemultiple(rsstor_handle *handle, opts_struct *opts)
 	int						rc=0;
 	char 				 *name=NULL;
 	char 				 *value=NULL;
+	simplefilter_struct simple;
+
+	/*
+	 * NULL simple
+	 */
+	memset(&simple, 0, sizeof(simplefilter_struct));
 
 	/*
 	 * When source is set add it here.
 	 * Handle here because a type could be set
 	 */
 	if(opts->source != NULL) {
-		rsstsplitnameval(opts->source, &name, &value);
+		rssfsplitnameval(opts->source, &name, &value);
 		rsstaddsource(handle, name, value, opts->sourcefilter);
 	}
 
@@ -585,7 +589,7 @@ void handlemultiple(rsstor_handle *handle, opts_struct *opts)
 	 * When a filter is set, evaluate it here
 	 */
 	if(opts->filter != NULL) {
-		rsstsplitnameval(opts->filter, &name, &value);
+		rssfsplitnameval(opts->filter, &name, &value);
 		/*
 		 * Add the filter 
 		 */
@@ -619,8 +623,13 @@ void handlemultiple(rsstor_handle *handle, opts_struct *opts)
 	 * Find Torrent ids
 	 */
 	if(opts->findtorid != 0){
-		rc = rsstfindtorrentids(opts);
+		rc = rssffindtorrentids(opts);
 	}
+
+	/*
+	 * Opts to simple
+	 */
+	rc =  rssfoptstosimple(opts, &simple);
 
   /*
    * When add simple filter is set
@@ -631,25 +640,32 @@ void handlemultiple(rsstor_handle *handle, opts_struct *opts)
 		 * Add the simple filter 
 		 */
 		if(opts->testfilt == 0 && opts->findtorid == 0) { 
-			rc = rsstaddsimplefilter(handle, opts);
+			rc = rsstaddsimplefilter(handle, &simple);
+
 			if(rc != 0){
 				fprintf(stderr, "Adding filter failed.\n");
 			} else {
 				printf("Filter '%s' added succesfully.\n", 
 						opts->simplename);
 			}
+
 		}
 
 		/*
 		 * Test simple filter
 		 */
 		if(opts->testfilt != 0) { 
-			rc = rsstdosimpletest(opts);
+			rc = rsstdosimpletest(&simple);
 			if(rc != 0) {
 				printf("new filter : '%s' Test failed\n",
 						opts->simplename);
 			}
 		}
+
+		/*
+		 * Free simple struct
+		 */
+		rsstfreesimplefilter(&simple);
 	}
 
 	/*
@@ -694,7 +710,6 @@ static void runmode(rsstor_handle *handle, opts_struct *opts)
 {
 	int 		rc=0;
 	char		*logpath=NULL;
-	char		*logfullpath=NULL;
 
 	/*
 	 * Test if torrent directory is writable
@@ -713,10 +728,10 @@ static void runmode(rsstor_handle *handle, opts_struct *opts)
 			printf("Forking to background.\n");
 			rc = rsstconfiggetproperty(handle, CONF_LOGFILE, &logpath);
 			if(rc == 0) {
-				rsstcompletepath(logpath, &logfullpath);
-				rsstdaemonize(logpath);
+				rssfdaemonize(logpath);
 			} else {
-				rsstdaemonize("/dev/null");
+				printf("No (valid) logfile set, no logging.\n");
+				rssfdaemonize("/dev/null");
 			}
 		} else {
 			printf("No forking, running on shell.\n");
@@ -725,13 +740,12 @@ static void runmode(rsstor_handle *handle, opts_struct *opts)
 		/*
 		 * Check and lock lockfile
 		 */
-		rsstlock(handle);
+		rssflock(handle);
 
 		/*
 		 * Free paths
 		 */
 		free(logpath);
-		free(logfullpath);
 
 		/*
 		 * Call main loop here.
@@ -746,6 +760,7 @@ static void runmode(rsstor_handle *handle, opts_struct *opts)
 void rssthandleopts(rsstor_handle *handle, int argc, char *argv[])
 {
 	int 					rc=0;
+	int						nomore=0;
 	opts_struct 	opts; 
 
 	/*
@@ -764,24 +779,29 @@ void rssthandleopts(rsstor_handle *handle, int argc, char *argv[])
 	 * Parse all options, calling simple actions directly.
 	 * Fill the opts truct to handle complex arguments later.
 	 */
-	parsearguments(handle, argc, argv, &opts);
+	nomore = parsearguments(handle, argc, argv, &opts);
 
 	/*
-	 * Test the argumentcombinations.
-	 * only execute handling routines when all is okay.
+	 * When more processing is required do so
 	 */
-	rc = verifyarguments(&opts);
-	if(rc == 0) {
+	if(nomore == 0) {
 		/*
-		 * Handle commands, that consist of more then one arguments.
+		 * Test the argumentcombinations.
+		 * only execute handling routines when all is okay.
 		 */
-		handlemultiple(handle, &opts);
+		rc = verifyarguments(&opts);
+		if(rc == 0) {
+			/*
+			 * Handle commands, that consist of more then one arguments.
+			 */
+			handlemultiple(handle, &opts);
 
-		/*
-		 * When then run option is provided call the main loop
-		 */
-		if(opts.run == 1) {
-			runmode(handle, &opts);
+			/*
+			 * When then run option is provided call the main loop
+			 */
+			if(opts.run == 1) {
+				runmode(handle, &opts);
+			}
 		}
 	}
 

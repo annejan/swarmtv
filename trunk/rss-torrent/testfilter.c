@@ -36,8 +36,6 @@
 
 #define  DBSANDBOX "~/.rsstorrent/sandbox.db"
 
-#define  FINDNAME 	"filter"
-#define  FINDNODUP	"none"
 /*
  * The max number of results in a search result.
  */
@@ -216,7 +214,7 @@ int rsstcleanoutdb(sandboxdb *sandbox)
  * Prevent doubles from occuring.
  * match all records that match the filter, and copy them to the no double
  */
-static int createsimpledownloaded(sandboxdb *sandbox, opts_struct *filter)
+static int createsimpledownloaded(sandboxdb *sandbox, simplefilter_struct *filter)
 {
   int 					 rc=0;
 	char 					*nodupsql=NULL;
@@ -262,7 +260,7 @@ static int createsimpledownloaded(sandboxdb *sandbox, opts_struct *filter)
  * Takes opts_struct * as argument.
  * return 0 on succes, return -1 on failure.
  */
-int rsstdosimpletest(opts_struct *opts)
+int rsstdosimpletest(simplefilter_struct *filter)
 {
   int rc=0;
   sandboxdb *sandbox;
@@ -281,7 +279,7 @@ int rsstdosimpletest(opts_struct *opts)
   /*
    * Execute testfilter
    */
-	rc = createsimpledownloaded(sandbox, opts);
+	rc = createsimpledownloaded(sandbox, filter);
   if(rc != 0){
     printf("Execution of testfilter failed.\n");
     rsstwritelog(LOG_ERROR, "Execution of testfilter failed %s:%d", __FILE__, __LINE__);
@@ -311,120 +309,6 @@ int rsstdosimpletest(opts_struct *opts)
   return 0;
 }
 
-
-/*
- * Do filter test
- * show first 10 matches
- * Takes opts_struct * as argument.
- * return 0 on succes, return -1 on failure.
- */
-int rsstfindtorrentids(opts_struct *opts)
-{
-  int rc=0;
-	int retval=0;
-	int count=0;
-	char humansize[20];
-	simplefilter_struct filter;
-	newtorrents_container *newtorrents=NULL;
-
-	/*
-	 * NULL filter
-	 */
-	memset(&filter, 0, sizeof(simplefilter_struct));
-
-	/*
-	 * Add bogus name and nodup to filter
-	 */
-	if(opts->simplename == NULL) {
-		rsstalloccopy(&(opts->simplename), FINDNAME, strlen(FINDNAME));
-	}
-	if(opts->simplenodup == NULL) {
-		rsstalloccopy(&(opts->simplenodup), FINDNODUP, strlen(FINDNODUP));
-	}
-
-  /*
-   * Translate argument to usable data
-   */
-  rc = rsstoptstosimple(opts, &filter);
-  if(rc != 0){
-    return -1;
-  }
-	
-	rc = rsstfindnewtorrents(&filter, &newtorrents, 100, 0);
-  if(rc != 0){
-    retval=-1;
-  }
-
-	if(retval == 0){
-		/*
-		 * Print results
-		 */
-		for(count=0; count < newtorrents->nr; count++){
-			rsstsizetohuman(newtorrents->newtorrent[count].size, humansize);
-			printf("id: %d, name: %s , size: %s\n", 
-					newtorrents->newtorrent[count].id,
-					newtorrents->newtorrent[count].title,
-					humansize);
-			printf("url: %s\n\n", 
-					newtorrents->newtorrent[count].link);
-		}
-	}
-	
-	rc = rsstfreenewtorrentscontainer(newtorrents);
-  if(rc != 0){
-    retval=-1;
-  }
-
-	return retval;
-#if 0
-  sandboxdb *sandbox;
-  char *query="SELECT newtorrents.id, downloaded.title, downloaded.season, downloaded.episode FROM newtorrents, downloaded "
-							"WHERE newtorrents.link = downloaded.link ORDER BY newtorrents.id LIMIT " PAGE_LIMIT ""; // get values from downloaded table
-	char *names[]={"Id", "Title", "Season", "Episode", "Torrent"};
-
-
-  /*
-   * Init sandbok db
-   */
-  sandbox = rsstinitfiltertest();
-  if(sandbox == NULL){
-    rsstwritelog(LOG_ERROR, "Sandbox creaton failed %s:%d", __FILE__, __LINE__);
-    return -1;
-  }
-
-  /*
-   * Execute testfilter
-   */
-	rc = createsimpledownloaded(sandbox, opts);
-  if(rc != 0){
-    printf("Execution of testfilter failed.\n");
-    rsstwritelog(LOG_ERROR, "Execution of testfilter failed %s:%d", __FILE__, __LINE__);
-    return -1;
-  }
-
-  /*
-   * Print content of downloaded
-   */
-  rc = rsstprintquerylist(sandbox->db, query, names, NULL);
-  if(rc != 0){
-    printf("Listing of download queue failed.\n");
-    rsstwritelog(LOG_ERROR, "Execution of testfilter failed %s:%d", __FILE__, __LINE__);
-    return -1;
-  }
-
-  /*
-   * cleanup sandbox
-   */
-  rc = rsstclosesandbox(sandbox);
-  if(rc != 0){
-    printf("Closing sandbox failed.\n");
-    rsstwritelog(LOG_ERROR, "Closing sandbox falied %s:%d", __FILE__, __LINE__);
-    return -1;
-  }
-
-  return 0;
-#endif
-}
 
 /*
  * This routine retrieves the records from the downloaded table.

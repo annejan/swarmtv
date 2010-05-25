@@ -34,7 +34,7 @@
 /*
  * Fork process to daemon.
  */
-void rsstdaemonize(char *path)
+void rssfdaemonize(char *path)
 {
   pid_t pid, sid;
 
@@ -74,7 +74,7 @@ void rsstdaemonize(char *path)
 /*
  * check Lockfile 
  */
-static void rsstlockfile (rsstor_handle *handle, const char *lockpath)
+static void rssflockfile(rsstor_handle *handle, const char *lockpath)
 {
   int  lfp;
   char str[10];
@@ -109,7 +109,7 @@ static void rsstlockfile (rsstor_handle *handle, const char *lockpath)
  * @Arguments
  * handle RSS-torrent handle
  */
-void rsstlock(rsstor_handle *handle)
+void rssflock(rsstor_handle *handle)
 {
 	sqlite3 *db=NULL;
 	char    *lockpath=NULL;
@@ -127,7 +127,7 @@ void rsstlock(rsstor_handle *handle)
 	/*
 	 * Lock the file
 	 */
-	rsstlockfile(handle, lockpath);
+	rssflockfile(handle, lockpath);
 
 	/*
 	 * Free the path
@@ -143,7 +143,7 @@ void rsstlock(rsstor_handle *handle)
  * @Return
  * 0 on success otherwise -1
  */
-int rsstunlock(rsstor_handle *handle)
+int rssfunlock(rsstor_handle *handle)
 {
   int  lfp;
 
