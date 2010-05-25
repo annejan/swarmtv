@@ -50,10 +50,10 @@ SET(RSS_MAN man/rsstorrent.1.gz)
 # All other sources
 SET(LIBSRC setup database config regexp source
 		filter runloop curlfile torrentdb torrentdownload logfile
-		daemonize mailmsg findtorrent sandboxdb testfilter
+		mailmsg findtorrent sandboxdb testfilter
 		filesystem tbl torrentparse simplefilter)
 
-SET(SRC rsstorrent handleopts present)
+SET(SRC rsstorrent handleopts present frontfuncts daemonize)
 
 #SET(SRC setup rsstorrent database config regexp source
 #  filter runloop curlfile torrentdb torrentdownload logfile
