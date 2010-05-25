@@ -355,6 +355,7 @@ static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_st
         break;
       case 'C': // Set config value
 				setconfigvalue(handle, optarg);
+        stopop = 1; // no more
         break;
       case 'f': // list filters
         rssfprintfilters(handle, argv[0]);
@@ -791,16 +792,17 @@ void rssthandleopts(rsstor_handle *handle, int argc, char *argv[])
 		 */
 		rc = verifyarguments(&opts);
 		if(rc == 0) {
-			/*
-			 * Handle commands, that consist of more then one arguments.
-			 */
-			handlemultiple(handle, &opts);
 
 			/*
 			 * When then run option is provided call the main loop
 			 */
 			if(opts.run == 1) {
 				runmode(handle, &opts);
+			} else {
+				/*
+				 * Handle commands, that consist of more then one arguments.
+				 */
+				handlemultiple(handle, &opts);
 			}
 		}
 	}
