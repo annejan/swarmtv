@@ -4,77 +4,28 @@
 cmake_minimum_required(VERSION 2.6)
 project (rsstorrent C)
 
+# Handle ESMTP ENABLE
+IF(NOT ESMTP_ENABLE)
+	SET(ESMTP_ENABLE "NO")
+ENDIF(ESMTP_ENABLE)
+# MESSAGE("ESMTP_ENABLE=${ESMTP_ENABLE}")
+
 # Detect Libraries
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} /usr/share/apps/cmake/modules ${CMAKE_SOURCE_DIR}/cmake_modules)
 FIND_PACKAGE(LibXml2 REQUIRED)
 FIND_PACKAGE(Sqlite REQUIRED)
 FIND_PACKAGE(PCRE REQUIRED)
 FIND_PACKAGE(CURL REQUIRED)
-FIND_PACKAGE(ESMTP REQUIRED)
 
-# Use the detected libraries to set build variables.
-SET(optionalLibs)
-IF(LIBXML2_FOUND)
-	INCLUDE_DIRECTORIES( ${LIBXML2_INCLUDE_DIR} )
-	SET(optionalLibs ${optionalLibs} ${LIBXML2_LIBRARIES} )
-ENDIF(LIBXML2_FOUND)
+# When ESMTP is enabled, check the library
+#IF("${ESMTP_ENABLE}" STREQUAL "YES") 
+	FIND_PACKAGE(ESMTP REQUIRED)
+#ENDIF("${ESMTP_ENABLE}" EQUAL "YES")
 
-IF(SQLITE_FOUND)
-	INCLUDE_DIRECTORIES( ${SQLITE_INCLUDE_DIR} )
-	SET(optionalLibs ${optionalLibs} ${SQLITE_LIBRARIES} )
-ENDIF(SQLITE_FOUND)
-
-IF(PCRE_FOUND)
-	INCLUDE_DIRECTORIES( ${PCRE_INCLUDE_DIR} )
-	SET(optionalLibs ${optionalLibs} ${PCRE_LIBRARIES} )
-ENDIF(PCRE_FOUND)
-
-IF(CURL_FOUND)
-	INCLUDE_DIRECTORIES( ${CURL_INCLUDE_DIR} )
-	SET(optionalLibs ${optionalLibs} ${CURL_LIBRARIES} )
-ENDIF(CURL_FOUND)
-
-IF(ESMTP_FOUND)
-	INCLUDE_DIRECTORIES( ${ESMTP_INCLUDE_DIR} )
-	SET(optionalLibs ${optionalLibs} ${ESMTP_LIBRARIES} )
-ENDIF(ESMTP_FOUND)
-
-# Compiler directives
-add_definitions(-Wall -W -g)
-include_directories(.)
 
 # Add manpage 
 SET(RSS_SRC man/rsstorrent.1)
 SET(RSS_MAN man/rsstorrent.1.gz)
-
-# All other sources
-SET(LIBSRC setup database config regexp source
-		filter runloop curlfile torrentdb torrentdownload logfile
-		mailmsg findtorrent sandboxdb testfilter
-		filesystem tbl torrentparse simplefilter)
-
-SET(SRC rsstorrent handleopts present frontfuncts daemonize)
-
-#SET(SRC setup rsstorrent database config regexp source
-#  filter runloop curlfile torrentdb torrentdownload logfile
-#  daemonize mailmsg findtorrent sandboxdb testfilter
-#  filesystem tbl torrentparse handleopts simplefilter)
-
-# Subdirectories
-INCLUDE(srcparser/parsers.cmake)
-
-# Add executable
-add_executable (rsstorrent ${SRC} ${LIBSRC} ${RSS_MAN}) 
-TARGET_LINK_LIBRARIES(rsstorrent ${optionalLibs} )
-
-# Add library
-add_library (rsstor SHARED ${LIBSRC} ${RSS_MAN})
-TARGET_LINK_LIBRARIES(rsstor ${optionalLibs} )
-# Set the build version (VERSION) and the API version (SOVERSION)
-SET_TARGET_PROPERTIES(rsstor
-		PROPERTIES
-		VERSION 1.0.0
-		SOVERSION 1)
 
 # Compression of the manuals
 FOREACH(man ${RSS_SRC})
@@ -86,22 +37,9 @@ FOREACH(man ${RSS_SRC})
       ${man}.gz")
 ENDFOREACH(man)
 
-# We install to /usr/local/bin
-INSTALL(PROGRAMS rsstorrent DESTINATION /usr/local/bin)
-
-# Installation of the manuals
-  INSTALL(FILES man/rsstorrent.1.gz
-      DESTINATION "share/man/man1"
-      PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
-
-# Installation of the library
-INSTALL(TARGETS rsstor
-		DESTINATION lib
-		PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
-
-INSTALL(FILES rsstor.h
-		DESTINATION include
-		PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
+# Building libray and shell frontend
+add_subdirectory (librsstor)
+add_subdirectory (shellfront) 
 
 # Implement uninstall
 CONFIGURE_FILE(

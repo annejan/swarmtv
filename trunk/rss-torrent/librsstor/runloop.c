@@ -28,7 +28,6 @@
 #include "curlfile.h"
 #include "config.h"
 #include "filter.h"
-#include "handleopts.h"
 #include "runloop.h"
 #include "torrentdownload.h"
 #include "simplefilter.h"

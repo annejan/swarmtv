@@ -29,7 +29,6 @@
 #include "logfile.h"
 #include "database.h"
 #include "torrentdb.h"
-#include "handleopts.h"
 #include "simplefilter.h"
 #include "torrentdownload.h"
 #include "regexp.h"

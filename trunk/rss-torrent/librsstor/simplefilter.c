@@ -27,7 +27,6 @@
 #include "types.h"
 #include "logfile.h"
 #include "regexp.h"
-#include "handleopts.h"
 #include "database.h"
 #include "torrentdownload.h"
 #include "simplefilter.h"
