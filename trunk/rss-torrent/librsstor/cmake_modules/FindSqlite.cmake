@@ -1,16 +1,32 @@
-# Find include and libraries for SQLITE library
-# SQLITE_INCLUDE     Directories to include to use SQLITE
-# SQLITE_INCLUDE-I   Directories to include to use SQLITE (with -I)
-# SQLITE_LIBRARIES   Libraries to link against to use SQLITE
-# SQLITE_FOUND       SQLITE was found
+# - Try to find the sqlite library
+# Once done this will define
+#
+#  SQLITE_FOUND - system has sqlite
+#  SQLITE_INCLUDE_DIR - the sqlite include directory
+#  SQLITE_LIBRARIES - Link these to use sqlite
+#  SQLITE_DEFINITIONS - Compiler switches required for using sqlite
+#
+	
+IF ( SQLITE_INCLUDE_DIR AND SQLITE_LIBRARIES )
+    SET( SQLITE_FIND_QUIETLY TRUE )
+ENDIF ( SQLITE_INCLUDE_DIR AND SQLITE_LIBRARIES )
 
-IF (UNIX)
-	INCLUDE (UsePkgConfig)
-	PKGCONFIG (sqlite3 SQLite_include_dir SQLite_link_dir SQLite_libraries SQLite_include)
-	IF (SQLite_libraries)
-		SET (SQLITE_FOUND TRUE)
-		SET (SQLITE_LIBRARIES ${SQLite_libraries})
-	ELSE (SQLite_libraries)
-		SET (SQLITE_FOUND FALSE)
-	ENDIF (SQLite_libraries)
-ENDIF (UNIX)
+# Look for sqlite3 include dir and libraries
+FIND_PATH( SQLITE_INCLUDE_DIR sqlite3.h PATHS ${_LibSQLITEIncDir} )
+
+FIND_LIBRARY( SQLITE_LIBRARIES NAMES sqlite3 PATHS ${_LibSQLITELinkDir} )
+
+IF ( SQLITE_INCLUDE_DIR AND SQLITE_LIBRARIES )
+	SET( SQLITE_FOUND 1 )
+	IF ( NOT SQLITE_FIND_QUIETLY )
+		MESSAGE ( STATUS "Found sqlite3: ${SQLITE_LIBRARIES}" )
+	ENDIF ( NOT SQLITE_FIND_QUIETLY )
+ELSE ( SQLITE_INCLUDE_DIR AND SQLITE_LIBRARIES )
+	IF ( NOT SQLITE_FIND_QUIETLY )
+		MESSAGE ( STATUS "Could NOT found sqlite3." )
+	ENDIF ( NOT SQLITE_FIND_QUIETLY )
+ENDIF ( SQLITE_INCLUDE_DIR AND SQLITE_LIBRARIES )
+
+# Hide advanced variables from CMake GUIs
+MARK_AS_ADVANCED( SQLITE_INCLUDE_DIR SQLITE_LIBRARIES )
+
