@@ -62,7 +62,7 @@ static int createdownloaded(sandboxdb *sandbox, char *filter, char *nodouble)
   /*
    * use function to add records to the downloaded table.
    */
-  rsstapplyfilter(sandbox->db, "Sandbox", nodouble, 1, filter,  NULL);
+  rsstapplyfilter(sandbox->db, "Sandbox", nodouble, NULL, 1, filter,  NULL);
 
   return 0;
 }

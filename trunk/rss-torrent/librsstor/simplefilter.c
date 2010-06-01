@@ -44,8 +44,8 @@
  */
 #define NODUP_NONE    ""
 #define NODUP_LINK    "SELECT title FROM downloaded WHERE link=?1"
-#define NODUP_UNIQUE  "SELECT title FROM downloaded WHERE link=?1 OR (season=?2 AND episode=?3 AND IREGEXP('REPLACE_TITLE', title))"
-#define NODUP_NEWER   "SELECT title FROM downloaded WHERE link=?1 OR ((season=?2 AND episode>=?3) OR season>?2) AND IREGEXP('REPLACE_TITLE', title)"
+#define NODUP_UNIQUE  "SELECT title FROM downloaded WHERE link=?1 OR (season=?2 AND episode=?3 AND IREGEXP(?4, title))"
+#define NODUP_NEWER   "SELECT title FROM downloaded WHERE link=?1 OR ((season=?2 AND episode>=?3) OR season>?2) AND IREGEXP(?4, title)"
 
 /*
  * Filter that is used to convert the simple filter into SQL.
@@ -69,7 +69,7 @@ static char *sqlfilter="SELECT link, title, pubdate, category, season, episode F
  * Nohup *inodup should be passed with value NULL
  * Returns 0 on succes, -1 when no fitting filter was found.
  */
-static int findnodup(char *name, char *title, char **nodup)
+static int findnodup(char *name, char **nodup)
 {
   *nodup=NULL;
 
@@ -103,7 +103,7 @@ static int findnodup(char *name, char *title, char **nodup)
   /*
    * Insert the correct TITLE filter
    */
-  rsststrrepl(nodup, "REPLACE_TITLE", title);
+  //rsststrrepl(nodup, "REPLACE_TITLE", title);
 
   return 0;
 }
@@ -123,7 +123,7 @@ static int validearguments(simplefilter_struct *filter)
   /*
    * Validate nodup argument
    */
-  rc = findnodup(filter->nodup, filter->title, &nodup);
+  rc = findnodup(filter->nodup, &nodup);
   free(nodup);
   if(rc == -1) {
     rsstwritelog(LOG_ERROR, "Nodup name '%s' is not valid. %s:%d", filter->nodup, __FILE__, __LINE__);
@@ -464,7 +464,7 @@ int rsstdownloadsimple(sqlite3 *db, SIM simulate)
     /*
      * Generate SQL-filter and SQL-nodup
      */
-    rc = findnodup(nodup, title, &sqlnodup);
+    rc = findnodup(nodup, &sqlnodup);
     if(rc != 0) {
     free(sqlnodup);
       rsstwritelog(LOG_ERROR, "Simple filter '%s' does not have a valid nodup value. %s:%d", name, __FILE__, __LINE__);
@@ -480,7 +480,7 @@ int rsstdownloadsimple(sqlite3 *db, SIM simulate)
     /*
      * call apply filter
      */
-    rsstapplyfilter(db, name, sqlnodup, simulate, sqlfilter, 
+    rsstapplyfilter(db, name, sqlnodup, title, simulate, sqlfilter, 
 				"sffddsss", title, maxsize, minsize, season, episode, exclude, category, source);
 
     /*

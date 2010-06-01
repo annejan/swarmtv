@@ -32,15 +32,16 @@ int rsstdownloadtorrents(sqlite3 *db);
  * Apply the filters from the query.
  * when simulate is set !=0 no actual downloads are performed
  * @arguments 
- * db					: Sqlite3 pointer
- * *name			: Filter name
- * *nodouble	: SQL for the nodouble filter
- * simulate		: When 1 simulation mode 0, no simualtion
- * *filter		: Filter SQL 
- * *fmt				:	Format of the arguments to insert into the filter sql 
- * ...				:	Arguments for the filter SQL.
+ * db						: Sqlite3 pointer
+ * *name				: Filter name
+ * *nodouble		: SQL for the nodouble filter
+ * *titleregexp : Title regexp from the simple filter. Set NULL to ignore 
+ * simulate			: When 1 simulation mode 0, no simualtion
+ * *filter			: Filter SQL 
+ * *fmt					:	Format of the arguments to insert into the filter sql 
+ * ...					:	Arguments for the filter SQL.
  */
-void rsstapplyfilter(sqlite3 *db, char *name, char* nodouble, SIM simulate, char *filter, char *fmt, ...);
+void rsstapplyfilter(sqlite3 *db, char *name, char* nodouble, char *titleregexp, SIM simulate, char *filter, char *fmt, ...);
 
 
 /*

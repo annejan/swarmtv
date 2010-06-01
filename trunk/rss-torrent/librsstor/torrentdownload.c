@@ -44,21 +44,20 @@
  * Apply the filters from the query.
  * when simulate is set to 'sim' no actual downloads are performed
  */
-void rsstapplyfilter(sqlite3 *db, char *name, char* nodouble, SIM simulate, char *filter, char *fmt, ...);
+void rsstapplyfilter(sqlite3 *db, char *name, char* nodouble, char *filtertitle, SIM simulate, char *filter, char *fmt, ...);
 
 /*
  * Test for double downloads.
  * Queries need to be provided by the user.
  * return 1 if double, 0 if new
  */
-static int testdouble(sqlite3 *db, char *nodouble, downloaded_struct *downed);
+static int testdouble(sqlite3 *db, char *nodouble, char *titleregexp, downloaded_struct *downed);
 
 /*
  * Do download.
  * take url, create name and call curl routine
  */
 static int dodownload(sqlite3 *db, downloaded_struct *downed);
-
 
 /*
  * Get the filters from the database.
@@ -111,8 +110,7 @@ int rsstdownloadtorrents(sqlite3 *db)
     /*
      * call apply filter
      */
-    rsstapplyfilter(db, name, nodouble, (SIM) real, filter, NULL);
-		//void rsstapplyfilter(sqlite3 *db, char *name, char* nodouble, int simulate, char *filter, char *fmt, ...)
+    rsstapplyfilter(db, name, nodouble, NULL, (SIM) real, filter, NULL);
   }
 
   /*
@@ -132,7 +130,7 @@ int rsstdownloadtorrents(sqlite3 *db)
  * Queries need to be provided by the user.
  * return 1 if double, 0 if new
  */
-static int testdouble(sqlite3 *db, char *nodouble, downloaded_struct *downed)
+static int testdouble(sqlite3 *db, char *nodouble, char *titleregexp, downloaded_struct *downed)
 {
   sqlite3_stmt  *ppStmt;
   const char    *pzTail;
@@ -165,6 +163,9 @@ static int testdouble(sqlite3 *db, char *nodouble, downloaded_struct *downed)
   rc = sqlite3_bind_text(ppStmt, 1, downed->link, -1, SQLITE_TRANSIENT);
   rc = sqlite3_bind_int(ppStmt, 2, downed->season);
   rc = sqlite3_bind_int(ppStmt, 3, downed->episode);
+	if(titleregexp != NULL) {
+		rc = sqlite3_bind_text(ppStmt, 4, titleregexp, -1, SQLITE_TRANSIENT);
+	}
 
   /*
    * Execute query
@@ -199,7 +200,7 @@ static int testdouble(sqlite3 *db, char *nodouble, downloaded_struct *downed)
  * *fmt				:	Format of the arguments to insert into the filter sql 
  * ...				:	Arguments for the filter SQL.
  */
-void rsstapplyfilter(sqlite3 *db, char *name, char* nodouble, SIM simulate, char *filter, char *fmt, ...)
+void rsstapplyfilter(sqlite3 *db, char *name, char* nodouble, char *titleregexp, SIM simulate, char *filter, char *fmt, ...)
 {
   sqlite3_stmt  *ppStmt=NULL;
   const char    *pzTail=NULL;
@@ -315,7 +316,8 @@ void rsstapplyfilter(sqlite3 *db, char *name, char* nodouble, SIM simulate, char
       /*
        * Test if episode is already there
        */
-      if(testdouble(db, nodouble, &downed) == 0) {
+			rc = testdouble(db, nodouble, titleregexp, &downed);
+      if(rc == 0) {
 
         /*
          * Add a torrent to the downloaded table.

@@ -421,7 +421,6 @@ int rsstrundbinitscript(rsstor_handle *handle)
  * @Returns
  *
  */
-//int rsstinitdatabase(const char *filename, sqlite3 **ppDb)       
 int rsstinitdatabase(const char *filename, rsstor_handle *handle)
 {
 	int         rc=0; /* return code */
