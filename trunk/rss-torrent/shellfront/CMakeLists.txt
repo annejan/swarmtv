@@ -27,10 +27,10 @@ ENDIF(ESMTP_FOUND)
 
 # Compiler directives
 add_definitions(-Wall -W -g)
-include_directories(. ../librsstor)
+include_directories(. ${RSSTORRENT_BASE_DIR}/librsstor)
 
 # Make sure the linker can find the Hello library once it is built.
-link_directories (../librsstor) 
+link_directories (${RSSTORRENT_BASE_DIR}/librsstor) 
 
 SET(SRC rsstorrent handleopts present frontfuncts daemonize)
 
