@@ -5,12 +5,12 @@ cmake_minimum_required(VERSION 2.6)
 project (rsstorrent C)
 
 # Detect Libraries
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} /usr/share/apps/cmake/modules ${CMAKE_SOURCE_DIR}/cmake_modules)
-FIND_PACKAGE(LibXml2 REQUIRED)
-FIND_PACKAGE(Sqlite REQUIRED)
-FIND_PACKAGE(PCRE REQUIRED)
-FIND_PACKAGE(CURL REQUIRED)
-FIND_PACKAGE(ESMTP REQUIRED)
+#SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} /usr/share/apps/cmake/modules ${CMAKE_SOURCE_DIR}/cmake_modules)
+#FIND_PACKAGE(LibXml2 REQUIRED)
+#FIND_PACKAGE(Sqlite REQUIRED)
+#FIND_PACKAGE(PCRE REQUIRED)
+#FIND_PACKAGE(CURL REQUIRED)
+#FIND_PACKAGE(ESMTP REQUIRED)
 
 # Use the detected libraries to set build variables.
 SET(optionalLibs)
@@ -46,8 +46,13 @@ include_directories(.)
 # All other sources
 SET(LIBSRC setup database config regexp source
 		filter runloop curlfile torrentdb torrentdownload logfile
-		mailmsg findtorrent sandboxdb testfilter
+		findtorrent sandboxdb testfilter
 		filesystem tbl torrentparse simplefilter)
+
+IF(ESMTP_FOUND)
+	MESSAGE("ADDING MaILMSG SOURCE")
+	SET(LIBSRC ${LIBSRC} mailmsg)
+ENDIF()
 
 
 #SET(SRC setup rsstorrent database config regexp source

@@ -4,11 +4,20 @@
 cmake_minimum_required(VERSION 2.6)
 project (rsstorrent C)
 
-# Handle ESMTP ENABLE
-#IF(NOT ESMTP_ENABLE)
-#	SET(ESMTP_ENABLE "NO")
-#ENDIF(ESMTP_ENABLE)
-# MESSAGE("ESMTP_ENABLE=${ESMTP_ENABLE}")
+# Handle build switches
+IF(NOT DEFINED ESMTP_ENABLE)
+	SET(ESMTP_ENABLE TRUE)
+ENDIF()
+
+IF(NOT DEFINED SHELL_ENABLE)
+  SET(SHELL_ENABLE TRUE)
+ENDIF()
+
+# Print options
+MESSAGE("## OPTIONS ##")
+MESSAGE("ESMTP_ENABLE = ${ESMTP_ENABLE}")
+MESSAGE("SHELL_ENABLE = ${SHELL_ENABLE}")
+
 
 # Detect Libraries
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} /usr/share/apps/cmake/modules ${CMAKE_SOURCE_DIR}/cmake_modules)
@@ -18,9 +27,16 @@ FIND_PACKAGE(PCRE REQUIRED)
 FIND_PACKAGE(CURL REQUIRED)
 
 # When ESMTP is enabled, check the library
-#IF("${ESMTP_ENABLE}" STREQUAL "YES") 
-	FIND_PACKAGE(ESMTP REQUIRED)
-#ENDIF("${ESMTP_ENABLE}" EQUAL "YES")
+IF(ESMTP_ENABLE) 
+	FIND_PACKAGE(ESMTP)
+	IF(ESMTP_FOUND)
+		ADD_DEFINITIONS(-DRSST_ESMTP_ENABLE="\\"1\\"")
+	ELSEIF()
+		MESSAGE("ESMTP NOT FOUND")
+	ENDIF()
+ELSEIF()
+	SET(ESMTP_FOUND FALSE)
+ENDIF()
 
 SET(RSSTORRENT_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -40,7 +56,10 @@ ENDFOREACH(man)
 
 # Building libray and shell frontend
 add_subdirectory (librsstor)
-add_subdirectory (shellfront) 
+
+IF(SHELL_ENABLE) 
+	add_subdirectory (shellfront) 
+ENDIF()
 
 # Implement uninstall
 CONFIGURE_FILE(

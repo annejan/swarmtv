@@ -30,10 +30,16 @@
 #include "curlfile.h"
 #include "torrentdb.h"
 #include "logfile.h"
-#include "mailmsg.h"
 #include "findtorrent.h"
 #include "filesystem.h"
 #include "database.h"
+
+/*
+ * When libesmtp is included add header here.
+ */
+#ifdef RSST_ESMTP_ENABLE
+  #include "mailmsg.h"
+#endif
 
 /*
  * Max message and subject lenght for notification email
@@ -338,7 +344,11 @@ void rsstapplyfilter(sqlite3 *db, char *name, char* nodouble, char *titleregexp,
 						 * Send email
 						 */
 						snprintf(message, MAXMSGLEN, "Downloading %s S%dE%d", downed.title, downed.season, downed.episode);
+
+#ifdef RSST_ESMTP_ENABLE
 						rsstsendrssmail(db, message, message);
+#endif
+
 					}
         }
       } else {

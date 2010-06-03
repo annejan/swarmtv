@@ -41,7 +41,11 @@
 /*
  * optstring what options do we allow
  */
+#ifdef RSST_ESMTP_ENABLE
 static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:M:La:";
+#else
+static const char *optString = "vcC:hfF:T:t:d:s:SD:rnp:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:M:La:";
+#endif
 
 /*
  * Long options structure
@@ -64,7 +68,9 @@ static const struct option optLong[] =
 	{"once", 									no_argument, 			 0, 'R'},
 	{"test", 									no_argument, 			 0, 'q'},
 	{"nodetach", 							no_argument, 			 0, 'n'},
+#ifdef RSST_ESMTP_ENABLE
 	{"test-mail", 						required_argument, 0, 'm'},
+#endif
 	{"help", 									no_argument, 			 0, 'h'},
   {"list-simple", 				  no_argument,       0, 'J'},
 	{"print-simple", 					required_argument, 0, 'P'},
@@ -101,7 +107,9 @@ static void printhelp(void)
           "once             -R               : Run once, then exit.\n"  
           "run              -r               : Run in daemon mode.\n"  
           "test             -q               : Test filter (together with -F & -T).\n"  
+#ifdef RSST_ESMTP_ENABLE
           "test-mail        -m <text>        : Send testmail notification.\n"  
+#endif
           "version          -v               : Print version.\n"  
 					"reinit-database  -K               : Reinitialize the database. (warning: data is lost)\n"
 					"\nDownload manually\n"
@@ -411,10 +419,12 @@ static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_st
       case 'n': // no detach
         opts->nodetach = 1;
         break;
+#ifdef RSST_ESMTP_ENABLE
       case 'm': // Send test mail notification
         rssttestmail(handle, optarg);
         stopop = 1; // no more
         break;
+#endif
       case 'J': // List simple filter
 				rssflistallsimple(handle);
         stopop = 1; // no more
