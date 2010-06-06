@@ -413,7 +413,8 @@ static int handleend(void *data)
 	if(ignore == 0) {
 		rc = rsssize(&newtor, rssdata);
 		if(rc != 0){
-			ignore=1;
+			//ignore=1;
+			rsstwritelog(LOG_ERROR, "Could not verify size of '%s'.", newtor.link);
 		}
 	}
 
