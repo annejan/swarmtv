@@ -42,7 +42,7 @@
  * optstring what options do we allow
  */
 #ifdef RSST_ESMTP_ENABLE
-static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:M:La:";
+static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:M:La:z";
 #else
 static const char *optString = "vcC:hfF:T:t:d:s:SD:rnp:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:M:La:";
 #endif
@@ -87,6 +87,7 @@ static const struct option optLong[] =
 	{"nodup", 							  required_argument, 0, 'u'},
 	{"from-season", 				  required_argument, 0, 'g'},
 	{"from-episode", 				  required_argument, 0, 'G'},
+	{"auto-avoid-old",        no_argument,			 0, 'z'},
 	{"reinit-database", 		  no_argument, 			 0, 'K'},
 	{"id-download",           required_argument, 0, 'i'},
 	{"id-del-downed",					required_argument, 0, 'M'},
@@ -147,6 +148,7 @@ static void printhelp(void)
           "nodup            -u <type>        : No duplicate filter type (unique, newer, link, none)\n"
           "from-season      -g <value>       : Season number to start downloading from.\n"
           "from-episode     -G <value>       : Episode number to start downloading from.\n"               
+					"auto-avoid-old   -z               : Auto fill out from-season/episode, to avoid older episodes in feed.\n"
           "\n"
           "For examples see man rsstorrent(1)\n"
           "\n"
@@ -521,6 +523,9 @@ static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_st
         }
 				rssfalloccopy(&(opts->simpleepisode), optarg, strlen(optarg));
         break;
+			case 'z': // Auto fill out last season and episode
+				opts->autoseasep = 1;
+				break;
       case 'K': // Reinitialize the database
 				reinitdb(handle);
         stopop =1; // no more

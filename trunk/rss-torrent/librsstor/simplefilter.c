@@ -29,6 +29,7 @@
 #include "regexp.h"
 #include "database.h"
 #include "torrentdownload.h"
+#include "testfilter.h"
 #include "simplefilter.h"
 
 /*
@@ -60,7 +61,6 @@ static char *sqlfilter="SELECT link, title, pubdate, category, season, episode F
 		"IREGEXP(?7, category) AND "
 		"IREGEXP(?8, source) AND "
 		"new = 'Y'";
-
 
 /*
  * name is name of the inodup filter 
@@ -133,31 +133,6 @@ static int validearguments(simplefilter_struct *filter)
 
   return retval;
 }
-
-
-#if 0
-/*
- * Free simplefilter_struct content
- * returns nothing
- * The structure itself is not freed only the content inside
- */
-static void freestructsimple(simplefilter_struct *simple)
-{
-  /*
-   * free strings
-   */
-  free(simple->name);
-  free(simple->title);
-  free(simple->exclude);
-  free(simple->category);
-  free(simple->nodup);
-
-  /*
-   * NULL all
-   */
-  memset(simple, 0, sizeof(simplefilter_struct));
-}
-#endif
 
 
 /*
@@ -271,42 +246,6 @@ int rsstaddsimplefilter(rsstor_handle *handle, simplefilter_struct *simple)
 	 */
   return 0;
 }
-
-#if 0
-/*
- * List Simple filters.
- * @Arguments
- * handle RSS-torrent handle
- */
-void rsstlistsimple(rsstor_handle *handle)
-{
-  int rc=0;
-	sqlite3 *db=NULL;
-
-	/*
-	 * get db pointer
-	 */
-	db = handle->db;
-
-  /*
-   * Query to list Simple filters
-   */
-  const char *query="select name from simplefilters";
-
-  printf( "Please use --print-simple to see the content of the fiters.\n"
-  "#############\n"
-  "Filters.\n"
-  "#############\n");
-
-
-  rc = rsstprintquery(db, query, NULL);
-  if(rc != 0) {
-    fprintf(stderr, "Listing simple filters failed!\n");
-  }
-
-  printf("#############\n");
-}
-#endif
 
 
 /*

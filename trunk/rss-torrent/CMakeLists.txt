@@ -40,20 +40,6 @@ ENDIF()
 
 SET(RSSTORRENT_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-# Add manpage 
-SET(RSS_SRC man/rsstorrent.1)
-SET(RSS_MAN man/rsstorrent.1.gz)
-
-# Compression of the manuals
-FOREACH(man ${RSS_SRC})
-  ADD_CUSTOM_COMMAND(OUTPUT ${man}.gz
-      COMMAND gzip -c ${man} > ${man}.gz
-      DEPENDS ${man}
-      COMMENT
-      "Building
-      ${man}.gz")
-ENDFOREACH(man)
-
 # Building libray and shell frontend
 add_subdirectory (librsstor)
 
@@ -75,7 +61,6 @@ ADD_CUSTOM_TARGET(realclean
 		make clean
 		COMMAND rm CMakeCache.txt
 		COMMAND rm -rf CMakeFiles )
-
 
 # Make database and add examples script
 ADD_CUSTOM_COMMAND(

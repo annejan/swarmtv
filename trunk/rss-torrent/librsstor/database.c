@@ -804,7 +804,7 @@ int rsstexecutequery(sqlite3 *db, const char *query, char *fmt, ...)
 }
 
 /*
- * Execute a query
+ * Prepare a query
  * query, format, arguments 
  * format string accepts 
  * d = int , s = string, f = double, NULL pointer when no arguments.
@@ -814,9 +814,8 @@ int rsstexecutequery(sqlite3 *db, const char *query, char *fmt, ...)
  * fmt format string
  * ... arguments to fill out in query
  * @returns
- * returns 1 on 1 row returned
- * return 0 on no rows returned
- * returns -1 on error
+ * return 0 when all is okay
+ * returns -1  when the query fails
  */
 int rsstexecqueryresult(sqlite3 *db, sqlite3_stmt **ppstmt, const char *query, char *fmt, ...)
 {
@@ -837,7 +836,7 @@ int rsstexecqueryresult(sqlite3 *db, sqlite3_stmt **ppstmt, const char *query, c
 }
 
 /*
- * Execute a query
+ * Prepare a query
  * query, format, arguments 
  * format string accepts 
  * d = int , s = string, f = double, NULL pointer when no arguments.
@@ -847,9 +846,8 @@ int rsstexecqueryresult(sqlite3 *db, sqlite3_stmt **ppstmt, const char *query, c
  * fmt format string
  * ap va_list argument list
  * @returns
- * returns 1 on 1 row returned
- * return 0 on no rows returned
- * returns -1 on error
+ * return 0 on success
+ * returns -1 when the query fails
  */
 int rsstexecqueryresultva(sqlite3 *db, sqlite3_stmt **ppstmt, const char *query, char *fmt, va_list ap)
 {
@@ -915,7 +913,7 @@ int rsstexecqueryresultva(sqlite3 *db, sqlite3_stmt **ppstmt, const char *query,
           retval=-1;
         }
         break;
-      case 'f':            /* int */
+      case 'f':            /* float */
         f = va_arg(ap, double);
         rc = sqlite3_bind_double(*ppstmt, count, f);
         if( rc!=SQLITE_OK ){

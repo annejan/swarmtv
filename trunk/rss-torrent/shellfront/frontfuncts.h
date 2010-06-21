@@ -73,3 +73,13 @@ int rssfoptstosimple(opts_struct *opts, simplefilter_struct *simple);
  */
 int rssfalloccopy(char **dest, const char *src, const size_t size);
 
+/*
+ * Get the last season and episode.
+ * Adding them to the simplefilter struct.
+ * @Argument
+ * simple
+ * @Return 
+ * 0 on success
+ * -1 on error
+ */
+int insertseasonepisode(simplefilter_struct *filter);

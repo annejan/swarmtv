@@ -34,8 +34,27 @@ link_directories (${RSSTORRENT_BASE_DIR}/librsstor)
 
 SET(SRC rsstorrent handleopts present frontfuncts daemonize)
 
-# Add executable
-add_executable (rsstorrent ${SRC}) 
+# Add manpage 
+SET(RSS_SRC man/rsstorrent.1)
+SET(RSS_MAN man/rsstorrent.1.gz)
+
+# Compression of the manuals
+FOREACH(man ${RSS_SRC})
+  ADD_CUSTOM_COMMAND(OUTPUT ${man}.gz
+      COMMAND gzip -c ${man} > ${man}.gz
+      DEPENDS ${man}
+      COMMENT
+      "Building
+      ${man}.gz")
+ENDFOREACH(man)
+
+# Installation of the manuals
+INSTALL(FILES man/rsstorrent.1.gz
+		DESTINATION "share/man/man1"
+		PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
+
+# Add executables / manuals
+add_executable (rsstorrent ${SRC} ${RSS_MAN}) 
 TARGET_LINK_LIBRARIES(rsstorrent ${optionalLibs} librsstor.so )
 
 # We install to /usr/local/bin

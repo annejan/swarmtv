@@ -227,12 +227,46 @@ int rssfhumantosize(char *buf, double *size)
 
 
 /*
+ * Get the last season and episode.
+ * Adding them to the simplefilter struct.
+ * @Argument
+ * simple
+ * @Return 
+ * 0 on success
+ * -1 on error
+ */
+int insertseasonepisode(simplefilter_struct *filter)
+{
+	int rc=0;
+	int season=0;
+	int episode=0;
+
+	/*
+	 * If season and/or fromepisode is set, dont apply autoseason
+	 */
+	if(filter->fromseason == 0 && filter->fromepisode == 0){
+		rc = rsstgetnewestepisode(filter, &season, &episode);
+		if(rc < 0) {
+			return -1;
+		}
+		rsstwritelog(LOG_DEBUG, "Last Season: '%d' Last Episode: '%d'\n", season, episode);
+		filter->fromseason = season;
+		filter->fromepisode = episode;
+	}
+
+	return 0;
+}
+
+
+/*
  * optstosimple
  * Takes takes a opts_struct argument and a simplefilter_struct as argument.
  * returns 0 on succes, -1 on error.
  */
 int rssfoptstosimple(opts_struct *opts, simplefilter_struct *simple)
 {
+	int rc=0;
+
   /*
    * Copy strings
    */
@@ -269,6 +303,16 @@ int rssfoptstosimple(opts_struct *opts, simplefilter_struct *simple)
     simple->fromepisode=atoi(opts->simpleepisode); 
   } 
 
+	/*
+	 * When auto from-season and from-episode fill out is enabled, do so
+	 */
+	if(opts->autoseasep == 1) {
+		rc = insertseasonepisode(simple);
+		if(rc != 0){
+			fprintf(stderr, "No prior season/episode nr found.\n");
+		}
+	}
+
   /*
    * Convert units 
    */
@@ -288,8 +332,4 @@ int rssfoptstosimple(opts_struct *opts, simplefilter_struct *simple)
    */
   return 0;
 }
-
-
-
-
 

@@ -31,6 +31,7 @@ typedef struct {
   int nodetach;					// run in foreground 
   int testfilt;					// Only test the filter
 	int findtorid;				// Find torrent id
+	int autoseasep;       // Auto fillout season/episode
   LOOPMODE onetime;			// run once then exit
 	char *sourcefilter; 	// source filter 
 	char *source;					// source

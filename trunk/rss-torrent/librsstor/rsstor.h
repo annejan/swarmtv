@@ -375,6 +375,21 @@ int rsstfinddowned(rsstor_handle *handle, char *optarg);
 int rssttesttorrentdir(rsstor_handle *handle);
 
 /*
+ * Get the newest season and episode
+ * @arguments
+ * filter Simple filter struct
+ * Season newest season
+ * Episode newest episode
+ * @return
+ * 0 on succes otherwise 1
+ * 1 When season and episode are found
+ * -1 on error
+ * @comments
+ * This function is this file because all supporting functions are in this file.
+ */
+int rsstgetnewestepisode(simplefilter_struct *filter, int *season, int *episode);
+
+/*
  * Do filter test
  * show first 10 matches
  * Takes opts_struct * as argument.

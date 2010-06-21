@@ -41,6 +41,15 @@
 #define  PAGE_LIMIT "100"
 
 /*
+ * Structure to hold season and episode
+ */
+typedef struct {
+	int season;
+	int episode;
+} season_episode;
+
+
+/*
  * Copy content to downloaded
  * Prevent doubles from occuring.
  * match all records that match the filter, and copy them to the no double
@@ -173,6 +182,7 @@ int rsstdofiltertest(char *filter, char *nodouble)
   return 0;
 }
 
+
 /*
  * Cleanout the sandbox for filter processing
  * @Arguments
@@ -250,6 +260,89 @@ static int createsimpledownloaded(sandboxdb *sandbox, simplefilter_struct *filte
 	free(nodupsql);
 
   return 0;
+}
+
+
+/*
+ * Get the newest season and episode
+ * @arguments
+ * filter Simple filter struct
+ * Season newest season
+ * Episode newest episode
+ * @return
+ * 0 on succes otherwise 1
+ * 1 When season and episode are found
+ * -1 on error
+ */
+int rsstgetnewestepisode(simplefilter_struct *filter, int *season, int *episode)
+{
+  int rc=0;
+  sandboxdb *sandbox=NULL;
+	sqlite3_stmt *ppstmt=NULL;
+	char *newestquery="SELECT season, episode FROM downloaded ORDER BY season DESC, episode DESC  LIMIT 1"; // Get the newest episode 
+
+	/*
+	 * init season and episode
+	 */
+	*season = 0;
+	*episode = 0;
+
+  /*
+   * Init sandbok db
+   */
+  sandbox = rsstinitfiltertest();
+  if(sandbox == NULL){
+    rsstwritelog(LOG_ERROR, "Sandbox creaton failed %s:%d", __FILE__, __LINE__);
+    return -1;
+  }
+
+  /*
+   * Execute testfilter
+   */
+	rc = createsimpledownloaded(sandbox, filter);
+  if(rc != 0){
+    printf("Execution of testfilter failed.\n");
+    rsstwritelog(LOG_ERROR, "Execution of testfilter failed %s:%d", __FILE__, __LINE__);
+    return -1;
+  }
+
+  /*
+   * Execute query to get newest season and episode numbers
+   */
+	rc = rsstexecqueryresult(sandbox->db, &ppstmt, newestquery, NULL);
+
+	/*
+	 * Extract numbers
+	 */
+	rc = sqlite3_step(ppstmt);
+	if(rc != SQLITE_ROW){
+		/*
+		 * Nothing found, just return season 0, epsisode 0
+		 */
+		return 0;
+	}
+	*episode = sqlite3_column_int(ppstmt, 0);
+	*season  = sqlite3_column_int(ppstmt, 1);
+
+	/*
+	 * Free results
+	 */
+	sqlite3_finalize(ppstmt);
+
+  /*
+   * cleanup sandbox
+   */
+  rc = rsstclosesandbox(sandbox);
+  if(rc != 0){
+    printf("Closing sandbox failed.\n");
+    rsstwritelog(LOG_ERROR, "Closing sandbox falied %s:%d", __FILE__, __LINE__);
+    return -1;
+  }
+
+	/*
+	 * Done.
+	 */
+  return 1;
 }
 
 
