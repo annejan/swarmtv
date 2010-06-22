@@ -471,10 +471,19 @@ int rssffindtorrentids(opts_struct *opts)
 	memset(&filter, 0, sizeof(simplefilter_struct));
 
 	/*
+	 * Make sure the mandetory fields are inserted.
+	 */
+	if(opts->simplename == NULL) {
+		rssfalloccopy(&(opts->simplename), FINDNAME, strlen(FINDNAME));
+	}
+	if(opts->simplenodup == NULL) {
+		rssfalloccopy(&(opts->simplenodup), FINDNODUP, strlen(FINDNODUP));
+	}
+
+	/*
 	 * Create filter struct
 	 */
 	rc = rssfoptstosimple(opts, &filter);
-
 
 	/*
 	 * Add bogus name and nodup to filter
@@ -506,7 +515,9 @@ int rssffindtorrentids(opts_struct *opts)
 		}
 	}
 	
+	rsstfreesimplefilter(&filter);
 	rc = rsstfreenewtorrentscontainer(newtorrents);
+	free(newtorrents);
   if(rc != 0){
     retval=-1;
   }

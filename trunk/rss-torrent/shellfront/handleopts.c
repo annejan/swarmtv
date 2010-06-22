@@ -712,6 +712,7 @@ static void freeopts(opts_struct *opts)
 	free(opts->simpleseason);		
 	free(opts->simpleepisode);	
 	free(opts->simplesource);	
+	free(opts->simpleexclude);
 
 	/*
 	 * NULL the whole struct
