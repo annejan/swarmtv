@@ -31,6 +31,13 @@ void rssfprintversion(void);
 void rssfprintconfigitems(rsstor_handle *handle); 
 
 /*
+ * List all available config items to the screen.
+ * format varname : value
+ * All from database
+ */
+void rssflistfilters(rsstor_handle *handle, char *appname);
+
+/*
  * Print all available config items to the screen.
  * format varname : value
  * All from database

@@ -108,6 +108,60 @@ void rssfprintconfigitems(rsstor_handle *handle)
 
 
 /*
+ * List all available config items to the screen.
+ * format varname : value
+ * All from database
+ */
+void rssflistfilters(rsstor_handle *handle) 
+{
+	filter_container *container=NULL;
+	int								count=0;
+	int								rc=0;
+
+
+	/*
+	 * Get container with SQL filters.
+	 */
+	rc = rsstgetallfilter(handle, &container);
+	if(rc != 0) {
+		rsstwritelog(LOG_ERROR, "Get all filters failed! %s:%d", __FILE__, __LINE__);
+		return;
+	}
+
+	/*
+	 * Loop through the SQLs.
+	 */
+	for(count=0; count < container->nr; count++)
+	{
+		/*
+		 * Print the SQL filters.
+		 * int   id;       // Id of the filter
+		 * char *name;     // Name of the filter
+		 * char *filter;   // SQL of the filter
+		 * char *nodup;    // SQL of the avoiding duplicates filter
+		 */
+		printf ( "Filter id:%d name:'%s'\n", 
+				container->filter[count].id,
+				container->filter[count].name); 
+	}
+
+	/*
+	 * Free container
+	 */
+	rc = rsstfreefiltercontainer(container);
+	if(rc != 0) {
+		rsstwritelog(LOG_ERROR, "Freeing filter container failed! %s:%d", __FILE__, __LINE__);
+		return;
+	}
+
+	/*
+	 * All done
+	 */
+	return;
+}
+
+
+/*
  * Print all available config items to the screen.
  * format varname : value
  * All from database
