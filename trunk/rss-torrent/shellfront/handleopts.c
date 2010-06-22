@@ -643,45 +643,51 @@ void handlemultiple(rsstor_handle *handle, opts_struct *opts)
 	}
 
 	/*
-	 * Opts to simple
+	 * Handle simple options
 	 */
-	rc =  rssfoptstosimple(opts, &simple);
-
-  /*
-   * When add simple filter is set
-   * Call routine here.
-   */
 	if(opts->simplename != NULL) {
-		/*
-		 * Add the simple filter 
-		 */
-		if(opts->testfilt == 0 && opts->findtorid == 0) { 
-			rc = rsstaddsimplefilter(handle, &simple);
 
-			if(rc != 0){
-				fprintf(stderr, "Adding filter failed.\n");
-			} else {
-				printf("Filter '%s' added succesfully.\n", 
-						opts->simplename);
+		/*
+		 * Opts to simple
+		 */
+		rc =  rssfoptstosimple(opts, &simple);
+
+		/*
+		 * When add simple filter is set
+		 * Call routine here.
+		 */
+		if(opts->simplename != NULL) {
+			/*
+			 * Add the simple filter 
+			 */
+			if(opts->testfilt == 0 && opts->findtorid == 0) { 
+				rc = rsstaddsimplefilter(handle, &simple);
+
+				if(rc != 0){
+					fprintf(stderr, "Adding filter failed.\n");
+				} else {
+					printf("Filter '%s' added succesfully.\n", 
+							opts->simplename);
+				}
+
 			}
 
-		}
-
-		/*
-		 * Test simple filter
-		 */
-		if(opts->testfilt != 0) { 
-			rc = rsstdosimpletest(&simple);
-			if(rc != 0) {
-				printf("new filter : '%s' Test failed\n",
-						opts->simplename);
+			/*
+			 * Test simple filter
+			 */
+			if(opts->testfilt != 0) { 
+				rc = rsstdosimpletest(&simple);
+				if(rc != 0) {
+					printf("new filter : '%s' Test failed\n",
+							opts->simplename);
+				}
 			}
-		}
 
-		/*
-		 * Free simple struct
-		 */
-		rsstfreesimplefilter(&simple);
+			/*
+			 * Free simple struct
+			 */
+			rsstfreesimplefilter(&simple);
+		}
 	}
 
 	/*
