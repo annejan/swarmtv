@@ -140,8 +140,7 @@ void rssflistfilters(rsstor_handle *handle)
 		 * char *filter;   // SQL of the filter
 		 * char *nodup;    // SQL of the avoiding duplicates filter
 		 */
-		printf ( "Filter id:%d name:'%s'\n", 
-				container->filter[count].id,
+		printf ( "Filter name:'%s'\n", 
 				container->filter[count].name); 
 	}
 

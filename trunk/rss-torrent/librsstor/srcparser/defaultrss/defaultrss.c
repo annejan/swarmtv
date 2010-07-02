@@ -97,7 +97,7 @@ static int handlelink(void *data, char *string)
 }
 
 /*
- * Handle link
+ * Handle toorent link
  */
 static int handletorrentlink(void *data, char *string)
 {
@@ -354,7 +354,15 @@ static int handleend(void *data)
 	 */
 	rssdatastruct *rssdata = (rssdatastruct *) data;
 	memset(&newtor, 0, sizeof(newtorrents_struct));
-	newtor.source = rssdata->source;
+
+	/*
+	 * Set source
+	 */
+	rc = rsstalloccopy(&(newtor.source), rssdata->source, strlen(rssdata->source));
+	if(rc != 0) {
+		rsstwritelog(LOG_ERROR, "Alloc failed at %s:%d", __FILE__, __LINE__);
+		return  -1;
+	}
 
 	/*
 	 * Disect the data.
