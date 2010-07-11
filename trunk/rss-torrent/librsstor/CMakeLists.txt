@@ -50,7 +50,6 @@ SET(LIBSRC setup database config regexp source
 		filesystem tbl torrentparse simplefilter)
 
 IF(ESMTP_FOUND)
-	MESSAGE("ADDING MaILMSG SOURCE")
 	SET(LIBSRC ${LIBSRC} mailmsg)
 ENDIF()
 

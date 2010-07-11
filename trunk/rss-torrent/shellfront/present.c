@@ -322,7 +322,7 @@ void rssfprintsources(rsstor_handle *handle)
  *
  * @return
  */
-static void printsimplestruct(simplefilter_struct *simple)
+void printsimplestruct(simplefilter_struct *simple)
 {
   unsigned char 			maxsizestring[BUFSIZE+1];
   unsigned char 			minsizestring[BUFSIZE+1];

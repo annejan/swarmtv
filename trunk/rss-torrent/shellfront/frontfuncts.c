@@ -41,6 +41,23 @@ static const char* units[]    = {"B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", 
 static const char* unitmatch  = "BKMGTPEZY";
 
 /*
+ * Convert strings to lowercase
+ * @arguments
+ * string string to convert
+ */
+void rssflowercase(char string[])
+{
+	int  i = 0;
+	while ( string[i] )
+	{
+		string[i] = tolower(string[i]);
+		i++;
+	}
+	return;
+}
+
+
+/*
  * This function copies and allocates the destination memory.
  * don't forget to free the destination after use.
  */

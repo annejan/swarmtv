@@ -19,6 +19,13 @@
  */
 
 /*
+ * Convert strings to lowercase
+ * @arguments
+ * string string to convert
+ */
+void rssflowercase(char string[]);
+
+/*
  * Split options
  * When options come in as <name>:<value> split them 
  * the first ':' found is the one plitting name and value

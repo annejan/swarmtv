@@ -31,6 +31,7 @@
 #include "handleopts.h"
 #include "frontfuncts.h"
 #include "present.h"
+#include "simplewizard.h"
 
 /*
  * Number of output vectoritems
@@ -40,11 +41,12 @@
 
 /*
  * optstring what options do we allow
+ * Need to find a way to not have to maintain 2 argument strings.
  */
 #ifdef RSST_ESMTP_ENABLE
-static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:M:La:z";
+static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:M:La:zw";
 #else
-static const char *optString = "vcC:hfF:T:t:d:s:SD:rnp:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:M:La:";
+static const char *optString = "vcC:hfF:T:t:d:s:SD:rnp:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:M:La:zw";
 #endif
 
 /*
@@ -78,6 +80,7 @@ static const struct option optLong[] =
 	{"del-simple", 						required_argument, 0, 'j'},
 	{"del-all-simple", 				no_argument, 			 0, 'k'},
 	{"add-simple", 						required_argument, 0, 'e'},
+	{"wizard-simple",         no_argument,       0, 'w'},
 	{"title",									required_argument, 0, 'E'},
 	{"exclude",								required_argument, 0, 'N'},
   {"category",              required_argument, 0, 'U'},
@@ -454,12 +457,23 @@ static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_st
         stopop =1; // no more
         break;
       case 'e': // Add simple filter
-        if( opts->simplename != NULL) {
+        if( opts->simplename != NULL){
           fprintf(stderr, "Warning: ignoring second simple filter addition.\n");
           break;
         }
 				rssfalloccopy(&(opts->simplename), optarg, strlen(optarg));
         break;
+			case 'w': // Add simple filter through wizard
+				if(opts->simplewizard == 1){
+          fprintf(stderr, "Warning: Ignoring multiple simplewizard arguments .\n");
+          break;
+				}
+				/*
+				 * Prevent multiple executions of simple wizard
+				 */
+				opts->simplewizard = 1;
+				rssfsimplewizard(handle);
+				break;
       case 'N': // Add simple exclude regexp
         if( opts->simpleexclude != NULL) {
           fprintf(stderr, "Warning: ignoring second exclude addition.\n");

@@ -32,7 +32,7 @@ include_directories(. ${RSSTORRENT_BASE_DIR}/librsstor)
 # Make sure the linker can find the Hello library once it is built.
 link_directories (${RSSTORRENT_BASE_DIR}/librsstor) 
 
-SET(SRC rsstorrent handleopts present frontfuncts daemonize)
+SET(SRC rsstorrent handleopts present frontfuncts daemonize simplewizard)
 
 # Add manpage 
 SET(RSS_SRC man/rsstorrent.1)
