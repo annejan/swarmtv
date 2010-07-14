@@ -142,6 +142,7 @@ static void printhelp(void)
           "del-simple       -j <name>        : Delete a simple filter\n"
           "del-all-simple   -k               : Delete all simple filters\n"
           "add-simple       -e <name>        : Add a simple download filter\n"
+					"wizard-simple    -w               : Add filter through wizard\n"
           "title            -E <regexp>      : Title expression\n"
           "exclude          -N <regexp>      : Exclude expression\n"
           "category         -U <regexp>      : Category expression\n"
