@@ -317,10 +317,21 @@ int rsstgetnewestepisode(simplefilter_struct *filter, int *season, int *episode)
 	rc = sqlite3_step(ppstmt);
 	if(rc != SQLITE_ROW){
 		/*
+		 * cleanup sandbox
+		 */
+		rc = rsstclosesandbox(sandbox);
+		if(rc != 0){
+			printf("Closing sandbox failed.\n");
+			rsstwritelog(LOG_ERROR, "Closing sandbox falied %s:%d", __FILE__, __LINE__);
+			return -1;
+		}
+
+		/*
 		 * Nothing found, just return season 0, epsisode 0
 		 */
 		return 0;
 	}
+
 	*episode = sqlite3_column_int(ppstmt, 0);
 	*season  = sqlite3_column_int(ppstmt, 1);
 

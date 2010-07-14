@@ -283,6 +283,16 @@ static int rssfaskreplace(char **answer, char *question)
 	return rc;
 }
 
+/*
+ * This function returns a single simple struct
+ * @arguments
+ * handle rss-torrent handle
+ * name simple filter name
+ * simple simple filter pointer to store answer in. (NULL when name is not found)
+ * @return
+ * 0 on success
+ * -1 on error 
+ */
 static int rssfgetsimple(rsstor_handle *handle, char *name, simplefilter_struct **simple)
 {
 	int rc=0;
@@ -297,9 +307,26 @@ static int rssfgetsimple(rsstor_handle *handle, char *name, simplefilter_struct 
 	}
 
 	/*
-	 * get pointer to the structure, free the container
+	 * When more then one filter match, this is not okay
 	 */
-	*simple=container->simplefilter;
+	if(container->nr > 1){	
+		fprintf(stderr, "More than 1 filter is known by this name '%s'!\n", name);
+		rsstfreesimplefiltercontainer(container);
+		return -1;
+	}
+
+	/*
+	 * When no simple filter is found return -1
+	 */
+	if(container->nr == 0){
+		*simple=NULL;
+	} else {
+		/*
+		 * get pointer to the structure, free the container
+		 */
+		*simple=container->simplefilter;
+	}
+	free(container);
 
 	return 0;
 }
@@ -317,7 +344,6 @@ static int rssfgetsimple(rsstor_handle *handle, char *name, simplefilter_struct 
 static int rssfasksimplefilter(rsstor_handle *handle, simplefilter_struct **simple)
 {
 	int		rc=0;
-	int 	loop=0;
 	char  *answer=NULL;
 
 	/*
@@ -350,16 +376,24 @@ static int rssfasksimplefilter(rsstor_handle *handle, simplefilter_struct **simp
 		/*
 		 * Find simple struct by name
 		 */
-		loop = rssfgetsimple(handle, answer, simple);
-		if(loop == 0){
-			printf("Cloning filter '%s'\n", answer);
+		rc = rssfgetsimple(handle, answer, simple);
+		if(rc < 0){
+			fprintf(stderr, "Error filter finding failed\n");
 			break;
 		}
 
 		/*
+		 * When a filter is found clone it.
+		 */
+		if(*simple != NULL) {
+			printf("Filter '%s' will be cloned.\n", answer);
+			break;
+		} 
+
+		/*
 		 * No valid input, defaulting to this message
 		 */
-		fprintf(stderr, "Input not valid.\n");
+		fprintf(stderr, "Filter name not found.\n");
 		fprintf(stderr, "Please enter a valid simple filter name.\n");
 		fprintf(stderr, "you could also enter an empty line to start a new simple filter.\n");
 		free(answer);
@@ -620,31 +654,31 @@ void rssfsimplewizard(rsstor_handle *handle)
 	 * When empty and an other filter is used as base, change that filter.
 	 */
 	rc = rssfaskreplace(&(simple->name), "Please enter name.");
-	printf("The answer given: (%d) '%s'\n", strlen(simple->name), simple->name);
+	//printf("The answer given: (%d) '%s'\n", strlen(simple->name), simple->name);
 
 	/*
 	 * Get title regexp (regexp that should match with title)
 	 */
 	rc = rssfaskreplace(&(simple->title), "Please enter title.");
-	printf("The answer given: (%d) '%s'\n", strlen(simple->title), simple->title);
+	//printf("The answer given: (%d) '%s'\n", strlen(simple->title), simple->title);
 
 	/*
 	 * Get exclude regexp (regexp that should not match with title)
 	 */
 	rc = rssfaskreplace(&(simple->exclude), "Please enter exclude.");
-	printf("The answer given: (%d) '%s'\n", strlen(simple->exclude), simple->exclude);
+	//printf("The answer given: (%d) '%s'\n", strlen(simple->exclude), simple->exclude);
 
 	/*
 	 * Category regexp
 	 */
 	rc = rssfaskreplace(&(simple->category), "Please enter category.");
-	printf("The answer given: (%d) '%s'\n", strlen(simple->category), simple->category);
+	//printf("The answer given: (%d) '%s'\n", strlen(simple->category), simple->category);
 
 	/*
 	 * Source regexp
 	 */
 	rc = rssfasksource(handle, &(simple->source));
-	printf("The answer given: (%d) '%s'\n", strlen(simple->source), simple->source);
+	//printf("The answer given: (%d) '%s'\n", strlen(simple->source), simple->source);
 
 	/*
 	 * Get nodup filter
@@ -673,22 +707,17 @@ void rssfsimplewizard(rsstor_handle *handle)
 	if(ansval == 0) {
 		printf("Filter not accepted.\n");
 	} else {
-		printf("Filter inserted.\n");
-	}
-
-	/*
-	 * Store then needed
-	 */
-	if(ansval == 1) {
 		/*
 		 * Store the simple filter
 		 */
 		rc = rsstaddsimplefilter(handle, simple);
+		printf("Filter inserted.\n");
 	}
 
 	/*
 	 * Clean up.
 	 */
 	rsstfreesimplefilter(simple);
+	free(simple);
 }
 
