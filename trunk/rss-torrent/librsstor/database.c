@@ -444,6 +444,11 @@ int rsstinitdatabase(const char *filename, rsstor_handle *handle)
     return !SQLITE_OK;
   }
 
+	/*
+	 * Store db pointer
+	 */
+	handle->db = db;
+
   /*
    * free dbpath
    */
@@ -503,11 +508,6 @@ int rsstinitdatabase(const char *filename, rsstor_handle *handle)
     sqlite3_free(zErrMsg);
     return !SQLITE_OK;
   }
-
-	/*
-	 * Store db pointer
-	 */
-	handle->db = db;
 
   /*
    * All went well.
