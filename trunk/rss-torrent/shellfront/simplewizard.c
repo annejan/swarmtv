@@ -456,7 +456,7 @@ static int rssfasknodup(char **nodup)
 	 */
 	printf("The nodup filters that are :\n"
 			   "'none' - Do not filter on anything.\n"
-				 "'link' - Only look at the url to the torrent.\n"
+				 "'link' - Only look at the url of the torrent.\n"
 				 "'unique' - Look at season, episode, titleregexp.\n"
 				 "'newer' - Look at same as unique, but make sure only newer episodes are download.\n");
 
@@ -653,25 +653,25 @@ void rssfsimplewizard(rsstor_handle *handle)
 	 * Get filter name
 	 * When empty and an other filter is used as base, change that filter.
 	 */
-	rc = rssfaskreplace(&(simple->name), "Please enter name.");
+	rc = rssfaskreplace(&(simple->name), "Please enter simple filter name.");
 	//printf("The answer given: (%d) '%s'\n", strlen(simple->name), simple->name);
 
 	/*
 	 * Get title regexp (regexp that should match with title)
 	 */
-	rc = rssfaskreplace(&(simple->title), "Please enter title.");
+	rc = rssfaskreplace(&(simple->title), "Please enter content title regexp.");
 	//printf("The answer given: (%d) '%s'\n", strlen(simple->title), simple->title);
 
 	/*
 	 * Get exclude regexp (regexp that should not match with title)
 	 */
-	rc = rssfaskreplace(&(simple->exclude), "Please enter exclude.");
+	rc = rssfaskreplace(&(simple->exclude), "Please enter regex to exclude from matches.");
 	//printf("The answer given: (%d) '%s'\n", strlen(simple->exclude), simple->exclude);
 
 	/*
 	 * Category regexp
 	 */
-	rc = rssfaskreplace(&(simple->category), "Please enter category.");
+	rc = rssfaskreplace(&(simple->category), "Please enter rss category.");
 	//printf("The answer given: (%d) '%s'\n", strlen(simple->category), simple->category);
 
 	/*
