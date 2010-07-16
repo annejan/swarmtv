@@ -279,6 +279,7 @@ int rsstgetnewestepisode(simplefilter_struct *filter, int *season, int *episode)
   int rc=0;
   sandboxdb *sandbox=NULL;
 	sqlite3_stmt *ppstmt=NULL;
+	int retval=0;
 	char *newestquery="SELECT season, episode FROM downloaded ORDER BY season DESC, episode DESC  LIMIT 1"; // Get the newest episode 
 
 	/*
@@ -315,25 +316,15 @@ int rsstgetnewestepisode(simplefilter_struct *filter, int *season, int *episode)
 	 * Extract numbers
 	 */
 	rc = sqlite3_step(ppstmt);
-	if(rc != SQLITE_ROW){
-		/*
-		 * cleanup sandbox
-		 */
-		rc = rsstclosesandbox(sandbox);
-		if(rc != 0){
-			printf("Closing sandbox failed.\n");
-			rsstwritelog(LOG_ERROR, "Closing sandbox falied %s:%d", __FILE__, __LINE__);
-			return -1;
-		}
-
-		/*
-		 * Nothing found, just return season 0, epsisode 0
-		 */
-		return 0;
+	
+	/*
+	 * We found an entry
+	 */
+	if(rc == SQLITE_ROW){
+		*season = sqlite3_column_int(ppstmt, 0);
+		*episode = sqlite3_column_int(ppstmt, 1);
+		retval=1;
 	}
-
-	*episode = sqlite3_column_int(ppstmt, 0);
-	*season  = sqlite3_column_int(ppstmt, 1);
 
 	/*
 	 * Free results
@@ -353,7 +344,7 @@ int rsstgetnewestepisode(simplefilter_struct *filter, int *season, int *episode)
 	/*
 	 * Done.
 	 */
-  return 1;
+  return retval;
 }
 
 

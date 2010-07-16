@@ -640,6 +640,42 @@ static int rsstaskseasonepisode(simplefilter_struct *simple)
 
 
 /*
+ * Get season/episode
+ * @arguments
+ * @return
+ * 0 on success, -1 on error
+ */
+static int rssfgetsimplename(simplefilter_struct *simple)
+{
+	int rc=0;
+
+	while(1==1){
+		/*
+		 * ask name
+		 */
+		rc = rssfaskreplace(&(simple->name), "Please enter simple filter name.");
+		if(rc < 0) {
+			return -1;
+		}
+
+		/*
+		 * Make sure the name is not empty
+		 */
+		if(strlen(simple->name) != 0) {
+			break;
+		}
+
+		/*
+		 * Print directions.
+		 */
+		fprintf(stderr, "Simple filter Name can not be empty.\n");
+	}
+
+	return 0;
+}
+
+
+/*
  * Wizard to make adding simple filters even simpler
  * @arguments
  * @return
@@ -658,6 +694,9 @@ void rssfsimplewizard(rsstor_handle *handle)
 			"Enter an single dot '.' an a line te clear the suggestion value and enter an empty string.\n");
 
 
+	/*
+	 * Ask the user to clone an existing filter or start from scratch.
+	 */
 	rc = rssfasksimplefilter(handle, &simple);
 	if(rc == -1) {
 		fprintf(stderr, "Getting simple filter failed!\n");
@@ -668,7 +707,7 @@ void rssfsimplewizard(rsstor_handle *handle)
 	 * Get filter name
 	 * When empty and an other filter is used as base, change that filter.
 	 */
-	rc = rssfaskreplace(&(simple->name), "Please enter simple filter name.");
+	rc = rssfgetsimplename(simple);
 	//printf("The answer given: (%d) '%s'\n", strlen(simple->name), simple->name);
 
 	/*
