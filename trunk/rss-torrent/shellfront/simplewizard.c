@@ -272,6 +272,14 @@ static int rssfaskreplace(char **answer, char *question)
 	}
 
 	/*
+	 * When only a "." is given, set answer value to empty string
+	 * This is needed to empty strings when cloning filters.
+	 */
+	if(strcmp(".", temp) == 0) {
+		*temp='\0';
+	}
+
+	/*
 	 * FRee origional string and replace it with the answer
 	 */
 	free(*answer);
@@ -641,6 +649,13 @@ void rssfsimplewizard(rsstor_handle *handle)
 	int   ansval=0;
 	int 	rc=0;
 	simplefilter_struct *simple=NULL;
+
+	/*
+	 * Print Header
+	 */
+	printf("### Simple Filter Wizard ###\n"
+			"Please enter an empty line to keep suggested value.\n"
+			"Enter an single dot '.' an a line te clear the suggestion value and enter an empty string.\n");
 
 
 	rc = rssfasksimplefilter(handle, &simple);
