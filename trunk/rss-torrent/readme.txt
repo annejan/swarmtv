@@ -1,13 +1,14 @@
 Introduction :
 
-RSS-torrent is a program that downloads selected torrents from an rss stream, and puts them in a
+RSS-torrent is a program that downloads selected torrents from an RSS stream, and puts them in a
 directory for your torrent program to find them.
 When RSS information is downloaded, the usefull fields are extracted and
 inserted into an Sqlite database.
 The information that is stored in the Sqlite db is queried using SQL
 statements, called parser in RSS-torrent.
 When a match is found on one of the filters, a second query against the table holding the downloaded torrents can be used to avoid duplicates.
-After both queries are passed, the torrent is downloaded into the "Torrent directory" specified in the config settings.
+After both queries are passed, the torrent is downloaded into the "Torrent
+directory" specified in the configuration settings.
 A torrent client is set up to watch the directory, and pick up the torrent as soon as it arrives.
 At this moment I use Rtorrent which does a good job and removes finished
 torrents. (http://libtorrent.rakshasa.no)
@@ -59,7 +60,7 @@ primary use of the table is to avoid duplicate downloads.
 - Table new torrents
 id INTEGER PRIMARY KEY    - The id of the record
 title TEXT                - The Title of the show 
-link TEXT UNIQUE          - The url to the torrent
+link TEXT UNIQUE          - The URL to the torrent
 pubdate DATE              - The Date the show was released 
 category TEXT             - The category the show belongs int
 season INTEGER            - The season number of the show
@@ -73,7 +74,7 @@ new TEXT DEFAULT 'Y'      - This value is 'Y' when first parsed, after that 'N'
 - Table downloaded
 id INTEGER PRIMARY KEY    - The id of the records
 title TEXT                - The title of the show
-link TEXT UNIQUE          - The url to the torrent
+link TEXT UNIQUE          - The URL to the torrent
 pubdate DATE              - The date the torrent was released
 category TEXT             - The category the show belongs in
 season INTEGER            - The season number
@@ -83,7 +84,7 @@ date DATE                 - The Date the torrent was downloaded
 Adding simple filters:
 
 In order to filter series without writing your own SQL, you can use simple
-filters. The filters consits of the following keywords.
+filters. The filters consists of the following keywords.
 add-simple 	: Add a simple filter, as an argument provide the name of the filter.
 title				: The regexp for things that HAVE to be in the title.
 exclude			: The regexp for things that MUST NOT be in the title.
@@ -93,13 +94,13 @@ nodup				: The Kind of duplicate avoiding filter we want (will be explained belo
 from-season	:	From which season to download.
 from-episode: From which episode in that season to download.	
 
-When adding a simple filter a title and nodup value are manitory.
-Settings that are not needed may be ommitted.
+When adding a simple filter a title and nodup value are mandatory.
+Settings that are not needed may be omitted.
 
 nodup filters :
-none		: No filtering at al
-link		:	No torrents with the same url get downloaded.
-unique	:	No torrents with the same season and episodenumber get downloaded.
+none		: No filtering at all
+link		:	No torrents with the same URL get downloaded.
+unique	:	No torrents with the same season and episode number get downloaded.
 newer		:	Only newer torrents get downloaded.
 
 Adding SQL filters:
@@ -108,12 +109,12 @@ SQL Filters are used to get the content you want, and avoid duplicate downloads.
 SQL Filters are made up from 2 parts, the filters part that filters out the
 candidates for download. And the avoid duplicates part, that looks if a match
 the filters has already found isn't downloaded before. 
-Both filterparts are sqlite queries, you can create them as you like, 
+Both filter parts are sqlite queries, you can create them as you like, 
 as long as the following rows are selected for the filter:
 link, title, pubdate, category, season, episode
 note: the fields should be selected in this exact order.
 The duplicate query can select any field it wants because the programs only
-looks at row count any rowcount of => 1 indicates a torrent has been
+looks at row count any row count of => 1 indicates a torrent has been
 downloaded before. 
 
 Examples
@@ -122,10 +123,10 @@ Examples
 
 The -F option expects "<name:filter query>" the name will be the name of the filter.
 The filter query selects the rows that match a query.
-the rows that are selected in the query are mendetory, the where clause is free to write your self.
+the rows that are selected in the query are mandatory, the where clause is free to write your self.
 
 The -T argument expects <no duplicate query> when this query returns 1 or more records, the download candidate is considered a duplicate and ignored.
-The selected fields are of no influence here,allthough 1 row should be selected.
+The selected fields are of no influence here, although 1 row should be selected.
 
 For more information or suggestions to this program, Please contact me at 
 paul [at] interweps.nl

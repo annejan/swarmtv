@@ -3,7 +3,7 @@
 # This script inserts example sources and filters into the database.
 #
 
-# Check if rsstorrent is built
+# Check if RSS-torrent is built
 if [ ! -e `which rsstorrent` ]; then
   echo "Please install rsstorrent before running this script."
   exit
@@ -22,7 +22,7 @@ echo "Inserting sources."
   rsstorrent --add-source="KickAssTorrents:http://www.kickasstorrents.com/tv/?rss=1" --source-parser="defaultrss"
 echo "Done."
 
-# Allthough SQL filters are still supported they are not the default filter method anymore.
+# Although SQL filters are still supported they are not the default filter method anymore.
 # Plus 99% of the filters can be written using simple filters now.
 #echo "Insert SQL filters."
 #./rsstorrent -F "DollHouse:select link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^[Dd]ollhouse') AND size < '400000000' AND new = 'Y'" \
