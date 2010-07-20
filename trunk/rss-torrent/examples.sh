@@ -5,7 +5,7 @@
 
 # Check if rsstorrent is built
 if [ ! -e `which rsstorrent` ]; then
-  echo "Please build rsstorrent first before running this script."
+  echo "Please install rsstorrent before running this script."
   exit
 fi 
 
