@@ -436,7 +436,7 @@ static int rssfasksource(rsstor_handle *handle, char **srcreg)
 	/*
 	 * Get user input
 	 */
-	rc = rssfaskreplace(srcreg, "Please enter source regexp name to clone.");
+	rc = rssfaskreplace(srcreg, "Please enter source regexp.");
 	if(rc < 0){
 		fprintf(stderr, "Getting user input failed.\n");
 		return -1;
