@@ -27,8 +27,8 @@
 void rssfdaemonize(char *path);
 
 /*
- * Lock the rsstorrent lockfile
- * This routine gets the path of the lockfile from the config settings.
+ * Lock the RSS-torrent lock file
+ * This routine gets the path of the lock file from the config settings.
  * @Arguments
  * handle RSS-torrent handle
  */

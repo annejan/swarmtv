@@ -72,7 +72,7 @@ void rssfdaemonize(char *path)
 }
 
 /*
- * check Lockfile 
+ * Check Lock file 
  */
 static void rssflockfile(rsstor_handle *handle, const char *lockpath)
 {
@@ -87,25 +87,25 @@ static void rssflockfile(rsstor_handle *handle, const char *lockpath)
   free(fullpath);
 
   if (lfp<0){
-    fprintf(stderr, "Can not open lockfile\n");
+    fprintf(stderr, "Can not open lock file\n");
     exit(1); /* can not open */
   }
   if (lockf(lfp,F_TLOCK,0)<0){ 
-    fprintf(stderr, "Can not lock lockfile\n");
+    fprintf(stderr, "Can not lock lock file\n");
     exit(0); /* can not lock */
   }
   /* only first instance continues */
 
   snprintf(str, 9,"%d\n",getpid());
-  write(lfp,str,strlen(str)); /* record pid to lockfile */
+  write(lfp,str,strlen(str)); /* record PID to lock file */
 
 	/* Store pointer in handle */
 	handle->lockfile = lfp;
 }
 
 /*
- * Lock the rsstorrent lockfile
- * This routine gets the path of the lockfile from the config settings.
+ * Lock the RSS-torrent lock file
+ * This routine gets the path of the lock file from the config settings.
  * @Arguments
  * handle RSS-torrent handle
  */
@@ -120,7 +120,7 @@ void rssflock(rsstor_handle *handle)
 	db = handle->db;
 
 	/*
-	 * Get the path the lockfile is in
+	 * Get the path the lock file is in
 	 */
 	rsstconfiggetproperty(handle, CONF_LOCKFILE, &lockpath);
 
@@ -136,8 +136,8 @@ void rssflock(rsstor_handle *handle)
 }
 
 /*
- * Free lockfile
- * This routine frees up the lockfile and leaves the database for other instances of RSS-torrent
+ * Free lock file
+ * This routine frees up the lock file and leaves the database for other instances of RSS-torrent
  * @Arguments 
  * handle RSS-torrent handle
  * @Return
@@ -153,21 +153,22 @@ int rssfunlock(rsstor_handle *handle)
 	 * Valid pointer ?
 	 */
   if (lfp<=0){
-    fprintf(stderr, "no lockfile opened\n");
+    fprintf(stderr, "no lock file opened\n");
     return -1;
   }
 
-	/* Release filelock */
+	/* Release file lock */
   if (lockf(lfp,F_ULOCK,0)<0){ 
-    fprintf(stderr, "Can not unlock lockfile\n");
+    fprintf(stderr, "Can not unlock lock file\n");
     exit(0); /* can not lock */
   }
 
-	/* Close the lockfile */
+	/* Close the lock file */
 	close(lfp);
 
-	/* Reset lockfile pointer */
+	/* Reset lock file pointer */
 	handle->lockfile = 0;
 
 	return 0;
 }
+

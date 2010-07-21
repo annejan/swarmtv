@@ -48,7 +48,7 @@ void rssfprintfilters(rsstor_handle *handle, char *appname);
  * Print filter in a way it could be modified and reentered
  * @arguments
  * appname the name of the rssforrent executable
- * filtername the filtername to print
+ * filtername the filter name to print
  */
 void rssfprintshellfilter(rsstor_handle *handle, char *appname, char *filtername);
 
@@ -87,7 +87,7 @@ void rssfprintallsimple(rsstor_handle *handle);
  * @arguments
  * opts Takes opts_struct * as argument.
  * @return
- * return 0 on succes, return -1 on failure.
+ * return 0 on success, return -1 on failure.
  */
 int rssfdosimpletest(simplefilter_struct *filter);
 
@@ -102,7 +102,7 @@ void rssflistallsimple(rsstor_handle *handle);
  * Do filter test
  * show first 10 matches
  * Takes opts_struct * as argument.
- * return 0 on succes, return -1 on failure.
+ * return 0 on success, return -1 on failure.
  */
 int rssffindtorrentids(opts_struct *opts);
 

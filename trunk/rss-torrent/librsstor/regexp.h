@@ -43,7 +43,7 @@ void rsstcleanupstring(char *string);
  * Simple routine to compare a string to a regexp
  * @arguments
  * regexp regexp to match to.
- * string tring to be matched.
+ * string string to be matched.
  * @returns
  * 1 when match
  * 0 when no match
@@ -55,7 +55,7 @@ int rsstcomregexp(char *regexp, char *string);
  * This routine returns a string pointing to the first captured string.
  * @arguments
  * regexp regexp to capture
- * flag regexp flag to set matchmode (look at pcre_exec)
+ * flag regexp flag to set match mode (look at pcre_exec)
  * string string to capture match from
  * match pointer to store match
  * @return
@@ -65,43 +65,17 @@ int rsstcomregexp(char *regexp, char *string);
 int rsstcapturefirstmatch(char *regexp, int flag, char *string, char **match);
 
 /*
- * Extract username and password from url
- * Accepts passwords in the url https://<user>:<password>@<host>:<port>/<path>
- * returns 0 on no username/passwd
+ * Extract user name and password from URL
+ * Accepts passwords in the URL https://<user>:<password>@<host>:<port>/<path>
+ * returns 0 on no user name/password
  * When returning 1 cleanurl and userpass are both set, and should be freed.
  * @arguments
- * url the url to split
- * cleanurl the url without the username and password
- * userpass username and password in <username>:<password> format.
+ * url the URL to split
+ * cleanurl the URL without the user name and password
+ * userpass user name and password in <user name>:<password> format.
  * @return
- * return 1 when username and password are found
+ * return 1 when user name and password are found
  * else return 0
  */
 int rsstgetusernamepassword(char *url, char **cleanurl, char **userpass);
-
-
-/*
- * strrepl: Replace OldStr by NewStr in string Str.
- *
- * The empty string ("") is found at the beginning of every string.
- *
- * **Str must not be on strack, because it gets reallocced.
- * @arguments
- * Str string after replacements
- * Oldstr string to replace
- * NewStr string replacements are done in
- * @return
- * 0  When replace succesful
- * -1  When no replace was done
- */ 
-int rsststrrepl(char **Str, char *OldStr, char *NewStr);
-
-#if 0
-
-/*
- * Replacel all occurences of OldStr te NewStr in Str
- * returns 0 
- */
-int strreplall(char **Str, char *OldStr, char *NewStr);
-#endif
 

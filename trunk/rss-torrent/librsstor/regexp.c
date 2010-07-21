@@ -29,7 +29,7 @@
 #include "regexp.h"
 
 /*
- * Number of output vectoritems
+ * Number of output vector items
  */
 #define   OVECSIZE 20
 #define   MATCHSIZE 20
@@ -53,7 +53,7 @@ int rsstalloccopy(char **dest, const char *src, const size_t size)
 	memcpy(*dest, src, size);
 
 	/*
-	 * Return 0 on succes, otherwise one-zero
+	 * Return 0 on success, otherwise one-zero
 	 */
 	return !*dest;
 }
@@ -117,12 +117,12 @@ int rsstcomregexp(char *regexp, char *string)
   int   outval = -1;
 
   /*
-   * Compile the regexp te split the two strings.
+   * Compile the regexp to split the two strings.
    */
   p = pcre_compile(regexp, 0, &errmsg, &errpos, 0);
   if (p == NULL) {
     /* 
-		 * Should not happen, because init1 has already tested and set to NULL on error 
+		 * Should not happen, because init has already tested and set to NULL on error 
 		 */ 
     rsstwritelog(LOG_ERROR, "Ouch! Can't compile regular expression: %s (char %i) %s:%d",
         errmsg, errpos, __FILE__, __LINE__);
@@ -147,7 +147,7 @@ int rsstcomregexp(char *regexp, char *string)
     outval=0;
   } 
   else if (rc == PCRE_ERROR_MATCHLIMIT) {
-    rsstwritelog(LOG_ERROR, "PCRE hitted PCRE_ERROR_MATCHLIMIT for regexp '%s' and text '%s'", regexp, string);
+    rsstwritelog(LOG_ERROR, "PCRE produced PCRE_ERROR_MATCHLIMIT for regexp '%s' and text '%s'", regexp, string);
     outval=-1;
   } else {
     /*
@@ -178,11 +178,11 @@ int rsstcapturefirstmatch(char *regexp, int flag, char *string, char **match)
   int   i;
 
   /*
-   * Compile the regexp te split the two strings.
+   * Compile the regexp the split the two strings.
    */
   p = pcre_compile(regexp, 0, &errmsg, &errpos, 0);
   if (p == NULL) {
-    /* should not happen, because init1 has already tested and set to NULL on error */
+    /* should not happen, because init has already tested and set to NULL on error */
     //rsstwritelog(LOG_ERROR, "Ouch! Can't compile regular expression: %s (char %i) %s:%d",
     //    errmsg, errpos, __FILE__, __LINE__);
     fprintf(stderr, "Ouch! Can't compile regular expression: %s (char %i) %s:%d", errmsg, errpos, __FILE__, __LINE__);
@@ -238,9 +238,9 @@ int rsstcapturefirstmatch(char *regexp, int flag, char *string, char **match)
 
 
 /*
- * Extract username and password from url
- * Accepts passwords in the url https://<user>:<password>@<host>:<port>/<path>
- * returns 0 on no username/passwd
+ * Extract user name and password from URL
+ * Accepts passwords in the URL https://<user>:<password>@<host>:<port>/<path>
+ * returns 0 on no user name/passwd
  * When returning 1 cleanurl and userpass are both set, and should be freed after use.
  */
 int rsstgetusernamepassword(char *url, char **cleanurl, char **userpass)
@@ -263,11 +263,11 @@ int rsstgetusernamepassword(char *url, char **cleanurl, char **userpass)
 	*userpass=NULL;
 
   /*
-   * Compile the regexp te split the two strings.
+   * Compile the regexp to split the two strings.
    */
   p = pcre_compile(regexp, 0, &errmsg, &errpos, 0);
   if (p == NULL) {
-    /* should not happen, because init1 has already tested and set to NULL on error */
+    /* should not happen, because init has already tested and set to NULL on error */
     fprintf(stderr, "Ouch! Can't compile regular expression: %s (char %i) %s:%d",
         errmsg, errpos, __FILE__, __LINE__);
 		return -1;
@@ -293,13 +293,13 @@ int rsstgetusernamepassword(char *url, char **cleanurl, char **userpass)
     switch (rc) {
       case PCRE_ERROR_NOMATCH:
 				/*
-				 * no username/password match
+				 * no user name/password match
 				 */
 				pcre_free(p);
 				return 0;
         break;
       default:
-        rsstwritelog(LOG_ERROR, "Error while matching url. %d %s:%d", rc, __FILE__, __LINE__);
+        rsstwritelog(LOG_ERROR, "Error while matching URL. %d %s:%d", rc, __FILE__, __LINE__);
         break;
     }
     free(p);
@@ -307,7 +307,7 @@ int rsstgetusernamepassword(char *url, char **cleanurl, char **userpass)
   }
 
 	/*
-	 * Match, get url and userpass
+	 * Match, get URL and userpass
 	 */
   i = 1;
   protocol = calloc(1, ovector[2*i+1]-ovector[2*i]+1);

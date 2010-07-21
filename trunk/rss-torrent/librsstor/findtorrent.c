@@ -51,7 +51,7 @@
 
 
 /*
- * This function returns 1 when the file matches one of the uniteresting formatting.
+ * This function returns 1 when the file matches one of the uninteresting formatting.
  * Else 0 is returned.
  */
 static int uninteresting(char *url)
@@ -79,17 +79,17 @@ static xmlXPathObjectPtr htmlextacthrefs(xmlDocPtr doc, const xmlChar* xpathExpr
   xmlXPathContextPtr xpathCtx; 
   xmlXPathObjectPtr xpathObj;
 
-  /* Create xpath evaluation context */
+  /* Create Xpath evaluation context */
   xpathCtx = xmlXPathNewContext(doc);
   if(xpathCtx == NULL) {
     fprintf(stderr,"Error: unable to create new XPath context\n");
     return(NULL);
   }
 
-  /* Evaluate xpath expression */
+  /* Evaluate Xpath expression */
   xpathObj = xmlXPathEvalExpression(xpathExpr, xpathCtx);
   if(xpathObj == NULL) {
-    fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", XPATH_TO_A);
+    fprintf(stderr,"Error: unable to evaluate Xpath expression \"%s\"\n", XPATH_TO_A);
     xmlXPathFreeContext(xpathCtx); 
     return(NULL);
   }
@@ -110,8 +110,8 @@ static xmlXPathObjectPtr htmlextacthrefs(xmlDocPtr doc, const xmlChar* xpathExpr
 
 
 /*
- * Extract base name from url
- * basename is returned in basname
+ * Extract base name from URL
+ * basename is the output string for the base name
  * Don't forget to free after use.
  */
 static void getbasename(char *url, char **basename) 
@@ -138,7 +138,7 @@ static void getbasename(char *url, char **basename)
   }
 
   /*
-   * Copy the basename to the outputbuffer
+   * Copy the base name to the output buffer
    */
   basesize=cur-url;    
 	rsstalloccopy(basename, url, basesize);
@@ -169,12 +169,12 @@ static void resolvrel(char *fullurl, char *link, char **fulllink)
   else {
     /*
      * When a relative link is found, make sure 
-     * Get basepath
+     * Get base path
      */
     getbasename(fullurl, &basename);
 
     /*
-     * append basepath with link 
+     * append base path with link 
      * realloc into new space
      */
     fullsize = strlen(basename) + strlen(link);
@@ -224,8 +224,8 @@ static char *gethrefvalue(xmlNode *node)
 /*
  * Decide if a downloaded file is a torrent
  * @Arguments
- * url url of the downloaded file
- * mime the mimetype of the file
+ * url URL of the downloaded file
+ * mime the mime type of the file
  * @returns
  * 0 on no torrent
  * 1 on torrent found
@@ -256,11 +256,11 @@ static int testiftorrent(char *url, char *mimetype)
 
 /*
  * This is a recursive function.
- * It scans for torrent files, and will return the first one it encounteres.
+ * It scans for torrent files, and will return the first one it encounters.
  * Note this might not be the correct torrent at all :)
  * A counter prevents the recursing from getting out of hand.
- * The torrent wil be contained in torbuffer.
- * The url the torrent was found in torrenturl.
+ * The torrent will be contained in torbuffer.
+ * The URL the torrent was found in torrenturl.
  * Don't forget to free buffer and torrenturl !
  */
 int rsstfindtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recurse) 
@@ -283,11 +283,11 @@ int rsstfindtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int 
   }
 
   /*
-   * init stuff
+   * Initialize stuff
    */
   memset(&buffer, 0, sizeof(MemoryStruct));
 
-  rsstwritelog(LOG_DEBUG, "Scan url: '%s'", url);
+  rsstwritelog(LOG_DEBUG, "Scan URL: '%s'", url);
 
   /*
    * Make sure no garbage is in here
@@ -374,7 +374,7 @@ int rsstfindtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int 
      */
     while(count < nodeset->nodeNr) {
       /*
-       * Get href value that seem revelant
+       * Get href value that seem relevant
        */
       linkaddr = gethrefvalue(nodeset->nodeTab[count]);
 
@@ -451,7 +451,7 @@ int rsstfindtorrentwrite(char *url, char *name)
   rsstwritelog(LOG_DEBUG, "Writing torrent '%s' to file '%s'", url, name);
 
   /*
-   * Get the buffer and url to the torrent in there
+   * Get the buffer and URL to the torrent in there
    */
   rc = rsstfindtorrent(url, &torurl, &buffer, RECURSE);
   if(rc != 1) {
@@ -465,8 +465,8 @@ int rsstfindtorrentwrite(char *url, char *name)
    */
   //int rsstwritelog(int level, char *str,...);
   if(rv == 0 && strcmp(url, torurl) != 0) {
-    rsstwritelog(LOG_NORMAL, "Origional url : %s", url);
-    rsstwritelog(LOG_NORMAL, "Torrent url   : %s", torurl);
+    rsstwritelog(LOG_NORMAL, "Original URL : %s", url);
+    rsstwritelog(LOG_NORMAL, "Torrent URL   : %s", torurl);
   }
 
   /*

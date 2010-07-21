@@ -23,7 +23,7 @@
  * @variables
  * opts structure holding the options
  * @returns 
- * 0 on succes, else -1
+ * 0 on success, else -1
  */
 int rsstaddsimplefilter(rsstor_handle *handle, simplefilter_struct *filter);
 
@@ -36,28 +36,28 @@ void rsstlistsimple(rsstor_handle *handle);
 #endif
 
 /*
- * del filter item
+ * Del filter item
  * When the name is not found -1 is returned.
- * On succes 0 is returned.
+ * On success 0 is returned.
  */
 int rsstdelallsimple(rsstor_handle *handle);
 
 /*
- * del filter item
- * When allready existing -1 is returned.
+ * Del filter item
+ * When already existing -1 is returned.
  * @variables
- * name filtername to delete
+ * name filter name to delete
  * @returns
- * On succes 0 is returned.
+ * On success 0 is returned.
  */
 int rsstdelsimple(rsstor_handle *handle, const char *name);
 
 /*
  * Apply filters
- * Runs through all filters in simplefilters table.
+ * Runs through all filters in simple filters table.
  * Calls SQL filters routines for further handling.
  * @variables 
- * simultate 0 for real behaviour, 1 for simulation mode.
+ * simulate 0 for real behaviour, 1 for simulation mode.
  * @return
  * -1 on error, 0 on success
  */
@@ -66,7 +66,7 @@ int rsstdownloadsimple(sqlite3 *db, SIM simulate);
 /*
  * Add simple filter adds the filter to the database
  * Arguments  : simplefilter_struct * 
- * returns    : 0 when added succesfully
+ * returns    : 0 when added successfully
  * returns    : -1 when adding failed
  */
 int rsstinsertsimplefilter(rsstor_handle *handle, simplefilter_struct *simple);

@@ -53,7 +53,7 @@ void rsstfreenewtor(newtorrents_struct *newtor)
  * Arguments
  * newtor structure holding the values for the record to be added
  * Returns
- * 0 on succes, exits on -1 on failure
+ * 0 on success, exits on -1 on failure
  */
 int rsstaddnewtorrent(sqlite3 *db, newtorrents_struct *newtor)
 {
@@ -89,7 +89,7 @@ int rsstaddnewtorrent(sqlite3 *db, newtorrents_struct *newtor)
       // print nothing all is okay
       break;
     case ROWS_CONSTRAINT:
-      rsstwritelog(LOG_DEBUG, "Torrent allready in DB"); 
+      rsstwritelog(LOG_DEBUG, "Torrent already in DB"); 
       break;
     default:
       rsstwritelog(LOG_ERROR, "SQL statement failed %d! %s:%d", rc, __FILE__, __LINE__);
@@ -147,7 +147,7 @@ void rsstadddownloaded(sqlite3 *db, downloaded_struct *downed, SIM  simulate)
       // print nothing all is okay
       break;
     case ROWS_CONSTRAINT:
-      rsstwritelog(LOG_ERROR, "Torrent '%s' allready downloaded, please check no double filters for '%s'. %s:%d", 
+      rsstwritelog(LOG_ERROR, "Torrent '%s' already downloaded, please check no double filters for '%s'. %s:%d", 
 					downed->link, downed->title, __FILE__, __LINE__); 
       break;
     default:
@@ -157,7 +157,7 @@ void rsstadddownloaded(sqlite3 *db, downloaded_struct *downed, SIM  simulate)
 } 
 
 /*
- * When Torrents are prosessed, they are no longer new
+ * When Torrents are processed, they are no longer new
  * this method removes the new flag
  */
 void rsstnonewtorrents(sqlite3 *db)
@@ -181,12 +181,12 @@ void rsstnonewtorrents(sqlite3 *db)
 }
 
 /*
- * Delete all newtorrents entris older the x days
- * This function returns 0 on succes, -1 SQL on failure.
+ * Delete all newtorrents entries older the x days
+ * This function returns 0 on success, -1 SQL on failure.
  * Arguments
  * days 	The number of days records get retained in the newtorrents table.
  * returns
- * -1 on error, 0 on succes
+ * -1 on error, 0 on success
  */
 int rsstdeloldnewtorents(sqlite3 *db, unsigned int days)
 {

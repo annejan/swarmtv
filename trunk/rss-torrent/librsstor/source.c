@@ -34,9 +34,9 @@
 
 
 /*
- * del source item
- * When allready existing -1 is returned.
- * On succes 0 is returned.
+ * Delete source item
+ * When already existing -1 is returned.
+ * On success 0 is returned.
  */
 int rsstdelsource(rsstor_handle *handle, const char *name)
 {
@@ -77,8 +77,8 @@ int rsstdelsource(rsstor_handle *handle, const char *name)
 
 /*
  * Add source item
- * When allready existing -1 is returned.
- * On succes 0 is returned.
+ * When already existing -1 is returned.
+ * On success 0 is returned.
  */
 int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char *parsertype)
 {
@@ -98,7 +98,7 @@ int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char
 
 
   /*
-   * When parsertype is not set use the default.
+   * When parser type is not set use the default.
    */
   if(parsertype == NULL){
     rsstconfiggetproperty(handle, CONF_DEFPARSER, &localparser);
@@ -115,12 +115,12 @@ int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char
   rc = rsstexecutequery(db, query, "sss", url, name, localparser);
 
   /*
-   * free parsertype.
+   * free parser type.
    */
   free(localparser);
 
   /*
-   * Act on addfilter
+   * Act on add filter
    */
   switch(rc) {
     case(ROWS_CHANGED):
@@ -139,3 +139,4 @@ int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char
       return -1;
   }
 }
+

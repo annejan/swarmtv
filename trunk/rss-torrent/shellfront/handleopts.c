@@ -34,7 +34,7 @@
 #include "simplewizard.h"
 
 /*
- * Number of output vectoritems
+ * Number of output vector items
  */
 #define   OVECSIZE 20
 #define   MATCHSIZE 20
@@ -112,13 +112,13 @@ static void printhelp(void)
           "run              -r               : Run in daemon mode.\n"  
           "test             -q               : Test filter (together with -F & -T).\n"  
 #ifdef RSST_ESMTP_ENABLE
-          "test-mail        -m <text>        : Send testmail notification.\n"  
+          "test-mail        -m <text>        : Send test mail notification.\n"  
 #endif
           "version          -v               : Print version.\n"  
 					"reinit-database  -K               : Reinitialize the database. (warning: data is lost)\n"
 					"\nDownload manually\n"
 					"id-download      -i <id>          : Download torrents by entering id (use --test to retrieve id's)\n"
-					"id-del-downed    -M <id>          : Remove downloaded torrent from puplicate check table.\n"
+					"id-del-downed    -M <id>          : Remove downloaded torrent from duplicate check table.\n"
 					"find             -L               : Find torrents. (use with simple options)\n"
 					"find-downed      -a <regexp>      : Find entries in the downloaded table.\n"
           "\nConfig settings\n"
@@ -199,14 +199,14 @@ static void optdeletefilter(rsstor_handle *handle, char *name)
 	if(!strcmp(name, "all")) {
 		rc = rsstdelallfilters(handle);
 		if(rc == 0) {
-			printf("Delete all filters succesful\n");
+			printf("Delete all filters successful\n");
 		} else {
 			fprintf(stderr, "Deletion of all filters failed\n");
 		}
 	} else {
 		rc = rsstdelfilter(handle, name);
 		if(rc == 0) {
-			printf("Delete filter: %s succesful\n", name);
+			printf("Delete filter: %s successful\n", name);
 		} else {
 			fprintf(stderr, "Delete filter: %s failed\n",  name);
 		}
@@ -251,14 +251,14 @@ static int verifyarguments(opts_struct *opts)
 		retval=-1;
 	}
 	/*
-	 * sourcefilter no filter
+	 * source filter no filter
 	 */
 	if(opts->sourcefilter && !(opts->source)){
 		fprintf(stderr, "Error, you provided a filter type but no filter.\n");
 		retval=-1;
 	}
 	/*
-	 * doublefilter no filter
+	 * double filter no filter
 	 */
 	if(opts->doublefilter && !(opts->filter)){
 		fprintf(stderr, "Error, you provided a 'no double filter' but no filter.\n");
@@ -266,10 +266,10 @@ static int verifyarguments(opts_struct *opts)
 	}
 
 	/*
-	 * Simple filter and sql filter are not allowed in the same commandline
+	 * Simple filter and SQL filter are not allowed in the same command line
 	 */
 	if( opts->filter && opts->simplename ) {
-		fprintf(stderr, "Error, you cannot add an sql and simple filter in one line.\n");
+		fprintf(stderr, "Error, you cannot add an SQL and simple filter in one line.\n");
 		retval=-1;
 	}
 	
@@ -317,7 +317,7 @@ static int verifyarguments(opts_struct *opts)
 	}
 
 	/*
-	 * Nodetach and ontime should be used together with run
+	 * --nodetach and --ontime should be used together with run
 	 */
 	if(!opts->run && (opts->nodetach || opts->onetime == once)) {
 		fprintf(stderr, "Error, run options can only be used together with the run command.\n");
@@ -332,17 +332,17 @@ static void reinitdb(rsstor_handle *handle)
 {
 	int rc=0;
 
-	printf("Running reinitializion script on database...\n");
+	printf("Running reinitialisation script on database...\n");
 	rc = rsstrundbinitscript(handle);
 	if(rc != 0) {
 		fprintf(stderr, "Reinitializing database failed!\n");
 	} else {
-		printf("Reinitialization succesful!\n");
+		printf("Reinitialization successful!\n");
 	}
 }
 
 /*
- * handle Commandline options, setting up the structure for the complex 
+ * handle Command line options, setting up the structure for the complex 
  * arguments.
  */
 static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_struct *opts)
@@ -354,7 +354,7 @@ static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_st
 	int						torid=0;
 
   /*
-   * Handle commandline options
+   * Handle command line options
    */
 	opt = getopt_long (argc, argv, optString, optLong, &optindex);
   while( opt != -1 && stopop == 0) {
@@ -383,17 +383,17 @@ static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_st
 				break;
       case 't': // set source filter type
         if( opts->sourcefilter != NULL) {
-          fprintf(stderr, "Warning: ignoring second doublefilter parameter.\n");
+          fprintf(stderr, "Warning: ignoring second doublei filter parameter.\n");
           break;
         }
 				rssfalloccopy(&(opts->sourcefilter), optarg, strlen(optarg));
 				break;
-      case 'q': // set filtertest flag
+      case 'q': // set filter test flag
         opts->testfilt=1;
         break;
       case 'T': // set duplicate filter
         if( opts->doublefilter != NULL) {
-          fprintf(stderr, "Warning: ignoring second sourcefilter parameter.\n");
+          fprintf(stderr, "Warning: ignoring second source filter parameter.\n");
           break;
         }
 				rssfalloccopy(&(opts->doublefilter), optarg, strlen(optarg));
@@ -402,7 +402,7 @@ static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_st
 				optdeletefilter(handle, optarg);
         stopop = 1; // no more
         break;
-      case 's': // set rss source
+      case 's': // set RSS source
         if(opts->source!=NULL) {
           fprintf(stderr, "Warning: ignoring second source parameter.\n");
           break;
@@ -413,7 +413,7 @@ static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_st
         rssfprintsources(handle);
         stopop = 1; // no more
         break;
-      case 'D': // delete rss source
+      case 'D': // delete RSS source
         rc = rsstdelsource(handle, optarg);
         break;
       case 'r': // run as daemon 
@@ -466,7 +466,7 @@ static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_st
         break;
 			case 'w': // Add simple filter through wizard
 				if(opts->simplewizard == 1){
-          fprintf(stderr, "Warning: Ignoring multiple simplewizard arguments .\n");
+          fprintf(stderr, "Warning: Ignoring multiple simple wizard arguments .\n");
           break;
 				}
 				/*
@@ -554,7 +554,7 @@ static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_st
 					torid = atoi(optarg);
 					rc = rsstdeldownloaded(handle, torid);
 					if(rc == ROWS_CHANGED){
-						printf("Deletion of %s succesfull.\n", optarg);
+						printf("Deletion of %s successful.\n", optarg);
 					} else {
 						printf("Deletion of %s failed.\n", optarg);
 					}
@@ -629,8 +629,8 @@ void handlemultiple(rsstor_handle *handle, opts_struct *opts)
 			if(rc == 0) {
 				printf("new filter : %s\n"
 						"filter : %s\n"
-						"nodouble filter : %s\n"
-						"Was added succesfully\n",
+						"nodup filter : %s\n"
+						"Was added successfully\n",
 						name, value, opts->doublefilter);
       }
     } 
@@ -643,7 +643,7 @@ void handlemultiple(rsstor_handle *handle, opts_struct *opts)
       if(rc != 0) {
         printf("new filter : %s\n"
             "filter : %s\n"
-            "nodouble filter : %s\n"
+            "nodup filter : %s\n"
             "Test failed\n",
             name, value, opts->doublefilter);
       }
@@ -681,7 +681,7 @@ void handlemultiple(rsstor_handle *handle, opts_struct *opts)
 				if(rc != 0){
 					fprintf(stderr, "Adding filter failed.\n");
 				} else {
-					printf("Filter '%s' added succesfully.\n", 
+					printf("Filter '%s' added successfully.\n", 
 							opts->simplename);
 				}
 
@@ -742,7 +742,7 @@ static void freeopts(opts_struct *opts)
 }
 
 /*
- * Choose runmode.
+ * Choose run mode.
  */
 static void runmode(rsstor_handle *handle, opts_struct *opts)
 {
@@ -776,7 +776,7 @@ static void runmode(rsstor_handle *handle, opts_struct *opts)
 		}
 
 		/*
-		 * Check and lock lockfile
+		 * Check and lock lock file
 		 */
 		rssflock(handle);
 
@@ -802,7 +802,7 @@ void rssthandleopts(rsstor_handle *handle, int argc, char *argv[])
 	opts_struct 	opts; 
 
 	/*
-	 * init opts struct
+	 * Init opts struct
 	 */
 	memset(&opts, 0, sizeof(opts_struct));
 
@@ -815,7 +815,7 @@ void rssthandleopts(rsstor_handle *handle, int argc, char *argv[])
 
 	/*
 	 * Parse all options, calling simple actions directly.
-	 * Fill the opts truct to handle complex arguments later.
+	 * Fill the opts struct to handle complex arguments later.
 	 */
 	nomore = parsearguments(handle, argc, argv, &opts);
 
@@ -824,7 +824,7 @@ void rssthandleopts(rsstor_handle *handle, int argc, char *argv[])
 	 */
 	if(nomore == 0) {
 		/*
-		 * Test the argumentcombinations.
+		 * Test the argument combinations.
 		 * only execute handling routines when all is okay.
 		 */
 		rc = verifyarguments(&opts);

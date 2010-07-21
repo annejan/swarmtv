@@ -38,7 +38,7 @@
 #define   BUFSIZE 20
 
 /*
- * Default filtername and nodup filter that will be added in findtorrent routine
+ * Default filter name and nodup filter that will be added in findtorrent routine
  */
 #define  FINDNAME 	"filter"
 #define  FINDNODUP	"none"
@@ -48,7 +48,7 @@
  */
 void rssfprintversion(void)
 {
-	printf("RSSTorrent by Paul Honig 2009-2010\n");
+	printf("RSS-Torrent by Paul Honig 2009-2010\n");
 	printf("Version %s \n", PROGVERSION);
 }
 
@@ -230,7 +230,7 @@ int rssfprintshellfilter(rsstor_handle *handle, char *appname, char *filtername)
 	int								retval=0;
 
 	/*
-	 * Retieve container
+	 * Retrieve container
 	 */
 	rc = rsstgetfilterbyname(handle, filtername, &container);
 	if(rc != 0){
@@ -279,7 +279,7 @@ void rssfprintsources(rsstor_handle *handle)
 	 */
 	printf("#############\n");
   printf("Sources\n");
-  printf("Name : url : parser\n");
+  printf("Name : URL : Parser\n");
   printf("#############\n");
 
 	/*
@@ -358,7 +358,7 @@ void printsimplestruct(simplefilter_struct *simple)
   }
 
   /*
-   * Maxsize
+   * Max size
    */
   if(simple->maxsize != 0){
     rssfsizetohuman(simple->maxsize, (char*) maxsizestring);
@@ -367,7 +367,7 @@ void printsimplestruct(simplefilter_struct *simple)
   }
 
   /*
-   * Minsize
+   * Min size
    */
   if(simple->minsize != 0){
     rssfsizetohuman(simple->minsize, (char*) minsizestring);
@@ -507,7 +507,7 @@ void rssflistallsimple(rsstor_handle *handle)
  * Do filter test
  * show first 10 matches
  * Takes opts_struct * as argument.
- * return 0 on succes, return -1 on failure.
+ * return 0 on success, return -1 on failure.
  */
 int rssffindtorrentids(opts_struct *opts)
 {
@@ -524,7 +524,7 @@ int rssffindtorrentids(opts_struct *opts)
 	memset(&filter, 0, sizeof(simplefilter_struct));
 
 	/*
-	 * Make sure the mandetory fields are inserted.
+	 * Make sure the mandatory fields are inserted.
 	 */
 	if(opts->simplename == NULL) {
 		rssfalloccopy(&(opts->simplename), FINDNAME, strlen(FINDNAME));
@@ -563,7 +563,7 @@ int rssffindtorrentids(opts_struct *opts)
 					newtorrents->newtorrent[count].id,
 					newtorrents->newtorrent[count].title,
 					humansize);
-			printf("url: %s\n\n", 
+			printf("URL: %s\n\n", 
 					newtorrents->newtorrent[count].link);
 		}
 	}

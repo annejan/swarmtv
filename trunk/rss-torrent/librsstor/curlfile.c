@@ -32,23 +32,23 @@
 #define REGEXPSIZE      40      
 /* End of line Character sequence in http header */
 #define HEADEREOL       "\r\n"  
-/* The max amount of redirs  to folow before failing */
+/* The max amount of redirects  to follow */
 #define MAX_REDIR       3       
 /* Time to wait before connection timeout on curl download */
 #define CONNECT_TIMEOUT 20  
 #define CURL_TIMEOUT 60  
 
 /*
- * realloc 
+ * Reallocate 
  */
 static void *myrealloc(void *ptr, size_t size);
 
 /*
- * Realloc bigger memory when the file is big.
+ * Reallocate bigger memory when the file is big.
  */
 static void *myrealloc(void *ptr, size_t size)
 {
-  /* There might be a realloc() out there that doesn't like reallocing
+  /* There might be a realloc() out there that doesn't like reallocating
    *      NULL pointers, so we take care of it here */ 
   if(ptr)
     return realloc(ptr, size);
@@ -91,7 +91,7 @@ static size_t WriteHeaderCallback(void *ptr, size_t size, size_t nmemb, void *da
 }
 
 /*
- * Download url and put the resulting data in chunk.
+ * Download URL and put the resulting data in chunk.
  */
 int rsstdownloadtobuffer(char *url, MemoryStruct *chunk)
 {
@@ -108,7 +108,7 @@ int rsstdownloadtobuffer(char *url, MemoryStruct *chunk)
   chunk->headersize=0;  /* headersize is 0 */
 
 	/*
-	 * Determine if the url holdes usernames and passwords.
+	 * Determine if the URL holds user names and passwords.
 	 */
 	rc = rsstgetusernamepassword(url, &cleanurl, &userpass);
 	switch(rc) {
@@ -118,15 +118,15 @@ int rsstdownloadtobuffer(char *url, MemoryStruct *chunk)
 			 */
 			realurl=calloc(1, strlen(url)+1);
 			strncpy(realurl, url, strlen(url));
-			rsstwritelog(LOG_DEBUG, "realurl			: %s\n", realurl);
+			rsstwritelog(LOG_DEBUG, "Realurl			: %s\n", realurl);
 			break;
 		case 1:
 			/*
 			 * Password found 
 			 */
-			rsstwritelog(LOG_DEBUG, "passwd_url			: %s\n", url);
-			rsstwritelog(LOG_DEBUG, "userpass				: %s\n", userpass);
-			rsstwritelog(LOG_DEBUG, "cleanurl				: %s\n", cleanurl);
+			rsstwritelog(LOG_DEBUG, "Passwd_url			: %s\n", url);
+			rsstwritelog(LOG_DEBUG, "Userpass				: %s\n", userpass);
+			rsstwritelog(LOG_DEBUG, "Cleanurl				: %s\n", cleanurl);
 
 		default:
 			/*
@@ -137,7 +137,7 @@ int rsstdownloadtobuffer(char *url, MemoryStruct *chunk)
 			break;
 	}
 
-  /* init the curl session */ 
+  /* Initialize the curl session */ 
   curl_handle = curl_easy_init();
 
   /* specify URL to get */ 
@@ -157,12 +157,12 @@ int rsstdownloadtobuffer(char *url, MemoryStruct *chunk)
 
   /* some servers don't like requests that are made without a user-agent
    *      field, so we provide one */ 
-  curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "rss-torrent");
+  curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "RSS-torrent");
 
-  /* Set generate errorstring */
+  /* Set generate error string */
   curl_easy_setopt(curl_handle, CURLOPT_ERRORBUFFER, errorBuffer);
 
-  /* Set generate errorstring */
+  /* Set generate error string */
   curl_easy_setopt(curl_handle, CURLOPT_ENCODING, "");
 
   /* Make curl Follow redirects */
@@ -175,7 +175,7 @@ int rsstdownloadtobuffer(char *url, MemoryStruct *chunk)
   curl_easy_setopt(curl_handle, CURLOPT_CONNECTTIMEOUT, CONNECT_TIMEOUT);
   curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, CURL_TIMEOUT);
 
-	/* If a username and password is set add it to the options */
+	/* If a user name and password is set add it to the options */
 	if(userpass != NULL) {
 		curl_easy_setopt(curl_handle, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 		curl_easy_setopt(curl_handle, CURLOPT_USERPWD, userpass);
@@ -225,10 +225,10 @@ static size_t curlfwrite(void *buffer, size_t size, size_t nmemb, void *stream)
 /*
  * Download to file.
  * arguments 
- * url	Url to download from
+ * url	URL to download from
  * path	Path to store downloaded content in.
  * return
- * return 0 on succes and -1 on failure.
+ * return 0 on success and -1 on failure.
  */
 int rsstdownloadtofile(char *url, char *path)
 {
@@ -238,7 +238,7 @@ int rsstdownloadtofile(char *url, char *path)
   int rc = 0;
 
   /*
-   * Init ftpfile struct
+   * Initialize ftp file struct
    */
   ftpfile.filename = path;
   ftpfile.stream = NULL;
@@ -248,9 +248,7 @@ int rsstdownloadtofile(char *url, char *path)
   curl = curl_easy_init();
   if(curl) {
     /*
-     * Get curl 7.9.2 from sunet.se's FTP site. curl 7.9.2 is most likely not
-     * present there by the time you read this, so you'd better replace the
-     * URL with one that works!
+		 * Set the URL the download is originating from.
      */ 
     curl_easy_setopt(curl, CURLOPT_URL, url);
     /* Define our callback to get called when there's data to be written */ 
@@ -324,13 +322,13 @@ int rsstgetheadersvalue(char *name, char **value, MemoryStruct *chunk)
 	int retvalue=-1;
 
   /* 
-   * Init vars
+   * Initialize vars
    */
   memset(regexp, 0, REGEXPSIZE+1);
   *value=NULL;
 
   /*
-   * Copy the inputbuffer to tempbuffer.
+   * Copy the input buffer to temp buffer.
    */
 	rsstalloccopy(&header, chunk->header, strlen(chunk->header));
 
@@ -382,7 +380,7 @@ int rsstgetheadersvalue(char *name, char **value, MemoryStruct *chunk)
  * filename		path to store file in
  * buffer			Buffer holding information.
  * return
- * 0 on succes -1 on failure
+ * 0 on success -1 on failure
  */
 int rsstwritebuffer(char *filename, MemoryStruct *buffer) 
 {
@@ -390,7 +388,7 @@ int rsstwritebuffer(char *filename, MemoryStruct *buffer)
   int           rc;
   unsigned int  cur_char;
 
-  rsstwritelog(LOG_DEBUG,"Writing to : '%s' lenght '%ld' %s:%d", filename, buffer->size, __FILE__, __LINE__);
+  rsstwritelog(LOG_DEBUG,"Writing to : '%s' length '%ld' %s:%d", filename, buffer->size, __FILE__, __LINE__);
 
   /*
    * Save file to test.torrent
@@ -412,7 +410,7 @@ int rsstwritebuffer(char *filename, MemoryStruct *buffer)
   }
 
   /*
-   * close filedescriptor 
+   * close file descriptor 
    */
   fclose(file);
 

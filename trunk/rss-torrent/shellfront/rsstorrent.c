@@ -33,7 +33,7 @@
 #include "setup.h"
 
 /*
- * Bit of a hack.. but needed for cleanup
+ * Bit of a hack.. But needed for cleanup
  */
 static sqlite3 *cleandb;
 
@@ -53,12 +53,12 @@ void cleanup(){
 
   /*
    * Close the sqlite database.
-   * No way to get dbpointer here
+   * No way to get db pointer here
    */
   sqlite3_close(cleandb);
 
   /*
-   * Close logfile.
+   * Close log file.
    */
   rsstcloselog();
 }
@@ -102,11 +102,11 @@ int main(int argc, char **argv){
   signal(SIGPIPE,Signal_Handler); /* software termination signal CTRL+C */
 
 	/*
-	 * Test if basedir is present
+	 * Test if base dir is present
 	 */
 	rc = rsstinitrsstorrent(); 
 	if(rc != 0) {
-    fprintf(stderr, "Initializing basedir : \'%s\' failed", RSS_BASEDIR);
+    fprintf(stderr, "Initializing base dir : \'%s\' failed", RSS_BASEDIR);
     exit(1);
   }
 
@@ -126,22 +126,22 @@ int main(int argc, char **argv){
   curl_global_init(CURL_GLOBAL_ALL);
 
   /*
-   * open logfile
+   * open log file
    */
   rc = rsstinitlogdb(handle.db);
   if(rc != 0) {
-    fprintf(stderr, "Can't open logfile!\n");
+    fprintf(stderr, "Can't open log file!\n");
     exit(1);
   }
-  rsstwritelog(LOG_DEBUG, "Start rss-torrent");
+  rsstwritelog(LOG_DEBUG, "Start RSS-torrent");
 
 	/*
-	 * Handle commandline options
+	 * Handle command line options
 	 */
 	rssthandleopts(&handle, argc, argv);
 
   /*
-   * Cleanup the rest of the libaries
+   * Cleanup the rest of the libraries
    */
   cleanup();
 

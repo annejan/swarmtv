@@ -33,7 +33,7 @@
 #define LOG_ERROR   3
 
 /*
- * Define loglevels
+ * Define log levels
  */
 #ifdef DEBUG
   #define LOG_LEVEL 0
@@ -54,7 +54,7 @@
 int rsstinitlog(char *logpath);
 
 /*
- * Open logfile getting path from database
+ * Open log file getting path from database
  */
 int rsstinitlogdb(sqlite3 *db)
 {
@@ -91,8 +91,8 @@ int rsstinitlogdb(sqlite3 *db)
 
 
 /*
- * Initialize logfile
- * Return 0 when succes
+ * Initialize log file
+ * Return 0 when success
  * Return !0 when fail
  */
 int rsstinitlog(char *logpath)
@@ -163,11 +163,11 @@ int rsstwritelog(int level, char *str,...)
 
 
 /*
- * Close logfile
+ * Close log file
  */
 void rsstcloselog()
 {
   /*
-   * Closing logfile.
+   * Closing log file.
    */
 }

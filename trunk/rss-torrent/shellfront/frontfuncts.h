@@ -28,7 +28,7 @@ void rssflowercase(char string[]);
 /*
  * Split options
  * When options come in as <name>:<value> split them 
- * the first ':' found is the one plitting name and value
+ * the first ':' found is the one splitting name and value
  * When the splitting failed '-1' is returned
  */
 int rssfsplitnameval(char *input,char **name, char **value);
@@ -37,7 +37,7 @@ int rssfsplitnameval(char *input,char **name, char **value);
  * buf must be a pre-allocated buffer with size BUFSIZE+1
  * returns the char * to the converted string.
  * @arguments
- * size sie to be converted
+ * size size to be converted
  * buf the buffer the human readable size is stored
  * @return 
  * returns pointer to the converted size
@@ -64,7 +64,7 @@ int rssfhumantosize(char *buf, double *size);
  * opts the opts structure to retrieve the arguments from.
  * simple the simple filter struct to store the filters settings in.
  * @Return
- * returns 0 on succes, -1 on error.
+ * returns 0 on success, -1 on error.
  */
 int rssfoptstosimple(opts_struct *opts, simplefilter_struct *simple);
 

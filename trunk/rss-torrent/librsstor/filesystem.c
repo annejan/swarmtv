@@ -33,11 +33,11 @@
 /*
  * Complete path
  * when the first char of filename is a ~ it gets replaced by 
- * the path to the homedir
- * free destpath afterwards
+ * the path to the home directory
+ * free destination path afterwards
  * Arguments
  * origpath	The path containing '~' and stuff
- * destpath	The path compleded and all
+ * destpath	The path completed and all
  */
 void rsstcompletepath(const char *origpath, char **destpath)
 {
@@ -65,7 +65,7 @@ void rsstcompletepath(const char *origpath, char **destpath)
     lenght++; // we add an extra '/' in the path
 
     /*
-     * Alloc and build output
+     * Allocate and build output
      */
     *destpath = calloc(lenght+1, 1);
     sprintf(*destpath, "%s/%s", homedir, origpath+1);
@@ -112,12 +112,12 @@ int rsstfsexists(const char *path)
 
 /*
  * Test if a directory is writable
- * This is done by creating a testfile named "test.file",
+ * This is done by creating a test file named "test.file",
  * and deleting it afterwards.
  * Arguments
  * path		Path to file to be tested.
  * Return
- * 0 on succes, -1 on failure (not writable)
+ * 0 on success, -1 on failure (not writable)
  */
 int rssttestwrite(const char *path)
 {
@@ -128,7 +128,7 @@ int rssttestwrite(const char *path)
 	char	*fullpath=NULL;
 
 	/*
-	 * Fullpath
+	 * Full path
 	 */
 	rsstcompletepath(path, &fullpath);
 
@@ -142,7 +142,7 @@ int rssttestwrite(const char *path)
   sprintf(filename, "%s/%s", fullpath, TESTFILENAME);
 
   /*
-   * Create testfile
+   * Create test file
    */
   fsock = creat(filename, S_IRWXU);
   if(fsock != 0) {
@@ -152,7 +152,7 @@ int rssttestwrite(const char *path)
     close(fsock);
 
     /*
-     * Delete file when creation was successfull
+     * Delete file when creation was successful
      */
     rc = remove(filename); 
   }
@@ -176,7 +176,7 @@ int rssttestwrite(const char *path)
  * Arguments
  * path path to directory
  * returns
- * 0 on succes, -1 on failure
+ * 0 on success, -1 on failure
  */
 int rsstmakedir(char *path)
 {

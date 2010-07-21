@@ -28,19 +28,19 @@
 #include <sqlite3.h>
 
 /*
- * Open logfile getting path from database
+ * Open log file getting path from database
  * @return
- * 0 when succesfull
+ * 0 when successful
  * !0 when fail
  */
 int rsstinitlogdb(sqlite3 *db);
 
 /*
- * Initialize logfile
+ * Initialize log file
  * @arguments
  * logpath the path to store the log
  * @return
- * 0 when succesfull
+ * 0 when successful
  * !0 when fail
  */
 int rsstinitlog(char *logpath);
@@ -49,7 +49,7 @@ int rsstinitlog(char *logpath);
  * Log an entry
  * LOG_DEBUG, LOG_NORMAL, LOG_ERROR
  * @arguments
- * level the loglevel (see loglevel defines)
+ * level the log level (see log level defines)
  * str the string to log 
  * ... the arguments to fill out in the log line
  * @return
@@ -58,6 +58,6 @@ int rsstinitlog(char *logpath);
 int rsstwritelog(int level, char *str,...);
 
 /*
- * Close logfile
+ * Close log file
  */
 void rsstcloselog();

@@ -55,7 +55,7 @@
 #define SCRIPT_SYM "--"
 
 /*
- * Number of elements to allocate initialy for returning results
+ * Number of elements to allocate initially for returning results
  */
 #define START_ELEMENTS 10
 
@@ -94,7 +94,7 @@ static const char *dbinitscript =
 "-- Create the sources table\n"
 "create table sources (id INTEGER PRIMARY KEY, name TEXT UNIQUE, url TEXT, parser TEXT);\n"
 "\n"
-"-- Create the config table, and fillout the table with the 'standard' values\n"
+"-- Create the config table, and fill out the table with the 'standard' values\n"
 "create table config (id INTEGER PRIMARY KEY, prop TEXT UNIQUE, value TEXT, descr TEXT);\n"
 "INSERT INTO 'config' (prop, value, descr) VALUES('torrentdir', '~/torrents', 'Path the downloaded torrents are placed in.');\n"
 "INSERT INTO 'config' (prop, value, descr) VALUES('logfile', '~/.rsstorrent/rsstorrent.log', 'Path to logfile.');\n"
@@ -123,7 +123,7 @@ static const char *updatev1tov2 =
 "-- Add parser column to simplefilters table\n"
 "ALTER TABLE simplefilters ADD COLUMN source TEXT DEFAULT '';\n"
 ""
-"-- Up databaseversion from version 1 to 2\n"
+"-- Up database version from version 1 to 2\n"
 "update version set version = '2';\n"
 ""
 "COMMIT"
@@ -132,11 +132,11 @@ static const char *updatev1tov2 =
 /*
  * Executing script
  * This function executes a script.
- * Each line should be seperated by a '\n' char.
+ * Each line should be separated by a '\n' char.
  * @Arguments 
  * script pointer so buffer holding script.
  * @ returns
- * 0 on succes
+ * 0 on success
  * -1 on fail
  */
 static int dbexecscript(sqlite3 *db, const char *script)
@@ -154,7 +154,7 @@ static int dbexecscript(sqlite3 *db, const char *script)
 	rsstalloccopy(&local, script, strlen(script));
 
 	/*
-	 * Use strtok to seperate the lines
+	 * Use strtok to separate the lines
 	 */
 	char *strtok(char *str, const char *delim);
 	line = strtok_r(local, SCRIPT_EOL, &latest);
@@ -196,8 +196,8 @@ static int dbexecscript(sqlite3 *db, const char *script)
 
 
 /*
- * This function implement pcre functionality to the queries.
- * called every time sqlite crosses an regexp.
+ * This function implement PCRE functionality to the queries.
+ * called every time Sqlite crosses an regexp.
  */
 static void genregexpfunc(sqlite3_context *db, int num, sqlite3_value **sqlite3_value, int opt){
   int   			rc=0;
@@ -220,13 +220,13 @@ static void genregexpfunc(sqlite3_context *db, int num, sqlite3_value **sqlite3_
   }
 
   /*
-   * Extract the values from the functioncall.
+   * Extract the values from the function call.
    */
   var1 = (const char*) sqlite3_value_text(sqlite3_value[0]);
   var2 = (const char*) sqlite3_value_text(sqlite3_value[1]);
 
 	/*
-	 * When NULL is provided, match failes.
+	 * When NULL is provided, match fails.
 	 */
 	if(var2 == NULL) {
 		sqlite3_result_int(db, 0);
@@ -263,7 +263,7 @@ static void genregexpfunc(sqlite3_context *db, int num, sqlite3_value **sqlite3_
     default: 
       if (rc < 0) { 
         rsstwritelog(LOG_ERROR, "A regexp match error " 
-            "occured: %d %s:%d", rc, __FILE__, __LINE__); 
+            "occurred: %d %s:%d", rc, __FILE__, __LINE__); 
       } 
       else { 
         match = 1; 
@@ -284,8 +284,8 @@ static void genregexpfunc(sqlite3_context *db, int num, sqlite3_value **sqlite3_
 
 
 /*
- * This function implement pcre functionality to the queries.
- * called every time sqlite crosses an regexp.
+ * This function implement PCRE functionality to the queries.
+ * called every time Sqlite crosses an regexp.
  */
 static void regexpfunc(sqlite3_context *db, int num, sqlite3_value **sqlite3_value)
 {
@@ -294,9 +294,9 @@ static void regexpfunc(sqlite3_context *db, int num, sqlite3_value **sqlite3_val
 
 
 /*
- * This function implement pcre functionality to the queries.
- * called every time sqlite crosses an regexp.
- * This function matches case insensative.
+ * This function implement PCRE functionality to the queries.
+ * called every time Sqlite crosses an regexp.
+ * This function matches case insensitive.
  */
 static void iregexpfunc(sqlite3_context *db, int num, sqlite3_value **sqlite3_value)
 {
@@ -309,7 +309,7 @@ static void iregexpfunc(sqlite3_context *db, int num, sqlite3_value **sqlite3_va
  * @arguments
  * version pointer to int holding database version number
  * @return
- * 0 on succes, -1 on failure
+ * 0 on success, -1 on failure
  */
 static int getdbversion(sqlite3 *db, int *version)
 {
@@ -349,11 +349,11 @@ static int getdbversion(sqlite3 *db, int *version)
 }
 
 /*
- * Create a complete database if needed, otherwise run updatescripts.
+ * Create a complete database if needed, otherwise run update scripts.
  * @arguments 
- * version current datbase version
+ * version current database version
  * @return
- * 0 on succes, -1 on failure
+ * 0 on success, -1 on failure
  */
 static int fixdb(rsstor_handle *handle, int version) 
 {
@@ -387,7 +387,7 @@ static int fixdb(rsstor_handle *handle, int version)
   }
 
   /*
-   * All updatescripts done, return result
+   * All update scripts done, return result
    */
   return rc;
 }
@@ -395,7 +395,7 @@ static int fixdb(rsstor_handle *handle, int version)
 /*
  * Run the Database init script.
  * @return
- * 0 on succes, -1 on failure
+ * 0 on success, -1 on failure
  */
 int rsstrundbinitscript(rsstor_handle *handle)
 {
@@ -416,7 +416,7 @@ int rsstrundbinitscript(rsstor_handle *handle)
 /*
  * Open database, and add regexp functionality.
  * @Arguments
- * filename Database filenam
+ * filename Database filename
  * ppDb SQLite db handle
  * @Returns
  *
@@ -430,12 +430,12 @@ int rsstinitdatabase(const char *filename, rsstor_handle *handle)
 	sqlite3    *db=NULL;
 
 	/*
-	 * Complete the filename is it contains a ~ as homedir
+	 * Complete the filename is it contains a ~ as home dir
 	 */
 	rsstcompletepath(filename, &dbpath);
 
 	/*
-   * Open the sqlite database.
+   * Open the Sqlite database.
    */
   rc = sqlite3_open(dbpath, &db);
   if( rc ){
@@ -450,7 +450,7 @@ int rsstinitdatabase(const char *filename, rsstor_handle *handle)
 	handle->db = db;
 
   /*
-   * free dbpath
+   * free db path
    */
   free(dbpath);
 
@@ -462,10 +462,10 @@ int rsstinitdatabase(const char *filename, rsstor_handle *handle)
 		/*
 		 * Create new DB
 		 */
-		printf("Running create databasescript.\n");
+		printf("Running create database script.\n");
     rc = fixdb(handle, version); 
 		if(rc == -1){
-			fprintf(stderr, "Can't open database, initscript failed!\n");
+			fprintf(stderr, "Can't open database, init script failed!\n");
 			sqlite3_close(db);
 			return !SQLITE_OK;
 		}
@@ -518,7 +518,7 @@ int rsstinitdatabase(const char *filename, rsstor_handle *handle)
 /*
  * Do a query, and bind value's to the query in one step
  * This is a simplified version as it only returns 1 value.
- * that value is the first string of the first colomn.
+ * that value is the first string of the first column.
  * the value returned must be a TEXT value.
  * the returned value will be put into text
  * make sure to free text after use
@@ -529,7 +529,7 @@ int rsstinitdatabase(const char *filename, rsstor_handle *handle)
  * fmt arguments pointer
  * ... other arguments
  * @return
- * 0 on succes, -1 on failure
+ * 0 on success, -1 on failure
  */
 int rsstdosingletextquery(sqlite3 *db, const unsigned char **text, const char *query, char *fmt, ...) 
 {
@@ -554,7 +554,7 @@ int rsstdosingletextquery(sqlite3 *db, const unsigned char **text, const char *q
   }
 
   /*
-   * Prepare the sqlite statement
+   * Prepare the Sqlite statement
    */
   rc = sqlite3_prepare_v2(
       db,                 /* Database handle */
@@ -699,7 +699,7 @@ int rsstexecutequery(sqlite3 *db, const char *query, char *fmt, ...)
   }
 
   /*
-   * Prepare the sqlite statement
+   * Prepare the Sqlite statement
    */
   rc = sqlite3_prepare_v2(
       db,                 /* Database handle */
@@ -809,7 +809,7 @@ int rsstexecutequery(sqlite3 *db, const char *query, char *fmt, ...)
  * format string accepts 
  * d = int , s = string, f = double, NULL pointer when no arguments.
  * @arguments
- * ppstmt pointer carying the results of the query
+ * ppstmt pointer carrying the results of the query
  * query pointer to query string:
  * fmt format string
  * ... arguments to fill out in query
@@ -841,7 +841,7 @@ int rsstexecqueryresult(sqlite3 *db, sqlite3_stmt **ppstmt, const char *query, c
  * format string accepts 
  * d = int , s = string, f = double, NULL pointer when no arguments.
  * @arguments
- * ppstmt pointer carying the results of the query
+ * ppstmt pointer carrying the results of the query
  * query pointer to query string:
  * fmt format string
  * ap va_list argument list
@@ -851,7 +851,6 @@ int rsstexecqueryresult(sqlite3 *db, sqlite3_stmt **ppstmt, const char *query, c
  */
 int rsstexecqueryresultva(sqlite3 *db, sqlite3_stmt **ppstmt, const char *query, char *fmt, va_list ap)
 {
-  //sqlite3_stmt 	*ppStmt=NULL;
   const char 		*pzTail=NULL;
   int         	rc=0;
   int         	retval=0; 
@@ -869,7 +868,7 @@ int rsstexecqueryresultva(sqlite3 *db, sqlite3_stmt **ppstmt, const char *query,
   }
 
   /*
-   * Prepare the sqlite statement
+   * Prepare the Sqlite statement
    */
   rc = sqlite3_prepare_v2(
       db,                 /* Database handle */
@@ -936,7 +935,7 @@ int rsstexecqueryresultva(sqlite3 *db, sqlite3_stmt **ppstmt, const char *query,
 
 /*
  * Prints columns from query to standard out.
- * third argumnt is the number of rows returned.
+ * third argument is the number of rows returned.
  * Arguments
  * query	query to print.
  * Return
@@ -955,7 +954,7 @@ int rsstprintquery(sqlite3 *db, const char *query, char *fmt, ...)
 	va_list				ap;
 
   /*
-   * Prepare the sqlite statement
+   * Prepare the Sqlite statement
    */
 	va_start(ap, fmt);
 	rc = rsstexecqueryresultva(db, &ppstmt, query, fmt, ap);
@@ -1011,10 +1010,10 @@ int rsstprintquery(sqlite3 *db, const char *query, char *fmt, ...)
 
 /*
  * Prints columns from query to standard out.
- * third argumnt is the number of rows returned.
+ * third argument is the number of rows returned.
  * Arguments
  * query	Query to print.
- * names	The names that should be printed infront of values.
+ * names	The names that should be printed in front of values.
  * fmt		Format string describing the. 
  * Return
  * return 0 when okay.
@@ -1032,7 +1031,7 @@ int rsstprintquerylist(sqlite3 *db, const char *query, char *names[], char *fmt,
 	va_list				ap;
 
   /*
-   * Prepare the sqlite statement
+   * Prepare the Sqlite statement
    */
 	va_start(ap, fmt);
 	rc = rsstexecqueryresultva(db, &ppstmt, query, fmt, ap);
@@ -1090,7 +1089,7 @@ int rsstprintquerylist(sqlite3 *db, const char *query, char *names[], char *fmt,
  */
 
 /*
- * Realloc then not big anough again
+ * Reallocate if not big enough 
  * @Arguments
  * buffer Pointer to buffer
  * bufnr pointer to number of elements in the buffer
@@ -1104,14 +1103,14 @@ static void *rsstmakespace(void *buffer, int *bufnr, int occupied, size_t struct
 	size_t newsize=0;
 
 	/*
-	 * realloc twice the size when we run out of space
+	 * Reallocate twice the size when we run out of space
 	 */
 	if(occupied == *bufnr) {
 		*bufnr = *bufnr * 2;
 		newsize = *bufnr * structsize;
 		buffer = realloc(buffer, newsize);
 		if(buffer == NULL) {
-			rsstwritelog(LOG_ERROR, "realloc failed ! %s:%d", __FILE__, __LINE__);
+			rsstwritelog(LOG_ERROR, "Realloc failed ! %s:%d", __FILE__, __LINE__);
 			return NULL;
 		}
 	}
@@ -1121,12 +1120,12 @@ static void *rsstmakespace(void *buffer, int *bufnr, int occupied, size_t struct
 
 
 /*
- * Store databaseresult into struct
+ * Store database result into struct
  * @Arguments 
  * result
  * container
  * @returns
- * 0 on succes otherwise -1
+ * 0 on success otherwise -1
  */
 static int rsststoreconfigcontainer(sqlite3_stmt *result, config_container *container)
 {
@@ -1140,7 +1139,7 @@ static int rsststoreconfigcontainer(sqlite3_stmt *result, config_container *cont
 	allocrecords = START_ELEMENTS;
 	container->config = calloc(allocrecords, sizeof(config_struct));
 	if(container->config == NULL) {
-		rsstwritelog(LOG_ERROR, "calloc failed ! %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Calloc failed ! %s:%d", __FILE__, __LINE__);
 		return -1;
 	}
 
@@ -1162,7 +1161,7 @@ static int rsststoreconfigcontainer(sqlite3_stmt *result, config_container *cont
 		count++;
 
 		/*
-		 * realloc goes here
+		 * Realloc goes here
 		 */
 		container->config = rsstmakespace(container->config, &allocrecords, count, sizeof(config_struct));
   }
@@ -1178,7 +1177,7 @@ static int rsststoreconfigcontainer(sqlite3_stmt *result, config_container *cont
 /*
  * Get all config settings
  * @Arguments
- * configitems The container to store the configitems in
+ * configitems The container to store the config items in
  * @Return
  * Returns 0 on success -1 on failure
  */
@@ -1206,7 +1205,7 @@ int rsstgetallconfig(rsstor_handle *handle, config_container **configitems)
 	 */
 	localitems = calloc(1, sizeof(config_container));
 	if(localitems == NULL) {
-		rsstwritelog(LOG_ERROR, "calloc failed ! %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Calloc failed ! %s:%d", __FILE__, __LINE__);
 		exit(1);
 	}
 
@@ -1269,7 +1268,7 @@ int rsstfreeconfigcontainer(config_container *container)
 	}
 
 	/*
-	 * Free config values tructures in container
+	 * Free config values structures in container
 	 */
 	for(count=0; count < container->nr; count++)
 	{
@@ -1316,7 +1315,7 @@ int rsstfreefiltercontainer(filter_container *container)
 	}
 
 	/*
-	 * Free config values tructures in container
+	 * Free config values structures in container
 	 */
 	for(count=0; count < container->nr; count++)
 	{
@@ -1333,12 +1332,12 @@ int rsstfreefiltercontainer(filter_container *container)
 }
 
 /*
- * Store databaseresult into struct
+ * Store database result into struct
  * @Arguments 
  * result
  * container
  * @returns
- * 0 on succes otherwise -1
+ * 0 on success otherwise -1
  */
 static int rsststorefiltercontainer(sqlite3_stmt *result, filter_container *container)
 {
@@ -1352,7 +1351,7 @@ static int rsststorefiltercontainer(sqlite3_stmt *result, filter_container *cont
 	allocrecords = START_ELEMENTS;
 	container->filter = calloc(allocrecords, sizeof(filter_struct));
 	if(container->filter == NULL) {
-		rsstwritelog(LOG_ERROR, "calloc failed ! %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Calloc failed ! %s:%d", __FILE__, __LINE__);
 		return -1;
 	}
 
@@ -1374,7 +1373,7 @@ static int rsststorefiltercontainer(sqlite3_stmt *result, filter_container *cont
 		count++;
 
 		/*
-		 * realloc goes here
+		 * Realloc goes here
 		 */
 		container->filter = rsstmakespace(container->filter, &allocrecords, count, sizeof(filter_struct));
   }
@@ -1419,7 +1418,7 @@ int rsstgetallfilter(rsstor_handle *handle, filter_container **container)
 	 */
 	localitems = calloc(1, sizeof(filter_container));
 	if(localitems == NULL) {
-		rsstwritelog(LOG_ERROR, "calloc failed ! %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Calloc failed ! %s:%d", __FILE__, __LINE__);
 		exit(1);
 	}
 
@@ -1428,7 +1427,7 @@ int rsstgetallfilter(rsstor_handle *handle, filter_container **container)
 	 */
 	rc = rsstexecqueryresult(db, &ppstmt, query, NULL);
 	if( rc!=SQLITE_OK ){
-		rsstwritelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
 		rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
 		sqlite3_free(zErrMsg);
 		return -1;
@@ -1490,7 +1489,7 @@ int rsstgetfilterbyname(rsstor_handle *handle, char *name, filter_container **co
 	 */
 	localitems = calloc(1, sizeof(filter_container));
 	if(localitems == NULL) {
-		rsstwritelog(LOG_ERROR, "calloc failed ! %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Calloc failed ! %s:%d", __FILE__, __LINE__);
 		exit(1);
 	}
 
@@ -1524,12 +1523,12 @@ int rsstgetfilterbyname(rsstor_handle *handle, char *name, filter_container **co
 
 
 /*
- * Store databaseresult into struct
+ * Store database result into struct
  * @Arguments 
  * result
  * container
  * @returns
- * 0 on succes otherwise -1
+ * 0 on success otherwise -1
  */
 static int rsststoredownloadedcontainer(sqlite3_stmt *result, downloaded_container *container)
 {
@@ -1543,7 +1542,7 @@ static int rsststoredownloadedcontainer(sqlite3_stmt *result, downloaded_contain
 	allocrecords = START_ELEMENTS;
 	container->downloaded = calloc(allocrecords, sizeof(downloaded_struct));
 	if(container->downloaded == NULL) {
-		rsstwritelog(LOG_ERROR, "calloc failed ! %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Calloc failed ! %s:%d", __FILE__, __LINE__);
 		return -1;
 	}
 
@@ -1569,7 +1568,7 @@ static int rsststoredownloadedcontainer(sqlite3_stmt *result, downloaded_contain
 		count++;
 
 		/*
-		 * realloc goes here
+		 * Reallocate goes here
 		 */
 		container->downloaded = rsstmakespace(container->downloaded, &allocrecords, count, sizeof(downloaded_struct));
 	}
@@ -1617,11 +1616,11 @@ int rsstgetdownloaded(rsstor_handle *handle, downloaded_container **downloaded, 
 	const char *query = "SELECT id, title, link, pubdate, category, season, episode FROM downloaded LIMIT ?1 OFFSET ?2";
 
 	/*
-	 * Alloc the container
+	 * Allocate the container
 	 */
 	localitems = calloc(1, sizeof(downloaded_container));
 	if(localitems == NULL) {
-		rsstwritelog(LOG_ERROR, "calloc failed ! %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Calloc failed ! %s:%d", __FILE__, __LINE__);
 		exit(1);
 	}
 
@@ -1657,7 +1656,7 @@ int rsstgetdownloaded(rsstor_handle *handle, downloaded_container **downloaded, 
 /*
  * Free downloaded structure
  * @Arguments
- * downloaded pointer to downloaded struct to be freeed
+ * downloaded pointer to downloaded struct to be freed
  */
 void rsstfreedownloaded(downloaded_struct *downloaded)
 {
@@ -1693,7 +1692,7 @@ int rsstfreedownloadedcontainer(downloaded_container *container)
 	}
 
 	/*
-	 * Free config values tructures in container
+	 * Free config values structures in container
 	 */
 	for(count=0; count < container->nr; count++)
 	{
@@ -1711,12 +1710,12 @@ int rsstfreedownloadedcontainer(downloaded_container *container)
 
 
 /*
- * Store databaseresult into struct
+ * Store database result into struct
  * @Arguments 
  * result
  * container
  * @returns
- * 0 on succes otherwise -1
+ * 0 on success otherwise -1
  */
 static int rsststoresimplecontainer(sqlite3_stmt *result, simplefilter_container *container)
 {
@@ -1725,12 +1724,12 @@ static int rsststoresimplecontainer(sqlite3_stmt *result, simplefilter_container
 	char 	 *column=NULL;
 
 	/*
-	 * prealloc for START_ELEMENTS number of records
+	 * reallocate for START_ELEMENTS number of records
 	 */ 
 	allocrecords = START_ELEMENTS;
 	container->simplefilter = calloc(allocrecords, sizeof(simplefilter_struct));
 	if(container->simplefilter == NULL) {
-		rsstwritelog(LOG_ERROR, "calloc failed ! %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Calloc failed ! %s:%d", __FILE__, __LINE__);
 		return -1;
 	}
 
@@ -1774,7 +1773,7 @@ static int rsststoresimplecontainer(sqlite3_stmt *result, simplefilter_container
 		count++;
 
 		/*
-		 * realloc goes here
+		 * Reallocate goes here
 		 */
 		container->simplefilter = rsstmakespace(container->simplefilter, &allocrecords, count, sizeof(simplefilter_struct));
 	}
@@ -1816,11 +1815,11 @@ int rsstgetallsimplefilter(rsstor_handle *handle, simplefilter_container **simpl
 											 "FROM 'simplefilters' LIMIT ?1 OFFSET ?2";
 
 	/*
-	 * Alloc the container
+	 * Allocate the container
 	 */
 	localitems = calloc(1, sizeof(simplefilter_container));
 	if(localitems == NULL) {
-		rsstwritelog(LOG_ERROR, "calloc failed ! %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Calloc failed ! %s:%d", __FILE__, __LINE__);
 		exit(1);
 	}
 
@@ -1829,7 +1828,7 @@ int rsstgetallsimplefilter(rsstor_handle *handle, simplefilter_container **simpl
 	 */
 	rc = rsstexecqueryresult(db, &ppstmt, query, "dd", limit, offset);
 	if( rc!=SQLITE_OK ){
-		rsstwritelog(LOG_ERROR, "rsstexecqueryresult failed %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Rsstexecqueryresult failed %s:%d", __FILE__, __LINE__);
 		rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
 		sqlite3_free(zErrMsg);
 		return -1;
@@ -1881,11 +1880,11 @@ int rsstgetsimplefilter(rsstor_handle *handle, simplefilter_container **simplefi
 											 "FROM 'simplefilters' WHERE name=?1";
 
 	/*
-	 * Alloc the container
+	 * Allocate the container
 	 */
 	localitems = calloc(1, sizeof(simplefilter_container));
 	if(localitems == NULL) {
-		rsstwritelog(LOG_ERROR, "calloc failed ! %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Calloc failed ! %s:%d", __FILE__, __LINE__);
 		exit(1);
 	}
 
@@ -1894,7 +1893,7 @@ int rsstgetsimplefilter(rsstor_handle *handle, simplefilter_container **simplefi
 	 */
 	rc = rsstexecqueryresult(db, &ppstmt, query, "s", name);
 	if( rc!=SQLITE_OK ){
-		rsstwritelog(LOG_ERROR, "rsstexecqueryresult failed %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Rsstexecqueryresult failed %s:%d", __FILE__, __LINE__);
 		rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
 		sqlite3_free(zErrMsg);
 		return -1;
@@ -1921,7 +1920,7 @@ int rsstgetsimplefilter(rsstor_handle *handle, simplefilter_container **simplefi
 /*
  * Free simplefilter structure
  * @Arguments
- * simplefilter pointer to simplefilter struct to be freeed
+ * simplefilter pointer to simplefilter struct to be freed
  */
 void rsstfreesimplefilter(simplefilter_struct *simplefilter)
 {
@@ -1956,7 +1955,7 @@ int rsstfreesimplefiltercontainer(simplefilter_container *container)
 	}
 
 	/*
-	 * Free config values tructures in container
+	 * Free config values structures in container
 	 */
 	for(count=0; count < container->nr; count++)
 	{
@@ -1974,12 +1973,12 @@ int rsstfreesimplefiltercontainer(simplefilter_container *container)
 
 
 /*
- * Store databaseresult into struct
+ * Store database result into struct
  * @Arguments 
  * result
  * container
  * @returns
- * 0 on succes otherwise -1
+ * 0 on success otherwise -1
  */
 static int rsststoresourcecontainer(sqlite3_stmt *result, source_container *container)
 {
@@ -1988,12 +1987,12 @@ static int rsststoresourcecontainer(sqlite3_stmt *result, source_container *cont
 	char 	 *column=NULL;
 
 	/*
-	 * prealloc for START_ELEMENTS number of records
+	 * reallocate for START_ELEMENTS number of records
 	 */ 
 	allocrecords = START_ELEMENTS;
 	container->source = calloc(allocrecords, sizeof(source_struct));
 	if(container->source == NULL) {
-		rsstwritelog(LOG_ERROR, "calloc failed ! %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Calloc failed ! %s:%d", __FILE__, __LINE__);
 		return -1;
 	}
 
@@ -2019,7 +2018,7 @@ static int rsststoresourcecontainer(sqlite3_stmt *result, source_container *cont
 		count++;
 
 		/*
-		 * realloc goes here
+		 * reallocate goes here
 		 */
 		container->source = rsstmakespace(container->source, &allocrecords, count, sizeof(source_struct));
 	}
@@ -2063,7 +2062,7 @@ int rsstgetallsources(rsstor_handle *handle, source_container **sources)
 	 */
 	localitems = calloc(1, sizeof(source_container));
 	if(localitems == NULL) {
-		rsstwritelog(LOG_ERROR, "calloc failed ! %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Calloc failed ! %s:%d", __FILE__, __LINE__);
 		exit(1);
 	}
 
@@ -2098,7 +2097,7 @@ int rsstgetallsources(rsstor_handle *handle, source_container **sources)
 /*
  * Free source structure
  * @Arguments
- * source pointer to source struct to be freeed
+ * source pointer to source struct to be freed
  */
 void rsstfreesource(source_struct *source)
 {
@@ -2126,7 +2125,7 @@ int rsstfreesourcecontainer(source_container *container)
 	}
 
 	/*
-	 * Free config values tructures in container
+	 * Free config values structures in container
 	 */
 	for(count=0; count < container->nr; count++)
 	{
@@ -2143,12 +2142,12 @@ int rsstfreesourcecontainer(source_container *container)
 }
 
 /*
- * Store databaseresult into struct
+ * Store database result into struct
  * @Arguments 
  * result
  * container
  * @returns
- * 0 on succes otherwise -1
+ * 0 on success otherwise -1
  */
 static int rsststorenewtorrentcontainer(sqlite3_stmt *result, newtorrents_container *container)
 {
@@ -2157,12 +2156,12 @@ static int rsststorenewtorrentcontainer(sqlite3_stmt *result, newtorrents_contai
 	char 	 *column=NULL;
 
 	/*
-	 * prealloc for START_ELEMENTS number of records
+	 * reallocate for START_ELEMENTS number of records
 	 */ 
 	allocrecords = START_ELEMENTS;
 	container->newtorrent = calloc(allocrecords, sizeof(newtorrents_struct));
 	if(container->newtorrent == NULL) {
-		rsstwritelog(LOG_ERROR, "calloc failed ! %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Calloc failed ! %s:%d", __FILE__, __LINE__);
 		return -1;
 	}
 
@@ -2192,7 +2191,7 @@ static int rsststorenewtorrentcontainer(sqlite3_stmt *result, newtorrents_contai
 		count++;
 
 		/*
-		 * realloc goes here
+		 * reallocate goes here
 		 */
 		container->newtorrent = rsstmakespace(container->newtorrent, &allocrecords, count, sizeof(newtorrents_struct));
 	}
@@ -2225,7 +2224,7 @@ int rsstfindnewtorrents(simplefilter_struct *filter, newtorrents_container **new
 
 
 	/*
-	 * Query to retrieve the data from the sandbox after all te work is done.
+	 * Query to retrieve the data from the sandbox after all the work is done.
 	 */
 	char *query="SELECT newtorrents.id, downloaded.title, newtorrents.link, newtorrents.pubdate, newtorrents.category, "
 		"newtorrents.source, downloaded.season, downloaded.episode, newtorrents.seeds, newtorrents.peers, newtorrents.size FROM newtorrents, downloaded "
@@ -2236,7 +2235,7 @@ int rsstfindnewtorrents(simplefilter_struct *filter, newtorrents_container **new
 	 */
 	sandbox = rsstinitfiltertest();
 	if(sandbox == NULL){
-		rsstwritelog(LOG_ERROR, "Sandbox creaton failed %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Sandbox creation failed %s:%d", __FILE__, __LINE__);
 		return -1;
 	}
 
@@ -2285,7 +2284,7 @@ int rsstfindnewtorrents(simplefilter_struct *filter, newtorrents_container **new
 	}
 
 	/*
-	 * Alloc and fill container
+	 * Allocate and fill container
 	 */
 	*newtorrents = calloc(1, sizeof(newtorrents_container));
 	rc = rsststorenewtorrentcontainer(ppstmt, *newtorrents);
@@ -2295,7 +2294,7 @@ int rsstfindnewtorrents(simplefilter_struct *filter, newtorrents_container **new
 	}
 
 	/*
-	 * Done with sqlite result set
+	 * Done with Sqlite result set
 	 */
 	sqlite3_finalize(ppstmt);
 
@@ -2305,7 +2304,7 @@ int rsstfindnewtorrents(simplefilter_struct *filter, newtorrents_container **new
 	rc = rsstclosesandbox(sandbox);
 	if(rc != 0){
 		printf("Closing sandbox failed.\n");
-		rsstwritelog(LOG_ERROR, "Closing sandbox falied %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Closing sandbox failed %s:%d", __FILE__, __LINE__);
 		return -1;
 	}
 
@@ -2331,7 +2330,7 @@ int rsstfreenewtorrentscontainer(newtorrents_container *container)
 	}
 
 	/*
-	 * Free config values tructures in container
+	 * Free config values structures in container
 	 */
 	for(count=0; count < container->nr; count++)
 	{

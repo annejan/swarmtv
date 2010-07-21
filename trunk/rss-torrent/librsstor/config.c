@@ -65,8 +65,8 @@ int rsstconfiggetproperty(rsstor_handle *handle, char *prop, char **value)
 /*
  * Get value of a config object.
  * Arguments
- * prop 	name of the propertie
- * number the pointer the propvalie will be put in.
+ * prop 	name of the property
+ * number the pointer the property value will be put in.
  * return 0 when prop is found, -1 when not found.
  */
 int rsstconfiggetint(sqlite3 *db, char *prop, int *number) 
@@ -95,8 +95,8 @@ int rsstconfiggetint(sqlite3 *db, char *prop, int *number)
 /*
  * Get value of a config object.
  * Arguments
- * prop 	name of the propertie
- * number the pointer the propvalie will be put in.
+ * prop 	name of the property
+ * number the pointer the property value will be put in.
  * return 
  * 0 when prop is found, -1 when not found.
  */
@@ -125,11 +125,11 @@ int rsstconfiggetlong(sqlite3 *db, char *prop, long *number)
 /*
  * Set config item
  * Arguments
- * prop		propertie to set
+ * prop		property to set
  * value	Value to set
  * returns
  * When not found -1 is returned.
- * On succes 0 is returned.
+ * On success 0 is returned.
  */
 int rsstsetconfigitem(rsstor_handle *handle, const char *prop, const char *value)
 {
@@ -150,14 +150,14 @@ int rsstsetconfigitem(rsstor_handle *handle, const char *prop, const char *value
   const char* query = "update config set value=?1 where config.prop=?2";
 
   /*
-   * Prepare the sqlite statement
+   * Prepare the Sqlite statement
    */
   rc = sqlite3_prepare_v2(
       db,                 /* Database handle */
       query,            /* SQL statement, UTF-8 encoded */
-      strlen(query),    /* Maximum length of zSql in bytes. */
+      strlen(query),    /* Maximum length of SQL query in bytes. */
       &ppStmt,             /* OUT: Statement handle */
-      &pzTail              /* OUT: Pointer to unused portion of zSql */
+      &pzTail              /* OUT: Pointer to unused portion of Sql */
       );
   if( rc!=SQLITE_OK ){
     rsstwritelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
@@ -208,7 +208,7 @@ int rsstsetconfigitem(rsstor_handle *handle, const char *prop, const char *value
 
 
   /*
-   * If the number of rows modified = 0 the configitem was not found.
+   * If the number of rows modified = 0 the config item was not found.
    */
   rc = sqlite3_changes(db);
   if(rc == 0) {

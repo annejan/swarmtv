@@ -33,7 +33,7 @@
 #include "simplefilter.h"
 
 /*
- * Nodup filternames
+ * Nodup filter names
  */
 #define NODUP_NONE_NAME     "none"
 #define NODUP_LINK_NAME     "link"
@@ -63,11 +63,11 @@ static char *sqlfilter="SELECT link, title, pubdate, category, season, episode F
 		"new = 'Y'";
 
 /*
- * name is name of the inodup filter 
+ * name is name of the nodup filter 
  * title is the titlefilter to insert
  * **nodup is the allocated buffer that is returned.
- * Nohup *inodup should be passed with value NULL
- * Returns 0 on succes, -1 when no fitting filter was found.
+ * Nohup *nodup should be passed with value NULL
+ * Returns 0 on success, -1 when no fitting filter was found.
  */
 static int findnodup(char *name, char **nodup)
 {
@@ -100,11 +100,9 @@ static int findnodup(char *name, char **nodup)
     return -1;
   }
 
-  /*
-   * Insert the correct TITLE filter
-   */
-  //rsststrrepl(nodup, "REPLACE_TITLE", title);
-
+	/*
+	 * All done.
+	 */
   return 0;
 }
 
@@ -138,7 +136,7 @@ static int validearguments(simplefilter_struct *filter)
 /*
  * Add simple filter adds the filter to the database
  * Arguments  : simplefilter_struct * 
- * returns    : 0 when added succesfully
+ * returns    : 0 when added successfully
  * returns    : -1 when adding failed
  */
 int rsstinsertsimplefilter(rsstor_handle *handle, simplefilter_struct *simple)
@@ -177,7 +175,6 @@ int rsstinsertsimplefilter(rsstor_handle *handle, simplefilter_struct *simple)
   /*
    * Handle output
    */
-  //if(rc != 1) {
   if(rc < 1) {
     return -1;
   } else {
@@ -208,7 +205,7 @@ static int checksimple(sqlite3 *db, const char *name)
 
 /*
  * Add simple filter
- * returns 0 on succes, else -1
+ * returns 0 on success, else -1
  */
 int rsstaddsimplefilter(rsstor_handle *handle, simplefilter_struct *simple)
 {
@@ -229,7 +226,7 @@ int rsstaddsimplefilter(rsstor_handle *handle, simplefilter_struct *simple)
   }
 
   /*
-   * When allready there delete the previous simple filter
+   * When already there delete the previous simple filter
    */
   rc = checksimple(db, simple->name);
   if(rc == 1){
@@ -249,9 +246,9 @@ int rsstaddsimplefilter(rsstor_handle *handle, simplefilter_struct *simple)
 
 
 /*
- * del filter item
+ * Delete all simple filters
  * When the name is not found -1 is returned.
- * On succes 0 is returned.
+ * On success 0 is returned.
  */
 int rsstdelallsimple(rsstor_handle *handle)
 {
@@ -278,8 +275,8 @@ int rsstdelallsimple(rsstor_handle *handle)
       return 0;
       break;
     case(ROWS_EMPTY):
-      fprintf(stderr, "No simplefilters in list.\n");
-      rsstwritelog(LOG_ERROR, "No simplefilters in list.\n");
+      fprintf(stderr, "No simple filters in list.\n");
+      rsstwritelog(LOG_ERROR, "No simple filters in list.\n");
       return -1;
       break;
     default: 
@@ -290,9 +287,9 @@ int rsstdelallsimple(rsstor_handle *handle)
 
 
 /*
- * del filter item
+ * Delete single simple filter 
  * When the name is not found -1 is returned.
- * On succes 0 is returned.
+ * On success 0 is returned.
  */
 int rsstdelsimple(rsstor_handle *handle, const char *name)
 {
@@ -332,11 +329,11 @@ int rsstdelsimple(rsstor_handle *handle, const char *name)
 
 /*
  * Apply filters
- * Runs through all filters in simplefilters table.
+ * Runs through all filters in simple filters table.
  * Calls SQL filters routines for further handling.
  * arguments :
  * db pointer to db to use
- * simultate 0 for real behaviour, 1 for simulation mode.
+ * simulate 0 for real behaviour, 1 for simulation mode.
  */
 int rsstdownloadsimple(sqlite3 *db, SIM simulate)
 {
@@ -359,12 +356,12 @@ int rsstdownloadsimple(sqlite3 *db, SIM simulate)
 
 
 	/*
-	 * Query to retrieve filters from simplefilters table.
+	 * Query to retrieve filters from simple filters table.
 	 */ 
 	char *query = "select name, title, maxsize, minsize, nodup, fromseason, fromepisode, exclude, category, source from simplefilters";
 
 	/*
-	 * Prepare the sqlite statement
+	 * Prepare the Sqlite statement
 	 */
 	rc = sqlite3_prepare_v2(
 			db,                 /* Database handle */

@@ -35,8 +35,8 @@
 
 /*
  * Del all filters.
- * Deletes all filters from filtertable.
- * On succes 0 is returned.
+ * Deletes all filters from filter table.
+ * On success 0 is returned.
  */
 int rsstdelallfilters(rsstor_handle *handle)
 {
@@ -49,7 +49,7 @@ int rsstdelallfilters(rsstor_handle *handle)
 	db = handle->db;
 
   /*
-   * Init query
+   * Initialize query
    */
   const char* query = "delete from 'filters'";
 
@@ -76,9 +76,9 @@ int rsstdelallfilters(rsstor_handle *handle)
 }
 
 /*
- * del filter item
- * When allready existing -1 is returned.
- * On succes 0 is returned.
+ * Del filter item
+ * When already existing -1 is returned.
+ * On success 0 is returned.
  */
 int rsstdelfilter(rsstor_handle *handle, const char *name)
 {
@@ -91,7 +91,7 @@ int rsstdelfilter(rsstor_handle *handle, const char *name)
 	db = handle->db;
 
 	/*
-	 * Init query
+	 * Initialize query
 	 */
 	const char* query = "delete from 'filters' where name=?1";
 
@@ -138,13 +138,13 @@ static int checkfilter(sqlite3 *db, const char *name)
 
 /*
  * Add filter item
- * When allready existing -1 is returned.
- * On succes 0 is returned.
+ * When already existing -1 is returned.
+ * On success 0 is returned.
  */
 int rsstaddfilter(rsstor_handle *handle, const char *name, const char *filter, const char *doublefilter)
 {
 	int         rc=0;
-	const char *locdouble=NULL; // holds pointer to doublefilter or empty
+	const char *locdouble=NULL; // holds pointer to double filter or empty
 	char        query[MAXLENGHT+1];
 	sqlite3 	 *db=NULL;
 

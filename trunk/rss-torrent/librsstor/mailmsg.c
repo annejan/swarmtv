@@ -105,7 +105,7 @@ int rsstsendrssmail(sqlite3 *db, const char *subject, const char *msgtxt)
   rsstconfiggetproperty(&handle, CONF_SMTPHOST, &smtphost);
 
   /*
-   * add '\r\n' to beginning and end of messagetext
+   * add '\r\n' to beginning and end of message text
    */
   sendmessage = calloc(strlen(msgtxt) + 5, 1);
   sprintf(sendmessage, "\r\n%s\r\n", msgtxt);
@@ -125,20 +125,20 @@ int rsstsendrssmail(sqlite3 *db, const char *subject, const char *msgtxt)
   free(sendmessage);
 
   /*
-   * return mail returncode
+   * return mail return code
    */
   return rc;
 }
 
 /*
  * Send an email 
- * host : smtpserver to use
+ * host : smtp server to use
  * from : from address
  * to   : to address
- * subject : mailsubject
+ * subject : mail subject
  * msgtext : message text
  * returns :
- * 0 on succes, else -1
+ * 0 on success, else -1
  */
 int rsstsendmail(const char *host, const char *from, const char *to, const char *subject, const char *msgtxt)
 {
@@ -188,7 +188,7 @@ int rsstsendmail(const char *host, const char *from, const char *to, const char 
 #endif
 
   /* 
-	 * Set the reverse path for the mail envelope.  (NULL is ok)
+	 * Set the reverse path for the mail envelope.  (NULL is OK)
 	 */
   smtp_set_reverse_path (message, from);
 
@@ -252,7 +252,7 @@ int rsstsendmail(const char *host, const char *from, const char *to, const char 
 }
 
 /*
- * Uses the mail routine to send a testmail.
+ * Uses the mail routine to send a test mail.
  * Arguments :
  * testxt, test message to send.
  */
@@ -284,14 +284,14 @@ void rssttestmail(rsstor_handle *handle, char *testtxt)
 	 */
 	rc = rsstsendrssmail(db, testtxt, testtxt);
 	if(rc == 0) {
-		printf("Testmail sent successful!\n");
+		printf("Test mail sent successful!\n");
 	} else {
-		printf("Testmail sending failed!\n");
+		printf("Test mail sending failed!\n");
 	}
 }
 
 /*
- * Callback to prnt the recipient status 
+ * Callback to print the recipient status 
  * Argument
  * recipient	
  * mailbox		

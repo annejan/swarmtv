@@ -49,8 +49,8 @@ const char *query="select name, url, parser from sources";
 
 /*
  * Apply a filter to the downloaded RSS code.
- * This routine holdes the refferences to different kind of filters.
- * (For now only rsstorrent.com format)
+ * This routine holds the references to different kind of filters.
+ * (For now only RSS-torrent.com format)
  * Return
  * 0 when okay, on error -1
  */
@@ -95,7 +95,7 @@ static void deleteold(sqlite3 *db)
 	 */
 	rc = rsstconfiggetint(db, CONF_RETAIN, &days);
 	if(rc != 0) {
-		rsstwritelog(LOG_ERROR, "config value %s not set ! %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "Config value %s not set ! %s:%d", __FILE__, __LINE__);
 		exit(1);
 	}
 
@@ -129,7 +129,7 @@ static void dowork(sqlite3 *db){
   MemoryStruct            rssfile;
 
   /*
-   * Prepare the sqlite statement
+   * Prepare the Sqlite statement
    */
   rc = sqlite3_prepare_v2(
       db,                 /* Database handle */

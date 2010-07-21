@@ -35,7 +35,7 @@
 #define BUFSIZE  20
 
 /*
- * Used for unitconversion see humantosize and sizetohuman
+ * Used for unit conversion see humantosize and sizetohuman
  */
 static const char* units[]    = {"B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
 static const char* unitmatch  = "BKMGTPEZY";
@@ -74,7 +74,7 @@ int rssfalloccopy(char **dest, const char *src, const size_t size)
 	memcpy(*dest, src, size);
 
 	/*
-	 * Return 0 on succes, otherwise one-zero
+	 * Return 0 on success, otherwise one-zero
 	 */
 	return !*dest;
 }
@@ -83,7 +83,7 @@ int rssfalloccopy(char **dest, const char *src, const size_t size)
 /*
  * Split options
  * When options come in as <name>:<value> split them 
- * the first ':' found is the one plitting name and value
+ * the first ':' found is the one splitting name and value
  * When the splitting failed '-1' is returned
  */
 int rssfsplitnameval(char *input,char **name, char **value) 
@@ -96,11 +96,11 @@ int rssfsplitnameval(char *input,char **name, char **value)
   int   i;
 
   /*
-   * Compile the regexp te split the two strings.
+   * Compile the regexp to split the two strings.
    */
   p = pcre_compile("^([^:]+):(.+)$", 0, &errmsg, &errpos, 0);
   if (p == NULL) {
-    /* should not happen, because init1 has already tested and set to NULL on error */
+    /* should not happen, because init has already tested and set to NULL on error */
     rsstwritelog(LOG_ERROR, "Ouch! Can't compile regular expression: %s (char %i) %s:%d",
         errmsg, errpos, __FILE__, __LINE__);
   }
@@ -201,7 +201,7 @@ int rssfhumantosize(char *buf, double *size)
   strncpy(upcasenum, buf, BUFSIZE);
 
   /*
-   * transform the humanreadable string to a power of 1024
+   * transform the human readable string to a power of 1024
    */
   for( i = 0; upcasenum[ i ]; i++) 
   {
@@ -235,7 +235,7 @@ int rssfhumantosize(char *buf, double *size)
   }
 
   /*
-   * Calulate response
+   * Calculate response
    */
   *size = (double) tempsize * pow(1024, power);
 
@@ -245,7 +245,7 @@ int rssfhumantosize(char *buf, double *size)
 
 /*
  * Get the last season and episode.
- * Adding them to the simplefilter struct.
+ * Adding them to the simple filter struct.
  * @Argument
  * simple
  * @Return 
@@ -259,7 +259,7 @@ int insertseasonepisode(simplefilter_struct *filter)
 	int episode=0;
 
 	/*
-	 * If season and/or fromepisode is set, dont apply autoseason
+	 * If season and/or fromepisode is set, don't apply autoseason
 	 */
 	if(filter->fromseason == 0 && filter->fromepisode == 0){
 		rc = rsstgetnewestepisode(filter, &season, &episode);
@@ -278,7 +278,7 @@ int insertseasonepisode(simplefilter_struct *filter)
 /*
  * optstosimple
  * Takes takes a opts_struct argument and a simplefilter_struct as argument.
- * returns 0 on succes, -1 on error.
+ * returns 0 on success, -1 on error.
  */
 int rssfoptstosimple(opts_struct *opts, simplefilter_struct *simple)
 {
@@ -326,7 +326,7 @@ int rssfoptstosimple(opts_struct *opts, simplefilter_struct *simple)
 	if(opts->autoseasep == 1) {
 		rc = insertseasonepisode(simple);
 		if(rc != 0){
-			fprintf(stderr, "No prior season/episode nr found.\n");
+			fprintf(stderr, "No prior season/episode number found in database.\n");
 		}
 	}
 

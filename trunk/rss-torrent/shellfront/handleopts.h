@@ -31,13 +31,13 @@ typedef struct {
   int nodetach;					// run in foreground 
   int testfilt;					// Only test the filter
 	int findtorid;				// Find torrent id
-	int autoseasep;       // Auto fillout season/episode
+	int autoseasep;       // Auto fill out season/episode
 	int simplewizard;			// Prevents wizard from being started multiple times 
   LOOPMODE onetime;			// run once then exit
 	char *sourcefilter; 	// source filter 
 	char *source;					// source
-	char *filter;					// sql downloadfilter
-	char *doublefilter;		// sql no duplicate filter
+	char *filter;					// SQL download filter
+	char *doublefilter;		// SQL no duplicate filter
 	char *simplename;			// Simple filter name
 	char *simpletitle;		// Simple title regexp
 	char *simpleexclude;	// Simple exclude regexp
