@@ -326,11 +326,6 @@ void rsstapplyfilter(sqlite3 *db, char *name, char* nodouble, char *titleregexp,
       if(rc == 0) {
 
         /*
-         * Add a torrent to the downloaded table.
-         */
-        rsstadddownloaded(db, &downed, simulate);
-
-        /*
          * call apply filter
          * when in a sandbox simulate = 1, no downloads are done.
          */
@@ -343,12 +338,15 @@ void rsstapplyfilter(sqlite3 *db, char *name, char* nodouble, char *titleregexp,
 						/*
 						 * Send email
 						 */
-						snprintf(message, MAXMSGLEN, "Downloading %s S%dE%d", downed.title, downed.season, downed.episode);
-
 #ifdef RSST_ESMTP_ENABLE
+						snprintf(message, MAXMSGLEN, "Downloading %s S%dE%d", downed.title, downed.season, downed.episode);
 						rsstsendrssmail(db, message, message);
 #endif
-
+						/*
+						 * When download has succeeded add entry to downloaded table
+						 * Double download attempt will not occur as a newtorrent entry is only new once.
+						 */
+						rsstadddownloaded(db, &downed, simulate);
 					}
         }
       } else {

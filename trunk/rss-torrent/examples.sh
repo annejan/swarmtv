@@ -5,7 +5,7 @@
 
 # Check if RSS-torrent is built
 if [ ! -e `which rsstorrent` ]; then
-  echo "Please install rsstorrent before running this script."
+  echo "Please install RSS-torrent before running this script."
   exit
 fi 
 
