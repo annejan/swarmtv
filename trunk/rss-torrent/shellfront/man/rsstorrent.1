@@ -8,7 +8,7 @@ rsstorrent \- Forwards shows from RSS to your torrent program.
 [\-u type] [\-g value] [\-G value] [\-i id] [\-M id] [\-L] [\-a regexp]
 .SH DESCRIPTION
 Most bittorrent sites on the internet have RSS streams announcing
-the new content they provide. RSS-torrent searches there announcements
+the new content they provide. RSS\-torrent searches there announcements
 using user defined filters, and downloads the torrent for your
 favourite torrent program to pick up. When content matching the filters
 is found there is an option to send an email to a specified address.
@@ -20,19 +20,19 @@ RSS-torrent supports RSS feeds and Twitter time lines as sources.
 display a help text.
 .TP
 \-n, \-\-nodetach
-When combined with \-r keeps rsstorrent from detaching.
+When combined with \-r keeps RSS\-torrent from detaching.
 .TP
 \-R, \-\-once
 Runs the download cycle once.
 .TP
 \-r, \-\-run
-Without extra arguments, runs rsstorrent in daemon mode.
+Without extra arguments, runs RSS\-torrent in daemon mode.
 .TP
 \-q, \-\-test
 When provided together with an add filter command, tests that filter.
 .TP
 \-m, \-\-test\-mail text
-Sends an email containing the text provided to the email adres provided in the config.
+Sends an email containing the text provided to the email address provided in the config.
 .TP
 \-v \-\-version
 Prints version of RSS\-torrent.
@@ -44,6 +44,7 @@ List config items and their value.
 Set config value.
 .TP
 \-s \-\-add\-source name:url
+Add RSS source.
 .TP
 \-D \-\-del\-source name
 Delete RSS source.
@@ -58,19 +59,19 @@ Set RSS source parser type.
 Delete a SQL filter, use name 'all' to delete all SQL filters.
 .TP
 \-f \-\-list\-filters
-List all SQL filters
+List all SQL filters.
 .TP
 \-p \-\-print\-filter name
 Print SQL filter in shell format.
 .TP
 \-F \-\-add\-sql\-filter name:query
-Set SQL download filter (use with \-T)
+Set SQL download filter. (use with \-T)
 .TP
 \-T \-\-nodup\-sql\-filter 
 Set SQL duplicate filter.
 .TP
 \-J \-\-list\-simple
-List all simple filters
+List all simple filters.
 .TP
 \-P \-\-print\-simple name
 Print simple filter in shell format.
@@ -82,10 +83,10 @@ Print all simple filters in shell format.
 Delete a simple filter.
 .TP
 \-k \-\-del\-all\-simple
-Delete all simple filters
+Delete all simple filters.
 .TP
 \-K \-\-reinit\-database
-Drop all tables and reinitialize the empty database. (Warning all data stored in the db is lost)
+Drop all tables and reinitialize the empty database. (Warning all data stored in the database is lost)
 .TP
 \-i \-\-id\-download
 Download a torrent providing it's id.
@@ -124,7 +125,7 @@ The maximal size the torrent contents must be. (human readable format)
 The minimal size the torrent contents must be. (human readable format)
 .TP
 \-u \-\-nodup type
-Simple no duplicate filter type (none, link, unique, newer)
+Simple no duplicate filter type. (none, link, unique, newer)
 .TP
 \-g \-\-from\-season value
 Season number to start downloading from.
@@ -141,10 +142,10 @@ Auto set --from-season and --from-episode based on torrents already present in t
 The directory the downloaded torrents get stored.
 .TP
 .B logfile
-The path to the logfile.
+The path to the log file.
 .TP
 .B lockfile
-The path to the lockfile.
+The path to the lock file.
 .TP
 .B refresh
 The time between RSS downloads.
@@ -220,7 +221,7 @@ Change RSS check frequency.
 \-\-set\-config="refresh:<seconds>"
 .TP
 Create a SQL filter.
-.B ./rsstorrent 
+.B rsstorrent 
 \-F "DollHouse:select link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^[Dd]ollhouse') AND size < '400000000' AND new = 'Y'" \\
 .IP  
 \-T "SELECT title FROM downloaded WHERE link=?1 OR (season>=?2 AND episode>=?3 AND title REGEXP('^[Dd]ollhouse'))"
