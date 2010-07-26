@@ -348,7 +348,7 @@ static void reinitdb(rsstor_handle *handle)
 static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_struct *opts)
 {
 	int						rc=0;
-	char        	opt=0;
+	signed char  	opt=0;
 	int 					stopop=0;
 	int 					optindex=0;
 	int						torid=0;
@@ -356,8 +356,8 @@ static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_st
   /*
    * Handle command line options
    */
-	opt = getopt_long (argc, argv, optString, optLong, &optindex);
-  while( opt != -1 && stopop == 0) {
+	opt = (char) getopt_long (argc, argv, optString, optLong, &optindex);
+  while(opt != EOF && stopop == 0) {
     switch( opt ) {
       case 'v':
 				rssfprintversion();
