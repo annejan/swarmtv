@@ -84,14 +84,55 @@ void Signal_Handler(int sig) /* signal handler function */
   } 
 }
 
+#if 0
+/*
+ * @@Debug
+ */
+static int rssfcallbackfnct(void *data, void *calldata)
+{
+	/*
+	 * Print a silly message
+	 */
+	printf("Callback for starting RSS update cycle called.\n");
+
+	return 0;
+}
+
+/*
+ * @@Debug
+ */
+static int rssfcallbackendfnct(void *data, void *calldata)
+{
+	int *timew = (int*)calldata;
+	/*
+	 * Print a silly message
+	 */
+	printf("Callback for ending RSS update cycle called, time wait '%d'.\n", *timew);
+
+	return 0;
+}
+
+/*
+ * @@Debug
+ */
+static int rssfcallbackrssfnct(void *data, void *calldata)
+{
+	/*
+	 * Print a silly message
+	 */
+	printf("Callback RSS is downloaded.\n");
+
+	return 0;
+}
+#endif 
+
 
 /*
  * Temporary main function.
  */
 int main(int argc, char **argv){
-	rsstor_handle handle;
-  //sqlite3    *db=NULL;
-  int         rc=0;
+	rsstor_handle *handle=NULL;
+  //int         	 rc=0;
 
 	/*
 	 * Handle signals the nice way.
@@ -102,49 +143,37 @@ int main(int argc, char **argv){
   signal(SIGPIPE,Signal_Handler); /* software termination signal CTRL+C */
 
 	/*
-	 * Test if base dir is present
+	 * Init RSS tor
 	 */
-	rc = rsstinitrsstorrent(); 
-	if(rc != 0) {
-    fprintf(stderr, "Initializing base dir : \'%s\' failed", RSS_BASEDIR);
-    exit(1);
-  }
+	handle = initrsstor();
 
-  /*
-   * Initialize the database
-   */
-  rc = rsstinitdatabase( DBFILE, &handle);  
-  if( rc!=SQLITE_OK ){
-    fprintf(stderr, "Initializing db : \'%s\' failed\n", argv[1]);
-    exit(1);
-  }
-  cleandb=handle.db;
+	if(handle == NULL) {
+		/*
+		 * When handle could not be initialized, exit here
+		 */
+		fprintf(stderr, "Initiazation failed, exiting !\n");
+	} else {
+#if 0
+		/*
+		 * Register a test callback
+		 */
+		rsstaddstartupcallback(handle, rssfcallbackfnct);
+		rsstaddendupcallback(handle, rssfcallbackendfnct);
+		rsstadddownrsscallback(handle, rssfcallbackrssfnct);
+#endif
 
-  /*
-   * Initialize lib curl
-   */
-  curl_global_init(CURL_GLOBAL_ALL);
+		/*
+		 * Handle command line options
+		 */
+		rssthandleopts(handle, argc, argv);
+	}
 
-  /*
-   * open log file
-   */
-  rc = rsstinitlogdb(handle.db);
-  if(rc != 0) {
-    fprintf(stderr, "Can't open log file!\n");
-    exit(1);
-  }
-  rsstwritelog(LOG_DEBUG, "Start RSS-torrent");
 
 	/*
-	 * Handle command line options
+	 * Cleanup the rest of the libraries
 	 */
-	rssthandleopts(&handle, argc, argv);
+	cleanup();
 
-  /*
-   * Cleanup the rest of the libraries
-   */
-  cleanup();
-
-  return 0;
+	return 0;
 }
 

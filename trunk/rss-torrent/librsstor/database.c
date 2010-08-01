@@ -415,9 +415,10 @@ int rsstrundbinitscript(rsstor_handle *handle)
 
 /*
  * Open database, and add regexp functionality.
+ * make sure the handle pointer is pointing to an valid address
  * @Arguments
  * filename Database filename
- * ppDb SQLite db handle
+ * handle RSS-torrent handle
  * @Returns
  *
  */
@@ -2222,6 +2223,10 @@ int rsstfindnewtorrents(simplefilter_struct *filter, newtorrents_container **new
 	char         	*zErrMsg=NULL;
 	rsstor_handle  handle;
 
+	/*
+	 * init handle;
+	 */
+	memset(&handle, 0, sizeof(rsstor_handle));
 
 	/*
 	 * Query to retrieve the data from the sandbox after all the work is done.
@@ -2266,7 +2271,7 @@ int rsstfindnewtorrents(simplefilter_struct *filter, newtorrents_container **new
 	 * Execute filter
 	 * with simulate 1, to run the simplefilters only in the database.
 	 */
-	rc = rsstdownloadsimple(sandbox->db, (SIM) sim);
+	rc = rsstdownloadsimple(&handle, (SIM) sim);
 	if(rc != 0){
 		rsstwritelog(LOG_ERROR, "Executing filter failed %s:%d", __FILE__, __LINE__);
 		return -1;

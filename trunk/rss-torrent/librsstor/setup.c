@@ -33,6 +33,7 @@
 #include "filesystem.h"
 #include "setup.h"
 #include "database.h"
+#include "callback.h"
 
 /*
  * Test if rsstorrentdir exists
@@ -74,7 +75,7 @@ static int makersstorrentdir()
 	return rc;
 }
 
-
+#if 0 
 /*
  * Call this function to test if rsstorrent needs setting up to do.
  * When it does the function initializes the files that need to be in place in order to run rsstorrent.
@@ -86,21 +87,57 @@ int rsstinitrsstorrent()
 	int		rc=0;
 	int		retval=0;
 
-	/*
-	 * Retrieve complete path
-	 */
-	rc = testrsstorrentdir();
-	if(rc != 0) {
-		rc= makersstorrentdir();
-		if(rc != 0) {
-			retval = -1;
-		}
-	}
 
 	/*
 	 * Done
 	 */
 	return retval;
+}
+#endif
+
+/*
+ * Initialize the callback structures
+ * @Arguments
+ * callbacks Structure holding the callback structures to be initialized.
+ * @return
+ * 0 when all was initialized well
+ */
+static int rsstinitcallbacks(struct_callbacks *callbacks)
+{
+	int retval=0;
+
+	/*
+	 * intialize the callback structures.
+	 */
+	retval |= rsstinitcallback(&(callbacks->downloadrss));
+	retval |= rsstinitcallback(&(callbacks->downloadtorrent));
+	retval |= rsstinitcallback(&(callbacks->startupdate));
+	retval |= rsstinitcallback(&(callbacks->endupdate));
+	retval |= rsstinitcallback(&(callbacks->logmessage));
+
+	/*
+	 * When all did go well, 0 is returned
+	 */
+	return retval;
+}
+
+/*
+ * Free the callback structures
+ * @Arguments
+ * callbacks Structure holding the callback structures to be Freed.
+ * @return
+ * 0 when all was initialized well
+ */
+void rsstfreecallbacks(struct_callbacks *callbacks)
+{
+	/*
+	 * Free the callback structures.
+	 */
+	rsstfreecallback(callbacks->downloadrss);
+	rsstfreecallback(callbacks->downloadtorrent);
+	rsstfreecallback(callbacks->startupdate);
+	rsstfreecallback(callbacks->endupdate);
+	rsstfreecallback(callbacks->logmessage);
 }
 
 /*
@@ -113,6 +150,17 @@ rsstor_handle *initrsstor()
 {
 	int rc=0;
 	rsstor_handle *handle=NULL;
+
+	/*
+	 * Retrieve complete path
+	 */
+	rc = testrsstorrentdir();
+	if(rc != 0) {
+		rc= makersstorrentdir();
+		if(rc != 0) {
+			return NULL;
+		}
+	}
 
 	/*
 	 * Allocate structure
@@ -143,6 +191,15 @@ rsstor_handle *initrsstor()
   }
 
 	/*
+	 * Initialize the callbackstructures
+	 */
+	rc = rsstinitcallbacks(&(handle->callback));
+	if(rc != 0) {
+    fprintf(stderr, "Allocation callbacks failed! %s:%d\n", __FILE__, __LINE__);
+		exit(1);
+	}
+
+	/*
 	 * Return handle to struct
 	 */
 	return handle;
@@ -155,6 +212,11 @@ rsstor_handle *initrsstor()
  */
 void freersstor(rsstor_handle *handle)
 {
+	/*
+	 * Free the callback structures
+	 */
+	rsstfreecallbacks(&(handle->callback));
+
   /*
    * Cleanup function for the XML library.
    */

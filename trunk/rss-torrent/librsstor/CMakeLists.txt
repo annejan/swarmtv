@@ -4,14 +4,6 @@
 cmake_minimum_required(VERSION 2.6)
 project (rsstorrent C)
 
-# Detect Libraries
-#SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} /usr/share/apps/cmake/modules ${CMAKE_SOURCE_DIR}/cmake_modules)
-#FIND_PACKAGE(LibXml2 REQUIRED)
-#FIND_PACKAGE(Sqlite REQUIRED)
-#FIND_PACKAGE(PCRE REQUIRED)
-#FIND_PACKAGE(CURL REQUIRED)
-#FIND_PACKAGE(ESMTP REQUIRED)
-
 # Use the detected libraries to set build variables.
 SET(optionalLibs)
 IF(LIBXML2_FOUND)
@@ -46,18 +38,12 @@ include_directories(.)
 # All other sources
 SET(LIBSRC setup database config regexp source
 		filter runloop curlfile torrentdb torrentdownload logfile
-		findtorrent sandboxdb testfilter
-		filesystem tbl torrentparse simplefilter)
+		findtorrent sandboxdb testfilter filesystem tbl torrentparse
+		simplefilter callback.c callbackimpl.c)
 
 IF(ESMTP_FOUND)
 	SET(LIBSRC ${LIBSRC} mailmsg)
 ENDIF()
-
-
-#SET(SRC setup rsstorrent database config regexp source
-#  filter runloop curlfile torrentdb torrentdownload logfile
-#  daemonize mailmsg findtorrent sandboxdb testfilter
-#  filesystem tbl torrentparse handleopts simplefilter)
 
 # Subdirectories
 INCLUDE(srcparser/parsers.cmake)
@@ -68,7 +54,7 @@ TARGET_LINK_LIBRARIES(rsstor ${optionalLibs} )
 # Set the build version (VERSION) and the API version (SOVERSION)
 SET_TARGET_PROPERTIES(rsstor
 		PROPERTIES
-		VERSION 1.0.0
+		VERSION 1.1.0
 		SOVERSION 1)
 
 # Installation of the library

@@ -24,9 +24,11 @@
 #include <stdarg.h>
 #include <sqlite3.h>
 
+#include "rsstor.h"
 #include "types.h"
 #include "config.h"
 #include "filesystem.h"
+#include "callback.h"
 
 #define LOG_DEBUG   1
 #define LOG_NORMAL  2

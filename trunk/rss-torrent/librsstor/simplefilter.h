@@ -61,7 +61,7 @@ int rsstdelsimple(rsstor_handle *handle, const char *name);
  * @return
  * -1 on error, 0 on success
  */
-int rsstdownloadsimple(sqlite3 *db, SIM simulate);
+int rsstdownloadsimple(rsstor_handle *handle, SIM simulate);
 
 /*
  * Add simple filter adds the filter to the database

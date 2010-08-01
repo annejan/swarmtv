@@ -33,6 +33,8 @@
 #include "findtorrent.h"
 #include "filesystem.h"
 #include "database.h"
+#include "callback.h"
+#include "callbackimpl.h"
 
 /*
  * When libesmtp is included add header here.
@@ -44,13 +46,13 @@
 /*
  * Max message and subject lenght for notification email
  */
-#define MAXMSGLEN 1024
+#define MAXMSGLEN 2024
 
 /*
  * Apply the filters from the query.
  * when simulate is set to 'sim' no actual downloads are performed
  */
-void rsstapplyfilter(sqlite3 *db, char *name, char* nodouble, char *filtertitle, SIM simulate, char *filter, char *fmt, ...);
+void rsstapplyfilter(rsstor_handle *handle, char *name, char* nodouble, char *filtertitle, SIM simulate, char *filter, char *fmt, ...);
 
 /*
  * Test for double downloads.
@@ -72,7 +74,7 @@ static int dodownload(sqlite3 *db, downloaded_struct *downed);
  * return
  * return 0 on succes, -1 on failure
  */
-int rsstdownloadtorrents(sqlite3 *db)
+int rsstdownloadtorrents(rsstor_handle *handle)
 {
   sqlite3_stmt  *ppStmt;
   const char    *pzTail;
@@ -89,11 +91,11 @@ int rsstdownloadtorrents(sqlite3 *db)
    * Prepare the sqlite statement
    */
   rc = sqlite3_prepare_v2(
-      db,                 /* Database handle */
+      handle->db,        /* Database handle */
       query,            /* SQL statement, UTF-8 encoded */
       strlen(query),    /* Maximum length of zSql in bytes. */
-      &ppStmt,             /* OUT: Statement handle */
-      &pzTail              /* OUT: Pointer to unused portion of zSql */
+      &ppStmt,          /* OUT: Statement handle */
+      &pzTail           /* OUT: Pointer to unused portion of zSql */
       );
   if( rc!=SQLITE_OK ){
     rsstwritelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
@@ -116,7 +118,7 @@ int rsstdownloadtorrents(sqlite3 *db)
     /*
      * call apply filter
      */
-    rsstapplyfilter(db, name, nodouble, NULL, (SIM) real, filter, NULL);
+    rsstapplyfilter(handle, name, nodouble, NULL, (SIM) real, filter, NULL);
   }
 
   /*
@@ -193,6 +195,160 @@ static int testdouble(sqlite3 *db, char *nodouble, char *titleregexp, downloaded
   }
 }
 
+/*
+ * Send email containing information about torrent
+ * @arguments 
+ * db	database pointers
+ * downed 
+ * @return
+ *
+ */
+static void rsstsendemail(sqlite3 *db, downloaded_struct *downed)
+{
+	char 					header[MAXMSGLEN+1];
+	char          message[MAXMSGLEN+1];
+
+#ifdef RSST_ESMTP_ENABLE
+	/*
+	 * Build header and email-message
+	 */
+	snprintf(header, MAXMSGLEN, 
+			"Downloading %s S%dE%d", 
+			downed->title, downed->season, downed->episode);
+	snprintf(message, MAXMSGLEN, 
+			"Downloading %s S%dE%d\n"
+			"URL %s\n", 
+			downed->title, downed->season, downed->episode, downed->link);
+	rsstsendrssmail(db, header, message);
+#endif
+}
+
+/*
+ * Call the torrentdownload callback
+ * @Arguments
+ * handle	RSS-torrent handle
+ * id			Id of the torrent being downloaded
+ * status	status 0 for success -1 for fail
+ * error	string containing error message, NULL when status is 0
+ * @Return
+ * returns 0 when all called routines return 0 otherwise !0 is returned.
+ */
+static int rsstexetorcallback(rsstor_handle *handle, int id, int status, char *error)
+{
+	int							rc=0;
+	struct_download callback;
+
+	/*
+	 * Build callback struct
+	 */
+	callback.id = id;				
+	callback.status = status;	
+	callback.error = error;
+
+	/*
+	 * Call callback
+	 */
+	rc = rsstexecdowntordownrsscallbacks(handle, &callback);
+
+	return rc;
+}
+
+
+/*
+ * Handle new results
+ */
+static void rssthandlenewresults(rsstor_handle *handle, downloaded_struct *downed, SIM simulate)
+{
+	int downsuccess=0;
+	char errorstr[MAXMSGLEN+1];
+
+	/*
+	 * Make sure the string is terminated
+	 */
+	errorstr[MAXMSGLEN] = '\0';
+
+	/*
+	 * call apply filter
+	 * When the routine is called in simulated mode, no downloads are done
+	 */
+	if(simulate == (SIM) real) {
+
+		/*
+		 * Download torrent when download is successful send email.
+		 */
+		downsuccess = dodownload(handle->db, downed);
+		if(downsuccess == 0) {
+			/*
+			 * Send email and call callbacks
+			 */
+			rsstsendemail(handle->db, downed);
+			rsstexetorcallback(handle, downed->id, 0, NULL);
+		} else {
+			/*
+			 * Call the torrent download callback and report error
+			 */
+			snprintf(errorstr, MAXMSGLEN, "Torrent download failed '%s', '%s'", downed->title, downed->link);
+			rsstexetorcallback(handle, downed->id, -1, errorstr);
+		}
+	}
+
+	/*
+	 * Only when download is success or simulation is enabled add found torrents to downloaded table.
+	 */
+	if(downsuccess == 0){
+		/*
+		 * When download has succeeded add entry to downloaded table
+		 * Double download attempt will not occur as a newtorrent entry is only new once.
+		 */
+		rsstadddownloaded(handle->db, downed, simulate);
+	}
+
+	/*
+	 * Done
+	 */
+}
+
+
+/*
+ * Handle filter results
+ */
+static void rssthandlefiltresults(rsstor_handle *handle, sqlite3_stmt *ppStmt, char* nodouble, char *titleregexp, SIM simulate)
+{
+	int 							rc=0;
+	int							  step_rc=0;
+	downloaded_struct downed;
+
+	/*
+	 * loop until the end of the dataset is found
+	 */
+	while( SQLITE_DONE != (step_rc = sqlite3_step(ppStmt))) {
+		/*
+		 * Get name and query of the filters
+		 */
+		memset(&downed, 0, sizeof(downloaded_struct));
+		downed.link      = (char*) sqlite3_column_text(ppStmt, 0);
+		downed.title     = (char*) sqlite3_column_text(ppStmt, 1);
+		downed.pubdate   = (char*) sqlite3_column_text(ppStmt, 2);
+		downed.category  = (char*) sqlite3_column_text(ppStmt, 3);
+		downed.season    =  sqlite3_column_int(ppStmt, 4);
+		downed.episode   =  sqlite3_column_int(ppStmt, 5);
+
+		/*
+		 * Test if episode is already there
+		 */
+		rc = testdouble(handle->db, nodouble, titleregexp, &downed);
+		if(rc == 0) {
+			/*
+			 * Handle results that are no duplicate.
+			 */
+			rssthandlenewresults(handle, &downed, simulate);
+		} else {
+			rsstwritelog(LOG_DEBUG, "%s Season %d Episode %d is a duplicate %s:%d", 
+					downed.title, downed.episode, downed.season, __FILE__, __LINE__);
+		}
+	}
+}
+
 
 /*
  * Apply the filters from the query.
@@ -206,160 +362,105 @@ static int testdouble(sqlite3 *db, char *nodouble, char *titleregexp, downloaded
  * *fmt				:	Format of the arguments to insert into the filter sql 
  * ...				:	Arguments for the filter SQL.
  */
-void rsstapplyfilter(sqlite3 *db, char *name, char* nodouble, char *titleregexp, SIM simulate, char *filter, char *fmt, ...)
+void rsstapplyfilter(rsstor_handle *handle, char *name, char* nodouble, char *titleregexp, SIM simulate, char *filter, char *fmt, ...)
 {
-  sqlite3_stmt  *ppStmt=NULL;
-  const char    *pzTail=NULL;
-  int           rc=0;
-  int           step_rc=0;
-  char          *zErrMsg=NULL;
-  char          message[MAXMSGLEN+1];
-  va_list     	ap;
+	sqlite3_stmt  *ppStmt=NULL;
+	const char    *pzTail=NULL;
+	int           rc=0;
+	char          *zErrMsg=NULL;
+	va_list     	ap;
 	int						retval=0;
 	int						count=0;
-  char     	   *s=NULL;
-  int       	  d=0;
-  double        f=0.0;
-	downloaded_struct downed;
+	char     	   *s=NULL;
+	int       	  d=0;
+	double        f=0.0;
 
-  /*
-   * NULL = no arguments.
-   */
-  if(fmt == NULL) {
-    fmt = "";
-  }
+	/*
+	 * NULL = no arguments.
+	 */
+	if(fmt == NULL) {
+		fmt = "";
+	}
 
-  /*
-   * Prepare the sqlite statement
-   */
-  rc = sqlite3_prepare_v2(
-      db,                 /* Database handle */
-      filter,            /* SQL statement, UTF-8 encoded */
-      strlen(filter),    /* Maximum length of zSql in bytes. */
-      &ppStmt,             /* OUT: Statement handle */
-      &pzTail              /* OUT: Pointer to unused portion of zSql */
-      );
-  if( rc!=SQLITE_OK ){
-    rsstwritelog(LOG_ERROR, "Filter '%s' failed %s:%d", name, __FILE__, __LINE__);
-    rsstwritelog(LOG_ERROR, "'%s'", filter);
-    rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
-    sqlite3_free(zErrMsg);
+	/*
+	 * Prepare the sqlite statement
+	 */
+	rc = sqlite3_prepare_v2(
+			handle->db,           /* Database handle */
+			filter,            		/* SQL statement, UTF-8 encoded */
+			strlen(filter),    		/* Maximum length of zSql in bytes. */
+			&ppStmt,             	/* OUT: Statement handle */
+			&pzTail              	/* OUT: Pointer to unused portion of zSql */
+			);
+	if( rc!=SQLITE_OK ){
+		rsstwritelog(LOG_ERROR, "Filter '%s' failed %s:%d", name, __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "'%s'", filter);
+		rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+		sqlite3_free(zErrMsg);
 		retval=-1;
-  }
+	}
 
-  /*
-   * Handle the arguments
-   */
-  if(retval == 0) {
-    va_start(ap, fmt);
-    while (*fmt != '\0' && retval == 0){
-      count++; // next item
-      switch(*fmt++) {
-        case 's':            /* string */
-          s = va_arg(ap, char *);
-          rc = sqlite3_bind_text(ppStmt, count, s, -1, SQLITE_TRANSIENT);
-          if( rc!=SQLITE_OK ){
-            rsstwritelog(LOG_ERROR, "sqlite3_bind_text failed on argument '%d'\n'%s'\n'%s' %s:%d", 
-                count, filter, fmt, __FILE__, __LINE__);  
-            rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
-            sqlite3_free(zErrMsg);
-            retval=-1;
-          }
-          break;
-        case 'd':            /* int */
-          d = va_arg(ap, int);
-          rc = sqlite3_bind_int(ppStmt, count, d);
-          if( rc!=SQLITE_OK ){
-            rsstwritelog(LOG_ERROR, "sqlite3_bind_int failed on argument '%d'\n'%s'\n'%s' %s:%d",
-                count, filter, fmt, __FILE__, __LINE__);  
-            rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
-            sqlite3_free(zErrMsg);
-            retval=-1;
-          }
-          break;
-        case 'f':            /* int */
-          f = va_arg(ap, double);
-          rc = sqlite3_bind_double(ppStmt, count, f);
-          if( rc!=SQLITE_OK ){
-            rsstwritelog(LOG_ERROR, "sqlite3_bind_double failed on argument '%d'\n'%s'\n'%s' %s:%d",
-                count, filter, fmt, __FILE__, __LINE__);  
-            rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
-            sqlite3_free(zErrMsg);
-            retval=-1;
-          }
-          break;
-        default:
-          rsstwritelog(LOG_ERROR, "Unknown format '%c' on position '%d'\nQuery: '%s'\nFmt: '%s'",
-              *fmt, count, filter, fmt);
-          retval=-1;
-      }
-    }
-    va_end(ap);
-  }
-
-
-  if(retval == 0) {
-
-    /*
-     * Filters should allways first query for the link!
-     */
-
-    /*
-     * loop until the end of the dataset is found
-     */
-    while( SQLITE_DONE != (step_rc = sqlite3_step(ppStmt))) {
-      /*
-       * Get name and query of the filters
-       */
-			memset(&downed, 0, sizeof(downloaded_struct));
-      downed.link      = (char*) sqlite3_column_text(ppStmt, 0);
-      downed.title     = (char*) sqlite3_column_text(ppStmt, 1);
-      downed.pubdate   = (char*) sqlite3_column_text(ppStmt, 2);
-      downed.category  = (char*) sqlite3_column_text(ppStmt, 3);
-      downed.season    =  sqlite3_column_int(ppStmt, 4);
-      downed.episode   =  sqlite3_column_int(ppStmt, 5);
-
-      /*
-       * Test if episode is already there
-       */
-			rc = testdouble(db, nodouble, titleregexp, &downed);
-      if(rc == 0) {
-
-        /*
-         * call apply filter
-         * when in a sandbox simulate = 1, no downloads are done.
-         */
-        if(simulate == (SIM) real) {
-          /*
-           * Download torrent
-           */
-          rc = dodownload(db, &downed);
-					if(rc == 0) {
-						/*
-						 * Send email
-						 */
-#ifdef RSST_ESMTP_ENABLE
-						snprintf(message, MAXMSGLEN, "Downloading %s S%dE%d", downed.title, downed.season, downed.episode);
-						rsstsendrssmail(db, message, message);
-#endif
-						/*
-						 * When download has succeeded add entry to downloaded table
-						 * Double download attempt will not occur as a newtorrent entry is only new once.
-						 */
-						rsstadddownloaded(db, &downed, simulate);
+	/*
+	 * Handle the arguments
+	 */
+	if(retval == 0) {
+		va_start(ap, fmt);
+		while (*fmt != '\0' && retval == 0){
+			count++; // next item
+			switch(*fmt++) {
+				case 's':            /* string */
+					s = va_arg(ap, char *);
+					rc = sqlite3_bind_text(ppStmt, count, s, -1, SQLITE_TRANSIENT);
+					if( rc!=SQLITE_OK ){
+						rsstwritelog(LOG_ERROR, "sqlite3_bind_text failed on argument '%d'\n'%s'\n'%s' %s:%d", 
+								count, filter, fmt, __FILE__, __LINE__);  
+						rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+						sqlite3_free(zErrMsg);
+						retval=-1;
 					}
-        }
-      } else {
-        rsstwritelog(LOG_DEBUG, "%s Season %d Episode %d is a duplicate %s:%d", 
-						downed.title, downed.episode, downed.season, __FILE__, __LINE__);
-      }
-    }
-  }
+					break;
+				case 'd':            /* int */
+					d = va_arg(ap, int);
+					rc = sqlite3_bind_int(ppStmt, count, d);
+					if( rc!=SQLITE_OK ){
+						rsstwritelog(LOG_ERROR, "sqlite3_bind_int failed on argument '%d'\n'%s'\n'%s' %s:%d",
+								count, filter, fmt, __FILE__, __LINE__);  
+						rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+						sqlite3_free(zErrMsg);
+						retval=-1;
+					}
+					break;
+				case 'f':            /* int */
+					f = va_arg(ap, double);
+					rc = sqlite3_bind_double(ppStmt, count, f);
+					if( rc!=SQLITE_OK ){
+						rsstwritelog(LOG_ERROR, "sqlite3_bind_double failed on argument '%d'\n'%s'\n'%s' %s:%d",
+								count, filter, fmt, __FILE__, __LINE__);  
+						rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+						sqlite3_free(zErrMsg);
+						retval=-1;
+					}
+					break;
+				default:
+					rsstwritelog(LOG_ERROR, "Unknown format '%c' on position '%d'\nQuery: '%s'\nFmt: '%s'",
+							*fmt, count, filter, fmt);
+					retval=-1;
+			}
+		}
+		va_end(ap);
+	}
 
-  /*
-   * Done with query, finalizing.
-   */
-  rc = sqlite3_finalize(ppStmt);
+	if(retval == 0) {
+		/*
+		 * Handle query results, filter out doubles, and take according action.
+		 */
+		rssthandlefiltresults(handle, ppStmt, nodouble, titleregexp, simulate);
+	}
+
+	/*
+	 * Done with query, finalizing.
+	 */
+	rc = sqlite3_finalize(ppStmt);
 }
 
 
@@ -373,9 +474,9 @@ void rsstapplyfilter(sqlite3 *db, char *name, char* nodouble, char *titleregexp,
  */
 static int dodownload(sqlite3 *db, downloaded_struct *downed) 
 {
-  char filename[151];
-  char *path = NULL;
-  char *fullpath = NULL;
+	char filename[151];
+	char *path = NULL;
+	char *fullpath = NULL;
 	int  retval=0;
 	rsstor_handle handle;
 
@@ -383,29 +484,29 @@ static int dodownload(sqlite3 *db, downloaded_struct *downed)
 	 * REMOVE IN THE FUTURE
 	 */
 	handle.db=db;
-  
-  /*
-   * get path to put torrent in
-   */
-  rsstconfiggetproperty(&handle, CONF_TORRENTDIR, &path);
-  rsstcompletepath(path, &fullpath);
 
-  /*
-   * Create filename.
-   */
-  snprintf(filename, 150, "%s/%sS%dE%dR%s.torrent", 
+	/*
+	 * get path to put torrent in
+	 */
+	rsstconfiggetproperty(&handle, CONF_TORRENTDIR, &path);
+	rsstcompletepath(path, &fullpath);
+
+	/*
+	 * Create filename.
+	 */
+	snprintf(filename, 150, "%s/%sS%dE%dR%s.torrent", 
 			fullpath, downed->title, downed->season, downed->episode, downed->pubdate); 
 
-  /*
-   * download
-   */
-  retval = rsstfindtorrentwrite(downed->link, filename);
+	/*
+	 * download
+	 */
+	retval = rsstfindtorrentwrite(downed->link, filename);
 
-  /*
-   * Cleanup
-   */
-  free(path);
-  free(fullpath);
+	/*
+	 * Cleanup
+	 */
+	free(path);
+	free(fullpath);
 
 	return retval;
 }
@@ -536,9 +637,9 @@ int rsstdownloadbyidstr(rsstor_handle *handle, char *torid)
  */
 int rssttesttorrentdir(rsstor_handle *handle)
 {
-  int rc=0;
-  char *path = NULL;
-  char *fullpath = NULL;
+	int rc=0;
+	char *path = NULL;
+	char *fullpath = NULL;
 	sqlite3 *db=NULL;
 
 	/*
@@ -546,37 +647,37 @@ int rssttesttorrentdir(rsstor_handle *handle)
 	 */
 	db = handle->db;
 
-  /*
-   * get path to put torrent in
-   */
-  rsstconfiggetproperty(handle, CONF_TORRENTDIR, &path);
-  
-  /*
-   * Test if the directory exists
-   */
-  rc = rsstfsexists(path);
-  if(rc != 0) {
-    rsstwritelog(LOG_ERROR, "Torrent directory '%s' does not exist!", path);
+	/*
+	 * get path to put torrent in
+	 */
+	rsstconfiggetproperty(handle, CONF_TORRENTDIR, &path);
+
+	/*
+	 * Test if the directory exists
+	 */
+	rc = rsstfsexists(path);
+	if(rc != 0) {
+		rsstwritelog(LOG_ERROR, "Torrent directory '%s' does not exist!", path);
 		rsstwritelog(LOG_ERROR, 
 				"Please create the directory, or alter torrent directory by setting 'torrentdir' in the config. (--set-config \"torrentdir:<path>\")");
-  }
+	}
 
-  /*
-   * Test if the directry is writable to us
-   */
-  if(rc == 0) {
-    rc |= rssttestwrite(path);
-    if(rc != 0) {
-      rsstwritelog(LOG_ERROR, "Torrent directory '%s' is not writable!", path);
-    }
-  }
+	/*
+	 * Test if the directry is writable to us
+	 */
+	if(rc == 0) {
+		rc |= rssttestwrite(path);
+		if(rc != 0) {
+			rsstwritelog(LOG_ERROR, "Torrent directory '%s' is not writable!", path);
+		}
+	}
 
-  /*
-   * Cleanup
-   */
-  free(path);
-  free(fullpath);
+	/*
+	 * Cleanup
+	 */
+	free(path);
+	free(fullpath);
 
-  return rc;
+	return rc;
 }
 

@@ -58,6 +58,13 @@ static int createdownloaded(sandboxdb *sandbox, char *filter, char *nodouble)
 {
   int rc=0;
   char *delfilterquery="DELETE FROM downloaded";
+	rsstor_handle handle;
+
+	/*
+	 * Init handle
+	 */
+	memset(&handle, 0, sizeof(rsstor_handle));
+	handle.db=sandbox->db;
 
   /*
    * Clean downloaded.
@@ -71,7 +78,7 @@ static int createdownloaded(sandboxdb *sandbox, char *filter, char *nodouble)
   /*
    * use function to add records to the downloaded table.
    */
-  rsstapplyfilter(sandbox->db, "Sandbox", nodouble, NULL, 1, filter,  NULL);
+  rsstapplyfilter(&handle, "Sandbox", nodouble, NULL, 1, filter,  NULL);
 
   return 0;
 }
@@ -252,7 +259,7 @@ static int createsimpledownloaded(sandboxdb *sandbox, simplefilter_struct *filte
 	 * Execute filter
 	 * with simulate 1, to run the simplefilters only in the database.
 	 */
-	rsstdownloadsimple(sandbox->db, (SIM) sim);
+	rsstdownloadsimple(&handle, (SIM) sim);
 
 	/*
 	 * Clean up

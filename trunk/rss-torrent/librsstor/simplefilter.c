@@ -335,7 +335,7 @@ int rsstdelsimple(rsstor_handle *handle, const char *name)
  * db pointer to db to use
  * simulate 0 for real behaviour, 1 for simulation mode.
  */
-int rsstdownloadsimple(sqlite3 *db, SIM simulate)
+int rsstdownloadsimple(rsstor_handle *handle, SIM simulate)
 {
   sqlite3_stmt  *ppStmt=NULL;
   const char    *pzTail=NULL;
@@ -364,7 +364,7 @@ int rsstdownloadsimple(sqlite3 *db, SIM simulate)
 	 * Prepare the Sqlite statement
 	 */
 	rc = sqlite3_prepare_v2(
-			db,                 /* Database handle */
+			handle->db,         /* Database handle */
       query,            	/* SQL statement, UTF-8 encoded */
       strlen(query),    	/* Maximum length of zSql in bytes. */
       &ppStmt,            /* OUT: Statement handle */
@@ -416,7 +416,7 @@ int rsstdownloadsimple(sqlite3 *db, SIM simulate)
     /*
      * call apply filter
      */
-    rsstapplyfilter(db, name, sqlnodup, title, simulate, sqlfilter, 
+    rsstapplyfilter(handle, name, sqlnodup, title, simulate, sqlfilter, 
 				"sffddsss", title, maxsize, minsize, season, episode, exclude, category, source);
 
     /*

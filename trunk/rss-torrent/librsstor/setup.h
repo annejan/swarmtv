@@ -25,6 +25,7 @@
 #define RSS_LOGFILE 	"~/.rsstorrent/rsstorrent.log"
 #define RSS_LOCKFILE	"~/.rsstorrent/lockfile.pid"
 
+#if 0
 /*
  * Call this function to test if rsstorrent needs setting up to do.
  * When it does the function initializes the files that need to be in place in order to run rsstorrent.
@@ -32,6 +33,7 @@
  * @returns 	0 when succes otherwise -1
  */
 int rsstinitrsstorrent(); 
+#endif
 
 /*
  * Initialize RSS-torrent handle

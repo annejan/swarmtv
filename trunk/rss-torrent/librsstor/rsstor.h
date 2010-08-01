@@ -45,17 +45,74 @@ typedef enum {loop=0, once} LOOPMODE;
 #define ROWS_CONSTRAINT 3  
 
 /*
+ * The debug routine handle 3 debug levels
+ * LOG_DEBUG 	for debug information
+ * LOG_NORMAL for output messages
+ * LOG_ERROR  for error messages
+ */
+#define LOG_DEBUG   1
+#define LOG_NORMAL  2
+#define LOG_ERROR   3
+
+/*
  * == Structures containing data from RSS-torrent database.
  */
 
 /*
- * Rsstorrent handle.
+ * Function pointer used in this callback implementation.
+ * @Arguments
+ * Data 		is data defined during the registration of the callback.
+ * Calldata The data passed from the calling function.
+ * @Return
+ */
+typedef int (*rsstcallbackfnct)(void *data, void *calldata);
+
+/*
+ * Structure to store callbacks in
+ */
+typedef struct{
+	int 	nr;										/* Number of functions to call. */
+	rsstcallbackfnct *callback; /* Array of function pointers. 	*/
+	void 						 **data;		/* Array of data-pointers. 			*/
+} struct_callback;
+
+/*
+ * Download RSS/torrent structure
+ */
+typedef struct {
+	int id;				/*ID of the RSS/torrent depends newtorrents id/downloaded id*/  
+	int status;		/*0 when download was successful, else -1 */
+	char *error;	/*Error message telling what has failed in text */
+} struct_download;
+
+/*
+ * Log file entry structure
+ */
+typedef struct {
+	char *msg;		/* Pointer to the message being logged */
+	int	 *sev;		/* Severity of log entry */
+} struct_logmsg;
+
+/*
+ * Callback pointers.
+ */
+typedef struct {
+	struct_callback *downloadrss; 		/* When a RSS file is downloaded */
+  struct_callback *downloadtorrent; /* When a Torrent is downloaded */
+	struct_callback *startupdate; 		/* emitted at the start of an update cycle */
+	struct_callback *endupdate; 			/* emitted at the end of an update cycle */
+	struct_callback *logmessage; 			/* When ever a logmessage is created, this method is called */
+} struct_callbacks;	
+
+/*
+ * RSS-torrent handle.
  * This handle will change when other database types are implemented, 
  * so do not reference to components in this struct.
  */
 typedef struct {
-	sqlite3 *db;			 // RSS-torrent database handle.
-	int			 lockfile; // Lock file handle.
+	sqlite3 				 *db;				// RSS-torrent database handle.
+	int			 					lockfile; // Lock file handle.
+	struct_callbacks 	callback;	// Struct containing the callbacks
 } rsstor_handle;
 
 /*
@@ -661,5 +718,60 @@ int rsstwritelog(int level, char *str,...);
  * testxt, test message to send.
  */
 void rssttestmail(rsstor_handle *handle, char *testtxt);
+
+/*
+ * Callback registration functions
+ */
+
+/*
+ * Add a routine that is executed on a RSS download event
+ * @arguments
+ * handle			handle to RSS-torrent pointer
+ * callback 	Function pointer to the routine to add
+ * @return
+ * 0 on successful addition, -1 on error
+ */
+int rsstadddownrsscallback(rsstor_handle *handle, rsstcallbackfnct callback);
+
+/*
+ * Add a routine that is executed on a torrent download event
+ * @arguments
+ * handle			handle to RSS-torrent pointer
+ * callback 	Function pointer to the routine to add
+ * @return
+ * 0 on successful addition, -1 on error
+ */
+int rsstadddowntorcallback(rsstor_handle *handle, rsstcallbackfnct callback);
+
+
+/*
+ * Add a routine that is executed on start of update event
+ * @arguments
+ * handle			handle to RSS-torrent pointer
+ * callback 	Function pointer to the routine to add
+ * @return
+ * 0 on successful addition, -1 on error
+ */
+int rsstaddstartupcallback(rsstor_handle *handle, rsstcallbackfnct callback);
+
+/*
+ * Add a routine that handles start of update cycle
+ * @arguments
+ * handle			handle to RSS-torrent pointer
+ * callback 	Function pointer to the routine to add
+ * @return
+ * 0 on successful addition, -1 on error
+ */
+int rsstaddendupcallback(rsstor_handle *handle, rsstcallbackfnct callback);
+
+/*
+ * Add a routine that is executed on a RSS download event
+ * @arguments
+ * handle			handle to RSS-torrent pointer
+ * callback 	Function pointer to the routine to add
+ * @return
+ * 0 on successful addition, -1 on error
+ */
+int rsstadddownrsscallback(rsstor_handle *handle, rsstcallbackfnct callback);
 
 #endif

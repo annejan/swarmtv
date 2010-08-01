@@ -26,13 +26,13 @@
  * @return
  * SQLITE_DONE on success, -1 on error.
  */
-int rsstdownloadtorrents(sqlite3 *db);
+int rsstdownloadtorrents(rsstor_handle *handle);
 
 /*
  * Apply the filters from the query.
  * when simulate is set !=0 no actual downloads are performed
  * @arguments 
- * db						: Sqlite3 pointer
+ * *handle			: RSS-torrent handle
  * *name				: Filter name
  * *nodouble		: SQL for the nodouble filter
  * *titleregexp : Title regexp from the simple filter. Set NULL to ignore 
@@ -41,7 +41,7 @@ int rsstdownloadtorrents(sqlite3 *db);
  * *fmt					:	Format of the arguments to insert into the filter sql 
  * ...					:	Arguments for the filter SQL.
  */
-void rsstapplyfilter(sqlite3 *db, char *name, char* nodouble, char *titleregexp, SIM simulate, char *filter, char *fmt, ...);
+void rsstapplyfilter(rsstor_handle *handle, char *name, char* nodouble, char *titleregexp, SIM simulate, char *filter, char *fmt, ...);
 
 
 /*

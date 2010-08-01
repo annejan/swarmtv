@@ -33,6 +33,8 @@
 #include "simplefilter.h"
 #include "logfile.h"
 #include "torrentdb.h"
+#include "callback.h"
+#include "callbackimpl.h"
 
 /*
  * Parser includes
@@ -41,11 +43,12 @@
 #include "srcparser/twitter/twitter.h"
 
 #define true (1==1)
+#define ERRORLEN 1024
 
 /*
  * Query to get sources to download.
  */
-const char *query="select name, url, parser from sources";
+const char *query="select name, url, parser, id from sources";
 
 /*
  * Apply a filter to the downloaded RSS code.
@@ -54,22 +57,22 @@ const char *query="select name, url, parser from sources";
  * Return
  * 0 when okay, on error -1
  */
-static int parserdownload(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssfile)
+static int parserdownload(rsstor_handle *handle, char *name, char *url, char *filter, MemoryStruct *rssfile)
 {
   int rc;
-
+	
   /*
    * compare the filter string and pass the downloaded file to the correct filtering routine.
    */
   if(strcmp(filter, "defaultrss") == 0) {
     //printf("Found a file for filter %s\n", filter);
-    rc = defaultrss(db, name, url, filter, rssfile); 
+    rc = defaultrss(handle->db, name, url, filter, rssfile); 
     return 0;
   }
 
   if(strcmp(filter, "twitter") == 0) {
     //printf("Found a file for filter %s\n", filter);
-    rc = twitter(db, name, url, filter, rssfile); 
+    rc = twitter(handle->db, name, url, filter, rssfile); 
     return 0;
   }
 
@@ -111,28 +114,60 @@ static void deleteold(sqlite3 *db)
 }
 
 /*
+ * Call RSS download callback
+ * @arguments
+ * handle 	RSS-torrent handle
+ * id				id of RSS that was downloaded
+ * status		0 if okay, otherwise -1, error is set when status is -1
+ * error		String containing printable error, when status is okay set to NULL
+ * @return
+ * 0 if all callbacks returned 0, otherwise !0
+ */
+static int rsstrssdownloadcallback(rsstor_handle *handle, int id, int status, char *error)
+{
+	int rc=0;
+	struct_download down;
+
+	/*
+	 * Build struct
+	 */
+	down.id=id;
+	down.status=status;
+	down.error=error;
+
+	/*
+	 * Execute callbacks
+	 */
+	rc = rsstexecdownrsscallbacks(handle, &down);
+
+	return rc;
+}
+
+/*
  * Do the main work here
  * Download the feeds and pars them.
  */
-static void dowork(sqlite3 *db){
+static void dowork(rsstor_handle *handle){
   /*
    * Use the database query to get the sources.
    */
-  sqlite3_stmt            *ppStmt;
-  const char              *pzTail;
-  int                     rc;
-  int                     step_rc;
-  char                    *zErrMsg = 0;
-  char           *name;
-  char           *url;
-  char           *parser;
+  sqlite3_stmt            *ppStmt=NULL;
+  const char              *pzTail=NULL;
+  int                     rc=0;
+  int                     step_rc=0;
+  char                    *zErrMsg=NULL;
+  char           					*name=NULL;
+  char           					*url=NULL;
+  char           					*parser=NULL;
+	char										errstr[ERRORLEN+1];
+	int											id=0;
   MemoryStruct            rssfile;
 
   /*
    * Prepare the Sqlite statement
    */
   rc = sqlite3_prepare_v2(
-      db,                 /* Database handle */
+      handle->db,                 /* Database handle */
       query,            /* SQL statement, UTF-8 encoded */
       strlen(query),    /* Maximum length of zSql in bytes. */
       &ppStmt,             /* OUT: Statement handle */
@@ -156,23 +191,38 @@ static void dowork(sqlite3 *db){
     name    = (char *) sqlite3_column_text(ppStmt, 0);
     url     = (char *) sqlite3_column_text(ppStmt, 1);
     parser  = (char *) sqlite3_column_text(ppStmt, 2); 
+		id      = 				 sqlite3_column_int (ppStmt, 3);
   
     rc = rsstdownloadtobuffer(url, &rssfile);
     if(rc == 0) {
       /*
-       * Download succeded.
+       * Download succeeded.
        */
-      rsstwritelog(LOG_DEBUG, "Download succeded for %s : %s", name, url);
+      rsstwritelog(LOG_DEBUG, "Download succeeded for %s : %s", name, url);
 
       /*
        * Filter the stuff and add it to the database.
        */
-      rc = parserdownload(db, name, url, parser, &rssfile);
-      if(rc != 0) {
+      rc = parserdownload(handle, name, url, parser, &rssfile);
+      if(rc == 0) {
+				/*
+				 * Callback RSS download is okay
+				 */
+				rsstrssdownloadcallback(handle, id, 0, NULL);
+
+			} else {
+				/*
+				 * Call RSS download has failed because the content could not be parsed
+				 */
+				snprintf(errstr, ERRORLEN, "RSS source '%s' '%s' failed to download.", name, url);
+				rsstrssdownloadcallback(handle, id, -1, errstr);
         rsstwritelog(LOG_ERROR, "Filtering failed for %s : %s %s:%d", name, url, __FILE__, __LINE__);
       }
       
     } else {
+			/*
+			 * Call RSS download has failed, because file could not be retrieved.
+			 */
       rsstwritelog(LOG_ERROR, "Download failed for %s : %s %s:%d", name, url, __FILE__, __LINE__);
     }
     rsstfreedownload(&rssfile);
@@ -200,14 +250,8 @@ int rsstrunloop(rsstor_handle *handle, LOOPMODE onetime)
   time_t 		before=0;
   time_t 		after=0;
   int    		timeleft=0;
-	sqlite3  *db=NULL;
 
-	/*
-	 * Get DB pointer
-	 */
-	db = handle->db;
-
-  rc = rsstconfiggetint(db, CONF_REFRESH, &timewait);
+  rc = rsstconfiggetint(handle->db, CONF_REFRESH, &timewait);
 	if(onetime == 0) {
 		rsstwritelog(LOG_NORMAL, "Starting daemon, refresh %ds", timewait);
 	} else {
@@ -218,13 +262,35 @@ int rsstrunloop(rsstor_handle *handle, LOOPMODE onetime)
 	 * Keep running until...
 	 */
   while(true){
+		/*
+		 * Call callback to signal start of update
+		 */
+		rc = rsstexecstartupcallbacks(handle);
+		if(rc != 0){
+			rsstwritelog(LOG_ERROR, "Error returned by 'startup' callback. %s:%d", __FILE__, __LINE__);
+		}
+
     before = time(NULL);
     /*
      * work through the sources and process them
      */
     rsstwritelog(LOG_DEBUG,"Downloading RSS feed(s)");
-    dowork(db);
+    dowork(handle);
  
+
+		/*
+		 * Execute SQL and simple filters on new entries.
+		 */
+    rsstwritelog(LOG_DEBUG,"Checking for new torrents to download.");
+    rsstdownloadtorrents(handle);
+    rsstdownloadsimple(handle, 0);
+
+    /*
+     * Torrents are no longer new
+     */
+    rsstnonewtorrents(handle->db);
+		deleteold(handle->db);
+
     /*
      * Calculate sleep time left.
      */
@@ -235,17 +301,13 @@ int rsstrunloop(rsstor_handle *handle, LOOPMODE onetime)
     }
 
 		/*
-		 * Execute SQL and simple filters on new entries.
+		 * Call callback to signal start of update
+		 * Time left is also given when run once
 		 */
-    rsstwritelog(LOG_DEBUG,"Checking for new torrents to download.");
-    rsstdownloadtorrents(db);
-    rsstdownloadsimple(db, 0);
-
-    /*
-     * Torrents are no longer new
-     */
-    rsstnonewtorrents(db);
-		deleteold(db);
+		rc = rsstexecendupcallbacks(handle, timeleft);
+		if(rc != 0){
+			rsstwritelog(LOG_ERROR, "Error returned by 'endup' callback. %s:%d", __FILE__, __LINE__);
+		}
 
     /*
      * Run once.
@@ -254,6 +316,9 @@ int rsstrunloop(rsstor_handle *handle, LOOPMODE onetime)
       break;
     }
 
+		/*
+		 * Inform user
+		 */
     rsstwritelog(LOG_NORMAL,"Refresh done, sleeping %d seconds.", timeleft); 
 
     /*
