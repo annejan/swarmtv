@@ -22,7 +22,7 @@
  * RSS data structure
  */
 typedef struct {
-	sqlite3 *db;
+	rsstor_handle *handle;
 	char 		*source;
 	char 		*title;
 	char		*link;
@@ -44,5 +44,5 @@ typedef struct {
 /*
  * filter to handle incomming files from http://www.rsstorrents.com
  */
-int defaultrss(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssfile);
+int defaultrss(rsstor_handle *handle, char *name, char *url, char *filter, MemoryStruct *rssfile);
 

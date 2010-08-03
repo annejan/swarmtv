@@ -50,7 +50,7 @@ int rsstsetconfigitem(rsstor_handle *handle, const char *prop, const char *value
  * When not found -1 is returned.
  * On succes 0 is returned.
  */
-int rsstconfiggetint(sqlite3 *db, char *prop, int *number);
+int rsstconfiggetint(rsstor_handle *handle, char *prop, int *number);
 
 /*
  * Get value of a config object.
@@ -61,5 +61,5 @@ int rsstconfiggetint(sqlite3 *db, char *prop, int *number);
  * When not found -1 is returned.
  * On succes 0 is returned.
  */
-int rsstconfiggetlong(sqlite3 *db, char *prop, long *number);
+int rsstconfiggetlong(rsstor_handle *handle, char *prop, long *number);
 

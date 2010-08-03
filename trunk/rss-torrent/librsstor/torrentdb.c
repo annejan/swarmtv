@@ -36,9 +36,10 @@
 /*
  * Free strings in newtorrents_struct 
  * Be sure to free the struct yourself.
- * Arguments 
+ * @Arguments 
  * newtor structure pointer
- * returns void, exits on failure
+ * @Return 
+ * void, exits on failure
  */
 void rsstfreenewtor(newtorrents_struct *newtor)
 {
@@ -48,20 +49,64 @@ void rsstfreenewtor(newtorrents_struct *newtor)
 	free(newtor->source);
 }
 
+
+/*
+ * Single out unlikely season/episode numbers
+ * @Arguments
+ * newtor New torrent struct to delete unusual season/episode combinations from.
+ */
+static void rsstfilterseasonepisode(newtorrents_struct *newtor)
+{
+	int magicnumbers[] = {264, 720, 1080, 0};
+	int count=0;
+	int season = newtor->season;
+	int	episode	= newtor->episode;
+
+	/*
+	 * Make sure no 264 enters in season or episode
+	 */
+	while(magicnumbers[count] != 0){
+		/*
+		 * if season or episode is one of the forbidden numbers, reset both
+		 */
+		if(season == magicnumbers[count] || episode == magicnumbers[count]){
+			newtor->season = 0;
+			newtor->episode = 0;
+		}
+	
+		/*
+		 * next
+		 */
+		count++;
+	}
+}
+
+
 /*
  * Add a torrent to the newtorrent table.
- * Arguments
+ * @Arguments
  * newtor structure holding the values for the record to be added
- * Returns
+ * @Return
  * 0 on success, exits on -1 on failure
  */
-int rsstaddnewtorrent(sqlite3 *db, newtorrents_struct *newtor)
+int rsstaddnewtorrent(rsstor_handle *handle, newtorrents_struct *newtor)
 {
-  int           rc;
+  int           rc=0;
+	sqlite3      *db=NULL;
+
+	/*
+	 * Get db pointer;
+	 */
+	db = handle->db;
 
   char *query = "INSERT INTO newtorrents (title, link, pubdate, category, source, season, episode, seeds, peers, size, new) "
                 "VALUES (?1, ?2, date(?3, 'unixepoch'), ?4, ?5, ?6, ?7, ?8, ?9, ?10, 'Y')";
   
+	/*
+	 * Remove numbers that refer to video encoding but could end up as season/episode numbers.
+	 */
+	rsstfilterseasonepisode(newtor);
+
   // DEBUG
   rsstwritelog(LOG_DEBUG, "############\n"
       "title:    %s\n"
@@ -109,10 +154,13 @@ int rsstaddnewtorrent(sqlite3 *db, newtorrents_struct *newtor)
  * downed			pointer to struct holding values to add to the db.
  * simulate		0 to log addition, 1 adds anyway, but does not log at all.
  */
-void rsstadddownloaded(sqlite3 *db, downloaded_struct *downed, SIM  simulate)
+void rsstadddownloaded(rsstor_handle *handle, downloaded_struct *downed, SIM  simulate)
 {
-  int           rc=0;
-  time_t        now=0;
+  int        rc=0;
+  time_t     now=0;
+	sqlite3 	*db=NULL;
+
+	db = handle->db;
 
   char *query = "INSERT INTO downloaded (title, link, pubdate, category, season, episode, date) "
                 "VALUES (?1, ?2, ?3, ?4, ?5, ?6,  datetime(?7, 'unixepoch', 'localtime'))";
@@ -160,9 +208,12 @@ void rsstadddownloaded(sqlite3 *db, downloaded_struct *downed, SIM  simulate)
  * When Torrents are processed, they are no longer new
  * this method removes the new flag
  */
-void rsstnonewtorrents(sqlite3 *db)
+void rsstnonewtorrents(rsstor_handle *handle)
 {
-  int           rc;
+  int        rc=0;
+	sqlite3 	*db=NULL;
+
+	db=handle->db;
 
   const char *query = "UPDATE newtorrents SET new='N' WHERE new='Y'";
 
@@ -188,10 +239,13 @@ void rsstnonewtorrents(sqlite3 *db)
  * returns
  * -1 on error, 0 on success
  */
-int rsstdeloldnewtorents(sqlite3 *db, unsigned int days)
+int rsstdeloldnewtorents(rsstor_handle *handle, unsigned int days)
 {
 	char daystr[BUFSIZE+1];
 	int  rc=0;
+	sqlite3 *db=NULL;
+
+	db = handle->db;
 
 	/*
 	 * Query to delete old entries.

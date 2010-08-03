@@ -300,7 +300,7 @@ static void rssthandlenewresults(rsstor_handle *handle, downloaded_struct *downe
 		 * When download has succeeded add entry to downloaded table
 		 * Double download attempt will not occur as a newtorrent entry is only new once.
 		 */
-		rsstadddownloaded(handle->db, downed, simulate);
+		rsstadddownloaded(handle, downed, simulate);
 	}
 
 	/*
@@ -574,7 +574,7 @@ int rsstdownloadbyid(rsstor_handle *handle, int torid)
 			 * Download successfull
 			 * Add download to downloaded database
 			 */
-			rsstadddownloaded(db, &downed, 0);
+			rsstadddownloaded(handle, &downed, 0);
 		} else {
 			/*
 			 * Download failed torrent not found

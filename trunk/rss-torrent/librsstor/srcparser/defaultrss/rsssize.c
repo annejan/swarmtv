@@ -68,9 +68,9 @@ int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata)
 	}
 
 	/*
-	 * When smaller then 'min_size'
+	 * When smaller than 'min_size'
 	 */
-	rc = rsstconfiggetlong(rssdata->db, CONF_MIN_SIZE , &min_config);
+	rc = rsstconfiggetlong(rssdata->handle, CONF_MIN_SIZE , &min_config);
 	if(rc != 0){
 		rsstwritelog(LOG_ERROR, "Config variable '%s' not set!", CONF_MIN_SIZE);
 		return -1;

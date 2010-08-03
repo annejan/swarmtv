@@ -230,14 +230,14 @@ static int handleguid(void *data, char *string)
  */
 static int handlestart(void *data)
 {
-	sqlite3 *db;
+	rsstor_handle *handle;
 	char    *source;
 	rssdatastruct *rssdata = (rssdatastruct *) data;
 
 	/*
 	 * store statics
 	 */
-	db=rssdata->db;
+	handle=rssdata->handle;
 	source=rssdata->source;
 
 	/*
@@ -248,7 +248,7 @@ static int handlestart(void *data)
 	/*
 	 * Restore statics.
 	 */
-	rssdata->db=db;
+	rssdata->handle=handle;
 	rssdata->source=source;
 
 	return 0;
@@ -430,7 +430,7 @@ static int handleend(void *data)
 	 * enter the new record.
 	 */
 	if(ignore == 0) {
-		rc = rsstaddnewtorrent(rssdata->db, &newtor);
+		rc = rsstaddnewtorrent(rssdata->handle, &newtor);
 		if(rc != 0) {
 			rsstwritelog(LOG_ERROR, "Failed to add newtorrent %s:%d", __FILE__, __LINE__);
 			return -1;
@@ -456,7 +456,7 @@ static int handleend(void *data)
 /*
  * filter to handle incomming files from http://www.rsstorrents.com
  */
-int defaultrss(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssfile)
+int defaultrss(rsstor_handle *handle, char *name, char *url, char *filter, MemoryStruct *rssfile)
 {
 	int								retval=0;
 	int								rc=0;
@@ -472,7 +472,7 @@ int defaultrss(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *r
 	/*
 	 * Add statics to data
 	 */
-	data.db = db;
+	data.handle = handle;
 	data.source = name;
 
 	/*

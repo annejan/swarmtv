@@ -66,7 +66,7 @@ static int newtweet(void *data)
 static int endtweet(void *data)
 {
 	twitterdata *local = (twitterdata*) data;
-	sqlite3 *db = local->db;
+	rsstor_handle *handle = local->handle;
 	torprops *props=NULL;
 	int					rc=0;
 	newtorrents_struct newtor; 
@@ -119,7 +119,7 @@ static int endtweet(void *data)
 	/*
 	 * Add a torrent to the newtorrents table.
 	 */
-	rsstaddnewtorrent(db, &newtor);
+	rsstaddnewtorrent(handle, &newtor);
 
 	/*
 	 * cleanup
@@ -160,7 +160,7 @@ static int twittecreaterdate(void *data, char *string)
 /*
  * filter to handle incomming files from a twitter timeline
  */
-int twitter(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssfile)
+int twitter(rsstor_handle *handle, char *name, char *url, char *filter, MemoryStruct *rssfile)
 {
 	twitparse_callback twitcallback;
 	twitterdata				 twitdata;
@@ -176,7 +176,7 @@ int twitter(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssf
 	/*
 	 * Init data.
 	 */
-	twitdata.db=db;
+	twitdata.handle=handle;
 	twitdata.source=name;
 
 	/*

@@ -70,18 +70,12 @@ int rsstconfiggetproperty(rsstor_handle *handle, char *prop, char **value)
  * number the pointer the property value will be put in.
  * return 0 when prop is found, -1 when not found.
  */
-int rsstconfiggetint(sqlite3 *db, char *prop, int *number) 
+int rsstconfiggetint(rsstor_handle *handle, char *prop, int *number) 
 {
   char *value;
   int rc=0;
-	rsstor_handle handle;
 
-	/*
-	 * REMOVE IN FUTURE
-	 */
-	handle.db = db;
-
-  rc = rsstconfiggetproperty(&handle, prop,(char**) &value);
+  rc = rsstconfiggetproperty(handle, prop,(char**) &value);
   if(rc == 0){
     *number = atoi(value);
     free(value);
@@ -101,18 +95,12 @@ int rsstconfiggetint(sqlite3 *db, char *prop, int *number)
  * return 
  * 0 when prop is found, -1 when not found.
  */
-int rsstconfiggetlong(sqlite3 *db, char *prop, long *number) 
+int rsstconfiggetlong(rsstor_handle *handle, char *prop, long *number) 
 {
   char *value;
   int rc=0;
-	rsstor_handle handle;
 
-	/*
-	 * REMOVE IN THE FUTURE
-	 */
-	handle.db = db;
-
-  rc = rsstconfiggetproperty(&handle, prop,(char**) &value);
+  rc = rsstconfiggetproperty(handle, prop,(char**) &value);
   if(rc == 0){
     *number = atol(value);
     free(value);

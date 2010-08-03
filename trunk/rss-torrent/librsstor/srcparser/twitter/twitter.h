@@ -30,7 +30,7 @@ typedef struct {
  * Data we like to pass to the callback routines.
  */
 typedef struct {
-	sqlite3 	*db;
+	rsstor_handle *handle;
 	tweetdata tweet;
 	char 			*source; // Static, not changed during parsing
 } twitterdata;
@@ -38,5 +38,5 @@ typedef struct {
 /*
  * Filter to handle incomming files from a Twitter timeline
  */
-int twitter(sqlite3 *db, char *name, char *url, char *filter, MemoryStruct *rssfile);
+int twitter(rsstor_handle *handle, char *name, char *url, char *filter, MemoryStruct *rssfile);
 

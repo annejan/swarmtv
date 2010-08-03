@@ -66,13 +66,13 @@ static int parserdownload(rsstor_handle *handle, char *name, char *url, char *fi
    */
   if(strcmp(filter, "defaultrss") == 0) {
     //printf("Found a file for filter %s\n", filter);
-    rc = defaultrss(handle->db, name, url, filter, rssfile); 
+    rc = defaultrss(handle, name, url, filter, rssfile); 
     return 0;
   }
 
   if(strcmp(filter, "twitter") == 0) {
     //printf("Found a file for filter %s\n", filter);
-    rc = twitter(handle->db, name, url, filter, rssfile); 
+    rc = twitter(handle, name, url, filter, rssfile); 
     return 0;
   }
 
@@ -88,7 +88,7 @@ static int parserdownload(rsstor_handle *handle, char *name, char *url, char *fi
  * Delete the older data.
  * Exits status 1 on error
  */
-static void deleteold(sqlite3 *db)
+static void deleteold(rsstor_handle *handle)
 {
 	int rc;
 	int days;
@@ -96,7 +96,7 @@ static void deleteold(sqlite3 *db)
 	/*
 	 * Get the config value.
 	 */
-	rc = rsstconfiggetint(db, CONF_RETAIN, &days);
+	rc = rsstconfiggetint(handle, CONF_RETAIN, &days);
 	if(rc != 0) {
 		rsstwritelog(LOG_ERROR, "Config value %s not set ! %s:%d", __FILE__, __LINE__);
 		exit(1);
@@ -106,7 +106,7 @@ static void deleteold(sqlite3 *db)
 	/*
 	 * Delete the content.
 	 */
-	rc = rsstdeloldnewtorents(db, (unsigned int) days);
+	rc = rsstdeloldnewtorents(handle, (unsigned int) days);
 	if(rc == -1) {
 		rsstwritelog(LOG_ERROR, "Database inconsistent, could not remove old newtorrent entries!", __FILE__, __LINE__);
 		exit(1);
@@ -251,7 +251,7 @@ int rsstrunloop(rsstor_handle *handle, LOOPMODE onetime)
   time_t 		after=0;
   int    		timeleft=0;
 
-  rc = rsstconfiggetint(handle->db, CONF_REFRESH, &timewait);
+  rc = rsstconfiggetint(handle, CONF_REFRESH, &timewait);
 	if(onetime == 0) {
 		rsstwritelog(LOG_NORMAL, "Starting daemon, refresh %ds", timewait);
 	} else {
@@ -288,8 +288,8 @@ int rsstrunloop(rsstor_handle *handle, LOOPMODE onetime)
     /*
      * Torrents are no longer new
      */
-    rsstnonewtorrents(handle->db);
-		deleteold(handle->db);
+    rsstnonewtorrents(handle);
+		deleteold(handle);
 
     /*
      * Calculate sleep time left.
