@@ -35,33 +35,7 @@
 /*
  * Bit of a hack.. But needed for cleanup
  */
-static sqlite3 *cleandb;
-
-/*
- * Clean up 
- */
-void cleanup(){
-  /*
-   * Cleanup function for the XML library.
-   */
-  xmlCleanupParser();
-
-  /* 
-   * we're done with libcurl, so clean it up
-   */ 
-  curl_global_cleanup();
-
-  /*
-   * Close the sqlite database.
-   * No way to get db pointer here
-   */
-  sqlite3_close(cleandb);
-
-  /*
-   * Close log file.
-   */
-  rsstcloselog();
-}
+static rsstor_handle *cleanhandle = NULL;
 
 
 /*
@@ -78,7 +52,8 @@ void Signal_Handler(int sig) /* signal handler function */
     case SIGTERM:
       /* finalize the server */
       printf("Cleaning up\n");
-      cleanup();
+      freersstor(cleanhandle);
+
       exit(0);
       break;    
   } 
@@ -147,6 +122,11 @@ int main(int argc, char **argv){
 	 */
 	handle = initrsstor();
 
+  /*
+   * Could not think of a better way to pass this pointer to the signal handler routines.
+   */
+  cleanhandle = handle;
+
 	if(handle == NULL) {
 		/*
 		 * When handle could not be initialized, exit here
@@ -168,11 +148,10 @@ int main(int argc, char **argv){
 		rssthandleopts(handle, argc, argv);
 	}
 
-
 	/*
 	 * Cleanup the rest of the libraries
 	 */
-	cleanup();
+  freersstor(handle);
 
 	return 0;
 }

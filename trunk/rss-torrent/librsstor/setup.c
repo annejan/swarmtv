@@ -75,25 +75,6 @@ static int makersstorrentdir()
 	return rc;
 }
 
-#if 0 
-/*
- * Call this function to test if rsstorrent needs setting up to do.
- * When it does the function initializes the files that need to be in place in order to run rsstorrent.
- * @Arguments none
- * @returns 	0 when succes otherwise -1
- */
-int rsstinitrsstorrent()
-{
-	int		rc=0;
-	int		retval=0;
-
-
-	/*
-	 * Done
-	 */
-	return retval;
-}
-#endif
 
 /*
  * Initialize the callback structures
@@ -121,6 +102,7 @@ static int rsstinitcallbacks(struct_callbacks *callbacks)
 	return retval;
 }
 
+
 /*
  * Free the callback structures
  * @Arguments
@@ -139,6 +121,7 @@ void rsstfreecallbacks(struct_callbacks *callbacks)
 	rsstfreecallback(callbacks->endupdate);
 	rsstfreecallback(callbacks->logmessage);
 }
+
 
 /*
  * Initialize RSS-torrent handle
@@ -205,6 +188,7 @@ rsstor_handle *initrsstor()
 	return handle;
 }
 
+
 /*
  * Free RSS-torrent handle
  * @Arguments
@@ -242,3 +226,4 @@ void freersstor(rsstor_handle *handle)
 	 */
 	free(handle);
 }
+
