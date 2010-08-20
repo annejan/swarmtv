@@ -203,7 +203,7 @@ static int testdouble(sqlite3 *db, char *nodouble, char *titleregexp, downloaded
  * @return
  *
  */
-static void rsstsendemail(sqlite3 *db, downloaded_struct *downed)
+static void rsstsendemail(sqlite3 *db, char *filtername, downloaded_struct *downed)
 {
 	char 					header[MAXMSGLEN+1];
 	char          message[MAXMSGLEN+1];
@@ -217,8 +217,15 @@ static void rsstsendemail(sqlite3 *db, downloaded_struct *downed)
 			downed->title, downed->season, downed->episode);
 	snprintf(message, MAXMSGLEN, 
 			"Downloading %s S%dE%d\n"
-			"URL %s\n", 
-			downed->title, downed->season, downed->episode, downed->link);
+      "\n--------------------------------\n"
+			"URL: %s\n"
+      "This content was found by Filter: %s\n"
+      "\n--------------------------------", 
+			downed->title, downed->season, downed->episode, downed->link, filtername);
+
+  /*
+   * Call the send mail routine.
+   */
 	rsstsendrssmail(db, header, message);
 #endif
 }
@@ -257,7 +264,7 @@ static int rsstexetorcallback(rsstor_handle *handle, int id, int status, char *e
 /*
  * Handle new results
  */
-static void rssthandlenewresults(rsstor_handle *handle, downloaded_struct *downed, SIM simulate)
+static void rssthandlenewresults(rsstor_handle *handle, char *filtername, downloaded_struct *downed, SIM simulate)
 {
 	int downsuccess=0;
 	char errorstr[MAXMSGLEN+1];
@@ -281,7 +288,7 @@ static void rssthandlenewresults(rsstor_handle *handle, downloaded_struct *downe
 			/*
 			 * Send email and call callbacks
 			 */
-			rsstsendemail(handle->db, downed);
+			rsstsendemail(handle->db, filtername, downed);
 			rsstexetorcallback(handle, downed->id, 0, NULL);
 		} else {
 			/*
@@ -312,7 +319,7 @@ static void rssthandlenewresults(rsstor_handle *handle, downloaded_struct *downe
 /*
  * Handle filter results
  */
-static void rssthandlefiltresults(rsstor_handle *handle, sqlite3_stmt *ppStmt, char* nodouble, char *titleregexp, SIM simulate)
+static void rssthandlefiltresults(rsstor_handle *handle, sqlite3_stmt *ppStmt, char *filtername, char* nodouble, char *titleregexp, SIM simulate)
 {
 	int 							rc=0;
 	int							  step_rc=0;
@@ -341,7 +348,7 @@ static void rssthandlefiltresults(rsstor_handle *handle, sqlite3_stmt *ppStmt, c
 			/*
 			 * Handle results that are no duplicate.
 			 */
-			rssthandlenewresults(handle, &downed, simulate);
+			rssthandlenewresults(handle, filtername, &downed, simulate);
 		} else {
 			rsstwritelog(LOG_DEBUG, "%s Season %d Episode %d is a duplicate %s:%d", 
 					downed.title, downed.episode, downed.season, __FILE__, __LINE__);
@@ -454,7 +461,7 @@ void rsstapplyfilter(rsstor_handle *handle, char *name, char* nodouble, char *ti
 		/*
 		 * Handle query results, filter out doubles, and take according action.
 		 */
-		rssthandlefiltresults(handle, ppStmt, nodouble, titleregexp, simulate);
+		rssthandlefiltresults(handle, ppStmt, name, nodouble, titleregexp, simulate);
 	}
 
 	/*
