@@ -19,19 +19,16 @@
  */
 
 /*
- * path to database file.
+ * Database version.
+ * When the current version does not match the version in the version field
+ * The database is recreated
  */
-#define  DBFILE "~/.rsstorrent/rss.db"
+#define RSST_DB_VERSION 2
 
 /*
- * Open database, and add regexp functionality.
- * @Arguments
- * filename Filename of database to open 
- * handle RSS-torrent handle
- * @returns 
- * returns SQLITE_OK when all did go well.
+ * Number of elements to allocate initially for returning results
  */
-int rsstinitdatabase(const char *filename, rsstor_handle *handle); 
+#define RSST_START_ELEMENTS 10
 
 /*
  * Do a query, and bind value's to the query in one step
@@ -113,12 +110,6 @@ int rsstexecqueryresultva(sqlite3 *db, sqlite3_stmt **ppstmt, const char *query,
  */
 int rsstprintquery(sqlite3 *db, const char *query, char *fmt, ...);
 
-/*
- * Run the Database init script.
- * @return
- * 0 on succes, -1 on failure
- */
-int rsstrundbinitscript(rsstor_handle *handle);
 
 /*
  * Prints columns from query to standard out.
@@ -134,145 +125,14 @@ int rsstrundbinitscript(rsstor_handle *handle);
 int rsstprintquerylist(sqlite3 *db, const char *query, char *names[], char *fmt, ...);
 
 /*
- * Database abstraction functions
+ * Executing script
+ * This function executes a script.
+ * Each line should be separated by a '\n' char.
+ * @Arguments 
+ * script pointer so buffer holding script.
+ * @ returns
+ * 0 on success
+ * -1 on fail
  */
-
-/*
- * Get all config settings
- * @Arguments
- * configitems The container to store the configitems in
- * @Return
- * Returns 0 on success -1 on failure
- */
-int rsstgetallconfig(rsstor_handle *handle, config_container **configitems);
-
-/*
- * Delete content from config_container struct
- * @Arguments
- * container Pointer to configcontainer to free content of
- * @Return
- * 0 on success, -1 on failure
- */
-int rsstfreeconfigcontainer(config_container *container);
-
-
-/*
- * Get downloaded torrents
- * @arguments
- * downloaded The container to store the downloaded in
- * @Return
- * Returns 0 on success -1 on failure
- */
-int rsstgetdownloaded(rsstor_handle *handle, downloaded_container **downloaded, int limit, int offset);
-
-/*
- * Delete content from source_container struct
- * @Arguments
- * container downloaded container content needs freeing
- * @Return
- * Returns 0 on success -1 on failure
- */
-int rsstfreedownloadedcontainer(downloaded_container *container);
-
-/*
- * Get all RSS-sources
- * @arguments
- * sources The container to store the sources in
- * @Return
- * Returns 0 on success -1 on failure
- */
-int rsstgetallsources(rsstor_handle *handle, source_container **sources);
-
-/*
- * Delete content from source_container struct
- * @Arguments
- * container sources container content needs freeing
- * @Return
- * Returns 0 on success -1 on failure
- */
-int rsstfreesourcecontainer(source_container *sources);
-
-/*
- * Find newtorrents entries
- * @Arguments
- * filter simplefilterstruct to filter out the newtorrent entries we want
- * newtorrents container handling newtorrents entries
- * limit is the amount of rows we want to retrieve
- * offset is the amount of rows we want to skip at the start
- * @Return
- * Returns 0 on success -1 on failure
- */
-int rsstfindnewtorrents(simplefilter_struct *filter, newtorrents_container **newtorrents, int limit, int offset);
-
-/*
- * Delete content from newtorrents_container
- * @Arguments
- * container newtorrents container the content needs freeing
- * @Return
- * Returns 0 on success -1 on failure
- */
-int rsstfreenewtorrentscontainer(newtorrents_container *newtorrents);
-
-/*
- * Delete content from config_container struct
- * @Arguments
- * container Pointer to configcontainer to free content of
- * @Return
- * 0 on success, -1 on failure
- */
-int rsstfreefiltercontainer(filter_container *container);
-
-/*
- * Get all SQL filter settings
- * @Arguments
- * handle RSS-torrent handle
- * container The container to store the SQL filters in
- * @Return
- * Returns 0 on success -1 on failure
- */
-int rsstgetallfilter(rsstor_handle *handle, filter_container **filteritem);
-
-/*
- * Get all SQL filter settings
- * @Arguments
- * handle RSS-torrent handle
- * container The container to store the container in
- * @Return
- * Returns 0 on success -1 on failure
- */
-int rsstgetfilterbyname(rsstor_handle *handle, char *name, filter_container **container);
-
-/*
- * Get simplefilter torrents
- * @arguments
- * simplefilter The container to store the simplefilter in
- * @Return
- * Returns 0 on success -1 on failure
- */
-int rsstgetallsimplefilter(rsstor_handle *handle, simplefilter_container **simplefilter, int limit, int offset);
-
-/*
- * Get simplefilter torrents
- * @arguments
- * simplefilter The container to store the simplefilter in
- * @Return
- * Returns 0 on success -1 on failure
- */
-int rsstgetsimplefilter(rsstor_handle *handle, simplefilter_container **simplefilter, char *name);
-
-/*
- * Free simplefilter structure
- * @Arguments
- * simplefilter pointer to simplefilter struct to be freeed
- */
-void rsstfreesimplefilter(simplefilter_struct *simplefilter);
-
-/*
- * Delete content from source_container struct
- * @Arguments
- * container simplefilter container content needs freeing
- * @Return
- * Returns 0 on success -1 on failure
- */
-int rsstfreesimplefiltercontainer(simplefilter_container *container);
+int dbexecscript(sqlite3 *db, const char *script);
 

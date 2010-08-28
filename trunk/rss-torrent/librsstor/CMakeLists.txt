@@ -36,7 +36,7 @@ add_definitions(-Wall -W -g)
 include_directories(.)
 
 # All other sources
-SET(LIBSRC setup database config regexp source
+SET(LIBSRC setup database databaseimpl config regexp source
 		filter runloop curlfile torrentdb torrentdownload logfile
 		findtorrent sandboxdb testfilter filesystem tbl torrentparse
 		simplefilter callback.c callbackimpl.c)

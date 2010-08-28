@@ -33,6 +33,7 @@
 #include "filesystem.h"
 #include "setup.h"
 #include "database.h"
+#include "databaseimpl.h"
 #include "callback.h"
 
 /*
@@ -153,9 +154,9 @@ rsstor_handle *initrsstor()
   /*
    * Initialize the database
    */
-  rc = rsstinitdatabase(DBFILE, handle);  
+  rc = rsstinitdatabase(RSST_DBFILE, handle);  
   if( rc!=SQLITE_OK ){
-    fprintf(stderr, "Initializing db : \'%s\' failed %s:%d\n", DBFILE, __FILE__, __LINE__);
+    fprintf(stderr, "Initializing db : \'%s\' failed %s:%d\n", RSST_DBFILE, __FILE__, __LINE__);
 		return NULL;
   }
 

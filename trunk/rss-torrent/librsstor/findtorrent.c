@@ -286,7 +286,6 @@ int rsstfindtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int 
    * Initialize stuff
    */
   memset(&buffer, 0, sizeof(MemoryStruct));
-
   rsstwritelog(LOG_DEBUG, "Scan URL: '%s'", url);
 
   /*

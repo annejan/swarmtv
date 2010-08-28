@@ -30,7 +30,8 @@
 #include "types.h"
 #include "sandboxdb.h"
 #include "logfile.h"
-#include "database.h"
+//#include "database.h"
+#include "databaseimpl.h"
 #include "filesystem.h"
 
 
