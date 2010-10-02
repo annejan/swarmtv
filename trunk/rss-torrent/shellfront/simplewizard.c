@@ -632,7 +632,7 @@ static int rsstaskseasonepisode(simplefilter_struct *simple)
 			rc = rssfasknumeric(&(simple->fromseason), "Enter season number: ");
 			rc = rssfasknumeric(&(simple->fromepisode), "Enter episode number: ");
 		}
-		printf("answer: '%d' '%d' '%s'\n", loop, ansval, ansval ? "yes" : "no");
+		//printf("answer: '%d' '%d' '%s'\n", loop, ansval, ansval ? "yes" : "no");
 	}
 
 	return 0;

@@ -59,8 +59,8 @@ ADD_CUSTOM_TARGET(uninstall
 
 ADD_CUSTOM_TARGET(realclean
 		make clean
-		COMMAND rm CMakeCache.txt
-		COMMAND rm -rf CMakeFiles )
+		COMMAND rm CMakeCache.txt */CMakeCache.txt
+		COMMAND rm -rf CMakeFiles */CMakeFiles )
 
 # Make database and add examples script
 ADD_CUSTOM_COMMAND(
