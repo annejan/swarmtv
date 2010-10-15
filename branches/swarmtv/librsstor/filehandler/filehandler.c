@@ -96,7 +96,7 @@ int rsstfindmetafile(METAFILETYPE type, char *url, char **torrenturl, MemoryStru
       rc = rsstfindtorrent(url, torrenturl, torbuffer, recurse);
       break;
     case nzb:
-      rc = rsstfindnzb(url, torrenturl, torbuffer, recurse);
+      rc = rsstfindnzb(url, torrenturl, torbuffer);
       break;
   } 
 
