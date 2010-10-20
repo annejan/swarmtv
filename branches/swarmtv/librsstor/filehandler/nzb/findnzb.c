@@ -71,6 +71,7 @@ static int testifnzb(xmlNode *root)
     /*
      * Not an NZB
      */
+    rsstwritelog(LOG_DEBUG, "Doctype not NZB: '%s' %s:%d", __FILE__, __LINE__);
     return -1;
   } 
 
@@ -125,8 +126,8 @@ int rsstparsebufxml(char *url, MemoryStruct *buffer, xmlNode **root_element)
  * nzbbuffer the buffer the NZB is returned in when found. 
  * recurse the number of recursions to do to find the NZB.
  * @return
- * 0 when nothing is found
- * -1 when the NZB was found
+ * -1 when nothing was found
+ * 0 when the NZB is found
  */
 int rsstfindnzb(char *url, char **nzburl, MemoryStruct **nzbbuffer)
 {
