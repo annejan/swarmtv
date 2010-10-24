@@ -51,7 +51,7 @@
 /*
  * Filter that is used to convert the simple filter into SQL.
  */
-static char *sqlfilter="SELECT link, title, pubdate, category, season, episode FROM newtorrents WHERE "
+static char *sqlfilter="SELECT link, title, pubdate, category, metatype, season, episode FROM newtorrents WHERE "
 		"IREGEXP(?1, title) AND "
 		"(size < ?2 OR ?2 = 0) AND "
 		"(size > ?3 OR ?3 = 0) AND "
@@ -276,7 +276,7 @@ int rsstdelallsimple(rsstor_handle *handle)
       break;
     case(ROWS_EMPTY):
       fprintf(stderr, "No simple filters in list.\n");
-      rsstwritelog(LOG_ERROR, "No simple filters in list.\n");
+      rsstwritelog(LOG_ERROR, "No simple filters in list.");
       return -1;
       break;
     default: 

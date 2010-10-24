@@ -24,11 +24,12 @@
  * name filtername
  * url source url
  * parsertype parser type
+ * metatype meta file type (torrent/nzb)
  * @return
  * When allready existing -1 is returned.
  * On succes 0 is returned.
  */
-int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char *parsertype);
+int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char *parsertype, char *metatype);
 
 /*
  * del source item

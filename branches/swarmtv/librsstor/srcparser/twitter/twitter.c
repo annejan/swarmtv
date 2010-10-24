@@ -160,7 +160,7 @@ static int twittecreaterdate(void *data, char *string)
 /*
  * filter to handle incomming files from a twitter timeline
  */
-int twitter(rsstor_handle *handle, char *name, char *url, char *filter, MemoryStruct *rssfile)
+int twitter(rsstor_handle *handle, char *name, char *url, char *filter, char *metatype, MemoryStruct *rssfile)
 {
 	twitparse_callback twitcallback;
 	twitterdata				 twitdata;
@@ -178,6 +178,7 @@ int twitter(rsstor_handle *handle, char *name, char *url, char *filter, MemorySt
 	 */
 	twitdata.handle=handle;
 	twitdata.source=name;
+  twitdata.metatype=metatype;
 
 	/*
 	 * Initialize parser callbacks.

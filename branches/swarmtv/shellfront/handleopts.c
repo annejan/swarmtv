@@ -44,9 +44,9 @@
  * Need to find a way to not have to maintain 2 argument strings.
  */
 #ifdef RSST_ESMTP_ENABLE
-static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:M:La:zw";
+static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:M:La:zwI:Z:";
 #else
-static const char *optString = "vcC:hfF:T:t:d:s:SD:rnp:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:M:La:zw";
+static const char *optString = "vcC:hfF:T:t:d:s:SD:rnp:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:M:La:zwI:Z:";
 #endif
 
 /*
@@ -61,6 +61,8 @@ static const struct option optLong[] =
 	{"print-filter",  				required_argument, 0, 'p'},
 	{"set-config",  					required_argument, 0, 'C'},
 	{"add-source",   					required_argument, 0, 's'},
+	{"url",   					      required_argument, 0, 'I'},
+  {"metatype",              required_argument, 0, 'Z'},
 	{"source-parser",   			required_argument, 0, 't'},
 	{"add-filter",   					required_argument, 0, 'F'},
 	{"duplicate-filter", 			required_argument, 0, 'T'},
@@ -125,7 +127,9 @@ static void printhelp(void)
           "list-config      -c               : List config Items and their values.\n"  
           "set-config       -C <name:value>  : Set a config value.\n"  
           "\nSource\n"
-          "add-source       -s <name:url>    : Set RSS source. (default parser type 'defaultrss')\n"  
+          "add-source       -s <name>        : Set RSS source. (default parser type 'defaultrss')\n"  
+          "url              -I <url>         : Url to add to the RSS feed.\n"
+          "metatype         -Z               : Meta data file in source. (nzb/torrent)\n"
           "del-source       -D <name>        : Delete RSS source.\n"  
           "list-sources     -S               : List RSS sources.\n"  
           "source-parser    -t <type>        : Set RSS source parser type. (use with -s)\n"  
@@ -166,6 +170,9 @@ static void printhelp(void)
 
 /*
  * Set config value, and handle failure
+ * @Arguments
+ * handle rsstorrent handle
+ * configval config value to sett
  */
 static void setconfigvalue(rsstor_handle *handle, char *configval)
 {
@@ -189,6 +196,12 @@ static void setconfigvalue(rsstor_handle *handle, char *configval)
 	free(value);
 }
 
+/*
+ * Delete filter 
+ * @arguments
+ * handle lib rss torrent handle
+ * name name of filter to delete
+ */
 static void optdeletefilter(rsstor_handle *handle, char *name)
 {
 	int rc;
@@ -217,6 +230,10 @@ static void optdeletefilter(rsstor_handle *handle, char *name)
  * Verify arguments.
  * When an illegal combination of arguments is used, this function generates an error.
  * On valid combination 0 is retuned, else -1 indicates error.
+ * @Arguments
+ * opts options structure.
+ * @Return
+ * 0 when a valid combination is privided, -1 when invalid combination is provided.
  */
 static int verifyarguments(opts_struct *opts)
 {
@@ -229,6 +246,7 @@ static int verifyarguments(opts_struct *opts)
 		fprintf(stderr, "Error, you can not use add filter and add source in the same command line.\n");
 		retval=-1;
 	}
+
 	/*
 	 * run and source
 	 */
@@ -236,6 +254,7 @@ static int verifyarguments(opts_struct *opts)
 		fprintf(stderr, "Error, you can not use run and add source in the same command line.\n");
 		retval=-1;
 	}
+
 	/*
 	 * run and filter
 	 */
@@ -243,6 +262,7 @@ static int verifyarguments(opts_struct *opts)
 		fprintf(stderr, "Error, you can not use add filter and run in the same command line.\n");
 		retval=-1;
 	}
+
 	/*
 	 * run and simple
 	 */
@@ -250,6 +270,7 @@ static int verifyarguments(opts_struct *opts)
 		fprintf(stderr, "Error, you can not use add simple and run in the same command line.\n");
 		retval=-1;
 	}
+
 	/*
 	 * source filter no filter
 	 */
@@ -257,6 +278,7 @@ static int verifyarguments(opts_struct *opts)
 		fprintf(stderr, "Error, you provided a filter type but no filter.\n");
 		retval=-1;
 	}
+
 	/*
 	 * double filter no filter
 	 */
@@ -272,6 +294,26 @@ static int verifyarguments(opts_struct *opts)
 		fprintf(stderr, "Error, you cannot add an SQL and simple filter in one line.\n");
 		retval=-1;
 	}
+
+  /*
+   * Source adding test
+   */
+  if(!(opts->source) && opts->url){
+		fprintf(stderr, "Error, --url should be used in combination with --add-source.\n");
+		retval=-1;
+  }
+  if(!(opts->source) && opts->metatype){
+		fprintf(stderr, "Error, --metadata should be used in combination with --add-source.\n");
+		retval=-1;
+  }
+  if(!(opts->source) && opts->filter){
+		fprintf(stderr, "Error, --source-parser should be used in combination with --add-source.\n");
+		retval=-1;
+  }
+  if(opts->source && (!(opts->url) || !(opts->metatype) || !(opts->sourcefilter))){
+		fprintf(stderr, "Error, --add-source should be with the arguments --url and --metadata end --sourceparser.\n");
+		retval=-1;
+  }
 	
 	/*
 	 * Simple filter arguments are not allowed without the add filter argument
@@ -327,7 +369,11 @@ static int verifyarguments(opts_struct *opts)
 	return retval;
 }
 
-
+/*
+ * Initialize the database 
+ * @Arguments
+ * handle librsstorrent
+ */
 static void reinitdb(rsstor_handle *handle)
 {
 	int rc=0;
@@ -344,6 +390,13 @@ static void reinitdb(rsstor_handle *handle)
 /*
  * handle Command line options, setting up the structure for the complex 
  * arguments.
+ * @Arguments
+ * handle librsstorrent 
+ * argc argc from main
+ * argv argv from main
+ * opts opts struct holding all options from the command line
+ * @Return
+ * 0 if next option needs processing 1 if end of processing.
  */
 static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_struct *opts)
 {
@@ -402,12 +455,26 @@ static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_st
 				optdeletefilter(handle, optarg);
         stopop = 1; // no more
         break;
-      case 's': // set RSS source
+      case 's': // set RSS source name
         if(opts->source!=NULL) {
           fprintf(stderr, "Warning: ignoring second source parameter.\n");
           break;
         }
 				rssfalloccopy(&(opts->source), optarg, strlen(optarg));
+        break;
+      case 'I': // url of the source
+        if(opts->url!=NULL) {
+          fprintf(stderr, "Warning: ignoring second URL parameter.\n");
+          break;
+        } 
+				rssfalloccopy(&(opts->url), optarg, strlen(optarg));
+        break;
+      case 'Z': // metadatatype 
+        if(opts->metatype!=NULL) {
+          fprintf(stderr, "Warning: ignoring second metadata parameter.\n");
+          break;
+        }
+				rssfalloccopy(&(opts->metatype), optarg, strlen(optarg));
         break;
       case 'S': // List available sources
         rssfprintsources(handle);
@@ -612,8 +679,9 @@ void handlemultiple(rsstor_handle *handle, opts_struct *opts)
 	 * Handle here because a type could be set
 	 */
 	if(opts->source != NULL) {
-		rssfsplitnameval(opts->source, &name, &value);
-		rsstaddsource(handle, name, value, opts->sourcefilter);
+		//rssfsplitnameval(opts->source, &name, &value);
+
+		rsstaddsource(handle, opts->source, opts->url, opts->sourcefilter, opts->metatype);
 	}
 
 	/*
@@ -725,14 +793,16 @@ static void freeopts(opts_struct *opts)
 	free(opts->sourcefilter);
 	free(opts->doublefilter);
 	free(opts->source);
+  free(opts->url);
+  free(opts->metatype);
 	free(opts->simplename);
 	free(opts->simpletitle);
 	free(opts->simplemaxsize);
 	free(opts->simpleminsize);	
-	free(opts->simplenodup);	
-	free(opts->simpleseason);		
-	free(opts->simpleepisode);	
-	free(opts->simplesource);	
+	free(opts->simplenodup);
+	free(opts->simpleseason);
+	free(opts->simpleepisode);
+	free(opts->simplesource);
 	free(opts->simpleexclude);
 
 	/*

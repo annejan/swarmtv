@@ -50,7 +50,7 @@ static int testifnzb(xmlNode *root)
   /*
    * Sanity checks
    */
-  if(root == NULL || root->doc->intSubset == NULL)
+  if(root == NULL || root->name == NULL)
   {
     /*
      * No XML structure is no NZB :)
@@ -62,7 +62,7 @@ static int testifnzb(xmlNode *root)
   /*
    * Retrieve the DOCTYPE
    */
-  doctype = (char*) root->doc->intSubset->name;
+  doctype = (char*) root->name;
 
   /*
    * Test if the doctype is 'nzb'

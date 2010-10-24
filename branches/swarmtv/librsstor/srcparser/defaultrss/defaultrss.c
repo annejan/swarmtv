@@ -230,8 +230,9 @@ static int handleguid(void *data, char *string)
  */
 static int handlestart(void *data)
 {
-	rsstor_handle *handle;
-	char    *source;
+	rsstor_handle *handle=NULL;
+	char    *source=NULL;
+  char    *metatype=NULL;
 	rssdatastruct *rssdata = (rssdatastruct *) data;
 
 	/*
@@ -239,6 +240,7 @@ static int handlestart(void *data)
 	 */
 	handle=rssdata->handle;
 	source=rssdata->source;
+  metatype=rssdata->metatype;
 
 	/*
 	 * NULL all pointers
@@ -250,6 +252,7 @@ static int handlestart(void *data)
 	 */
 	rssdata->handle=handle;
 	rssdata->source=source;
+  rssdata->metatype=metatype;
 
 	return 0;
 }
@@ -363,6 +366,11 @@ static int handleend(void *data)
 		rsstwritelog(LOG_ERROR, "Alloc failed at %s:%d", __FILE__, __LINE__);
 		return  -1;
 	}
+	rc = rsstalloccopy(&(newtor.metatype), rssdata->metatype, strlen(rssdata->metatype));
+	if(rc != 0) {
+		rsstwritelog(LOG_ERROR, "Alloc failed at %s:%d", __FILE__, __LINE__);
+		return  -1;
+	}
 
 	/*
 	 * Disect the data.
@@ -456,7 +464,7 @@ static int handleend(void *data)
 /*
  * filter to handle incomming files from http://www.rsstorrents.com
  */
-int defaultrss(rsstor_handle *handle, char *name, char *url, char *filter, MemoryStruct *rssfile)
+int defaultrss(rsstor_handle *handle, char *name, char *url, char *filter, char *metatype, MemoryStruct *rssfile)
 {
 	int								retval=0;
 	int								rc=0;
@@ -474,6 +482,7 @@ int defaultrss(rsstor_handle *handle, char *name, char *url, char *filter, Memor
 	 */
 	data.handle = handle;
 	data.source = name;
+  data.metatype = metatype;
 
 	/*
 	 * Initialize the callback struct.

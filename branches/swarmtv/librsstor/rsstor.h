@@ -165,6 +165,7 @@ typedef struct {
 	int   id;
 	char *title;
 	char *link;
+  char *metatype;
 	time_t pubdate;
 	char *category;
 	char *source;
@@ -193,6 +194,7 @@ typedef struct {
 	char *link;
 	char *pubdate;
 	char *category;
+  char *metatype;
 	int  season;
 	int  episode;
 } downloaded_struct;
@@ -209,6 +211,7 @@ typedef struct {
  * The config item names
  */
 #define CONF_TORRENTDIR "torrentdir"
+#define CONF_NZBDIR     "nzbdir"
 #define CONF_LOGFILE    "logfile"
 #define CONF_REFRESH    "refresh"
 #define CONF_RETAIN     "retain"
@@ -353,11 +356,12 @@ int rsstfreesourcecontainer(source_container *sources);
  * name filter name
  * url source URL
  * parsertype parser type
+ * metatype meta file type (torrent/nzb)
  * @return
  * When already existing -1 is returned.
  * On success 0 is returned.
  */
-int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char *parsertype);
+int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char *parsertype, char *metatype);
 
 /*
  * Delete source item

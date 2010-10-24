@@ -36,6 +36,8 @@ typedef struct {
   LOOPMODE onetime;			// run once then exit
 	char *sourcefilter; 	// source filter 
 	char *source;					// source
+  char *url;            // URL of source
+  char *metatype;       // Metadata (torrent/nzb)
 	char *filter;					// SQL download filter
 	char *doublefilter;		// SQL no duplicate filter
 	char *simplename;			// Simple filter name

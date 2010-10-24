@@ -28,7 +28,7 @@
  * real = Download torrent, send mails and log download
  * sim  = Just run the database code, no downloading no logging.
  */
-typedef enum {real = 0, sim} SIM;
+typedef enum {real=0, sim} SIM;
 
 /*
  * Struct holding file info
@@ -41,7 +41,7 @@ struct FtpFile {
 /*
  * Structure holding useful torrent properties.
  */
-typedef enum {torrent = 0, nzb} METAFILETYPE;
+typedef enum {undefined=0, torrent, nzb} METAFILETYPE;
 
 typedef struct {
   METAFILETYPE type;        // Tells what kind of meta file is presented

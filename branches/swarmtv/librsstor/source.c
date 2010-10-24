@@ -81,7 +81,7 @@ int rsstdelsource(rsstor_handle *handle, const char *name)
  * When already existing -1 is returned.
  * On success 0 is returned.
  */
-int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char *parsertype)
+int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char *parsertype, char *metatype)
 {
   int         rc=0;
   char       *localparser=NULL;
@@ -95,8 +95,7 @@ int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char
   /*
    * Init query
    */
-  const char* query = "INSERT INTO 'sources' (name, url, parser) VALUES(?2, ?1, ?3)";
-
+  const char* query = "INSERT INTO 'sources' (name, url, parser, metatype) VALUES(?2, ?1, ?3, ?4)";
 
   /*
    * When parser type is not set use the default.
@@ -113,7 +112,7 @@ int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char
   /*
    * Execute query
    */
-  rc = rsstexecutequery(db, query, "sss", url, name, localparser);
+  rc = rsstexecutequery(db, query, "ssss", url, name, localparser, metatype);
 
   /*
    * free parser type.

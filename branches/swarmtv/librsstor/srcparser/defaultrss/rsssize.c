@@ -47,6 +47,7 @@ int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata)
 	long			    min_config=0;
 	metafileprops	*props=NULL;
 	int				    retval=0;
+  METAFILETYPE  type=undefined;
 
 	/*
 	 * Get from size node.
@@ -67,12 +68,22 @@ int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata)
 		newtor->size = i_length;
 	}
 
+  /*
+   * convert metafiletype
+   */
+  rc = metafilestrtotype(newtor->metatype, &type);
+  if(rc != 0){
+		rsstwritelog(LOG_ERROR, "Not corrent meta type '%s' %s:%d", 
+      newtor->metatype, __FILE__, __LINE__ );
+		return -1;
+  }
+
 	/*
 	 * When smaller than 'min_size'
 	 */
 	rc = rsstconfiggetlong(rssdata->handle, CONF_MIN_SIZE , &min_config);
 	if(rc != 0){
-		rsstwritelog(LOG_ERROR, "Config variable '%s' not set!", CONF_MIN_SIZE);
+		rsstwritelog(LOG_ERROR, "Configuration variable '%s' not set!", CONF_MIN_SIZE);
 		return -1;
 	}
 
@@ -80,7 +91,7 @@ int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata)
 		/*
 		 * Download the torrent to verify the length
 		 */
-		rc = rsstgetmetafileinfo(torrent, rssdata->link, &props);
+		rc = rsstgetmetafileinfo(type, rssdata->link, &props);
 		if(rc == 0) {
 			newtor->size = props->size;	
 		} else {

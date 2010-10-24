@@ -48,7 +48,7 @@
 /*
  * Query to get sources to download.
  */
-const char *query="select name, url, parser, id from sources";
+const char *query="select name, url, parser, metatype, id from sources";
 
 /*
  * Apply a filter to the downloaded RSS code.
@@ -57,7 +57,7 @@ const char *query="select name, url, parser, id from sources";
  * Return
  * 0 when okay, on error -1
  */
-static int parserdownload(rsstor_handle *handle, char *name, char *url, char *filter, MemoryStruct *rssfile)
+static int parserdownload(rsstor_handle *handle, char *name, char *url, char *metatype, char *filter, MemoryStruct *rssfile)
 {
   int rc;
 	
@@ -66,13 +66,13 @@ static int parserdownload(rsstor_handle *handle, char *name, char *url, char *fi
    */
   if(strcmp(filter, "defaultrss") == 0) {
     //printf("Found a file for filter %s\n", filter);
-    rc = defaultrss(handle, name, url, filter, rssfile); 
+    rc = defaultrss(handle, name, url, filter, metatype, rssfile); 
     return 0;
   }
 
   if(strcmp(filter, "twitter") == 0) {
     //printf("Found a file for filter %s\n", filter);
-    rc = twitter(handle, name, url, filter, rssfile); 
+    rc = twitter(handle, name, url, filter, metatype, rssfile); 
     return 0;
   }
 
@@ -158,6 +158,7 @@ static void dowork(rsstor_handle *handle){
   char                    *zErrMsg=NULL;
   char           					*name=NULL;
   char           					*url=NULL;
+  char                    *metatype=NULL;
   char           					*parser=NULL;
 	char										errstr[ERRORLEN+1];
 	int											id=0;
@@ -191,19 +192,20 @@ static void dowork(rsstor_handle *handle){
     name    = (char *) sqlite3_column_text(ppStmt, 0);
     url     = (char *) sqlite3_column_text(ppStmt, 1);
     parser  = (char *) sqlite3_column_text(ppStmt, 2); 
-		id      = 				 sqlite3_column_int (ppStmt, 3);
+    metatype= (char *) sqlite3_column_text(ppStmt, 3);
+		id      = 				 sqlite3_column_int (ppStmt, 4);
   
     rc = rsstdownloadtobuffer(url, &rssfile);
     if(rc == 0) {
       /*
        * Download succeeded.
        */
-      rsstwritelog(LOG_DEBUG, "Download succeeded for %s : %s", name, url);
+      rsstwritelog(LOG_DEBUG, "Download succeeded for %s : %s : %s", name, url, metatype);
 
       /*
        * Filter the stuff and add it to the database.
        */
-      rc = parserdownload(handle, name, url, parser, &rssfile);
+      rc = parserdownload(handle, name, url, metatype, parser, &rssfile);
       if(rc == 0) {
 				/*
 				 * Callback RSS download is okay

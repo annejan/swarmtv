@@ -31,6 +31,34 @@
 #include "nzb/findnzb.h"
 #include "nzb/nzbparse.h"
 
+
+/*
+ * Convert string into METAFILETYPE 
+ * @arguments
+ * metastr META file string
+ * metatype metafile output string
+ * @return
+ * 0 on success, -1 when not match is found.
+ */
+int metafilestrtotype(char *metastr, METAFILETYPE *type)
+{
+  int retval=0;
+  
+  if(!strcmp(metastr, "torrent")) {
+    *type=torrent;
+  }
+  else if(!strcmp(metastr, "nzb")) {
+    *type=nzb;
+  }
+  else {
+    *type=undefined;
+    retval=-1;
+  } 
+
+  return retval;
+}
+
+
 /*
  * Provide the URL to the NZB,
  * returns a structure containing some of the props of the NZB.
@@ -52,10 +80,20 @@ int rsstgetmetafileinfo(METAFILETYPE type, char *url, metafileprops **props)
     case nzb:
       rc = rsstgetnzbinfo(url, props);
       break;
+    case undefined:
+      /*
+       * When this happens, just fail
+       */
+      rsstwritelog(LOG_ERROR, "'url' requested metafile info without valid meta file type %s:%d",
+        url, __FILE__, __LINE__);
+      *props=NULL;
+      rc=-1;
+      break;
   } 
 
   return rc;
 }
+
 
 /*
  * Free torrentprop structure.
@@ -69,6 +107,7 @@ void rsstfreemetafileprops(metafileprops *props)
    */
   free(props);
 }
+
 
 /*
  * This is a recursive function.
@@ -98,10 +137,21 @@ int rsstfindmetafile(METAFILETYPE type, char *url, char **torrenturl, MemoryStru
     case nzb:
       rc = rsstfindnzb(url, torrenturl, torbuffer);
       break;
+    case undefined:
+      /*
+       * When this happens, just fail
+       */
+      rsstwritelog(LOG_ERROR, "'url' requested metafile info without valid meta file type %s:%d",
+        url, __FILE__, __LINE__);
+      *torrenturl=NULL;
+      *torbuffer=NULL;
+      rc=-1;
+      break;
   } 
 
   return rc;
 }
+
 
 /*
  * Finds and writes torrent to file
@@ -122,6 +172,14 @@ int rsstfindmetafilewrite(METAFILETYPE type, char *url, char *name)
       break;
     case nzb:
       rc = rsstfindnzbwrite(url, name);
+      break;
+    case undefined:
+      /*
+       * When this happens, just fail
+       */
+      rsstwritelog(LOG_ERROR, "'url' requested metafile info without valid meta file type %s:%d",
+        url, __FILE__, __LINE__);
+      rc=-1;
       break;
   } 
 

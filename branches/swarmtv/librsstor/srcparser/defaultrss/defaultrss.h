@@ -38,11 +38,12 @@ typedef struct {
 	size_t	 enclosurelength;
 	char		*enclosuretype;
 	char		*enclosureurl;
+  char    *metatype;
 	int			 verified;
 } rssdatastruct;
 
 /*
  * filter to handle incomming files from http://www.rsstorrents.com
  */
-int defaultrss(rsstor_handle *handle, char *name, char *url, char *filter, MemoryStruct *rssfile);
+int defaultrss(rsstor_handle *handle, char *name, char *url, char *filter, char *metatype, MemoryStruct *rssfile);
 

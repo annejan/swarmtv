@@ -30,7 +30,7 @@
 #include "curlfile.h"
 #include "torrentdb.h"
 #include "logfile.h"
-#include "filehandler/torrent/findtorrent.h"
+#include "filehandler/filehandler.h"
 #include "filesystem.h"
 #include "database.h"
 #include "callback.h"
@@ -65,7 +65,7 @@ static int testdouble(sqlite3 *db, char *nodouble, char *titleregexp, downloaded
  * Do download.
  * take url, create name and call curl routine
  */
-static int dodownload(sqlite3 *db, downloaded_struct *downed);
+static int dodownload(rsstor_handle *handle, downloaded_struct *downed);
 
 /*
  * Get the filters from the database.
@@ -283,7 +283,7 @@ static void rssthandlenewresults(rsstor_handle *handle, char *filtername, downlo
 		/*
 		 * Download torrent when download is successful send email.
 		 */
-		downsuccess = dodownload(handle->db, downed);
+		downsuccess = dodownload(handle, downed);
 		if(downsuccess == 0) {
 			/*
 			 * Send email and call callbacks
@@ -337,8 +337,9 @@ static void rssthandlefiltresults(rsstor_handle *handle, sqlite3_stmt *ppStmt, c
 		downed.title     = (char*) sqlite3_column_text(ppStmt, 1);
 		downed.pubdate   = (char*) sqlite3_column_text(ppStmt, 2);
 		downed.category  = (char*) sqlite3_column_text(ppStmt, 3);
-		downed.season    =  sqlite3_column_int(ppStmt, 4);
-		downed.episode   =  sqlite3_column_int(ppStmt, 5);
+    downed.metatype  = (char*) sqlite3_column_text(ppStmt, 4);
+		downed.season    =  sqlite3_column_int(ppStmt, 5);
+		downed.episode   =  sqlite3_column_int(ppStmt, 6);
 
 		/*
 		 * Test if episode is already there
@@ -471,6 +472,54 @@ void rsstapplyfilter(rsstor_handle *handle, char *name, char* nodouble, char *ti
 }
 
 
+/*
+ * Create from settings and filename a complete path
+ * @Arguments
+ * handle
+ * downed
+ * path
+ * metatype
+ * fullpath
+ * @Return
+ * 0 when all was succesfull, -1 when things gone wrong
+ */
+static int rsstgetdownloadpath(rsstor_handle *handle, downloaded_struct *downed, METAFILETYPE type, char *filename)
+{
+	char *path = NULL;
+	char *fullpath = NULL;
+
+	/*
+	 * get path to put torrent in
+	 */
+  if(type == torrent) {
+    rsstconfiggetproperty(handle, CONF_TORRENTDIR, &path);
+  } 
+  else if(type == nzb) {
+    rsstconfiggetproperty(handle, CONF_NZBDIR, &path);
+  } else {
+    rsstwritelog(LOG_ERROR, "Meta file type unknown for '%s'. %s:%d", downed->title, __FILE__, __LINE__);
+    return -1;
+  }
+
+  /*
+   * Create full path from abreviations
+   */
+	rsstcompletepath(path, &fullpath);
+
+	/*
+	 * Create filename.
+	 */
+	snprintf(filename, 255, "%s/%sS%dE%dR%s.torrent", 
+			fullpath, downed->title, downed->season, downed->episode, downed->pubdate); 
+
+	/*
+	 * Cleanup
+	 */
+	free(path);
+	free(fullpath);
+
+  return 0;
+}
 
 
 /*
@@ -479,23 +528,19 @@ void rsstapplyfilter(rsstor_handle *handle, char *name, char* nodouble, char *ti
  * @Arguments 
  * 
  */
-static int dodownload(sqlite3 *db, downloaded_struct *downed) 
+static int dodownload(rsstor_handle *handle, downloaded_struct *downed) 
 {
-	char filename[151];
+	char filename[256];
 	char *path = NULL;
 	char *fullpath = NULL;
-	int  retval=0;
-	rsstor_handle handle;
-
-	/*
-	 * REMOVE IN THE FUTURE
-	 */
-	handle.db=db;
+  int   rc=0;
+	int   retval=0;
+  METAFILETYPE type=undefined;
 
 	/*
 	 * get path to put torrent in
 	 */
-	rsstconfiggetproperty(&handle, CONF_TORRENTDIR, &path);
+	rsstconfiggetproperty(handle, CONF_TORRENTDIR, &path);
 	rsstcompletepath(path, &fullpath);
 
 	/*
@@ -504,16 +549,31 @@ static int dodownload(sqlite3 *db, downloaded_struct *downed)
 	snprintf(filename, 150, "%s/%sS%dE%dR%s.torrent", 
 			fullpath, downed->title, downed->season, downed->episode, downed->pubdate); 
 
-	/*
-	 * download
-	 */
-	retval = rsstfindtorrentwrite(downed->link, filename);
+  /*
+   * Define METAFILE type
+   */
+  rc = metafilestrtotype(downed->metatype, &type);
+  if(rc != 0) {
+    rsstwritelog(LOG_ERROR, "Meta file type unknown for '%s'. %s:%d", downed->title, __FILE__, __LINE__);
+    retval = -1;
+  }
 
-	/*
-	 * Cleanup
-	 */
-	free(path);
-	free(fullpath);
+  /*
+   * Determine full Path, and commence download when success
+   */
+  rc = rsstgetdownloadpath(handle, downed, type, filename);
+  if(rc == 0 && retval == 0) {
+    /*
+     * download
+     */
+    retval = rsstfindmetafilewrite(type, downed->link, filename);
+  } else {
+    /*
+     * Meta type unknown, this is problematic
+     */
+    rsstwritelog(LOG_ERROR, "'%s' Did not have meta type !", fullpath);
+    retval=-1;
+  }
 
 	return retval;
 }
@@ -542,7 +602,7 @@ int rsstdownloadbyid(rsstor_handle *handle, int torid)
 	 */
 	db = handle->db;
 
-	static char *manualquery = "select link, title, pubdate, category, season, episode from newtorrents where id = ?1";
+	static char *manualquery = "select link, title, pubdate, category, season, episode, metatype from newtorrents where id = ?1";
 
 	/*
 	 * Retrieve record from newtor table
@@ -571,11 +631,12 @@ int rsstdownloadbyid(rsstor_handle *handle, int torid)
 		downed.category  = (char*) sqlite3_column_text(ppstmt, 3);
 		downed.season    =  sqlite3_column_int(ppstmt, 4);
 		downed.episode   =  sqlite3_column_int(ppstmt, 5);
+    downed.metatype  = (char*) sqlite3_column_text(ppstmt, 6);
 
 		/*
 		 * Execute download
 		 */
-		rc = dodownload(db, &downed);
+		rc = dodownload(handle, &downed);
 		if(rc == 0) {
 			/* 
 			 * Download successfull

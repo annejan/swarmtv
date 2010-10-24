@@ -17,9 +17,10 @@ echo "Done."
 
 # INSERT INTO "sources" (name, url, filter) VALUES( "rsstorrents", "http://rsstorrents.com/rss.php?cat=8", "rsstorrent"); 
 echo "Inserting sources."
-  rsstorrent --add-source="Eztv:http://www.ezrss.it/feed/" --source-parser="defaultrss"
-  rsstorrent --add-source="The Piratebay:http://rss.thepiratebay.org/205" --source-parser="defaultrss"
-  rsstorrent --add-source="KickAssTorrents:http://www.kickasstorrents.com/tv/?rss=1" --source-parser="defaultrss"
+  rsstorrent --add-source="Eztv" --url="http://www.ezrss.it/feed/" --source-parser="defaultrss" --metatype="torrent"
+  rsstorrent --add-source="The Piratebay" --url="http://rss.thepiratebay.org/205" --source-parser="defaultrss" --metatype="torrent"
+  rsstorrent --add-source="KickAssTorrents" --url="http://www.kickasstorrents.com/tv/?rss=1" --source-parser="defaultrss" --metatype="torrent"
+  rsstorrent --add-source="NZBsrus" --url="http://www.nzbsrus.com/rssfeed.php?cat=75&i=218418&h=173799b863198ee4a8073e7e9f000ba1" --source-parser="defaultrss" --metatype="nzb"
 echo "Done."
 
 # Although SQL filters are still supported they are not the default filter method anymore.

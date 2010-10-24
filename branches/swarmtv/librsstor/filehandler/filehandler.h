@@ -70,4 +70,14 @@ int rsstfindmetafile(METAFILETYPE type, char *url, char **torrenturl, MemoryStru
  */
 int rsstfindmetafilewrite(METAFILETYPE type, char *url, char *name);
 
+/*
+ * Convert string into METAFILETYPE 
+ * @arguments
+ * metastr META file string
+ * metatype metafile output string
+ * @return
+ * 0 on success, -1 when not match is found.
+ */
+int metafilestrtotype(char *metastr, METAFILETYPE *type);
+
 #endif

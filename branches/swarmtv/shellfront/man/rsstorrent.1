@@ -38,13 +38,19 @@ Sends an email containing the text provided to the email address provided in the
 Prints version of RSS\-torrent.
 .TP
 \-c \-\-list\-config
-List config items and their value.
+List configuration items and their value.
 .TP
 \-C \-\-set\-config name:value
-Set config value.
+Set configuration value.
 .TP
-\-s \-\-add\-source name:url
+\-s \-\-add\-source name
 Add RSS source.
+.TP
+\-I \-\-url 
+The URL of the RSS source to add
+.TP
+\-Z \-\-metatype
+The type of meta file expected in the RSS source (nzb/torrent).
 .TP
 \-D \-\-del\-source name
 Delete RSS source.
@@ -175,11 +181,11 @@ When the given size in the source is smaller then this number (in bytes), the to
 .TP
 Add a RSS source provided by Eztv.
 .B rsstorrent 
-\-\-add\-source="Eztv:http://www.ezrss.it/feed/" \-\-source-parser="defaultrss"
+\-\-add\-source="Eztv" \-\-url="http://www.ezrss.it/feed/" \-\-source-parser="defaultrss" \-\-metatype="torrent"
 .TP
 Add a Twitter source using the Twitter API. (provide own account)
 .B rsstorrent
-\-\-add\-source="Twitter:https://<username>:<password>@twitter.com/statuses/friends_timeline.xml"
+\-\-add\-source="Twitter" --url="https://<username>:<password>@twitter.com/statuses/friends_timeline.xml" \-\-metatype="torrent"
 \-\-source-parser="twitter"
 .TP
 Add a simple filter, matching newer house episodes, excluding "House hunters international".

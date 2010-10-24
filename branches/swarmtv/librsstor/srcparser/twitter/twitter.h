@@ -33,10 +33,11 @@ typedef struct {
 	rsstor_handle *handle;
 	tweetdata tweet;
 	char 			*source; // Static, not changed during parsing
+  char      *metatype; // Type of metafiles to expect (Torrent/NZB)
 } twitterdata;
 
 /*
  * Filter to handle incomming files from a Twitter timeline
  */
-int twitter(rsstor_handle *handle, char *name, char *url, char *filter, MemoryStruct *rssfile);
+int twitter(rsstor_handle *handle, char *name, char *url, char *filter, char *metatype, MemoryStruct *rssfile);
 

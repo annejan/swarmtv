@@ -99,8 +99,8 @@ int rsstaddnewtorrent(rsstor_handle *handle, newtorrents_struct *newtor)
 	 */
 	db = handle->db;
 
-  char *query = "INSERT INTO newtorrents (title, link, pubdate, category, source, season, episode, seeds, peers, size, new) "
-                "VALUES (?1, ?2, date(?3, 'unixepoch'), ?4, ?5, ?6, ?7, ?8, ?9, ?10, 'Y')";
+  char *query = "INSERT INTO newtorrents (title, link, pubdate, category, source, season, episode, seeds, peers, size, metatype, new) "
+                "VALUES (?1, ?2, date(?3, 'unixepoch'), ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, 'Y')";
   
 	/*
 	 * Remove numbers that refer to video encoding but could end up as season/episode numbers.
@@ -118,16 +118,17 @@ int rsstaddnewtorrent(rsstor_handle *handle, newtorrents_struct *newtor)
       "episode:  %d\n"
       "seeds:    %d\n"
       "peers:    %d\n"
-      "size:     %ld\n",
+      "size:     %ld\n"
+      "metatype: %s\n",
       	newtor->title, newtor->link, ctime(&(newtor->pubdate)), newtor->category, newtor->source, 
-				newtor->season, newtor->episode, newtor->seeds, newtor->peers, newtor->size);
+				newtor->season, newtor->episode, newtor->seeds, newtor->peers, newtor->size, newtor->metatype);
 
   /*
    * execute query
    */
-  rc = rsstexecutequery(db, query, "ssdssddddf", 
+  rc = rsstexecutequery(db, query, "ssdssddddfs", 
 			newtor->title, newtor->link, newtor->pubdate, newtor->category, newtor->source, newtor->season, 
-			newtor->episode, newtor->seeds, newtor->peers, (double)(newtor->size));
+			newtor->episode, newtor->seeds, newtor->peers, (double)(newtor->size), newtor->metatype);
   switch(rc) {
     case ROWS_EMPTY:
     case ROWS_CHANGED:
@@ -162,8 +163,8 @@ void rsstadddownloaded(rsstor_handle *handle, downloaded_struct *downed, SIM  si
 
 	db = handle->db;
 
-  char *query = "INSERT INTO downloaded (title, link, pubdate, category, season, episode, date) "
-                "VALUES (?1, ?2, ?3, ?4, ?5, ?6,  datetime(?7, 'unixepoch', 'localtime'))";
+  char *query = "INSERT INTO downloaded (title, link, pubdate, category, season, episode, metatype, date) "
+                "VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7,  datetime(?8, 'unixepoch', 'localtime'))";
 
   /*
    * The time is now, now is the time
@@ -179,16 +180,17 @@ void rsstadddownloaded(rsstor_handle *handle, downloaded_struct *downed, SIM  si
         "link:     %s\n"
         "pubdate:  %s\n"
         "category: %s\n"
+        "metatype: %s\n"
         "season:   %d\n"
         "episode:  %d",
-        downed->title, downed->link, downed->pubdate, downed->category, downed->season, downed->episode);
+        downed->title, downed->link, downed->pubdate, downed->category, downed->metatype, downed->season, downed->episode);
   }
 
   /*
    * execute query, when failed return -1
    */
-  rc = rsstexecutequery(db, query, "ssssddd", downed->title, downed->link, downed->pubdate, downed->category, 
-			downed->season, downed->episode, now); 
+  rc = rsstexecutequery(db, query, "ssssddsd", downed->title, downed->link, downed->pubdate, downed->category, 
+			downed->season, downed->episode, downed->metatype, now); 
   switch(rc) {
     case ROWS_EMPTY:
     case ROWS_CHANGED:
