@@ -217,7 +217,6 @@ int rsstfindnzbwrite(char *url, char *name)
   rc = rsstfindnzb(url, &nzburl, &buffer);
   if(rc != 1) {
     rsstwritelog(LOG_NORMAL, "NZB not found in '%s'", url);
-		rsstfreedownload(buffer);
     rv=-1;
   }
 

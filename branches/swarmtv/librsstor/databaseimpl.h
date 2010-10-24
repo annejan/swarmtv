@@ -19,6 +19,13 @@
  */
 
 /*
+ * Database version.
+ * When the current version does not match the version in the version field
+ * The database is recreated
+ */
+#define RSST_DB_VERSION 3
+
+/*
  * path to database file.
  */
 #define  RSST_DBFILE "~/.rsstorrent/rss.db"

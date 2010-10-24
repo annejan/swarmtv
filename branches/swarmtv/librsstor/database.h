@@ -19,13 +19,6 @@
  */
 
 /*
- * Database version.
- * When the current version does not match the version in the version field
- * The database is recreated
- */
-#define RSST_DB_VERSION 2
-
-/*
  * Number of elements to allocate initially for returning results
  */
 #define RSST_START_ELEMENTS 10

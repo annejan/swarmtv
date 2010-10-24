@@ -28,6 +28,7 @@
 
 #include "types.h"
 #include "database.h"
+#include "databaseimpl.h"
 #include "logfile.h"
 #include "filesystem.h"
 #include "regexp.h"

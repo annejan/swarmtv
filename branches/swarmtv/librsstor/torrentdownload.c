@@ -220,8 +220,9 @@ static void rsstsendemail(sqlite3 *db, char *filtername, downloaded_struct *down
       "\n--------------------------------\n"
 			"URL: %s\n"
       "This content was found by Filter: %s\n"
+      "Download method used: %s\n"
       "\n--------------------------------", 
-			downed->title, downed->season, downed->episode, downed->link, filtername);
+			downed->title, downed->season, downed->episode, downed->link, filtername, downed->metatype);
 
   /*
    * Call the send mail routine.
@@ -487,30 +488,33 @@ static int rsstgetdownloadpath(rsstor_handle *handle, downloaded_struct *downed,
 {
 	char *path = NULL;
 	char *fullpath = NULL;
+  char *extension = NULL;
 
 	/*
 	 * get path to put torrent in
 	 */
   if(type == torrent) {
     rsstconfiggetproperty(handle, CONF_TORRENTDIR, &path);
+    extension = "torrent";
   } 
   else if(type == nzb) {
     rsstconfiggetproperty(handle, CONF_NZBDIR, &path);
+    extension = "nzb";
   } else {
     rsstwritelog(LOG_ERROR, "Meta file type unknown for '%s'. %s:%d", downed->title, __FILE__, __LINE__);
     return -1;
   }
 
   /*
-   * Create full path from abreviations
+   * Create full path from abbreviations
    */
 	rsstcompletepath(path, &fullpath);
 
 	/*
 	 * Create filename.
 	 */
-	snprintf(filename, 255, "%s/%sS%dE%dR%s.torrent", 
-			fullpath, downed->title, downed->season, downed->episode, downed->pubdate); 
+	snprintf(filename, 255, "%s/%sS%dE%dR%s.%s", 
+			fullpath, downed->title, downed->season, downed->episode, downed->pubdate, extension); 
 
 	/*
 	 * Cleanup
