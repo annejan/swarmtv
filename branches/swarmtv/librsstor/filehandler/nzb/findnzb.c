@@ -215,7 +215,7 @@ int rsstfindnzbwrite(char *url, char *name)
    * Get the buffer and URL to the torrent in there
    */
   rc = rsstfindnzb(url, &nzburl, &buffer);
-  if(rc != 1) {
+  if(rc != 0) {
     rsstwritelog(LOG_NORMAL, "NZB not found in '%s'", url);
     rv=-1;
   }
