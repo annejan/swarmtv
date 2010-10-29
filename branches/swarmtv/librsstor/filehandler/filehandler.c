@@ -31,6 +31,24 @@
 #include "nzb/findnzb.h"
 #include "nzb/nzbparse.h"
 
+/*
+ * char array holding the types of metafiles supported by librsstorrent
+ */
+char *supported_metatypes[] ={
+  "torrent",
+  "nzb",
+  NULL
+};
+
+/*
+ * Get supported meta file types
+ * @return
+ * Returns a pointer to the names of the supported meta types.
+ */
+char **getsupportedmetatypes()
+{
+  return supported_metatypes;
+}
 
 /*
  * Convert string into METAFILETYPE 

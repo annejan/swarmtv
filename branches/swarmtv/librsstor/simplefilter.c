@@ -416,7 +416,7 @@ int rsstdownloadsimple(rsstor_handle *handle, SIM simulate)
     /*
      * call apply filter
      */
-    rsstapplyfilter(handle, name, sqlnodup, title, simulate, sqlfilter, 
+    rsstapplyfilter(handle, name, simple, sqlnodup, title, simulate, sqlfilter, 
 				"sffddsss", title, maxsize, minsize, season, episode, exclude, category, source);
 
     /*

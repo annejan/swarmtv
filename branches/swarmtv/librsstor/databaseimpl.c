@@ -76,6 +76,9 @@ static const char *dbinitscript =
 "-- Create the sources table\n"
 "create table sources (id INTEGER PRIMARY KEY, name TEXT UNIQUE, url TEXT, parser TEXT, metatype TEXT DEFAULT 'torrent');\n"
 "\n"
+"-- Create the lastdownloaded table\n"
+"CREATE TABLE lastdownload (id INTEGER PRIMARY KEY, simple_id INTEGER UNIQUE, sql_id INTEGER UNIQUE, downloaded_id INTEGER);"
+"\n"
 "-- Create the config table, and fill out the table with the 'standard' values\n"
 "create table config (id INTEGER PRIMARY KEY, prop TEXT UNIQUE, value TEXT, descr TEXT);\n"
 "INSERT INTO 'config' (prop, value, descr) VALUES('torrentdir', '~/torrents', 'Path the downloaded Torrents are placed in.');\n"
@@ -135,6 +138,9 @@ static const char *updatev2tov3 =
 ""
 "-- Up database version from version 1 to 2\n"
 "update version set version = '3';\n"
+""
+"-- Add the lastdownloaded tablei\n"
+"CREATE TABLE lastdownload (id INTEGER PRIMARY KEY, simple_id INTEGER UNIQUE, sql_id INTEGER UNIQUE, downloaded_id INTEGER);\n"
 ""
 "COMMIT"
 "\n";
@@ -1040,7 +1046,7 @@ int rsstgetdownloaded(rsstor_handle *handle, downloaded_container **downloaded, 
  * @Arguments
  * downloaded pointer to downloaded struct to be freed
  */
-static void rsstfreedownloaded(downloaded_struct *downloaded)
+void rsstfreedownloaded(downloaded_struct *downloaded)
 {
 	/*
 	 * char *title;

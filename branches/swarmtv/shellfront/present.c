@@ -578,3 +578,51 @@ int rssffindtorrentids(opts_struct *opts)
 
 	return retval;
 }
+
+
+/*
+ * Print the last downloaded content per filter
+ * @Arguments
+ * handle RSS-torrent handle
+ */
+void rsstprintlastdowned(rsstor_handle *handle)
+{
+  int rc=0;
+  int count=0;
+  lastdowned_container container;
+  lastdowned_struct *lastdownloaded;
+
+
+  printf("Printing all filters, and the last content they downloaded.\n");
+
+  /*
+   * Get the last downloaded data
+   */
+  rc = rsstgetlastdownloaded(handle, &container);
+  if(rc != 0) {
+    fprintf(stderr, "Could not retrieve last downloaded data.\n");
+    return;
+  }
+
+  /*
+   * Print the restuls
+   */
+  printf("Number of records retreived '%d'\n", container.nr);
+  while(count < container.nr) {
+    lastdownloaded=&(container.lastdownloaded[count]);
+
+    printf("Filter name: '%s', Filter type: '%s', Title: '%s', Season: '%d', Episode: '%d'\n", 
+        lastdownloaded->filtername,
+        lastdownloaded->filtertype,
+        lastdownloaded->downloaded->title,
+        lastdownloaded->downloaded->season,
+        lastdownloaded->downloaded->episode);
+    count++;
+  }
+
+  /*
+   * Free the container
+   */
+  rsstfreelastdownedcontainer(&container);
+}
+

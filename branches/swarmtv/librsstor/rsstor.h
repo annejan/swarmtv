@@ -200,12 +200,29 @@ typedef struct {
 } downloaded_struct;
 
 /*
- * Simple filters container
+ * Downloaded container
  */
 typedef struct {
 	int nr;
 	downloaded_struct *downloaded;
 } downloaded_container;
+
+/*
+ * Last downloaded 
+ */
+typedef struct {
+  char *filtername;
+  char *filtertype;
+  downloaded_struct *downloaded;
+} lastdowned_struct;
+
+/*
+ * Last downloaded container
+ */
+typedef struct {
+  int nr;
+  lastdowned_struct *lastdownloaded;
+} lastdowned_container;
 
 /*
  * The config item names
@@ -329,6 +346,13 @@ int rsstconfiggetproperty(rsstor_handle *handle, char *prop, char **value);
 /*
  * == Functions to manipulate sources
  */
+
+/*
+ * Get supported meta file types
+ * @return
+ * Returns a pointer to the names of the supported meta types.
+ */
+char **getsupportedmetatypes();
 
 /*
  * Get all RSS-sources
@@ -547,6 +571,24 @@ int rsstgetallfilter(rsstor_handle *handle, filter_container **filteritem);
  * Returns 0 on success -1 on failure
  */
 int rsstgetfilterbyname(rsstor_handle *handle, char *name, filter_container **container);
+
+/*
+ * Get information of the last downloads and the filters that produced them
+ * @Arguments
+ * handle RSS-torrent handle 
+ * container the pointer pointer to the container
+ * @return
+ * 0 on success, -1 on failure
+ */
+int rsstgetlastdownloaded(rsstor_handle *handle, lastdowned_container *container);
+
+/*
+ * Free the downloaded container and its contents
+ * When the container it self is allocated, it should be freed separately
+ * @Arguments
+ * container pointer to the downed container to be freed
+ */
+void rsstfreelastdownedcontainer(lastdowned_container *container);
 
 /*
  * Add source item

@@ -44,9 +44,9 @@
  * Need to find a way to not have to maintain 2 argument strings.
  */
 #ifdef RSST_ESMTP_ENABLE
-static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:M:La:zwI:Z:";
+static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:M:La:zwI:Z:Y";
 #else
-static const char *optString = "vcC:hfF:T:t:d:s:SD:rnp:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:M:La:zwI:Z:";
+static const char *optString = "vcC:hfF:T:t:d:s:SD:rnp:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:M:La:zwI:Z:Y";
 #endif
 
 /*
@@ -98,6 +98,7 @@ static const struct option optLong[] =
 	{"id-del-downed",					required_argument, 0, 'M'},
 	{"find",									no_argument,			 0, 'L'},
 	{"find-downed",           required_argument, 0, 'a'},
+  {"print-lastdowned",      no_argument,       0, 'Y'},
 	{0, 0, 0, 0}
 };
 
@@ -123,6 +124,7 @@ static void printhelp(void)
 					"id-del-downed    -M <id>          : Remove downloaded torrent from duplicate check table.\n"
 					"find             -L               : Find torrents. (use with simple options)\n"
 					"find-downed      -a <regexp>      : Find entries in the downloaded table.\n"
+          "print-lastdowned -Y               : List of last downloaded file per filter.\n"
           "\nConfig settings\n"
           "list-config      -c               : List config Items and their values.\n"  
           "set-config       -C <name:value>  : Set a config value.\n"  
@@ -306,7 +308,7 @@ static int verifyarguments(opts_struct *opts)
 		fprintf(stderr, "Error, --metadata should be used in combination with --add-source.\n");
 		retval=-1;
   }
-  if(!(opts->source) && opts->filter){
+  if(!(opts->source) && opts->sourcefilter){
 		fprintf(stderr, "Error, --source-parser should be used in combination with --add-source.\n");
 		retval=-1;
   }
@@ -635,6 +637,10 @@ static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_st
 				rsstfinddowned(handle, optarg);
         stopop =1; // no more
 				break;
+      case 'Y': // Print the last downloads per filter
+        rsstprintlastdowned(handle);
+        stopop =1;
+        break;
       case 'h':   /* fall-through is intentional */
       case '?':
         /*
@@ -660,6 +666,36 @@ static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_st
 }
 
 /*
+ * Test the metatype string.
+ * @arguments
+ * metatype string holding the metatype to be entered
+ * @return
+ * 0 when supported, -1 when not found
+ */
+static int rssftestmetatype(char *metatype)
+{
+  int count=0;
+  char **supported;
+
+  /*
+   * Get supported type from library
+   */
+  supported = getsupportedmetatypes();
+
+  /*
+   * Is the metatype valid ?
+   */
+  while(supported[count] != NULL) {
+    if(!strcmp(supported[count], metatype)) {
+      return 0;
+    }
+    count++;
+  }
+
+  return -1;
+}
+
+/*
  * Handle commands that consist of more then one arguments
  */
 void handlemultiple(rsstor_handle *handle, opts_struct *opts)
@@ -680,8 +716,12 @@ void handlemultiple(rsstor_handle *handle, opts_struct *opts)
 	 */
 	if(opts->source != NULL) {
 		//rssfsplitnameval(opts->source, &name, &value);
-
-		rsstaddsource(handle, opts->source, opts->url, opts->sourcefilter, opts->metatype);
+    rc = rssftestmetatype(opts->metatype);
+    if(rc == 0) {
+      rsstaddsource(handle, opts->source, opts->url, opts->sourcefilter, opts->metatype);
+    } else {
+      fprintf(stderr, "Could not add source, metatype '%s' is not supported.\n", opts->metatype);
+    }
 	}
 
 	/*

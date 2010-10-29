@@ -35,6 +35,7 @@
 #include "database.h"
 #include "callback.h"
 #include "callbackimpl.h"
+#include "lastdownloaded.h"
 
 /*
  * When libesmtp is included add header here.
@@ -52,7 +53,7 @@
  * Apply the filters from the query.
  * when simulate is set to 'sim' no actual downloads are performed
  */
-void rsstapplyfilter(rsstor_handle *handle, char *name, char* nodouble, char *filtertitle, SIM simulate, char *filter, char *fmt, ...);
+void rsstapplyfilter(rsstor_handle *handle, char *name, FILTER_TYPE type, char* nodouble, char *filtertitle, SIM simulate, char *filter, char *fmt, ...);
 
 /*
  * Test for double downloads.
@@ -118,7 +119,7 @@ int rsstdownloadtorrents(rsstor_handle *handle)
     /*
      * call apply filter
      */
-    rsstapplyfilter(handle, name, nodouble, NULL, (SIM) real, filter, NULL);
+    rsstapplyfilter(handle, name, sql, nodouble, NULL, (SIM) real, filter, NULL);
   }
 
   /*
@@ -261,11 +262,107 @@ static int rsstexetorcallback(rsstor_handle *handle, int id, int status, char *e
 	return rc;
 }
 
+/*
+ * Use the filtername and type to get the filterid, use the link to get the downloaded id.
+ * @Arguments
+ * handle RSS-torrent handle
+ * downed Downloaded structure holding the downloaded data.
+ * filtername the name of the simple or sql filter 
+ * type the filter type sql or simple
+ * @Return
+ * 0 on success -1 on failure
+ */
+int rsstupdatelastdowned(rsstor_handle *handle, downloaded_struct *downed, char *filtername, FILTER_TYPE type)
+{
+  int rc=0;
+  int downloadedid=0;
+  int filterid=0;
+  char *value=NULL;
+  char *downedquery = "select id from downloaded where link = ?1 LIMIT 1";
+  char *simpleidquery = "SELECT id FROM simplefilters WHERE name = ?1 LIMIT 1";
+  char *sqlidquery = "SELECT id FROM filters WHERE name = ?1 LIMIT 1";
+
+  /*
+   * @@DEBUG
+   */
+  printf("rsstupdatelastdowned called !\n");
+
+  /*
+   * Get downloaded id
+   */
+  rc = rsstdosingletextquery(handle->db, (unsigned char const**)&value, downedquery, "s", downed->link);
+  if(rc == 0){
+    downloadedid = (int) atoi(value);
+    free(value);
+    value=NULL;
+  } else {
+    rsstwritelog(LOG_ERROR, "Could not get downloaded ID for link '%s'  %s:%d", downed->link, __FILE__, __LINE__);
+    free(value);
+    return -1;
+  }
+
+  /*
+   * @@DEBUG
+   */
+  printf("Download ID = %d\n", downloadedid);
+
+
+  /*
+   * Get filter id and add the entry to the database.
+   */
+  switch(type){
+    case sql:
+      rc = rsstdosingletextquery(handle->db, (unsigned char const**)&value, sqlidquery, "s", filtername);
+      if(rc != 0){
+        rsstwritelog(LOG_ERROR, "Quering for sql filter id failed  %s:%d", __FILE__, __LINE__);
+        free(value);
+        return -1;
+      }
+
+      break;
+    case simple:
+      rc = rsstdosingletextquery(handle->db, (unsigned char const**)&value, simpleidquery, "s", filtername);
+      if(rc != 0){
+        rsstwritelog(LOG_ERROR, "Quering for simple filter id failed %s:%d", __FILE__, __LINE__);
+        free(value);
+        return -1;
+      }
+
+      break;
+    default:
+      rsstwritelog(LOG_ERROR, "Unknown filter type %s:%d", __FILE__, __LINE__);
+      free(value);
+      return -1;
+  }
+  filterid = (int) atoi(value);
+  free(value);
+  value=NULL;
+
+  /*
+   * @@DEBUG
+   */
+  printf("filter ID = %d\n", filterid);
+
+  /*
+   * Call the registration.
+   */
+  rc = rsstaddlastdownload(handle, filterid, downloadedid, type);
+  if(rc != -1){
+		rsstwritelog(LOG_ERROR, "Adding download to lastdownload table failed %s:%d", __FILE__, __LINE__);
+    return -1;
+  }
+
+  /*
+   * Done 
+   */
+  return 0;
+}
+
 
 /*
  * Handle new results
  */
-static void rssthandlenewresults(rsstor_handle *handle, char *filtername, downloaded_struct *downed, SIM simulate)
+static void rssthandlenewresults(rsstor_handle *handle, char *filtername, FILTER_TYPE type, downloaded_struct *downed, SIM simulate)
 {
 	int downsuccess=0;
 	char errorstr[MAXMSGLEN+1];
@@ -309,6 +406,11 @@ static void rssthandlenewresults(rsstor_handle *handle, char *filtername, downlo
 		 * Double download attempt will not occur as a newtorrent entry is only new once.
 		 */
 		rsstadddownloaded(handle, downed, simulate);
+
+    /*
+     * Update the lastdownloaded table
+     */
+    rsstupdatelastdowned(handle, downed, filtername, type);
 	}
 
 	/*
@@ -320,7 +422,7 @@ static void rssthandlenewresults(rsstor_handle *handle, char *filtername, downlo
 /*
  * Handle filter results
  */
-static void rssthandlefiltresults(rsstor_handle *handle, sqlite3_stmt *ppStmt, char *filtername, char* nodouble, char *titleregexp, SIM simulate)
+static void rssthandlefiltresults(rsstor_handle *handle, sqlite3_stmt *ppStmt, char *filtername, FILTER_TYPE type, char* nodouble, char *titleregexp, SIM simulate)
 {
 	int 							rc=0;
 	int							  step_rc=0;
@@ -334,6 +436,7 @@ static void rssthandlefiltresults(rsstor_handle *handle, sqlite3_stmt *ppStmt, c
 		 * Get name and query of the filters
 		 */
 		memset(&downed, 0, sizeof(downloaded_struct));
+    //downed.id        =  sqlite3_column_int(ppStmt, 0);
 		downed.link      = (char*) sqlite3_column_text(ppStmt, 0);
 		downed.title     = (char*) sqlite3_column_text(ppStmt, 1);
 		downed.pubdate   = (char*) sqlite3_column_text(ppStmt, 2);
@@ -350,7 +453,7 @@ static void rssthandlefiltresults(rsstor_handle *handle, sqlite3_stmt *ppStmt, c
 			/*
 			 * Handle results that are no duplicate.
 			 */
-			rssthandlenewresults(handle, filtername, &downed, simulate);
+			rssthandlenewresults(handle, filtername, type, &downed, simulate);
 		} else {
 			rsstwritelog(LOG_DEBUG, "%s Season %d Episode %d is a duplicate %s:%d", 
 					downed.title, downed.episode, downed.season, __FILE__, __LINE__);
@@ -371,7 +474,7 @@ static void rssthandlefiltresults(rsstor_handle *handle, sqlite3_stmt *ppStmt, c
  * *fmt				:	Format of the arguments to insert into the filter sql 
  * ...				:	Arguments for the filter SQL.
  */
-void rsstapplyfilter(rsstor_handle *handle, char *name, char* nodouble, char *titleregexp, SIM simulate, char *filter, char *fmt, ...)
+void rsstapplyfilter(rsstor_handle *handle, char *name, FILTER_TYPE type, char* nodouble, char *titleregexp, SIM simulate, char *filter, char *fmt, ...)
 {
 	sqlite3_stmt  *ppStmt=NULL;
 	const char    *pzTail=NULL;
@@ -463,7 +566,7 @@ void rsstapplyfilter(rsstor_handle *handle, char *name, char* nodouble, char *ti
 		/*
 		 * Handle query results, filter out doubles, and take according action.
 		 */
-		rssthandlefiltresults(handle, ppStmt, name, nodouble, titleregexp, simulate);
+		rssthandlefiltresults(handle, ppStmt, name, type, nodouble, titleregexp, simulate);
 	}
 
 	/*
@@ -606,7 +709,7 @@ int rsstdownloadbyid(rsstor_handle *handle, int torid)
 	 */
 	db = handle->db;
 
-	static char *manualquery = "select link, title, pubdate, category, season, episode, metatype from newtorrents where id = ?1";
+	static char *manualquery = "select id, link, title, pubdate, category, season, episode, metatype from newtorrents where id = ?1";
 
 	/*
 	 * Retrieve record from newtor table
@@ -629,13 +732,14 @@ int rsstdownloadbyid(rsstor_handle *handle, int torid)
 		 * initiate download
 		 */
 		memset(&downed, 0, sizeof(downloaded_struct));
-		downed.link      = (char*) sqlite3_column_text(ppstmt, 0);
-		downed.title     = (char*) sqlite3_column_text(ppstmt, 1);
-		downed.pubdate   = (char*) sqlite3_column_text(ppstmt, 2);
-		downed.category  = (char*) sqlite3_column_text(ppstmt, 3);
-		downed.season    =  sqlite3_column_int(ppstmt, 4);
-		downed.episode   =  sqlite3_column_int(ppstmt, 5);
-    downed.metatype  = (char*) sqlite3_column_text(ppstmt, 6);
+    downed.id        = sqlite3_column_int(ppstmt, 0);
+		downed.link      = (char*) sqlite3_column_text(ppstmt, 1);
+		downed.title     = (char*) sqlite3_column_text(ppstmt, 2);
+		downed.pubdate   = (char*) sqlite3_column_text(ppstmt, 3);
+		downed.category  = (char*) sqlite3_column_text(ppstmt, 4);
+		downed.season    =  sqlite3_column_int(ppstmt, 5);
+		downed.episode   =  sqlite3_column_int(ppstmt, 6);
+    downed.metatype  = (char*) sqlite3_column_text(ppstmt, 7);
 
 		/*
 		 * Execute download

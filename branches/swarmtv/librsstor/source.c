@@ -76,6 +76,38 @@ int rsstdelsource(rsstor_handle *handle, const char *name)
   }
 }
 
+
+/*
+ * Test the metatype string.
+ * @arguments
+ * metatype string holding the metatype to be entered
+ * @return
+ * 0 when supported, -1 when not found
+ */
+static int rssttestmetatype(char *metatype)
+{
+  int count=0;
+  char **supported;
+
+  /*
+   * Get supported type from library
+   */
+  supported = getsupportedmetatypes();
+
+  /*
+   * Is the metatype valid ?
+   */
+  while(supported[count] != NULL) {
+    if(!strcmp(supported[count], metatype)) {
+      return 0;
+    }
+    count++;
+  }
+
+  return -1;
+}
+
+
 /*
  * Add source item
  * When already existing -1 is returned.
@@ -96,6 +128,15 @@ int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char
    * Init query
    */
   const char* query = "INSERT INTO 'sources' (name, url, parser, metatype) VALUES(?2, ?1, ?3, ?4)";
+
+  /*
+   * Test the metatype is supported
+   */
+  rc = rssttestmetatype(metatype);
+  if(rc == -1) {
+    rsstwritelog(LOG_ERROR, "Adding source failed, metatype '%s' is not supported.", metatype);
+    return -1;    
+  } 
 
   /*
    * When parser type is not set use the default.

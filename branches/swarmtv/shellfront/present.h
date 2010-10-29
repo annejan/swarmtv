@@ -106,3 +106,9 @@ void rssflistallsimple(rsstor_handle *handle);
  */
 int rssffindtorrentids(opts_struct *opts);
 
+/*
+ * Print the last downloaded content per filter
+ * @Arguments
+ * handle RSS-torrent handle
+ */
+void rsstprintlastdowned(rsstor_handle *handle);

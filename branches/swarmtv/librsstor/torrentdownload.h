@@ -41,7 +41,7 @@ int rsstdownloadtorrents(rsstor_handle *handle);
  * *fmt					:	Format of the arguments to insert into the filter sql 
  * ...					:	Arguments for the filter SQL.
  */
-void rsstapplyfilter(rsstor_handle *handle, char *name, char* nodouble, char *titleregexp, SIM simulate, char *filter, char *fmt, ...);
+void rsstapplyfilter(rsstor_handle *handle, char *name, FILTER_TYPE type, char* nodouble, char *titleregexp, SIM simulate, char *filter, char *fmt, ...);
 
 
 /*

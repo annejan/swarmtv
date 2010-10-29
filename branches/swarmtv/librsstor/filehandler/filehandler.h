@@ -21,6 +21,12 @@
 #ifndef FILEHANDLER
 #define FILEHANDLER
 
+
+/*
+ * Get supported meta file types
+ */
+char **getsupportedmetatypes();
+
 /*
  * Provide the URL to the NZB,
  * returns a structure containing some of the props of the NZB.

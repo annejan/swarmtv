@@ -30,6 +30,7 @@
 #include "database.h"
 #include "logfile.h"
 #include "torrentdownload.h"
+#include "lastdownloaded.h"
 
 #define 	BUFSIZE 	20
 

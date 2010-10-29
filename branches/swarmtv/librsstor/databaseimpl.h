@@ -104,6 +104,13 @@ int rsstgetfilterbyname(rsstor_handle *handle, char *name, filter_container **co
 int rsstgetdownloaded(rsstor_handle *handle, downloaded_container **downloaded, int limit, int offset);
 
 /*
+ * Free downloaded structure
+ * @Arguments
+ * downloaded pointer to downloaded struct to be freed
+ */
+void rsstfreedownloaded(downloaded_struct *downloaded);
+
+/*
  * Delete content from source_container struct
  * @Arguments
  * container downloaded container content needs freeing
