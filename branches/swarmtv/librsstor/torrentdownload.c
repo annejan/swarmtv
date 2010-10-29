@@ -283,11 +283,6 @@ int rsstupdatelastdowned(rsstor_handle *handle, downloaded_struct *downed, char 
   char *sqlidquery = "SELECT id FROM filters WHERE name = ?1 LIMIT 1";
 
   /*
-   * @@DEBUG
-   */
-  printf("rsstupdatelastdowned called !\n");
-
-  /*
    * Get downloaded id
    */
   rc = rsstdosingletextquery(handle->db, (unsigned char const**)&value, downedquery, "s", downed->link);
@@ -300,12 +295,6 @@ int rsstupdatelastdowned(rsstor_handle *handle, downloaded_struct *downed, char 
     free(value);
     return -1;
   }
-
-  /*
-   * @@DEBUG
-   */
-  printf("Download ID = %d\n", downloadedid);
-
 
   /*
    * Get filter id and add the entry to the database.
@@ -339,15 +328,10 @@ int rsstupdatelastdowned(rsstor_handle *handle, downloaded_struct *downed, char 
   value=NULL;
 
   /*
-   * @@DEBUG
-   */
-  printf("filter ID = %d\n", filterid);
-
-  /*
    * Call the registration.
    */
   rc = rsstaddlastdownload(handle, filterid, downloadedid, type);
-  if(rc != -1){
+  if(rc != 0){
 		rsstwritelog(LOG_ERROR, "Adding download to lastdownload table failed %s:%d", __FILE__, __LINE__);
     return -1;
   }

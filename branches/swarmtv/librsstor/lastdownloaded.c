@@ -241,7 +241,6 @@ int rsstaddlastdownload(rsstor_handle *handle, int filterid, int downedid, FILTE
   int rc=0;
   int retval=0;
   char *query=NULL;
-  //sqlite3_stmt *ppstmt=NULL;
 
   /*
    * Queries used to update the SQL and SIMPLE lastdownload entries
@@ -271,13 +270,11 @@ int rsstaddlastdownload(rsstor_handle *handle, int filterid, int downedid, FILTE
   if(rc < 0){
     rsstwritelog(LOG_ERROR, "Query for retrieving simple filter last downloads. %s:%d\n", __FILE__, __LINE__);
     retval=-1;
-  } else {
-    /*
-     * @@DEBUG
-     */
-    printf("Query executed successful !\n");
-  }
+  } 
 
+  /*
+   * Done
+   */
   return retval;
 }
 
