@@ -186,7 +186,6 @@ int rsstfindnzb(char *url, char **nzburl, MemoryStruct **nzbbuffer)
    * If not give up for now and return -1 (not found)
    */
   xmlFreeDoc(root->doc);
-  rsstfreedownload(&buffer);
 
   return retval;
 }
