@@ -48,6 +48,7 @@ void rsstfreenewtor(newtorrents_struct *newtor)
 	free(newtor->link);
 	free(newtor->category);
 	free(newtor->source);
+  free(newtor->metatype);
 }
 
 

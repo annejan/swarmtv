@@ -90,6 +90,7 @@ static xmlNode *getxpathnode(const xmlChar * str, xmlXPathContextPtr ctxt)
    * When no results are found fail.
    */
   if( xpathObj->nodesetval->nodeNr == 0) {
+    xmlXPathFreeObject(xpathObj);
     return NULL;
   }
 

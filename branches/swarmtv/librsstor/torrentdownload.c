@@ -641,6 +641,11 @@ static int dodownload(rsstor_handle *handle, downloaded_struct *downed)
 			fullpath, downed->title, downed->season, downed->episode, downed->pubdate); 
 
   /*
+   * Free the path
+   */
+  free(path);
+
+  /*
    * Define METAFILE type
    */
   rc = metafilestrtotype(downed->metatype, &type);
@@ -665,6 +670,8 @@ static int dodownload(rsstor_handle *handle, downloaded_struct *downed)
     rsstwritelog(LOG_ERROR, "'%s' Did not have meta type !", fullpath);
     retval=-1;
   }
+
+  free(fullpath);
 
 	return retval;
 }

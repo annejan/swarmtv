@@ -178,6 +178,7 @@ static int getnzbsize(xmlDocPtr doc, size_t *nzbsize, size_t *piece_nr)
   /*
    * cleanup
    */
+  xmlXPathFreeObject(xpathObj);
   xmlXPathFreeContext(xpathCtx);
 
   return 0;
@@ -264,6 +265,7 @@ int rsstgetnzbinfo(char *url, metafileprops **props)
    */ 
   free(nzburl);
   rsstfreedownload(nzbbuffer);
+  free(nzbbuffer);
   xmlFreeDoc(doc);
 
   /*

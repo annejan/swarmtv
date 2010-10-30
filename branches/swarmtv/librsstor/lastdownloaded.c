@@ -62,6 +62,10 @@ void rsstfreelastdownedcontainer(lastdowned_container *container)
     rsstfreelastdowned(container->lastdownloaded+count);
     count++;
   }
+  /*
+   * Free the container pointers
+   */
+  free(container->lastdownloaded);
 }
 
 

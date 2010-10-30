@@ -135,6 +135,7 @@ int rsstfindnzb(char *url, char **nzburl, MemoryStruct **nzbbuffer)
   xmlNode     *root=NULL;
   MemoryStruct buffer;
   int          doctype=0;
+  int          retval=0;
 
   /*
    * Initialize stuff
@@ -175,21 +176,19 @@ int rsstfindnzb(char *url, char **nzburl, MemoryStruct **nzbbuffer)
      */
     rsstalloccopy((void*)nzbbuffer, (void*) &buffer, sizeof(MemoryStruct));
 
-    /*
-     * Success, return 0
-     */
-    return 0;
+  } else {
+    rsstwritelog(LOG_NORMAL, "Document not an NZB file, URL: '%s' %s:%d\n", url, __FILE__, __LINE__);
+    retval = -1;
   }
 
   /*
    * make sure we clean up
    * If not give up for now and return -1 (not found)
    */
+  xmlFreeDoc(root->doc);
   rsstfreedownload(&buffer);
 
-  rsstwritelog(LOG_NORMAL, "Document not an NZB file, URL: '%s' %s:%d\n", url, __FILE__, __LINE__);
-
-  return -1;
+  return retval;
 }
 
 
