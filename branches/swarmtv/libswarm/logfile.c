@@ -24,7 +24,7 @@
 #include <stdarg.h>
 #include <sqlite3.h>
 
-#include "rsstor.h"
+#include "swarm.h"
 #include "types.h"
 #include "config.h"
 #include "filesystem.h"

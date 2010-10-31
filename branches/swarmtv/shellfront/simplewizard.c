@@ -24,7 +24,7 @@
 #include <string.h>
 #include <getopt.h>
 
-#include <rsstor.h>
+#include <swarm.h>
 
 #include "handleopts.h"
 #include "frontfuncts.h"
@@ -576,14 +576,14 @@ static int rssfasksize(char *question, double *size)
  * @return
  * 0 on success, -1 on error
  */
-static int rssfacceptsimple(simplefilter_struct *simple, int *answer)
+static int rssfacceptsimple(simplefilter_struct *simple, int *answer, char *execname)
 {
 	int rc=0;
 
 	/*
 	 * Print current simple-filter
 	 */
-	printsimplestruct(simple);
+	printsimplestruct(execname, simple);
 
 	/*
 	 * Ask for conformation
@@ -757,7 +757,7 @@ void rssfsimplewizard(rsstor_handle *handle)
 	/*
 	 * Okay/discard simple filter Or test filter
 	 */
-	rc = rssfacceptsimple(simple, &ansval);
+	rc = rssfacceptsimple(simple, &ansval, "");
 	if(ansval == 0) {
 		printf("Filter not accepted.\n");
 	} else {

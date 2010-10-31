@@ -2,7 +2,7 @@
 # refer to the root source directory of the project as ${HELLO_SOURCE_DIR} and
 # to the root binary directory of the project as ${HELLO_BINARY_DIR}.
 cmake_minimum_required(VERSION 2.6)
-project (rsstorrent C)
+project (swarmtv C)
 
 # Use the detected libraries to set build variables.
 SET(optionalLibs)
@@ -50,20 +50,20 @@ INCLUDE(srcparser/CMakeLists.txt)
 INCLUDE(filehandler/CMakeLists.txt)
 
 # Add library
-add_library (rsstor SHARED ${LIBSRC})
-TARGET_LINK_LIBRARIES(rsstor ${optionalLibs} )
+add_library (swarm SHARED ${LIBSRC})
+TARGET_LINK_LIBRARIES(swarm ${optionalLibs} )
 # Set the build version (VERSION) and the API version (SOVERSION)
-SET_TARGET_PROPERTIES(rsstor
+SET_TARGET_PROPERTIES(swarm
 		PROPERTIES
 		VERSION 1.1.0
 		SOVERSION 1)
 
 # Installation of the library
-INSTALL(TARGETS rsstor
+INSTALL(TARGETS swarm
 		DESTINATION lib
 		PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
 
-INSTALL(FILES rsstor.h
+INSTALL(FILES swarm.h
 		DESTINATION include
 		PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
 

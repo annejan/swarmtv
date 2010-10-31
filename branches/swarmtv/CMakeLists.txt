@@ -2,7 +2,7 @@
 # refer to the root source directory of the project as ${HELLO_SOURCE_DIR} and
 # to the root binary directory of the project as ${HELLO_BINARY_DIR}.
 cmake_minimum_required(VERSION 2.6)
-project (rsstorrent C)
+project (swarmtv C)
 
 # Handle build switches
 IF(NOT DEFINED ESMTP_ENABLE)
@@ -41,7 +41,7 @@ ENDIF()
 SET(RSSTORRENT_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Building libray and shell frontend
-add_subdirectory (librsstor)
+add_subdirectory (libswarm)
 
 IF(SHELL_ENABLE) 
 	add_subdirectory (shellfront) 

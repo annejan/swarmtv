@@ -65,7 +65,7 @@ void rssfprintsources(rsstor_handle *handle);
  * @variables
  * filtername name to print
  */
-void rssfprintsimple(rsstor_handle *handle, char *filtername);
+void rssfprintsimple(rsstor_handle *handle, char *filtername, char *execname);
 
 /*
  * Print a simple filter struct in shell format
@@ -73,7 +73,7 @@ void rssfprintsimple(rsstor_handle *handle, char *filtername);
  * simple pointer to simple filter struct
  * @return
  */
-void printsimplestruct(simplefilter_struct *simple);
+void printsimplestruct(char *execname, simplefilter_struct *simple);
 
 /*
  * Print filter in shell format

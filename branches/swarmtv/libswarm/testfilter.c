@@ -37,7 +37,7 @@
 /*
  * The sandbox is created in a separate file, path is set here.
  */
-#define  RSST_DBSANDBOX "~/.rsstorrent/sandbox.db"
+#define  RSST_DBSANDBOX "~/.swarmtv/sandbox.db"
 
 /*
  * The max number of results in a search result.

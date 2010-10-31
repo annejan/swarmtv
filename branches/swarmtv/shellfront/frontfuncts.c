@@ -27,7 +27,7 @@
 #include <ctype.h>
 #include <math.h>
 
-#include <rsstor.h>
+#include <swarm.h>
 
 #include <handleopts.h>
 

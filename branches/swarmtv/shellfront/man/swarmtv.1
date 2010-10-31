@@ -1,8 +1,8 @@
-.TH rsstorrent 1  "February 3, 2010" "version 0.6" "USER COMMANDS"
+.TH swarmtv 1  "February 3, 2010" "version 0.9" "USER COMMANDS"
 .SH NAME
-rsstorrent \- Forwards shows from RSS to your torrent program.
+swarmtv \- Forwards shows from RSS to your torrent program.
 .SH SYNOPSIS
-.B rsstorrent
+.B swarmtv
 [\-hnRrqvcSfJkw] [\-m text] [\-C name:value] [\-s name:url] [\-D name] [\-t type] [\-d name] [\-p name] 
 [\-F name:query] [\-T query] [\-P name] [\-j name] [\-e name] [\-E regexp] [\-N regexp] [\-O size] [\-o size] 
 [\-u type] [\-g value] [\-G value] [\-i id] [\-M id] [\-L] [\-a regexp]
@@ -183,54 +183,54 @@ When the given size in the source is smaller then this number (in bytes), the to
 .SH EXAMPLES
 .TP
 Add a RSS source provided by Eztv.
-.B rsstorrent 
+.B swarmtv 
 \-\-add\-source="Eztv" \-\-url="http://www.ezrss.it/feed/" \-\-source-parser="defaultrss" \-\-metatype="torrent"
 .TP
 Add a Twitter source using the Twitter API. (provide own account)
-.B rsstorrent
+.B swarmtv
 \-\-add\-source="Twitter" --url="https://<username>:<password>@twitter.com/statuses/friends_timeline.xml" \-\-metatype="torrent"
 \-\-source-parser="twitter"
 .TP
 Add a simple filter, matching newer house episodes, excluding "House hunters international".
-.B rsstorrent
+.B swarmtv
 \-\-add\-simple="House" \-\-title="^house" \-\-exclude="hunters international" \-\-min\-size="200mb" \-\-max\-size="700mb" \-\-nodup="newer"
 .TP
 Test a simple filter, showing the matches the filter yields on the current database, without downloading anything.
-.B rsstorrent
+.B swarmtv
 .B \-\-test
 \-\-add\-simple="House" \-\-title="^house" \-\-exclude="hunters international" \-\-min\-size="200mb" \-\-max\-size="700mb" \-\-nodup="newer"
 .TP
 Run RSS-torrent as daemon.
-.B rsstorrent
+.B swarmtv
 --run
 .TP 
 Show Config settings.
-.B rsstorrent
+.B swarmtv
 \-\-list\-config
 .TP
 Enable email notifications.
-.B rsstorrent
+.B swarmtv
 \-\-set\-config="smtp_enable:Y"
 .IP
-.B rsstorrent
+.B swarmtv
 \-\-set\-config="smtp_to:your@address"
 .IP
-.B rsstorrent
+.B swarmtv
 \-\-set\-config="smtp_from:server@address"
 .IP
-.B rsstorrent
+.B swarmtv
 \-\-set\-config="smtp_host:smtp.foo.bar:25"
 .TP
 Change Directory torrents are downloaded to.
-.B rsstorrent
+.B swarmtv
 \-\-set\-config="torrentdir:<path>"
 .TP
 Change RSS check frequency.
-.B rsstorrent
+.B swarmtv
 \-\-set\-config="refresh:<seconds>"
 .TP
 Create a SQL filter.
-.B rsstorrent 
+.B swarmtv 
 \-F "DollHouse:select link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^[Dd]ollhouse') AND size < '400000000' AND new = 'Y'" \\
 .IP  
 \-T "SELECT title FROM downloaded WHERE link=?1 OR (season>=?2 AND episode>=?3 AND title REGEXP('^[Dd]ollhouse'))"
@@ -238,7 +238,7 @@ Create a SQL filter.
 .SH EXIT STATUS
 When RSS-torrent runs in the shell, 0 is returned on normal exit, otherwise 1.
 .SH AUTHOR
-Paul Honig (rsstorrent (at) swarmtv.nl)
+Paul Honig (swarmtv (at) swarmtv.nl)
 .SH SEE ALSO
 rtorrent(1)
 curl(1)

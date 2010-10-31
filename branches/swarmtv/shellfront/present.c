@@ -23,7 +23,7 @@
 #include <string.h>
 #include <time.h>
 
-#include <rsstor.h>
+#include <swarm.h>
 
 #include "handleopts.h"
 #include "frontfuncts.h"
@@ -323,7 +323,7 @@ void rssfprintsources(rsstor_handle *handle)
  *
  * @return
  */
-void printsimplestruct(simplefilter_struct *simple)
+void printsimplestruct(char *execname, simplefilter_struct *simple)
 {
   unsigned char 			maxsizestring[BUFSIZE+1];
   unsigned char 			minsizestring[BUFSIZE+1];
@@ -331,7 +331,7 @@ void printsimplestruct(simplefilter_struct *simple)
   /*
    * Print the components that are set
    */
-  printf("# rsstorrent --add-simple='%s' --nodup='%s' ", simple->name, simple->nodup); 
+  printf("# %s --add-simple='%s' --nodup='%s' ", execname, simple->name, simple->nodup); 
 
   if(strlen((char*)simple->title) > 0) {
     printf("--title='%s' ", simple->title);
@@ -400,7 +400,7 @@ void printsimplestruct(simplefilter_struct *simple)
  * Print filter in shell format
  * Prints the names of the simple filters + a header.
  */
-void rssfprintsimple(rsstor_handle *handle, char *filtername)
+void rssfprintsimple(rsstor_handle *handle, char *filtername, char *execname)
 {
   int           			rc=0;
 	simplefilter_container *simplefilter=NULL;
@@ -417,7 +417,7 @@ void rssfprintsimple(rsstor_handle *handle, char *filtername)
 	/*
 	 * Print result
 	 */
-	printsimplestruct(simplefilter->simplefilter);
+	printsimplestruct(execname, simplefilter->simplefilter);
 
 	/*
 	 * Free container
@@ -433,7 +433,7 @@ void rssfprintsimple(rsstor_handle *handle, char *filtername)
 /*
  * Print all simple filters in shell format.
  */
-void rssfprintallsimple(rsstor_handle *handle)
+void rssfprintallsimple(rsstor_handle *handle, char *execname)
 {
   int           					rc=0;
 	int											count=0;
@@ -452,7 +452,7 @@ void rssfprintallsimple(rsstor_handle *handle)
 	 * Print result
 	 */
 	for(count=0; count < simplefilter->nr; count++) {
-		printsimplestruct((simplefilter->simplefilter)+count);
+		printsimplestruct(execname, (simplefilter->simplefilter)+count);
 	}
 
 	/*

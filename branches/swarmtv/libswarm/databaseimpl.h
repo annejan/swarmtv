@@ -28,7 +28,7 @@
 /*
  * path to database file.
  */
-#define  RSST_DBFILE "~/.rsstorrent/rss.db"
+#define  RSST_DBFILE "~/.swarmtv/rss.db"
 
 /*
  * Run the Database init script.

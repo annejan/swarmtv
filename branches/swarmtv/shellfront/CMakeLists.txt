@@ -27,16 +27,16 @@ ENDIF(ESMTP_FOUND)
 
 # Compiler directives
 add_definitions(-Wall -W -g)
-include_directories(. ${RSSTORRENT_BASE_DIR}/librsstor)
+include_directories(. ${RSSTORRENT_BASE_DIR}/libswarm)
 
 # Make sure the linker can find the Hello library once it is built.
-link_directories (${RSSTORRENT_BASE_DIR}/librsstor) 
+link_directories (${RSSTORRENT_BASE_DIR}/libswarm) 
 
-SET(SRC rsstorrent handleopts present frontfuncts daemonize simplewizard)
+SET(SRC swarmtv handleopts present frontfuncts daemonize simplewizard)
 
 # Add manpage 
-SET(RSS_SRC man/rsstorrent.1)
-SET(RSS_MAN man/rsstorrent.1.gz)
+SET(RSS_SRC man/swarmtv.1)
+SET(RSS_MAN man/swarmtv.1.gz)
 
 # Compression of the manuals
 FOREACH(man ${RSS_SRC})
@@ -49,14 +49,14 @@ FOREACH(man ${RSS_SRC})
 ENDFOREACH(man)
 
 # Installation of the manuals
-INSTALL(FILES man/rsstorrent.1.gz
+INSTALL(FILES man/swarmtv.1.gz
 		DESTINATION "share/man/man1"
 		PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
 
 # Add executables / manuals
-add_executable (rsstorrent ${SRC} ${RSS_MAN}) 
-TARGET_LINK_LIBRARIES(rsstorrent ${optionalLibs} librsstor.so )
+add_executable (swarmtv ${SRC} ${RSS_MAN}) 
+TARGET_LINK_LIBRARIES(swarmtv ${optionalLibs} libswarm.so )
 
 # We install to /usr/local/bin
-INSTALL(PROGRAMS rsstorrent DESTINATION /usr/local/bin)
+INSTALL(PROGRAMS swarmtv DESTINATION /usr/local/bin)
 

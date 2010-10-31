@@ -25,7 +25,7 @@
 #include <string.h>
 #include <pcre.h>
 
-#include <rsstor.h>
+#include <swarm.h>
 
 #include "daemonize.h"
 #include "handleopts.h"
@@ -505,7 +505,7 @@ static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_st
         stopop = 1; // no more
         break;
       case 'P': // Print A simple filter in shell format
-        rssfprintsimple(handle, optarg);
+        rssfprintsimple(handle, optarg, argv[0]);
         stopop =1; // no more
         break;
       case 'A': // Print A simple filter in shell format

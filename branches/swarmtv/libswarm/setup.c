@@ -26,7 +26,7 @@
 #include <curl/types.h>
 #include <curl/easy.h>
 #include <libxml/parser.h>
-#include <rsstor.h>
+#include <swarm.h>
 
 #include "types.h"
 #include "logfile.h"
