@@ -1496,6 +1496,7 @@ static void rsstfreesource(source_struct *source)
 	free(source->name);
 	free(source->url);
 	free(source->parser);
+  free(source->metatype);
 }
 
 /*
