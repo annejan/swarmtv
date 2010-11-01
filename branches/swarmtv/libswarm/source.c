@@ -33,7 +33,6 @@
 
 #define  MAXLENGHT 400
 
-
 /*
  * Delete source item
  * When already existing -1 is returned.

@@ -1396,6 +1396,7 @@ static int rsststoresourcecontainer(sqlite3_stmt *result, source_container *cont
 		 * char *name;
 		 * char *url;
 		 * char *parser;
+     * char *metatype;
 		 */
 		container->source[count].id = sqlite3_column_int(result, 0);
 		column = (char*) sqlite3_column_text(result, 1);
@@ -1404,6 +1405,8 @@ static int rsststoresourcecontainer(sqlite3_stmt *result, source_container *cont
 		rsstalloccopy(&(container->source[count].url), column, strlen(column));
 		column = (char*)sqlite3_column_text(result, 3);
 		rsstalloccopy(&(container->source[count].parser), column, strlen(column));
+		column = (char*)sqlite3_column_text(result, 4);
+		rsstalloccopy(&(container->source[count].metatype), column, strlen(column));
 		count++;
 
 		/*
@@ -1444,7 +1447,7 @@ int rsstgetallsources(rsstor_handle *handle, source_container **sources)
 	/*
 	 * Query to retrieve source items
 	 */
-	const char *query = "select id, name, url, parser from sources";
+	const char *query = "select id, name, url, parser, metatype from sources";
 
 	/*
 	 * Alloc the container

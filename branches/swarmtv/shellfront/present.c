@@ -280,7 +280,7 @@ void rssfprintsources(rsstor_handle *handle)
 	 */
 	printf("#############\n");
   printf("Sources\n");
-  printf("Name : URL : Parser\n");
+  printf("Name : Parser : Meta type : URL\n");
   printf("#############\n");
 
 	/*
@@ -296,9 +296,10 @@ void rssfprintsources(rsstor_handle *handle)
 	 * Print source values.
 	 */
 	for(count=0; count < container->nr; count++) {
-		printf("%-25s : %-15s : %s\n", 
+		printf("%-25s : %-15s : %-15s : %s\n", 
 				container->source[count].name,
 				container->source[count].parser,
+        container->source[count].metatype,
 				container->source[count].url);
 	}
 

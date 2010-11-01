@@ -48,6 +48,10 @@ struct FtpFile {
  */
 typedef enum {undefined=0, torrent, nzb} METAFILETYPE;
 
+/*
+ * meta file properties
+ * Data extracted from the torrent/nzb is stored in this struct
+ */
 typedef struct {
   METAFILETYPE type;        // Tells what kind of meta file is presented
   size_t pieces_length;     // Size of pieces

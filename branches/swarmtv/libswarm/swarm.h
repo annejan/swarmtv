@@ -266,6 +266,7 @@ typedef struct {
 	char *name;
 	char *url;
 	char *parser;
+  char *metatype;
 } source_struct;
 
 /*
