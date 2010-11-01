@@ -94,25 +94,32 @@ int rsstinitlogdb(sqlite3 *db)
 
 /*
  * Initialize log file
- * Return 0 when success
- * Return !0 when fail
+ * @Arguments
+ * logpath path to the logfile
+ * @return Return 0 when success, Return -1 when fail
  */
 int rsstinitlog(char *logpath)
 {
 	FILE *log=NULL;
   char *fullpath=NULL;
+  int retval=0;
 
   rsstcompletepath(logpath, &fullpath);
 
   log = fopen(fullpath,"a+");
-	fclose(log);
+  if(log != NULL) {
+    fclose(log);
+  } else {
+    fprintf(stderr, "Could not initiate logfile at '%s'\n", fullpath);
+    retval = -1;
+  }
 
   free(fullpath);
 
   /*
    * Return code.
    */
-  return (int) !log;
+  return retval;
 }
 
 /*
