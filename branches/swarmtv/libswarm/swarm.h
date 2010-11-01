@@ -15,7 +15,7 @@
  *  Please refer to the LICENSE.txt file that comes along with this source file
  *  or to http://www.gnu.org/licenses/gpl.txt for a full version of the license.
  *
- *  Program written by Paul Honig 2009
+ *  Program written by Paul Honig 2009 - 2010
  */
 #include <sqlite3.h>
 
@@ -165,6 +165,7 @@ typedef struct {
 	int   id;
 	char *title;
 	char *link;
+  char  *metatype;
 	time_t pubdate;
 	char *category;
 	char *source;
@@ -193,12 +194,13 @@ typedef struct {
 	char *link;
 	char *pubdate;
 	char *category;
+  char  *metatype;
 	int  season;
 	int  episode;
 } downloaded_struct;
 
 /*
- * Simple filters container
+ * Downloaded container
  */
 typedef struct {
 	int nr;
@@ -206,9 +208,27 @@ typedef struct {
 } downloaded_container;
 
 /*
+ * Last downloaded 
+ */
+typedef struct {
+  char *filtername;
+  char *filtertype;
+  downloaded_struct *downloaded;
+} lastdowned_struct;
+
+/*
+ * Last downloaded container
+ */
+typedef struct {
+  int nr;
+  lastdowned_struct *lastdownloaded;
+} lastdowned_container;
+
+/*
  * The config item names
  */
 #define CONF_TORRENTDIR "torrentdir"
+#define CONF_NZBDIR     "nzbdir"
 #define CONF_LOGFILE    "logfile"
 #define CONF_REFRESH    "refresh"
 #define CONF_RETAIN     "retain"
@@ -328,6 +348,13 @@ int rsstconfiggetproperty(rsstor_handle *handle, char *prop, char **value);
  */
 
 /*
+ * Get supported meta file types
+ * @return
+ * Returns a pointer to the names of the supported meta types.
+ */
+char **getsupportedmetatypes(); 
+
+/*
  * Get all RSS-sources
  * @arguments
  * handle RSS-torrent handle
@@ -353,11 +380,12 @@ int rsstfreesourcecontainer(source_container *sources);
  * name filter name
  * url source URL
  * parsertype parser type
+ * metatype meta file type (torrent/nzb)
  * @return
  * When already existing -1 is returned.
  * On success 0 is returned.
  */
-int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char *parsertype);
+int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char *parsertype, char *metatype );
 
 /*
  * Delete source item
@@ -543,6 +571,24 @@ int rsstgetallfilter(rsstor_handle *handle, filter_container **filteritem);
  * Returns 0 on success -1 on failure
  */
 int rsstgetfilterbyname(rsstor_handle *handle, char *name, filter_container **container);
+
+/*
+ * Get information of the last downloads and the filters that produced them
+ * @Arguments
+ * handle RSS-torrent handle 
+ * container the pointer pointer to the container
+ * @return
+ * 0 on success, -1 on failure
+ */
+int rsstgetlastdownloaded(rsstor_handle *handle, lastdowned_container *container);
+
+/*
+ * Free the downloaded container and its contents
+ * When the container it self is allocated, it should be freed separately
+ * @Arguments
+ * container pointer to the downed container to be freed
+ */
+void rsstfreelastdownedcontainer(lastdowned_container *container);
 
 /*
  * Add source item

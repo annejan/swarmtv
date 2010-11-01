@@ -22,7 +22,7 @@
  * Include the rsstor structs in the types
  * Not the most best solution ever, but will work for now.
  */
-#include "rsstor.h"
+#include "swarm.h"
 
 /*
  * real = Download torrent, send mails and log download
