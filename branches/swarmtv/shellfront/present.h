@@ -35,7 +35,7 @@ void rssfprintconfigitems(rsstor_handle *handle);
  * format varname : value
  * All from database
  */
-void rssflistfilters(rsstor_handle *handle, char *appname);
+void rssflistfilters(rsstor_handle *handle);
 
 /*
  * Print all available config items to the screen.
@@ -78,8 +78,10 @@ void printsimplestruct(char *execname, simplefilter_struct *simple);
 /*
  * Print filter in shell format
  * Prints the names of the simple filters + a header.
+ * @Arguments
+ * execname name of this executable
  */
-void rssfprintallsimple(rsstor_handle *handle);
+void rssfprintallsimple(rsstor_handle *handle, char *execname);
 
 /*
  * Do filter test

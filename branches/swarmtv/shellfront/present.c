@@ -113,7 +113,7 @@ void rssfprintconfigitems(rsstor_handle *handle)
  * format varname : value
  * All from database
  */
-void rssflistfilters(rsstor_handle *handle) 
+void rssflistfilters(rsstor_handle *handle)
 {
 	filter_container *container=NULL;
 	int								count=0;

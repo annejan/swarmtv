@@ -427,7 +427,7 @@ static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_st
         stopop = 1; // no more
         break;
       case 'f': // list filters
-        rssflistfilters(handle, argv[0]);
+        rssflistfilters(handle);
         stopop = 1; // no more
         break;
       case 'F': // set download filter
@@ -509,7 +509,7 @@ static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_st
         stopop =1; // no more
         break;
       case 'A': // Print A simple filter in shell format
-        rssfprintallsimple(handle);
+        rssfprintallsimple(handle, argv[0]);
         stopop =1; // no more
         break;
       case 'j': // Del simple filter
