@@ -44,9 +44,9 @@
  * Need to find a way to not have to maintain 2 argument strings.
  */
 #ifdef RSST_ESMTP_ENABLE
-static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:M:La:zwI:Z:Y";
+static const char *optString = "vcC:hfF:T:t:d:s:SD:rnm:p:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:M:La:zwI:Z:YE:W";
 #else
-static const char *optString = "vcC:hfF:T:t:d:s:SD:rnp:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:M:La:zwI:Z:Y";
+static const char *optString = "vcC:hfF:T:t:d:s:SD:rnp:qRe:o:O:u:g:G:Jj:P:N:kAU:Kl:i:M:La:zwI:Z:YE:W";
 #endif
 
 /*
@@ -99,6 +99,7 @@ static const struct option optLong[] =
 	{"find",									no_argument,			 0, 'L'},
 	{"find-downed",           required_argument, 0, 'a'},
   {"print-lastdowned",      no_argument,       0, 'Y'},
+  {"stats",                 no_argument,       0, 'W'},
 	{0, 0, 0, 0}
 };
 
@@ -640,6 +641,10 @@ static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_st
       case 'Y': // Print the last downloads per filter
         rsstprintlastdowned(handle);
         stopop =1;
+        break;
+      case 'W':
+        printstats(handle);
+        stopop=1;
         break;
       case 'h':   /* fall-through is intentional */
       case '?':

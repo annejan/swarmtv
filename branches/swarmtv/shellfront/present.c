@@ -627,3 +627,40 @@ void rsstprintlastdowned(rsstor_handle *handle)
   rsstfreelastdownedcontainer(&container);
 }
 
+/*
+ * Print the program statistics
+ * @Arguments
+ * handle swarmtv handle
+ */
+void printstats(rsstor_handle *handle)
+{
+  int rc=0;
+  stats_struct stats;
+
+  /*
+   * Get statistics
+   */
+  rc = rsstgetstats(handle, &stats);
+  if(rc != 0) {
+    fprintf(stderr, "Getting program statistics failed ! %s:%d\n", __FILE__, __LINE__);
+    return;
+  }
+
+  /*
+   * Format and print statistics
+   */
+  printf(
+      "Statistics for SwarmTv %s\n"
+      "================================\n"
+      "Database version         : %d\n"
+      "Number of sources        : %d\n"
+      "Number of simple filters : %d\n"
+      "Number of SQL filters    : %d\n"
+      "Number of meta files     : %d\n"
+      "Number of downloaded     : %d\n",
+      stats.version, stats.database, stats.sources,
+      stats.simples, stats.sqls, stats.metafile,
+      stats.downloaded
+      );
+
+}

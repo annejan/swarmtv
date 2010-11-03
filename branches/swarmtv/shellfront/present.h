@@ -114,3 +114,10 @@ int rssffindtorrentids(opts_struct *opts);
  * handle RSS-torrent handle
  */
 void rsstprintlastdowned(rsstor_handle *handle);
+
+/*
+ * Print the program statistics
+ * @Arguments
+ * handle swarmtv handle
+ */
+void printstats(rsstor_handle *handle);

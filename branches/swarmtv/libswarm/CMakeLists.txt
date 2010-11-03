@@ -39,7 +39,7 @@ include_directories(.)
 SET(LIBSRC setup database databaseimpl config regexp source
 		filter runloop curlfile torrentdb torrentdownload logfile
 		sandboxdb testfilter filesystem lastdownloaded
-		simplefilter callback callbackimpl)
+		simplefilter callback callbackimpl stats)
 
 IF(ESMTP_FOUND)
 	SET(LIBSRC ${LIBSRC} mailmsg)

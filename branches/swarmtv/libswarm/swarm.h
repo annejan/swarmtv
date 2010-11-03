@@ -23,6 +23,11 @@
 #define RSSTOR
 
 /*
+ * Version of program
+ */
+#define RSST_VERSION "0.9"
+
+/*
  * Enums used by RSS-torrent
  */
 
@@ -225,6 +230,19 @@ typedef struct {
 } lastdowned_container;
 
 /*
+ * Statistics structure to be filled.
+ */
+typedef struct {
+  int metafile;   // Number of meta files in newtorrents table.
+  int downloaded; // Number of downloaded meta files in the downloaded table.
+  int sources;    // Number sources in the database.
+  char *version;  // Version string of software version.
+  int database;   // Database version number.
+  int simples;    // Number of simple filters.
+  int sqls;       // SQL filter count.
+} stats_struct;
+
+/*
  * The config item names
  */
 #define CONF_TORRENTDIR "torrentdir"
@@ -301,6 +319,16 @@ int rsstrundbinitscript(rsstor_handle *handle);
  * handle pointer to RSS-torrent structure
  */
 void freersstor(rsstor_handle *handle);
+
+/*
+ * Get statistics from application
+ * No free for the returned struct yet
+ * @Arguments
+ * stats statistics structure
+ * @Returns
+ * 0 when okay, -1 on error
+ */
+int rsstgetstats(rsstor_handle *handle, stats_struct *stats);
 
 /*
  * Get all config settings
