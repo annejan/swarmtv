@@ -115,7 +115,8 @@ int rsstinitlog(char *logpath)
     fclose(log);
   } else {
     fprintf(stderr, "Could not initiate logfile at '%s'\n", fullpath);
-    retval = -1;
+    fprintf(stderr, "log to default out instead.\n");
+    log=stdout;
   }
 
   free(fullpath);

@@ -23,7 +23,7 @@
  */
 #define RSS_BASEDIR 	"~/.swarmtv"
 #define RSS_LOGFILE 	"~/.swarmtv/rsstorrent.log"
-#define RSS_LOCKFILE	"~/.swarmtv/lockfile.pid"
+//#define RSS_LOCKFILE	"~/.swarmtv/lockfile.pid"
 
 #if 0
 /*
