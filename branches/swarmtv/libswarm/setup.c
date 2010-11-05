@@ -170,7 +170,6 @@ rsstor_handle *initrsstor()
    */
   rc = rsstinitlogdb(handle->db);
   if(rc != 0) {
-    fprintf(stderr, "Can't open logfile!\n");
 		return NULL;
   }
 
@@ -197,6 +196,10 @@ rsstor_handle *initrsstor()
  */
 void freersstor(rsstor_handle *handle)
 {
+  if(handle == NULL){
+    return;
+  }
+
 	/*
 	 * Free the callback structures
 	 */

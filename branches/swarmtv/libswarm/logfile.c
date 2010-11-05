@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <stdarg.h>
 #include <sqlite3.h>
@@ -61,12 +62,13 @@ int rsstinitlog(char *logpath);
 int rsstinitlogdb(sqlite3 *db)
 {
   char  *configpath = NULL;
-  int   rc;
+  int   rc=9;
 	rsstor_handle handle;
 
 	/*
 	 * REMOVE IN THE FUTURE
 	 */
+  memset(&handle, 0, sizeof(rsstor_handle));
 	handle.db = db;
 
   /*
@@ -78,7 +80,9 @@ int rsstinitlogdb(sqlite3 *db)
   /*
    * open log file
    */
-  rc = rsstinitlog(configpath);
+  if(rc == 0){
+    rc = rsstinitlog(configpath);
+  }
 
   /*
    * clean up
