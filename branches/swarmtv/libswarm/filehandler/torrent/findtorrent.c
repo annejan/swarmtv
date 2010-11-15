@@ -313,6 +313,7 @@ int rsstfindtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int 
      * No header found ignore this link.
      */
 		rsstfreedownload(&buffer);
+    free(filetype);
 		return 0;
   }
 
@@ -342,6 +343,7 @@ int rsstfindtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int 
    */
   if(recurse <= 0) {
 		rsstfreedownload(&buffer); 
+    free(filetype);
     return 0;
   }
 

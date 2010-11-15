@@ -36,6 +36,7 @@
 #include "callback.h"
 #include "callbackimpl.h"
 #include "lastdownloaded.h"
+#include "baretitle.h"
 
 /*
  * When libesmtp is included add header here.
@@ -145,7 +146,13 @@ static int testdouble(sqlite3 *db, char *nodouble, char *titleregexp, downloaded
   const char    *pzTail;
   int           rc;
   int           step_rc;
+  char          *bareregexp=NULL;
   char          *zErrMsg = 0;
+
+  /*
+   * Generate bare title regexp
+   */
+  rsstmakebareregexp(downed->baretitle, &bareregexp);
 
   /*
    * prepare query
@@ -175,6 +182,7 @@ static int testdouble(sqlite3 *db, char *nodouble, char *titleregexp, downloaded
 	if(titleregexp != NULL) {
 		rc = sqlite3_bind_text(ppStmt, 4, titleregexp, -1, SQLITE_TRANSIENT);
 	}
+  rc = sqlite3_bind_text(ppStmt, 5, bareregexp, -1, SQLITE_TRANSIENT);
 
   /*
    * Execute query
@@ -185,6 +193,7 @@ static int testdouble(sqlite3 *db, char *nodouble, char *titleregexp, downloaded
    * Cleanup 
    */
   sqlite3_finalize(ppStmt);
+  free(bareregexp);
 
   /*
    * return result
@@ -396,10 +405,6 @@ static void rssthandlenewresults(rsstor_handle *handle, char *filtername, FILTER
      */
     rsstupdatelastdowned(handle, downed, filtername, type);
 	}
-
-	/*
-	 * Done
-	 */
 }
 
 
@@ -429,6 +434,16 @@ static void rssthandlefiltresults(rsstor_handle *handle, sqlite3_stmt *ppStmt, c
 		downed.season    =  sqlite3_column_int(ppStmt, 5);
 		downed.episode   =  sqlite3_column_int(ppStmt, 6);
 
+    /*
+     * Use the downed.title to isolate to name in the title.
+     * Form this into a regexp, and provide that to the double test.
+     * downed.baretitle
+     */
+    rc = rsstfillbaretitle(&downed); 
+    if(rc == -1) {
+      rsstwritelog(LOG_ERROR, "Extracting bare title failed! '%s' %s:%d", downed.title, __FILE__, __LINE__);
+    }
+
 		/*
 		 * Test if episode is already there
 		 */
@@ -442,6 +457,11 @@ static void rssthandlefiltresults(rsstor_handle *handle, sqlite3_stmt *ppStmt, c
 			rsstwritelog(LOG_DEBUG, "%s Season %d Episode %d is a duplicate %s:%d", 
 					downed.title, downed.episode, downed.season, __FILE__, __LINE__);
 		}
+
+    /*
+     * Free bare title
+     */
+    free(downed.baretitle);
 	}
 }
 

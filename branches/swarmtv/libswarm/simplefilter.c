@@ -35,18 +35,22 @@
 /*
  * Nodup filter names
  */
-#define NODUP_NONE_NAME     "none"
-#define NODUP_LINK_NAME     "link"
-#define NODUP_UNIQUE_NAME   "unique"
-#define NODUP_NEWER_NAME    "newer"
+#define NODUP_NONE_NAME           "none"
+#define NODUP_LINK_NAME           "link"
+#define NODUP_UNIQUE_NAME         "unique"
+#define NODUP_NEWER_NAME          "newer"
+#define NODUP_UNIQUE_TITLE_NAME   "unique-title"
+#define NODUP_NEWER_TITLE_NAME    "newer-title"
 
 /*
  * Nodup filters are defined here
  */
-#define NODUP_NONE    ""
-#define NODUP_LINK    "SELECT title FROM downloaded WHERE link=?1"
-#define NODUP_UNIQUE  "SELECT title FROM downloaded WHERE link=?1 OR (season=?2 AND episode=?3 AND IREGEXP(?4, title))"
-#define NODUP_NEWER   "SELECT title FROM downloaded WHERE link=?1 OR ((season=?2 AND episode>=?3) OR season>?2) AND IREGEXP(?4, title)"
+#define NODUP_NONE          ""
+#define NODUP_LINK          "SELECT title FROM downloaded WHERE link=?1"
+#define NODUP_UNIQUE        "SELECT title FROM downloaded WHERE link=?1 OR (season=?2 AND episode=?3 AND IREGEXP(?4, title))"
+#define NODUP_NEWER         "SELECT title FROM downloaded WHERE link=?1 OR ((season=?2 AND episode>=?3) OR season>?2) AND IREGEXP(?4, title)"
+#define NODUP_UNIQUE_TITLE  "SELECT title FROM downloaded WHERE link=?1 OR (season=?2 AND episode=?3 AND IREGEXP(?5, title))"
+#define NODUP_NEWER_TITLE   "SELECT title FROM downloaded WHERE link=?1 OR ((season=?2 AND episode>=?3) OR season>?2) AND IREGEXP(?5, title)"
 
 /*
  * Filter that is used to convert the simple filter into SQL.
@@ -91,6 +95,14 @@ static int findnodup(char *name, char **nodup)
   if(strcmp(name, NODUP_NEWER_NAME) == 0)
   {
     rsstalloccopy(nodup, NODUP_NEWER, strlen(NODUP_NEWER));
+  }
+  if(strcmp(name, NODUP_UNIQUE_TITLE_NAME) == 0)
+  {
+    rsstalloccopy(nodup, NODUP_UNIQUE_TITLE, strlen(NODUP_UNIQUE_TITLE));
+  }
+  if(strcmp(name, NODUP_NEWER_TITLE_NAME) == 0)
+  {
+    rsstalloccopy(nodup, NODUP_NEWER_TITLE, strlen(NODUP_NEWER_TITLE));
   }
 
   /*

@@ -194,15 +194,16 @@ typedef struct {
  * Struct holding the values to enter into the downloaded table
  */
 typedef struct {
-	int   id;
-	char *title;
-	char *link;
-	char *pubdate;
-	char *category;
-  char  *metatype;
-	int  season;
-	int  episode;
-} downloaded_struct;
+	int   id;           
+	char *title;        // Title from the RSS feed
+	char *link;         // The link to the metafile
+	char *pubdate;      // The data the meta file was released 
+	char *category;     // The category from the RSS feed
+  char *metatype;     // The type of content Torrent or NZB
+  char *baretitle;    // The bare title of the show/content 
+	int  season;        // The season number
+	int  episode;       // The episode number
+} downloaded_struct;  
 
 /*
  * Downloaded container

@@ -157,7 +157,7 @@ int rsstdownloadtobuffer(char *url, MemoryStruct *chunk)
 
   /* some servers don't like requests that are made without a user-agent
    *      field, so we provide one */ 
-  curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "RSS-torrent");
+  curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "SwarmTV");
 
   /* Set generate error string */
   curl_easy_setopt(curl_handle, CURLOPT_ERRORBUFFER, errorBuffer);

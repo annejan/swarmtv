@@ -57,7 +57,7 @@ int rsstcomregexp(char *regexp, char *string);
  * regexp regexp to capture
  * flag regexp flag to set match mode (look at pcre_exec)
  * string string to capture match from
- * match pointer to store match
+ * match pointer to store match, should be freed after use
  * @return
  * 0 on success
  * -1 on error

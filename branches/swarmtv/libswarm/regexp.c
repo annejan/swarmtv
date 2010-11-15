@@ -170,12 +170,12 @@ int rsstcomregexp(char *regexp, char *string)
  */
 int rsstcapturefirstmatch(char *regexp, int flag, char *string, char **match)
 {
-  pcre *p;
-  const char *errmsg;
-  int   errpos;
+  pcre *p=NULL;
+  const char *errmsg=NULL;
+  int   errpos=0;
   int   ovector[MATCHSIZE];
-  int   rc;
-  int   i;
+  int   rc=0;
+  int   i=0;
 
   /*
    * Compile the regexp the split the two strings.

@@ -1059,6 +1059,7 @@ void rsstfreedownloaded(downloaded_struct *downloaded)
 	free(downloaded->pubdate);
 	free(downloaded->category);
   free(downloaded->metatype);
+  free(downloaded->baretitle);
 }
 
 
