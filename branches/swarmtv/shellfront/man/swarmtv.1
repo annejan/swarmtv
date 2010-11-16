@@ -134,7 +134,9 @@ The maximal size the torrent contents must be. (human readable format)
 The minimal size the torrent contents must be. (human readable format)
 .TP
 \-u \-\-nodup type
-Simple no duplicate filter type. (none, link, unique, newer)
+Simple no duplicate filter type. (none, link, unique, unique-title, newer, newer-title)
+.br
+See the "NODUP Filters explained" section for an explanation.
 .TP
 \-g \-\-from\-season value
 Season number to start downloading from.
@@ -179,6 +181,25 @@ The STMP server and port used to send the notifications. (example: smtp.foobar.c
 .TP
 .B min_size
 When the given size in the source is smaller then this number (in bytes), the torrent is downloaded to extract the size from there.
+.PP
+.SH NODUP Filters explained
+.B none
+No duplicate avoiding, download all that matches filter.
+.TP
+.B link
+Do not download content with the same meta file link.
+.TP
+.B unique
+Do not download content that matches the filter regexp and has the same season/episode numbers.
+.TP
+.B unique-title
+Same as above, but uses the matched title to avoid duplicate downloads.
+.TP
+.B newer
+Only download content when the content matches the filter regexp, and is newer than the previous download.
+.TP
+.B newer-title
+Same as above, but uses the matched title to avoid duplicate downloads.
 .PP
 .SH EXAMPLES
 .TP

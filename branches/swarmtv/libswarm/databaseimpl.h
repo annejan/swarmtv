@@ -132,10 +132,21 @@ int rsstgetallsimplefilter(rsstor_handle *handle, simplefilter_container **simpl
  * Get simplefilter torrents
  * @arguments
  * simplefilter The container to store the simplefilter in
+ * name name of the simple filter
  * @Return
  * Returns 0 on success -1 on failure
  */
-int rsstgetsimplefilter(rsstor_handle *handle, simplefilter_container **simplefilter, char *name);
+int rsstgetsimplefiltername(rsstor_handle *handle, simplefilter_container **simplefilter, char *name);
+
+/*
+ * Get simplefilter torrents
+ * @arguments
+ * simplefilter The container to store the simplefilter in
+ * id id of the simple filter
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstgetsimplefilterid(rsstor_handle *handle, simplefilter_container **simplefilter, int id);
 
 /*
  * Free simplefilter structure

@@ -409,7 +409,7 @@ void rssfprintsimple(rsstor_handle *handle, char *filtername, char *execname)
 	/*
 	 * Get simple container limit of -1 gets all records.
 	 */
-	rc = rsstgetsimplefilter(handle, &simplefilter, filtername);
+	rc = rsstgetsimplefiltername(handle, &simplefilter, filtername);
 	if(rc != 0){
     rsstwritelog(LOG_ERROR, "rsstgetsimplefilter failed %s:%d", __FILE__, __LINE__);
 		return;
@@ -491,7 +491,8 @@ void rssflistallsimple(rsstor_handle *handle)
 	 * Print result
 	 */
 	for(count=0; count < simplefilter->nr; count++) {
-		printf("(%d) %s\n", count, simplefilter->simplefilter[count].name);
+		//printf("(%d) %s\n", count, simplefilter->simplefilter[count].name);
+		printf("(%d) %s\n", simplefilter->simplefilter[count].id, simplefilter->simplefilter[count].name);
 	}
 
 	/*

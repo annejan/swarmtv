@@ -1246,10 +1246,76 @@ int rsstgetallsimplefilter(rsstor_handle *handle, simplefilter_container **simpl
  * Get simplefilter torrents
  * @arguments
  * simplefilter The container to store the simplefilter in
+ * id id of the simple filter
  * @Return
  * Returns 0 on success -1 on failure
  */
-int rsstgetsimplefilter(rsstor_handle *handle, simplefilter_container **simplefilter, char *name)
+int rsstgetsimplefilterid(rsstor_handle *handle, simplefilter_container **simplefilter, int id)
+{
+	int 					rc=0;
+	int 					retval=0;
+	sqlite3_stmt *ppstmt=NULL;
+	simplefilter_container *localitems=NULL;
+	char         *zErrMsg=NULL;
+	sqlite3      *db=NULL;
+
+	/*
+	 * handle
+	 */
+	db = handle->db;
+
+	/*
+	 * Query to retrieve simplefilter items
+	 */
+	const char *query =  "SELECT id, name, title, exclude, category, source, maxsize, minsize, nodup, fromseason, fromepisode "
+											 "FROM 'simplefilters' WHERE id=?1";
+
+	/*
+	 * Allocate the container
+	 */
+	localitems = calloc(1, sizeof(simplefilter_container));
+	if(localitems == NULL) {
+		rsstwritelog(LOG_ERROR, "Calloc failed ! %s:%d", __FILE__, __LINE__);
+		exit(1);
+	}
+
+	/*
+	 * Execute query
+	 */
+	rc = rsstexecqueryresult(db, &ppstmt, query, "d", id);
+	if( rc!=SQLITE_OK ){
+		rsstwritelog(LOG_ERROR, "Rsstexecqueryresult failed %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+		sqlite3_free(zErrMsg);
+		return -1;
+	}
+
+	/*
+	 * Store result into container
+	 */
+	rc = rsststoresimplecontainer(ppstmt, localitems);
+
+	/*
+	 * Set output.
+	 */
+	*simplefilter = localitems;
+
+	/*
+	 * Done with query, finalizing.
+	 */
+	rc = sqlite3_finalize(ppstmt);
+	return retval;
+}
+
+
+/*
+ * Get simplefilter torrents
+ * @arguments
+ * simplefilter The container to store the simplefilter in
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstgetsimplefiltername(rsstor_handle *handle, simplefilter_container **simplefilter, char *name)
 {
 	int 					rc=0;
 	int 					retval=0;

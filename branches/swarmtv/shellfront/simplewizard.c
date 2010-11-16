@@ -301,7 +301,7 @@ static int rssfaskreplace(char **answer, char *question)
  * 0 on success
  * -1 on error 
  */
-static int rssfgetsimple(rsstor_handle *handle, char *name, simplefilter_struct **simple)
+static int rssfgetsimple(rsstor_handle *handle, int id, simplefilter_struct **simple)
 {
 	int rc=0;
 	simplefilter_container *container=NULL;
@@ -309,7 +309,7 @@ static int rssfgetsimple(rsstor_handle *handle, char *name, simplefilter_struct 
 	/*
 	 * Get container, return when not found
 	 */
-	rc = rsstgetsimplefilter(handle, &container, name);
+	rc = rsstgetsimplefilterid(handle, &container, id);
 	if(rc < 0) {
 		return rc;
 	}
@@ -318,7 +318,7 @@ static int rssfgetsimple(rsstor_handle *handle, char *name, simplefilter_struct 
 	 * When more then one filter match, this is not okay
 	 */
 	if(container->nr > 1){	
-		fprintf(stderr, "More than 1 filter is known by this name '%s'!\n", name);
+		fprintf(stderr, "More than 1 filter is known by this id '%d'!\n", id);
 		rsstfreesimplefiltercontainer(container);
 		return -1;
 	}
@@ -353,6 +353,7 @@ static int rssfasksimplefilter(rsstor_handle *handle, simplefilter_struct **simp
 {
 	int		rc=0;
 	char  *answer=NULL;
+  int   ansint=0;
 
 	/*
 	 * Show simple filters
@@ -384,7 +385,8 @@ static int rssfasksimplefilter(rsstor_handle *handle, simplefilter_struct **simp
 		/*
 		 * Find simple struct by name
 		 */
-		rc = rssfgetsimple(handle, answer, simple);
+    ansint = atoi(answer);
+		rc = rssfgetsimple(handle, ansint, simple);
 		if(rc < 0){
 			fprintf(stderr, "Error filter finding failed\n");
 			break;

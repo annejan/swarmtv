@@ -333,7 +333,7 @@ int rsstdelsimple(rsstor_handle *handle, const char *name)
       return -1;
       break;
     default: 
-      rsstwritelog(LOG_ERROR, "Query error during delfilter %s:%d",  __FILE__, __LINE__);
+      rsstwritelog(LOG_ERROR, "Query error during delfilter, returned: '%d' %s:%d", rc,  __FILE__, __LINE__);
       return -1;
   }
 }
