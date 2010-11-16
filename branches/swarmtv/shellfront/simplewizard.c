@@ -367,7 +367,7 @@ static int rssfasksimplefilter(rsstor_handle *handle, simplefilter_struct **simp
 		/*
 		 * Ask name of filter
 		 */
-		rc = rssfaskuser(&answer, "Please enter simple filter NAME to clone.", "");
+		rc = rssfaskuser(&answer, "Please enter simple filter ID to clone.", "");
 		if(rc < 0){
 				fprintf(stderr, "Getting user input failed.\n");
 				return -1;
