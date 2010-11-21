@@ -22,20 +22,172 @@
 #include <sqlite3.h>
 #include <time.h>
 #include <stdlib.h>
+#include <ctype.h>
+#include <math.h>
 
 #include "types.h"
 #include "logfile.h"
 #include "config.h"
+#include "regexp.h"
 #include "defaultrss.h"
 #include "filehandler/filehandler.h"
 #include "disectdescription.h"
 
 /*
+ * Used for unit conversion see humantosize and sizetohuman
+ */
+#define BUFSIZE  20
+//static const char* units[]    = {"B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
+static const char* unitmatch  = "BKMGTPEZY";
+
+/*
+ * buf must be a pre-allocated buffer with size BUFSIZE+1
+ * returns 0 and -1 on error
+ * size in bytes is returned in argument size
+ */
+int rssthumantosize(char *buf, double *size) 
+{
+  char    upcasenum[BUFSIZE+1];
+  char    *unit=NULL;
+  int     i=0;
+  long double  tempsize=0.0;
+  int     power=0;
+
+  /*
+   * When buf or size = NULL, return -1
+   */
+  if( buf == NULL || size == NULL){
+    rsstwritelog(LOG_ERROR, "Invalid pointer passed to humantosize function. %s:%d", __FILE__, __LINE__);
+    return -1;
+  }
+
+  /*
+   * Initialize stuff
+   */
+  memset(upcasenum, 0, BUFSIZE+1);
+  strncpy(upcasenum, buf, BUFSIZE);
+
+  /*
+   * transform the human readable string to a power of 1024
+   */
+  for( i = 0; upcasenum[ i ]; i++) 
+  {
+    upcasenum[ i ] = toupper( upcasenum[ i ] );
+  }
+
+  /*
+   * returns a pointer to the first occurrence in string s1 of any character from string s2, or a null pointer if no character from s2 exists in s1
+   */
+  unit = strpbrk(upcasenum, unitmatch);
+
+  /*
+   * Get size 
+   */
+  tempsize = atof(upcasenum);
+  
+  /*
+   * when no unit is found use a power of 1024^0
+   * Otherwise calculate number of bytes
+   */
+  if(unit != NULL){
+    /*
+     * Calculate the number of bytes out.
+     */
+    while(*(unitmatch + power) != '\0'){
+      if(*unit == *(unitmatch + power)) {
+        break;
+      }
+      power++;
+    }
+  }
+
+  /*
+   * Calculate response
+   */
+  *size = (double) tempsize * pow(1024, power);
+
+  return 0;
+}
+
+
+/*
+ * Get the size from the description
+ * @Arguments
+ * rssdata Structure containing data from record.
+ * size found size from description
+ * @Return
+ * returns 0 on success, otherwise -1
+ */
+static int rsstsizefromdesription(rssdatastruct *rssdata, size_t *foundsize)
+{
+  int retval=-1;
+  int rc=0;
+  char *descstr=NULL;
+  char *token=NULL;
+  char *sizestr=NULL;
+  double descsize=0.0;
+
+  const char *sizetoken="size";
+  const char *delim="\n";
+
+  /*
+   * Sanity check
+   */
+  if(rssdata->description == NULL){
+    return -1;
+  }
+
+  /*
+   * Copy description
+   */
+  rsstalloccopy(&descstr, rssdata->description, strlen(rssdata->description));
+  token=descstr;
+
+  /*
+   * Look at description, find size
+   */
+  token = strsep(&token, delim); 
+  while(token != NULL){
+    /*
+     * Find a line starting with "Size"
+     */
+    if(strncasecmp(token, sizetoken, strlen(sizetoken)) == 0) {
+
+      /*
+       * When found, put into size to human.
+       */
+      sizestr=token+strlen(sizetoken);
+      rc = rssthumantosize(sizestr, &descsize); 
+      if(rc == 0){
+        retval=0;
+        *foundsize = descsize; 
+      } else {
+        rsstwritelog(LOG_ERROR, "Could not get size from '%s' %s:%d", sizestr, __FILE__, __LINE__);
+      }
+
+      break;
+    }
+    
+    token = strsep(&token, delim); 
+  }
+
+  /*
+   * Clean up
+   */
+  free(descstr);
+
+  /*
+   * All done
+   */
+  return retval;
+}
+
+/*
  * Use the rss data to fill out the seeds and peers field in the new torrent struct.
- * Arguments
+ * @Arguments
  * newtor		: New torrent structure.
  * rssdata	: The struct holding the raw rssdata.
- * Returns	
+ * @Returns	
  * 0 on succes, -1 on failure.
  * Errors are logged.
  */
@@ -87,6 +239,16 @@ int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata)
 		return -1;
 	}
 
+  /*
+   * Get the size from the description
+   */
+	if( newtor->size < (size_t) min_config) {
+    rc = rsstsizefromdesription(rssdata, &(newtor->size));
+  }
+
+  /*
+   * When still smaller than size resort to downloading the metafile and getting the size that way.
+   */
 	if( newtor->size < (size_t) min_config) {
 		/*
 		 * Download the torrent to verify the length
@@ -98,7 +260,7 @@ int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata)
 			retval = -1;
 		}
 		rsstfreemetafileprops(props);
-	}
+	} 
 
 	return retval;
 }
