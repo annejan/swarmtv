@@ -1643,11 +1643,13 @@ static int rsststorenewtorrentcontainer(sqlite3_stmt *result, newtorrents_contai
 		rsstalloccopy(&(container->newtorrent[count].category), column, strlen(column));
 		column = (char*)sqlite3_column_text(result, 5);
 		rsstalloccopy(&(container->newtorrent[count].source), column, strlen(column));
-		container->newtorrent[count].season = sqlite3_column_int(result, 6);
-		container->newtorrent[count].episode = sqlite3_column_int(result,7);
-		container->newtorrent[count].seeds = sqlite3_column_int(result, 8);
-		container->newtorrent[count].peers = sqlite3_column_int(result, 9);
-		container->newtorrent[count].size = sqlite3_column_double(result, 10);
+		column = (char*)sqlite3_column_text(result, 6);
+		rsstalloccopy(&(container->newtorrent[count].metatype), column, strlen(column));
+		container->newtorrent[count].season = sqlite3_column_int(result, 7);
+		container->newtorrent[count].episode = sqlite3_column_int(result,8);
+		container->newtorrent[count].seeds = sqlite3_column_int(result, 9);
+		container->newtorrent[count].peers = sqlite3_column_int(result, 10);
+		container->newtorrent[count].size = sqlite3_column_double(result, 11);
 		count++;
 
 		/*
@@ -1691,7 +1693,7 @@ int rsstfindnewtorrents(simplefilter_struct *filter, newtorrents_container **new
 	 * Query to retrieve the data from the sandbox after all the work is done.
 	 */
 	char *query="SELECT newtorrents.id, downloaded.title, newtorrents.link, newtorrents.pubdate, newtorrents.category, "
-		"newtorrents.source, downloaded.season, downloaded.episode, newtorrents.seeds, newtorrents.peers, newtorrents.size FROM newtorrents, downloaded "
+		"newtorrents.source, downloaded.metatype, downloaded.season, downloaded.episode, newtorrents.seeds, newtorrents.peers, newtorrents.size FROM newtorrents, downloaded "
 		"WHERE newtorrents.link = downloaded.link ORDER BY newtorrents.id LIMIT ?1 OFFSET ?2"; // get values from downloaded table
 
 	/*

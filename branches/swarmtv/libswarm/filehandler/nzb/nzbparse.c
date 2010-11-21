@@ -72,11 +72,18 @@ char *getdocumenttype(xmlDocPtr doc)
 static int parsefrommem(char *url, MemoryStruct *chunk, xmlDocPtr *doc) 
 {
   /*
+   * Sanity check
+   */
+  if(chunk == NULL) {
+    rsstwritelog(LOG_DEBUG, "NULL pointer provided as chunk pointer. %s:%d", __FILE__, __LINE__);
+    return -1;
+  }
+
+  /*
    * Parse document in memory, using url as docbase RFC 2396,
    */
   *doc = xmlReadMemory(chunk->memory, chunk->size, url, NULL, 0);
   if (*doc == NULL) {
-    fprintf(stderr, "Failed to parse document\n");
     rsstwritelog(LOG_DEBUG, "Failed to parse document %s:%d", __FILE__, __LINE__);
     return -1;
   }

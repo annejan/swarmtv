@@ -465,10 +465,13 @@ static int rssfasknodup(char **nodup)
 	 * Print all nodup filters we have
 	 */
 	printf("The nodup filters that are :\n"
-			   "'none' - Do not filter on anything.\n"
-				 "'link' - Only look at the URL of the torrent.\n"
-				 "'unique' - Look at season, episode, title regexp.\n"
-				 "'newer' - Look at same as unique, but make sure only newer episodes are download.\n");
+			   "'none'         - Do not filter on anything.\n"
+				 "'link'         - Only look at the URL of the torrent.\n"
+				 "'unique'       - Look at season, episode, title regexp.\n"
+				 "'unique-title' - Same as above but use matched title to avoid duplicate downloads.\n"
+				 "'newer'        - Look at same as unique, but make sure only newer episodes are download.\n"
+				 "'newer-title'  - Same as above but use matched title to avoid duplicate downloads..\n"
+         );
 
 	/*
 	 * Loop until we have a valid answer
@@ -489,7 +492,10 @@ static int rssfasknodup(char **nodup)
 		if( strcmp(*nodup, "none") == 0 ||
 				strcmp(*nodup, "link") == 0 ||
 				strcmp(*nodup, "unique") == 0 ||
-				strcmp(*nodup, "newer") == 0)
+				strcmp(*nodup, "unique-title") == 0 ||
+				strcmp(*nodup, "newer") == 0 ||
+				strcmp(*nodup, "newer-title") == 0
+        )
 		{
 			printf("nodup '%s' selected.\n", *nodup);
 			break;
