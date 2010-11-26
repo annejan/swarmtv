@@ -36,9 +36,10 @@ add_definitions(-Wall -W -g -fPIC)
 include_directories(.)
 
 # All other sources
+# getmissed
 SET(LIBSRC setup database databaseimpl config regexp source
 		filter runloop curlfile torrentdb torrentdownload logfile
-		sandboxdb testfilter filesystem lastdownloaded
+		sandboxdb testfilter filesystem lastdownloaded 
 		simplefilter callback callbackimpl stats baretitle)
 
 IF(ESMTP_FOUND)

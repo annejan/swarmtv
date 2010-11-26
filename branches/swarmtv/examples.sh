@@ -20,7 +20,6 @@ echo "Inserting sources."
   swarmtv --add-source="Eztv" --url="http://www.ezrss.it/feed/" --source-parser="defaultrss" --metatype="torrent"
   swarmtv --add-source="The Piratebay" --url="http://rss.thepiratebay.org/205" --source-parser="defaultrss" --metatype="torrent"
   swarmtv --add-source="KickAssTorrents" --url="http://www.kickasstorrents.com/tv/?rss=1" --source-parser="defaultrss" --metatype="torrent"
-  swarmtv --add-source="NZBsrus" --url="http://www.nzbsrus.com/rssfeed.php?cat=75&i=218418&h=173799b863198ee4a8073e7e9f000ba1" --source-parser="defaultrss" --metatype="nzb"
 echo "Done."
 
 # Although SQL filters are still supported they are not the default filter method anymore.

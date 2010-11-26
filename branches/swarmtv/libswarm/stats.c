@@ -21,11 +21,54 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "types.h"
 #include "database.h"
 #include "logfile.h"
+#include "filesystem.h"
 #include "database.h"
+#include "databaseimpl.h"
+
+/*
+ * Get database size
+ * @Arguments
+ * size the size of the database file
+ * @return
+ * 0 when all has gone well, -1 on error
+ */
+static int rsstgetdbsize(size_t *dbsize)
+{
+  struct stat dbstat;
+  int         rc=0;
+  int         retval=0;
+  char        *dbpath=NULL;
+
+  /*
+   * Get the complete path to the DB
+   */
+  rsstcompletepath(RSST_DBFILE, &dbpath);
+
+  /*
+   * Get the information
+   */
+  rc = stat(dbpath, &dbstat);
+  if(rc == 0){
+    *dbsize=dbstat.st_size;
+  } else {
+    rsstwritelog(LOG_ERROR, "Could not retrieve size of '%s'! %s:%d", dbpath,  __FILE__, __LINE__);
+    retval=-1;
+  }
+
+  /*
+   * Clean up
+   */
+  free(dbpath);
+
+  return retval;
+}
 
 /*
  * Get meta file count
@@ -319,6 +362,7 @@ int rsstgetstats(rsstor_handle *handle, stats_struct *stats)
   retval |= rsstgetdbversion(handle, &(stats->database));
   retval |= rsstgetsimplecount(handle,&(stats->simples));
   retval |= rsstgetsqlcount(handle, &(stats->sqls));
+  retval |= rsstgetdbsize(&(stats->dbsize));
 
   /*
    * Done return orred value.

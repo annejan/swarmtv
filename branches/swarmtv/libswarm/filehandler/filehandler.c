@@ -91,6 +91,9 @@ int rsstgetmetafileinfo(METAFILETYPE type, char *url, metafileprops **props)
 {
   int rc=0;
 
+  /*
+   * Switch between the 2 meta file types.
+   */
   switch(type){
     case torrent:
       rc = rsstgettorrentinfo(url, props);

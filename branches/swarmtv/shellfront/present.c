@@ -635,8 +635,9 @@ void rsstprintlastdowned(rsstor_handle *handle)
  */
 void printstats(rsstor_handle *handle)
 {
-  int rc=0;
-  stats_struct stats;
+  int           rc=0;
+  stats_struct  stats;
+  char          dbsizestr[20];
 
   /*
    * Get statistics
@@ -646,6 +647,11 @@ void printstats(rsstor_handle *handle)
     fprintf(stderr, "Getting program statistics failed ! %s:%d\n", __FILE__, __LINE__);
     return;
   }
+
+  /*
+   * Create human readable database size 
+   */
+  rssfsizetohuman(stats.dbsize, dbsizestr);
 
   /*
    * Format and print statistics
@@ -658,10 +664,10 @@ void printstats(rsstor_handle *handle)
       "Number of simple filters : %d\n"
       "Number of SQL filters    : %d\n"
       "Number of meta files     : %d\n"
-      "Number of downloaded     : %d\n",
+      "Number of downloaded     : %d\n"
+      "Size of the database     : %s\n",
       stats.version, stats.database, stats.sources,
       stats.simples, stats.sqls, stats.metafile,
-      stats.downloaded
+      stats.downloaded, dbsizestr
       );
-
 }

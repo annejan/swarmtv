@@ -83,7 +83,7 @@ static const char *dbinitscript =
 "create table config (id INTEGER PRIMARY KEY, prop TEXT UNIQUE, value TEXT, descr TEXT);\n"
 "INSERT INTO 'config' (prop, value, descr) VALUES('torrentdir', '~/torrents', 'Path the downloaded Torrents are placed in.');\n"
 "INSERT INTO 'config' (prop, value, descr) VALUES('nzbdir', '~/nzb', 'Path the downloaded NZBs are placed in.');\n"
-"INSERT INTO 'config' (prop, value, descr) VALUES('logfile', '~/.swarmtv/rsstorrent.log', 'Path to logfile.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('logfile', '~/.swarmtv/swarmtv.log', 'Path to logfile.');\n"
 "INSERT INTO 'config' (prop, value, descr) VALUES('lockfile', '~/.swarmtv/lockfile.pid', 'Path to lockfile.');\n"
 "INSERT INTO 'config' (prop, value, descr) VALUES('refresh', '3600', 'Seconds between refreshes.');\n"
 "INSERT INTO 'config' (prop, value, descr) VALUES('retain', '30', 'The number of days source information is retained.');\n"

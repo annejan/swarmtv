@@ -22,7 +22,7 @@
  * Defines The basic places of RSS-Torrent files.
  */
 #define RSS_BASEDIR 	"~/.swarmtv"
-#define RSS_LOGFILE 	"~/.swarmtv/rsstorrent.log"
+#define RSS_LOGFILE 	"~/.swarmtv/swarmtv.log"
 //#define RSS_LOCKFILE	"~/.swarmtv/lockfile.pid"
 
 #if 0

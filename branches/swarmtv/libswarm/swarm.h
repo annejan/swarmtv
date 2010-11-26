@@ -234,13 +234,14 @@ typedef struct {
  * Statistics structure to be filled.
  */
 typedef struct {
-  int metafile;   // Number of meta files in newtorrents table.
-  int downloaded; // Number of downloaded meta files in the downloaded table.
-  int sources;    // Number sources in the database.
-  char *version;  // Version string of software version.
-  int database;   // Database version number.
-  int simples;    // Number of simple filters.
-  int sqls;       // SQL filter count.
+  int     metafile;   // Number of meta files in newtorrents table.
+  int     downloaded; // Number of downloaded meta files in the downloaded table.
+  int     sources;    // Number sources in the database.
+  char    *version;  // Version string of software version.
+  int     database;   // Database version number.
+  int     simples;    // Number of simple filters.
+  int     sqls;       // SQL filter count.
+  size_t  dbsize;     // Size of the current database file.
 } stats_struct;
 
 /*
