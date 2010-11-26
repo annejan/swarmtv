@@ -124,6 +124,7 @@ static int rsstsizefromdesription(rssdatastruct *rssdata, size_t *foundsize)
   int rc=0;
   char *descstr=NULL;
   char *token=NULL;
+  char *origptr=NULL;
   char *sizestr=NULL;
   double descsize=0.0;
 
@@ -142,11 +143,12 @@ static int rsstsizefromdesription(rssdatastruct *rssdata, size_t *foundsize)
    */
   rsstalloccopy(&descstr, rssdata->description, strlen(rssdata->description));
   token=descstr;
+  origptr=descstr;
 
   /*
    * Look at description, find size
    */
-  token = strsep(&token, delim); 
+  token = strsep(&descstr, delim); 
   while(token != NULL){
     /*
      * Find a line starting with "Size"
@@ -163,18 +165,18 @@ static int rsstsizefromdesription(rssdatastruct *rssdata, size_t *foundsize)
         *foundsize = descsize; 
       } else {
         rsstwritelog(LOG_ERROR, "Could not get size from '%s' %s:%d", sizestr, __FILE__, __LINE__);
-      }
+     }
 
       break;
     }
     
-    token = strsep(&token, delim); 
+    token = strsep(&descstr, delim); 
   }
 
   /*
    * Clean up
    */
-  free(descstr);
+  free(origptr);
 
   /*
    * All done
