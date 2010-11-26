@@ -32,6 +32,7 @@
 #include "frontfuncts.h"
 #include "present.h"
 #include "simplewizard.h"
+#include "runloop.h"
 
 /*
  * Number of output vector items
@@ -903,7 +904,7 @@ static void runmode(rsstor_handle *handle, opts_struct *opts)
 		/*
 		 * Call main loop here.
 		 */
-		rsstrunloop(handle, opts->onetime);
+		rssfrunloop(handle, opts->onetime);
 	}
 }
 

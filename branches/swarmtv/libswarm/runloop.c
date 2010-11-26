@@ -236,6 +236,50 @@ static void dowork(rsstor_handle *handle){
   rc = sqlite3_finalize(ppStmt);
 }
 
+/*
+ * Do a cycle of workload
+ * @Arguments
+ * handle
+ * @return
+ * 0 for now
+ */
+int runcycle(rsstor_handle *handle)
+{
+
+  int 			rc=0;
+
+  /*
+   * Call callback to signal start of update
+   */
+  rc = rsstexecstartupcallbacks(handle);
+  if(rc != 0){
+    rsstwritelog(LOG_ERROR, "Error returned by 'startup' callback. %s:%d", __FILE__, __LINE__);
+  }
+
+  /*
+   * work through the sources and process them
+   */
+  dowork(handle);
+
+  /*
+   * Execute SQL and simple filters on new entries.
+   */
+  rsstdownloadtorrents(handle);
+  rsstdownloadsimple(handle, 0);
+
+  /*
+   * Torrents are no longer new
+   */
+  rsstnonewtorrents(handle);
+  deleteold(handle);
+
+  /*
+   * Call callback to signal start of update, -1 as parameter, as we don't know anything about time
+   */
+  rc = rsstexecendupcallbacks(handle, -1);
+
+  return 0;
+}
 
 /*
  * Main loop, dispatches tasks
@@ -254,23 +298,23 @@ int rsstrunloop(rsstor_handle *handle, LOOPMODE onetime)
   int    		timeleft=0;
 
   rc = rsstconfiggetint(handle, CONF_REFRESH, &timewait);
-	if(onetime == 0) {
-		rsstwritelog(LOG_NORMAL, "Starting daemon, refresh %ds", timewait);
-	} else {
-		rsstwritelog(LOG_NORMAL, "Running once.");
-	}
+  if(onetime == 0) {
+    rsstwritelog(LOG_NORMAL, "Starting daemon, refresh %ds", timewait);
+  } else {
+    rsstwritelog(LOG_NORMAL, "Running once.");
+  }
 
-	/*
-	 * Keep running until...
-	 */
+  /*
+   * Keep running until...
+   */
   while(true){
-		/*
-		 * Call callback to signal start of update
-		 */
-		rc = rsstexecstartupcallbacks(handle);
-		if(rc != 0){
-			rsstwritelog(LOG_ERROR, "Error returned by 'startup' callback. %s:%d", __FILE__, __LINE__);
-		}
+    /*
+     * Call callback to signal start of update
+     */
+    rc = rsstexecstartupcallbacks(handle);
+    if(rc != 0){
+      rsstwritelog(LOG_ERROR, "Error returned by 'startup' callback. %s:%d", __FILE__, __LINE__);
+    }
 
     before = time(NULL);
     /*

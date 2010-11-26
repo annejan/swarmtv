@@ -375,6 +375,17 @@ int rsstsetconfigitem(rsstor_handle *handle, const char *prop, const char *value
 int rsstconfiggetproperty(rsstor_handle *handle, char *prop, char **value);
 
 /*
+ * Get value of a config object.
+ * @arguments
+ * prop name of the propertie to change
+ * number pointer to place to store value of prop
+ * @returns
+ * When not found -1 is returned.
+ * On succes 0 is returned.
+ */
+int rsstconfiggetint(rsstor_handle *handle, char *prop, int *number);
+
+/*
  * == Functions to manipulate sources
  */
 
@@ -771,6 +782,17 @@ int rsstaddfilter(rsstor_handle *handle, const char *name, const char *filter, c
  * 0 for now.
  */
 int rsstrunloop(rsstor_handle *handle, LOOPMODE onetime);
+
+/*
+ * Do a cycle of workload
+ * As runloop is going to be depricated.
+ * A runloop should be implemented by the calling program.
+ * @Arguments
+ * handle
+ * @return
+ * 0 for now
+ */
+int runcycle(rsstor_handle *handle);
 
 /*
  * == Logi file writing routines

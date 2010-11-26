@@ -32,7 +32,7 @@ include_directories(. ${RSSTORRENT_BASE_DIR}/libswarm)
 # Make sure the linker can find the Hello library once it is built.
 link_directories (${RSSTORRENT_BASE_DIR}/libswarm) 
 
-SET(SRC swarmtv handleopts present frontfuncts daemonize simplewizard)
+SET(SRC swarmtv handleopts present frontfuncts daemonize simplewizard runloop)
 
 # Add manpage 
 SET(RSS_SRC man/swarmtv.1)

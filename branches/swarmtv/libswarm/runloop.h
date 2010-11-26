@@ -28,3 +28,12 @@
  */
 int rsstrunloop(rsstor_handle *handle, LOOPMODE onetime);
 
+/*
+ * Do a cycle of workload
+ * @Arguments
+ * handle
+ * @return
+ * 0 for now
+ */
+int runcycle(rsstor_handle *handle);
+
