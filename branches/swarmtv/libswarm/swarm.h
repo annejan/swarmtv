@@ -104,7 +104,10 @@ typedef struct {
 typedef struct {
 	struct_callback *downloadrss; 		/* When a RSS file is downloaded */
   struct_callback *downloadtorrent; /* When a Torrent is downloaded */
-	struct_callback *startupdate; 		/* emitted at the start of an update cycle */
+	struct_callback *startupdate; 		/* Emitted at the start of an update cycle */
+  struct_callback *rssdownload;     /* Emitted at the start of the RSS download */
+  struct_callback *applyfilters;    /* Emitted at the start of the Applying of the filters */
+  struct_callback *wrapup;          /* Emitted at the start of the wrap up stage */
 	struct_callback *endupdate; 			/* emitted at the end of an update cycle */
 	struct_callback *logmessage; 			/* When ever a logmessage is created, this method is called */
 } struct_callbacks;	

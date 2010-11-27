@@ -325,3 +325,182 @@ int rsstexeclogmsgcallbacks(rsstor_handle *handle, struct_logmsg *logmsg)
 	return rc;
 }
 
+
+/*
+ * Call the RSS download register routine
+ * @arguments
+ * handle			handle to RSS-torrent pointer
+ * callback 	Function pointer to the routine to add
+ * @return
+ * 0 on successful addition, -1 on error
+ */
+int rsstaddrssdownloadcallback(rsstor_handle *handle, rsstcallbackfnct callback)
+{
+	int rc=0;
+	struct_callback *callstruct=NULL;
+
+	/*
+	 * Get callback structure pointer.
+	 */
+	callstruct = handle->callback.rssdownload;
+
+	/*
+	 * Register the callback.
+	 */
+	rc = rsstaddcallback(callstruct, callback, handle);
+
+	/*
+	 * Return the value returned by add callback
+	 */
+	return rc;
+}
+
+
+/*
+ * Call the RSS download callback exe
+ * @Arguments
+ * handle			handle to RSS-torrent pointer
+ * logmsg			structure holding the logmsg
+ * @return
+ * return 0 when all called functions returned 0, otherwise != 0
+ */
+int rsstexecrssdownloadcallbacks(rsstor_handle *handle)
+{
+	int rc=0;
+	struct_callback *callstruct=NULL;
+
+	/*
+	 * Get callback structure pointer.
+	 */
+	callstruct = handle->callback.rssdownload;
+
+	/*
+	 * call the the callbacks.
+	 */
+	rc = rsstexecallbacks(callstruct, handle);
+
+	/*
+	 * Return the execute value
+	 */
+	return rc;
+}
+
+
+/*
+ * Call the apply filters register routine
+ * @arguments
+ * handle			handle to RSS-torrent pointer
+ * callback 	Function pointer to the routine to add
+ * @return
+ * 0 on successful addition, -1 on error
+ */
+int rsstaddapplyfilterscallback(rsstor_handle *handle, rsstcallbackfnct callback)
+{
+	int rc=0;
+	struct_callback *callstruct=NULL;
+
+	/*
+	 * Get callback structure pointer.
+	 */
+	callstruct = handle->callback.applyfilters;
+
+	/*
+	 * Register the callback.
+	 */
+	rc = rsstaddcallback(callstruct, callback, handle);
+
+	/*
+	 * Return the value returned by add callback
+	 */
+	return rc;
+}
+
+
+/*
+ * Call the apply filters callback exe
+ * @Arguments
+ * handle			handle to RSS-torrent pointer
+ * logmsg			structure holding the logmsg
+ * @return
+ * return 0 when all called functions returned 0, otherwise != 0
+ */
+int rsstexecapplyfilterscallbacks(rsstor_handle *handle)
+{
+	int rc=0;
+	struct_callback *callstruct=NULL;
+
+	/*
+	 * Get callback structure pointer.
+	 */
+	callstruct = handle->callback.applyfilters;
+
+	/*
+	 * call the the callbacks.
+	 */
+	rc = rsstexecallbacks(callstruct, handle);
+
+	/*
+	 * Return the execute value
+	 */
+	return rc;
+}
+
+/*
+ * Call the wrap up register routine
+ * @arguments
+ * handle			handle to RSS-torrent pointer
+ * callback 	Function pointer to the routine to add
+ * @return
+ * 0 on successful addition, -1 on error
+ */
+int rsstaddwrapupcallback(rsstor_handle *handle, rsstcallbackfnct callback)
+{
+	int rc=0;
+	struct_callback *callstruct=NULL;
+
+	/*
+	 * Get callback structure pointer.
+	 */
+	callstruct = handle->callback.wrapup;
+
+	/*
+	 * Register the callback.
+	 */
+	rc = rsstaddcallback(callstruct, callback, handle);
+
+	/*
+	 * Return the value returned by add callback
+	 */
+	return rc;
+}
+
+
+/*
+ * Call the wrapup callback exe
+ * @Arguments
+ * handle			handle to RSS-torrent pointer
+ * logmsg			structure holding the logmsg
+ * @return
+ * return 0 when all called functions returned 0, otherwise != 0
+ */
+int rsstexecwrapupcallbacks(rsstor_handle *handle)
+{
+	int rc=0;
+	struct_callback *callstruct=NULL;
+
+	/*
+	 * Get callback structure pointer.
+	 */
+	callstruct = handle->callback.wrapup;
+
+	/*
+	 * call the the callbacks.
+	 */
+	rc = rsstexecallbacks(callstruct, handle);
+
+	/*
+	 * Return the execute value
+	 */
+	return rc;
+}
+

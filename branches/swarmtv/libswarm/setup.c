@@ -94,6 +94,9 @@ static int rsstinitcallbacks(struct_callbacks *callbacks)
 	retval |= rsstinitcallback(&(callbacks->downloadrss));
 	retval |= rsstinitcallback(&(callbacks->downloadtorrent));
 	retval |= rsstinitcallback(&(callbacks->startupdate));
+	retval |= rsstinitcallback(&(callbacks->rssdownload));
+	retval |= rsstinitcallback(&(callbacks->applyfilters));
+	retval |= rsstinitcallback(&(callbacks->wrapup));
 	retval |= rsstinitcallback(&(callbacks->endupdate));
 	retval |= rsstinitcallback(&(callbacks->logmessage));
 

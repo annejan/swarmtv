@@ -76,14 +76,6 @@ int rssfrunloop(rsstor_handle *handle, LOOPMODE onetime)
       timeleft = timewait;
     }
 
-		/*
-		 * Call callback to signal start of update
-		 * Time left is also given when run once
-		 */
-		if(rc != 0){
-			rsstwritelog(LOG_ERROR, "Error returned by 'endup' callback. %s:%d", __FILE__, __LINE__);
-		}
-
     /*
      * Run once.
      */
@@ -108,3 +100,4 @@ int rssfrunloop(rsstor_handle *handle, LOOPMODE onetime)
    */
   return 0;
 }
+

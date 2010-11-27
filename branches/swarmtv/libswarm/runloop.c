@@ -252,24 +252,24 @@ int runcycle(rsstor_handle *handle)
    * Call callback to signal start of update
    */
   rc = rsstexecstartupcallbacks(handle);
-  if(rc != 0){
-    rsstwritelog(LOG_ERROR, "Error returned by 'startup' callback. %s:%d", __FILE__, __LINE__);
-  }
 
   /*
    * work through the sources and process them
    */
+  rsstexecrssdownloadcallbacks(handle);
   dowork(handle);
 
   /*
    * Execute SQL and simple filters on new entries.
    */
+  rsstexecapplyfilterscallbacks(handle);
   rsstdownloadtorrents(handle);
   rsstdownloadsimple(handle, 0);
 
   /*
    * Torrents are no longer new
    */
+  rsstexecwrapupcallbacks(handle);
   rsstnonewtorrents(handle);
   deleteold(handle);
 
