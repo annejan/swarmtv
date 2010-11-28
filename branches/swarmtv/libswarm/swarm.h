@@ -121,6 +121,7 @@ typedef struct {
 	sqlite3 				 *db;				// RSS-torrent database handle.
 	int			 					lockfile; // Lock file handle.
 	struct_callbacks 	callback;	// Struct containing the callbacks
+  void             *data;     // Data pointer, to be used by the client to pass data though callbacks.
 } rsstor_handle;
 
 /*

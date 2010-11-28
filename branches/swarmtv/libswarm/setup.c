@@ -122,6 +122,9 @@ void rsstfreecallbacks(struct_callbacks *callbacks)
 	rsstfreecallback(callbacks->downloadrss);
 	rsstfreecallback(callbacks->downloadtorrent);
 	rsstfreecallback(callbacks->startupdate);
+  rsstfreecallback(callbacks->rssdownload);
+  rsstfreecallback(callbacks->applyfilters);
+  rsstfreecallback(callbacks->wrapup);
 	rsstfreecallback(callbacks->endupdate);
 	rsstfreecallback(callbacks->logmessage);
 }

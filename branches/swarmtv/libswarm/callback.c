@@ -45,11 +45,6 @@ int rsstinitcallback(struct_callback **callstruct)
 	}
 
 	/*
-	 * All to zero
-	 */
-	memset(*callstruct, 0, sizeof(struct_callback));
-
-	/*
 	 * Done
 	 */
 	return 0;

@@ -25,6 +25,18 @@ IF(ESMTP_FOUND)
 	SET(optionalLibs ${optionalLibs} ${ESMTP_LIBRARIES} )
 ENDIF(ESMTP_FOUND)
 
+IF(DBUSGLIB_FOUND)
+  # Insert the DBUS_GLIB library and include definitions
+  INCLUDE_DIRECTORIES( ${DBUSGLIB_INCLUDE_DIRS} )
+  INCLUDE_DIRECTORIES( ${DBUS_INCLUDE_DIR} )
+  INCLUDE_DIRECTORIES( ${DBUS_ARCH_INCLUDE_DIR} )
+  INCLUDE_DIRECTORIES( ${GLIB2_INCLUDE_DIR} )
+  INCLUDE_DIRECTORIES( ${GLIBCONFIG_INCLUDE_DIR} )
+  SET(optionalLibs ${optionalLibs} ${GLIB2_LIBRARIES} )
+  SET(optionalLibs ${optionalLibs} ${DBUSGLIB_LIBRARY} )
+  ADD_DEFINITIONS(-DRSST_DBUS_GLIB_ENABLE="\\"1\\"")
+ENDIF(DBUSGLIB_FOUND)
+
 # Compiler directives
 add_definitions(-Wall -W -g)
 include_directories(. ${RSSTORRENT_BASE_DIR}/libswarm)
