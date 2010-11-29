@@ -612,12 +612,11 @@ void rsstprintlastdowned(rsstor_handle *handle)
   while(count < container.nr) {
     lastdownloaded=&(container.lastdownloaded[count]);
 
-    printf("Filter name: '%s', Filter type: '%s', Title: '%s', Season: '%d', Episode: '%d'\n", 
+    printf("Filter name: '%s', Filter type: '%s', Title: '%s', Release date: '%s'\n", 
         lastdownloaded->filtername,
         lastdownloaded->filtertype,
         lastdownloaded->downloaded->title,
-        lastdownloaded->downloaded->season,
-        lastdownloaded->downloaded->episode);
+        lastdownloaded->downloaded->pubdate);
     count++;
   }
 
