@@ -609,7 +609,6 @@ void rsstprintlastdowned(rsstor_handle *handle)
   /*
    * Print the restuls
    */
-  printf("Number of records retreived '%d'\n", container.nr);
   while(count < container.nr) {
     lastdownloaded=&(container.lastdownloaded[count]);
 
