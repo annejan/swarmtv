@@ -36,6 +36,9 @@
 
 #include <swarm.h>
 
+#include "dbus.h"
+#include "runloop.h"
+
 #endif
 
 /*
@@ -65,6 +68,7 @@ int rssfrunloop(rsstor_handle *handle, LOOPMODE onetime)
   } else {
     rsstwritelog(LOG_NORMAL, "Running once.");
   }
+
 
   /*
    * Keep running until...
@@ -113,6 +117,10 @@ int rssfrunloop(rsstor_handle *handle, LOOPMODE onetime)
   } 
 
   /*
+   * Free data struct
+   */
+
+  /*
    * done.
    */
   return 0;
@@ -126,29 +134,21 @@ int rssfrunloop(rsstor_handle *handle, LOOPMODE onetime)
 #ifdef RSST_DBUS_GLIB_ENABLE
 
 /*
- * Runcycle data struct
- */
-typedef struct {
-  rsstor_handle *handle;
-  GMainLoop     *loop;
-  int            onetime;
-  int            timewait;
-} runcycledata;
-
-/*
  * Glib callback routine to call when the timer triggers
  */
-static gboolean rssfglibcycle(runcycledata *data)
+static gboolean rssfglibcycle(rsstor_handle *handle)
 {
   int            rc=0;
   int            onetime=0;
-  rsstor_handle *handle=NULL;
   GMainLoop     *loop=NULL;
   time_t         after=0;
   time_t         before=0;
   time_t         timeleft=0;
   time_t         runtime=0;
   int            timewait=0;
+  runcycledata  *rundata=NULL;
+
+  rundata=(runcycledata*) handle->data;
 
   /*
    * Get time beforehand
@@ -158,15 +158,9 @@ static gboolean rssfglibcycle(runcycledata *data)
   /*
    * Get variables from data structure
    */
-  handle=data->handle;
-  onetime=data->onetime;
-  timewait=data->timewait;
-  loop=data->loop;
-
-  /*
-   * Store loop pointer into handle data pointer
-   */
-  handle->data=loop;
+  onetime=rundata->onetime;
+  timewait=rundata->timewait;
+  loop=rundata->loop;
 
   /*
    * Call the routine to do the work
@@ -197,7 +191,7 @@ static gboolean rssfglibcycle(runcycledata *data)
      * Reschedule for a new cycle
      */
     rsstwritelog(LOG_NORMAL, "Sleeping %d seconds.", timeleft);
-    g_timeout_add_seconds(timeleft, (GSourceFunc)rssfglibcycle, data);
+    g_timeout_add_seconds(timeleft, (GSourceFunc)rssfglibcycle, handle);
   }
   return FALSE;
 }
@@ -215,10 +209,9 @@ int rssfrunloop(rsstor_handle *handle, LOOPMODE onetime)
 {
   int             rc=0;
   GMainLoop      *loop=NULL;
-  DBusConnection *bus=NULL;
-  DBusError       error;
   int             timewait=0;
   runcycledata    data;
+  int             retval=0;
 
   /*
    * Get the interval to run
@@ -236,48 +229,53 @@ int rssfrunloop(rsstor_handle *handle, LOOPMODE onetime)
   loop = g_main_loop_new (NULL, FALSE);
 
   /*
-   * Fill runcycledata structure
+   * Fill handle->data structure
    */
-  data.handle=handle;
   data.onetime=onetime;
   data.timewait=timewait;
   data.loop=loop;
-
-  dbus_error_init (&error);
-  bus = dbus_bus_get (DBUS_BUS_SESSION, &error);
-  if (!bus) {
-    g_warning ("Failed to connect to the D-BUS daemon: %s", error.message);
-    dbus_error_free (&error);
-    return 1;
+  rc = rssfdbusinit(&(data.bus));
+  if(rc == -1) {
+    rsstwritelog(LOG_ERROR, "No DBUS updates will be sent.");  
   }
-  dbus_connection_setup_with_g_main (bus, NULL);
-
-#if 0
-  /* listening to messages from all objects as no path is specified */
-  dbus_bus_add_match (bus, PING_MATCH_RULE, &error);
-  dbus_connection_add_filter (bus, signal_filter, loop, NULL);
-#endif
-
-  /* 
-   * Call the runcycle 
-   */
-  g_timeout_add_seconds(1, (GSourceFunc)rssfglibcycle, &data);
+  handle->data = &data;
 
   /*
-   * Run main loop
+   * Setup Callbacks
    */
-  g_main_loop_run (loop);
+  rssfinitcallbacks(handle);
+
+  /*
+   * Schedule loop and run it.
+   */
+  if(retval == 0){
+    /* 
+     * Call the runcycle 
+     */
+    g_timeout_add_seconds(1, (GSourceFunc)rssfglibcycle, handle);
+
+    /*
+     * Run main loop
+     */
+    g_main_loop_run (loop);
+  }
 
   /*
    * Free main loop
    */
-  dbus_connection_unref(bus);
+  rssfdbusfree(data.bus);
   g_main_loop_unref(loop);
+
+  /*
+   * Free data structure.
+   * Delete the data pointer.
+   */
+  handle->data=NULL;
 
   /*
    * Done.
    */
-  return 0;
+  return retval;
 }
 
 #endif

@@ -244,7 +244,7 @@ int rsstaddendupcallback(rsstor_handle *handle, rsstcallbackfnct callback)
  * @return
  * return 0 when all called functions returned 0, otherwise != 0
  */
-int rsstexecendupcallbacks(rsstor_handle *handle, int time)
+int rsstexecendupcallbacks(rsstor_handle *handle)
 {
 	int rc=0;
 	struct_callback *callstruct=NULL;
@@ -257,7 +257,7 @@ int rsstexecendupcallbacks(rsstor_handle *handle, int time)
 	/*
 	 * call the callbacks.
 	 */
-	rc = rsstexecallbacks(callstruct, &time);
+	rc = rsstexecallbacks(callstruct, handle);
 
 	/*
 	 * Return the execute value

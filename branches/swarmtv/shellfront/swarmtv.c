@@ -59,49 +59,6 @@ void Signal_Handler(int sig) /* signal handler function */
   } 
 }
 
-#if 0
-/*
- * @@Debug
- */
-static int rssfcallbackfnct(void *data, void *calldata)
-{
-	/*
-	 * Print a silly message
-	 */
-	printf("Callback for starting RSS update cycle called.\n");
-
-	return 0;
-}
-
-/*
- * @@Debug
- */
-static int rssfcallbackendfnct(void *data, void *calldata)
-{
-	int *timew = (int*)calldata;
-	/*
-	 * Print a silly message
-	 */
-	printf("Callback for ending RSS update cycle called, time wait '%d'.\n", *timew);
-
-	return 0;
-}
-
-/*
- * @@Debug
- */
-static int rssfcallbackrssfnct(void *data, void *calldata)
-{
-	/*
-	 * Print a silly message
-	 */
-	printf("Callback RSS is downloaded.\n");
-
-	return 0;
-}
-#endif 
-
-
 /*
  * Temporary main function.
  */
@@ -133,14 +90,6 @@ int main(int argc, char **argv){
 		 */
 		fprintf(stderr, "Initiazation failed, exiting !\n");
 	} else {
-#if 0
-		/*
-		 * Register a test callback
-		 */
-		rsstaddstartupcallback(handle, rssfcallbackfnct);
-		rsstaddendupcallback(handle, rssfcallbackendfnct);
-		rsstadddownrsscallback(handle, rssfcallbackrssfnct);
-#endif
 
 		/*
 		 * Handle command line options
