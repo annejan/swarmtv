@@ -354,23 +354,18 @@ int rsstdownloadsimple(rsstor_handle *handle, SIM simulate)
   int           rc=0;
   int           step_rc=0;
   char          *zErrMsg = 0;
-  char          *name=NULL;
-  char          *title=NULL;
-  char          *exclude=NULL;
-  char          *category=NULL;
-  char          *source=NULL;
-  char          *nodup=NULL;
- 	double        maxsize=0.0;
-  double        minsize=0.0;
-  int           season=0;
-  int           episode=0;
   char          *sqlnodup=NULL;
-
+  simplefilter_struct simple_data;
 
 	/*
 	 * Query to retrieve filters from simple filters table.
 	 */ 
 	char *query = "select name, title, maxsize, minsize, nodup, fromseason, fromepisode, exclude, category, source from simplefilters";
+
+  /*
+   * clear simple struct
+   */
+  memset(&simple_data, 0, sizeof(simplefilter_struct));
 
 	/*
 	 * Prepare the Sqlite statement
@@ -398,38 +393,47 @@ int rsstdownloadsimple(rsstor_handle *handle, SIM simulate)
 		/*
 		 * Get name and query of the filters
      */
-    name     = (char*) sqlite3_column_text(ppStmt, 0);
-    title    = (char*) sqlite3_column_text(ppStmt, 1);
-    maxsize  = sqlite3_column_double(ppStmt, 2);
-    minsize  = sqlite3_column_double(ppStmt, 3);
-    nodup    = (char*) sqlite3_column_text(ppStmt, 4);
-    season   = sqlite3_column_int(ppStmt,    5);
-    episode  = sqlite3_column_int(ppStmt,    6);
-    exclude  = (char*) sqlite3_column_text(ppStmt, 7);
-    category = (char*) sqlite3_column_text(ppStmt, 8);
-    source   = (char*) sqlite3_column_text(ppStmt, 9);
+    simple_data.name     = (char*) sqlite3_column_text(ppStmt, 0);
+    simple_data.title    = (char*) sqlite3_column_text(ppStmt, 1);
+    simple_data.maxsize  = sqlite3_column_double(ppStmt, 2);
+    simple_data.minsize  = sqlite3_column_double(ppStmt, 3);
+    simple_data.nodup    = (char*) sqlite3_column_text(ppStmt, 4);
+    simple_data.fromseason   = sqlite3_column_int(ppStmt,    5);
+    simple_data.fromepisode  = sqlite3_column_int(ppStmt,    6);
+    simple_data.exclude  = (char*) sqlite3_column_text(ppStmt, 7);
+    simple_data.category = (char*) sqlite3_column_text(ppStmt, 8);
+    simple_data.source   = (char*) sqlite3_column_text(ppStmt, 9);
 
     /*
      * Generate SQL-filter and SQL-nodup
      */
-    rc = findnodup(nodup, &sqlnodup);
+    rc = findnodup(simple_data.nodup, &sqlnodup);
     if(rc != 0) {
-    free(sqlnodup);
-      rsstwritelog(LOG_ERROR, "Simple filter '%s' does not have a valid nodup value. %s:%d", name, __FILE__, __LINE__);
+      free(sqlnodup);
+      rsstwritelog(LOG_ERROR, "Simple filter '%s' does not have a valid nodup value. %s:%d", simple_data.name, __FILE__, __LINE__);
       continue;
     }
 
 		/*
 		 * Log SQL used for handling filters.
 		 */
-		rsstwritelog(LOG_DEBUG, "%s : %s", name, sqlfilter);
-		rsstwritelog(LOG_DEBUG, "%s : %s", name, sqlnodup);
+		rsstwritelog(LOG_DEBUG, "%s : %s", simple_data.name, sqlfilter);
+		rsstwritelog(LOG_DEBUG, "%s : %s", simple_data.name, sqlnodup);
 
     /*
-     * call apply filter
+     * Emit callback 
      */
-    rsstapplyfilter(handle, name, simple, sqlnodup, title, simulate, sqlfilter, 
-				"sffddsss", title, maxsize, minsize, season, episode, exclude, category, source);
+    rsstexecallbacks(handle, applysimplefilt, &simple_data);
+
+    /*
+     * call apply filter (Should be put in a struct in the future
+     */
+    rsstapplyfilter(handle, simple_data.name, simple, sqlnodup, simple_data.title, simulate, sqlfilter, 
+				"sffddsss", simple_data.title, 
+        simple_data.maxsize, simple_data.minsize, 
+        simple_data.fromseason, simple_data.fromepisode, 
+        simple_data.exclude, simple_data.category, 
+        simple_data.source);
 
     /*
      * Cleanup

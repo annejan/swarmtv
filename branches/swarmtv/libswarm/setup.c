@@ -86,19 +86,24 @@ static int makersstorrentdir()
  */
 static int rsstinitcallbacks(struct_callbacks *callbacks)
 {
+  unsigned int count=0;
 	int retval=0;
+  struct_callback **deref;
+  struct_callback **walk;
 
-	/*
-	 * intialize the callback structures.
-	 */
-	retval |= rsstinitcallback(&(callbacks->downloadrss));
-	retval |= rsstinitcallback(&(callbacks->downloadtorrent));
-	retval |= rsstinitcallback(&(callbacks->startupdate));
-	retval |= rsstinitcallback(&(callbacks->rssdownload));
-	retval |= rsstinitcallback(&(callbacks->applyfilters));
-	retval |= rsstinitcallback(&(callbacks->wrapup));
-	retval |= rsstinitcallback(&(callbacks->endupdate));
-	retval |= rsstinitcallback(&(callbacks->logmessage));
+  /*
+   * Do a dirty cast
+   */
+  deref = (struct_callback**) callbacks;
+
+  /*
+   * Walk through the callbackstruct until all is initialized
+   */
+  for(count=0; count < (enum_callbacks) lastelement; count++)
+  {
+    walk = deref+count;
+    retval |= rsstinitcallback(walk);
+  }
 
 	/*
 	 * When all did go well, 0 is returned
@@ -116,17 +121,23 @@ static int rsstinitcallbacks(struct_callbacks *callbacks)
  */
 void rsstfreecallbacks(struct_callbacks *callbacks)
 {
-	/*
-	 * Free the callback structures.
-	 */
-	rsstfreecallback(callbacks->downloadrss);
-	rsstfreecallback(callbacks->downloadtorrent);
-	rsstfreecallback(callbacks->startupdate);
-  rsstfreecallback(callbacks->rssdownload);
-  rsstfreecallback(callbacks->applyfilters);
-  rsstfreecallback(callbacks->wrapup);
-	rsstfreecallback(callbacks->endupdate);
-	rsstfreecallback(callbacks->logmessage);
+  unsigned int count=0;
+  struct_callback **deref;
+  struct_callback *walk;
+
+  /*
+   * Do a dirty cast
+   */
+  deref = (struct_callback**) callbacks;
+
+  /*
+   * Walk through the callbackstruct until all is initialized
+   */
+  for(count=0; count < (enum_callbacks) lastelement; count++)
+  {
+    walk = deref[count];
+    rsstfreecallback(walk);
+  }
 }
 
 

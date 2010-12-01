@@ -108,7 +108,7 @@ static int rssfcallbackstartfnct(void *data, void *calldata)
 	/*
 	 * Print a silly message
 	 */
-	printf("Callback start.\n");
+	//printf("Callback start.\n");
 
 	return 0;
 }
@@ -142,7 +142,7 @@ static int rssfcallbackendfnct(void *data, void *calldata)
 	/*
 	 * Print a silly message
 	 */
-	printf("Callback for ending RSS update cycle called.\n");
+	//printf("Callback for ending RSS update cycle called.\n");
 
 	return 0;
 }
@@ -170,13 +170,83 @@ static int rssfcallbackrssfnct(void *data, void *calldata)
 	/*
 	 * Call the dbus method to send the message through.
 	 */
-  snprintf(msg, MAXSIZE, "%d", down->id);
+  snprintf(msg, MAXSIZE, "%s", down->name);
   rssfsenddbusmsg(bus, "rss", msg);
 
 	/*
 	 * Print a silly message
 	 */
-	printf("Callback RSS '%s'.\n", msg);
+	//printf("Callback RSS '%s'.\n", msg);
+
+	return 0;
+}
+
+
+/*
+ * @@Debug
+ */
+static int rssfcallbacksimplefnct(void *data, void *calldata)
+{
+  rsstor_handle   *handle=NULL;
+  DBusConnection  *bus=NULL;
+  runcycledata    *rundata=NULL;
+  simplefilter_struct *simple=NULL;
+  char             msg[MAXSIZE+1];
+
+  /*
+   * Retrieve pointers
+   */
+  handle=(rsstor_handle*) data;
+  rundata=(runcycledata*) handle->data;
+  bus=rundata->bus;
+  simple=(simplefilter_struct*) calldata;
+
+
+	/*
+	 * Call the dbus method to send the message through.
+	 */
+  snprintf(msg, MAXSIZE, "%s", simple->name);
+  rssfsenddbusmsg(bus, "rss", msg);
+
+	/*
+	 * Print a silly message
+	 */
+	//printf("Callback simple '%s'.\n", msg);
+
+	return 0;
+}
+
+
+/*
+ * @@Debug
+ */
+static int rssfcallbacksqlfnct(void *data, void *calldata)
+{
+  rsstor_handle   *handle=NULL;
+  DBusConnection  *bus=NULL;
+  runcycledata    *rundata=NULL;
+  filter_struct   *sql=NULL;
+  char             msg[MAXSIZE+1];
+
+  /*
+   * Retrieve pointers
+   */
+  handle=(rsstor_handle*) data;
+  rundata=(runcycledata*) handle->data;
+  bus=rundata->bus;
+  sql=(filter_struct*) calldata;
+
+
+	/*
+	 * Call the dbus method to send the message through.
+	 */
+  snprintf(msg, MAXSIZE, "%s", sql->name);
+  rssfsenddbusmsg(bus, "rss", msg);
+
+	/*
+	 * Print a silly message
+	 */
+	//printf("Callback simple '%s'.\n", msg);
 
 	return 0;
 }
@@ -192,9 +262,11 @@ void rssfinitcallbacks(rsstor_handle *handle)
 		/*
 		 * Register a test callback
 		 */
-		rsstaddstartupcallback(handle, rssfcallbackstartfnct);
-		rsstaddendupcallback(handle, rssfcallbackendfnct);
-		rsstadddownrsscallback(handle, rssfcallbackrssfnct);
+    rsstaddcallback(handle, startcycle,       rssfcallbackstartfnct,  handle);
+    rsstaddcallback(handle, endcycle,         rssfcallbackendfnct,    handle);
+    rsstaddcallback(handle, rssdownload,      rssfcallbackrssfnct,    handle);
+    rsstaddcallback(handle, applysimplefilt,  rssfcallbacksimplefnct, handle);
+    rsstaddcallback(handle, applysqlfilt,     rssfcallbacksqlfnct,    handle);
 }
 
 /*
@@ -231,3 +303,4 @@ void rssfdbusfree(DBusConnection *bus)
 {
   dbus_connection_unref(bus);
 }
+

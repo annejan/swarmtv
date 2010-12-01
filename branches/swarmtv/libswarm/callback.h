@@ -35,22 +35,28 @@ int rsstinitcallback(struct_callback **callstruct);
  */
 void rsstfreecallback(struct_callback *callstruct);
 
+
 /*
  * Add pointer.
  * @arguments
- * callstruct Structure to add new pointer to
+ * handle swarmtv handle
+ * enumcall the name of the callback funct
+ * callback pointer to the callback function
+ * data   pointer that will be returned as the data pointer.
  * @return
  * 0 on successful addition, -1 on error
  */
-int rsstaddcallback(struct_callback *callstruct, rsstcallbackfnct callback, void *data);
+int rsstaddcallback(rsstor_handle *handle, enum_callbacks enumcall, rsstcallbackfnct callback, void *data);
+
 
 /*
- * Call callbacks.
- * @arguments
- * callstruct	Structure of callbacks to execute one by one
- * data				Structure containing callback data (should be casted to proper structure)
+ * execute routines that are handling on RSS download events
+ * @Arguments
+ * handle     Handle to RSS-torrent pointer
+ * callenum   Name name of the callback to call
+ * load       payload to provide together with the callback
  * @return
- * 0 on success, -1 when on of the called functions did not return 0
+ * return 0 when all called functions returned 0, otherwise != 0
  */
-int rsstexecallbacks(struct_callback *callstruct, void *data);
+int rsstexecallbacks(rsstor_handle *handle, enum_callbacks callenum, void *load);
 

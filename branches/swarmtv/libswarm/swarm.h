@@ -85,31 +85,39 @@ typedef struct{
  * Download RSS/torrent structure
  */
 typedef struct {
-	int id;				/*ID of the RSS/torrent depends newtorrents id/downloaded id*/  
-	int status;		/*0 when download was successful, else -1 */
-	char *error;	/*Error message telling what has failed in text */
+	int   id;			  /* ID of the RSS/torrent depends newtorrents id/downloaded id*/  
+  char *name;     /* Name of the source */
+  char *url;      /* URL of the source  */
+  char *parser;   /* Parser used to parse the source */
+  char *metatype; /* The metafiles source is going to provide */
+  char *errstr;   /* Will be set when status == -1 */
+	int status;		  /* 0 when download was successful, else -1 */
 } struct_download;
 
 /*
- * Log file entry structure
+ * Enum for callbacks
+ * Make sure lastelement is always the last element in the list !
  */
-typedef struct {
-	char *msg;		/* Pointer to the message being logged */
-	int	 *sev;		/* Severity of log entry */
-} struct_logmsg;
+typedef enum {
+  startcycle=0,       /* NULL pointer is sent with this callback */
+  rssdownload,        /* load pointer contains struct_download */
+  applysimplefilt,    /* load pointer contains simplefilter_struct */ 
+  applysqlfilt,       /* load pointer contains filter_struct */
+  downloadtorrent,    /* load pointer contains downloaded_struct */
+  endcycle,           /* NULL pointer is sent with this callback */
+  lastelement         /* Here as end marker */
+} enum_callbacks;
 
 /*
  * Callback pointers.
  */
 typedef struct {
-	struct_callback *downloadrss; 		/* When a RSS file is downloaded */
+	struct_callback *startcycle; 		  /* Emitted at the start of an update cycle */
+  struct_callback *rssdownload;     /* Emiited when a source is downloaded or failed */
+  struct_callback *applysimplefilt; /* Emitted at the start of the Applying of the filters */
+  struct_callback *applysqlfilt;    /* Emitted when a SQL filter is processed */
   struct_callback *downloadtorrent; /* When a Torrent is downloaded */
-	struct_callback *startupdate; 		/* Emitted at the start of an update cycle */
-  struct_callback *rssdownload;     /* Emitted at the start of the RSS download */
-  struct_callback *applyfilters;    /* Emitted at the start of the Applying of the filters */
-  struct_callback *wrapup;          /* Emitted at the start of the wrap up stage */
-	struct_callback *endupdate; 			/* emitted at the end of an update cycle */
-	struct_callback *logmessage; 			/* When ever a logmessage is created, this method is called */
+	struct_callback *endcycle; 			  /* emitted at the end of an update cycle */
 } struct_callbacks;	
 
 /*
@@ -833,58 +841,30 @@ int rsstwritelog(int level, char *str,...);
 void rssttestmail(rsstor_handle *handle, char *testtxt);
 
 /*
- * Callback registration functions
+ * Callback interaction functions
  */
 
 /*
- * Add a routine that is executed on a RSS download event
+ * Add pointer.
  * @arguments
- * handle			handle to RSS-torrent pointer
- * callback 	Function pointer to the routine to add
+ * handle swarmtv handle
+ * enumcall the name of the callback funct
+ * callback pointer to the callback function
+ * data   pointer that will be returned as the data pointer.
  * @return
  * 0 on successful addition, -1 on error
  */
-int rsstadddownrsscallback(rsstor_handle *handle, rsstcallbackfnct callback);
+int rsstaddcallback(rsstor_handle *handle, enum_callbacks enumcall, rsstcallbackfnct callback, void *data);
 
 /*
- * Add a routine that is executed on a torrent download event
- * @arguments
- * handle			handle to RSS-torrent pointer
- * callback 	Function pointer to the routine to add
+ * execute routines that are handling on RSS download events
+ * @Arguments
+ * handle     Handle to RSS-torrent pointer
+ * callenum   Name name of the callback to call
+ * load       payload to provide together with the callback
  * @return
- * 0 on successful addition, -1 on error
+ * return 0 when all called functions returned 0, otherwise != 0
  */
-int rsstadddowntorcallback(rsstor_handle *handle, rsstcallbackfnct callback);
-
-
-/*
- * Add a routine that is executed on start of update event
- * @arguments
- * handle			handle to RSS-torrent pointer
- * callback 	Function pointer to the routine to add
- * @return
- * 0 on successful addition, -1 on error
- */
-int rsstaddstartupcallback(rsstor_handle *handle, rsstcallbackfnct callback);
-
-/*
- * Add a routine that handles start of update cycle
- * @arguments
- * handle			handle to RSS-torrent pointer
- * callback 	Function pointer to the routine to add
- * @return
- * 0 on successful addition, -1 on error
- */
-int rsstaddendupcallback(rsstor_handle *handle, rsstcallbackfnct callback);
-
-/*
- * Add a routine that is executed on a RSS download event
- * @arguments
- * handle			handle to RSS-torrent pointer
- * callback 	Function pointer to the routine to add
- * @return
- * 0 on successful addition, -1 on error
- */
-int rsstadddownrsscallback(rsstor_handle *handle, rsstcallbackfnct callback);
+int rsstexecallbacks(rsstor_handle *handle, enum_callbacks callenum, void *load);
 
 #endif

@@ -34,7 +34,6 @@
 #include "filesystem.h"
 #include "database.h"
 #include "callback.h"
-#include "callbackimpl.h"
 #include "lastdownloaded.h"
 #include "baretitle.h"
 
@@ -83,11 +82,9 @@ int rsstdownloadtorrents(rsstor_handle *handle)
   int           rc;
   int           step_rc;
   char          *zErrMsg = 0;
-  char          *name;
-  char          *filter;
-  char          *nodouble;
+  filter_struct sql_data;
 
-  const char *query = "select name, filter, nodouble from filters";
+  const char *query = "select id, name, filter, nodouble from filters";
 
   /*
    * Prepare the sqlite statement
@@ -113,14 +110,20 @@ int rsstdownloadtorrents(rsstor_handle *handle)
     /*
      * Get name and query of the filters
      */
-    name = (char*) sqlite3_column_text(ppStmt, 0);
-    filter = (char*) sqlite3_column_text(ppStmt, 1);
-    nodouble = (char*) sqlite3_column_text(ppStmt, 2);
+    sql_data.id = sqlite3_column_int(ppStmt, 0);
+    sql_data.name = (char*) sqlite3_column_text(ppStmt, 1);
+    sql_data.filter = (char*) sqlite3_column_text(ppStmt, 2);
+    sql_data.nodup = (char*) sqlite3_column_text(ppStmt, 3);
+    
+    /*
+     * Send callbacks we are about to apply filter
+     */
+    rsstexecallbacks(handle, applysqlfilt, &sql_data);
 
     /*
      * call apply filter
      */
-    rsstapplyfilter(handle, name, sql, nodouble, NULL, (SIM) real, filter, NULL);
+    rsstapplyfilter(handle, sql_data.name, sql, sql_data.nodup, NULL, (SIM) real, sql_data.filter, NULL);
   }
 
   /*
@@ -241,35 +244,6 @@ static void rsstsendemail(sqlite3 *db, char *filtername, downloaded_struct *down
 #endif
 }
 
-/*
- * Call the torrentdownload callback
- * @Arguments
- * handle	RSS-torrent handle
- * id			Id of the torrent being downloaded
- * status	status 0 for success -1 for fail
- * error	string containing error message, NULL when status is 0
- * @Return
- * returns 0 when all called routines return 0 otherwise !0 is returned.
- */
-static int rsstexetorcallback(rsstor_handle *handle, int id, int status, char *error)
-{
-	int							rc=0;
-	struct_download callback;
-
-	/*
-	 * Build callback struct
-	 */
-	callback.id = id;				
-	callback.status = status;	
-	callback.error = error;
-
-	/*
-	 * Call callback
-	 */
-	rc = rsstexecdowntordownrsscallbacks(handle, &callback);
-
-	return rc;
-}
 
 /*
  * Use the filtername and type to get the filterid, use the link to get the downloaded id.
@@ -380,13 +354,16 @@ static void rssthandlenewresults(rsstor_handle *handle, char *filtername, FILTER
 			 * Send email and call callbacks
 			 */
 			rsstsendemail(handle->db, filtername, downed);
-			rsstexetorcallback(handle, downed->id, 0, NULL);
+			//rsstexetorcallback(handle, downed->id, 0, NULL);
+      rsstexecallbacks(handle, downloadtorrent, downed);
 		} else {
 			/*
 			 * Call the torrent download callback and report error
+       * @@ FIX make sure this gets handled in the future.
 			 */
-			snprintf(errorstr, MAXMSGLEN, "Torrent download failed '%s', '%s'", downed->title, downed->link);
-			rsstexetorcallback(handle, downed->id, -1, errorstr);
+			//snprintf(errorstr, MAXMSGLEN, "Torrent download failed '%s', '%s'", downed->title, downed->link);
+			//rsstexetorcallback(handle, downed->id, -1, errorstr);
+
 		}
 	}
 

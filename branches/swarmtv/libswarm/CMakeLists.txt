@@ -36,11 +36,11 @@ add_definitions(-Wall -W -g -fPIC)
 include_directories(.)
 
 # All other sources
-# getmissed
+# getmissed callbackimpl 
 SET(LIBSRC setup database databaseimpl config regexp source
 		filter runloop curlfile torrentdb torrentdownload logfile
 		sandboxdb testfilter filesystem lastdownloaded 
-		simplefilter callback callbackimpl stats baretitle)
+		simplefilter callback stats baretitle)
 
 IF(ESMTP_FOUND)
 	SET(LIBSRC ${LIBSRC} mailmsg)

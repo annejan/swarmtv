@@ -132,10 +132,10 @@ int rsstinitlog(char *logpath)
  */
 int rsstwritelog(int level, char *str,...)
 {
-  char s[30];
-  size_t i;
-  struct tm tim;
-  time_t now;
+  char            s[30];
+  size_t          i=0;
+  struct tm       tim;
+  time_t          now=0;
 
   if(level > LOG_LEVEL) {
     /*
@@ -162,12 +162,14 @@ int rsstwritelog(int level, char *str,...)
     }
     printf(" : ");
 
+    /*
+     * Put the error out there
+     */
     va_list arglist;
     va_start(arglist,str);
     vprintf(str,arglist);
     va_end(arglist);
     printf(" \n");
-
 
 		fflush(stdout);
   }

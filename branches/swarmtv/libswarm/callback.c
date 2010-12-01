@@ -79,13 +79,26 @@ void rsstfreecallback(struct_callback *callstruct)
 /*
  * Add pointer.
  * @arguments
- * callstruct Structure to add new pointer to
+ * handle swarmtv handle
+ * enumcall the name of the callback funct
+ * callback pointer to the callback function
+ * data   pointer that will be returned as the data pointer.
  * @return
  * 0 on successful addition, -1 on error
  */
-int rsstaddcallback(struct_callback *callstruct, rsstcallbackfnct callback, void *data)
+int rsstaddcallback(rsstor_handle *handle, enum_callbacks callenum, rsstcallbackfnct callback, void *data)
 {
-	int newcount=0;
+	int                newcount=0;
+  struct_callbacks   *callbacks=NULL;
+  struct_callback   **callcol=NULL;
+  struct_callback   *callstruct=NULL;
+
+  /*
+   * Get pointer
+   */
+  callbacks = &(handle->callback);
+  callcol = (struct_callback**) callbacks;
+  callstruct = callcol[callenum];
 
 	/*
 	 * Set new count
@@ -128,6 +141,7 @@ int rsstaddcallback(struct_callback *callstruct, rsstcallbackfnct callback, void
 	return 0;
 }
 
+
 /*
  * Call callbacks.
  * @arguments
@@ -136,7 +150,7 @@ int rsstaddcallback(struct_callback *callstruct, rsstcallbackfnct callback, void
  * @return
  * 0 on success, !0 when on of the called functions did not return 0
  */
-int rsstexecallbacks(struct_callback *callstruct, void *calldata)
+int rsstexecallstruct(struct_callback *callstruct, void *calldata)
 {
 	int count=0;
 	int retval=0;
@@ -156,5 +170,40 @@ int rsstexecallbacks(struct_callback *callstruct, void *calldata)
 	 * Return the results.
 	 */
 	return retval;
+}
+
+
+/*
+ * execute routines that are handling on RSS download events
+ * @Arguments
+ * handle     Handle to RSS-torrent pointer
+ * callenum   Name name of the callback to call
+ * load       payload to provide together with the callback
+ * @return
+ * return 0 when all called functions returned 0, otherwise != 0
+ */
+int rsstexecallbacks(rsstor_handle *handle, enum_callbacks callenum, void *load)
+{
+  int rc=0;
+  struct_callbacks *callbacks=NULL;
+  struct_callback **callcol=NULL;
+  struct_callback  *callstruct=NULL;
+
+  /*
+   * Get callback structure pointer.
+   */
+  callbacks = &(handle->callback);
+  callcol = (struct_callback**) callbacks;
+  callstruct = callcol[callenum];
+
+  /*
+   * call the callbacks.
+   */
+  rc = rsstexecallstruct(callstruct, load);
+
+  /*
+   * Return the execute value
+   */
+  return rc;
 }
 

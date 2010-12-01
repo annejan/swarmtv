@@ -34,7 +34,6 @@
 #include "logfile.h"
 #include "torrentdb.h"
 #include "callback.h"
-#include "callbackimpl.h"
 
 /*
  * Parser includes
@@ -57,29 +56,30 @@ const char *query="select name, url, parser, metatype, id from sources";
  * Return
  * 0 when okay, on error -1
  */
-static int parserdownload(rsstor_handle *handle, char *name, char *url, char *metatype, char *filter, MemoryStruct *rssfile)
+static int parserdownload(rsstor_handle *handle, struct_download *downed, MemoryStruct *rssfile)
 {
   int rc;
 	
   /*
    * compare the filter string and pass the downloaded file to the correct filtering routine.
    */
-  if(strcmp(filter, "defaultrss") == 0) {
+  if(strcmp(downed->parser, "defaultrss") == 0) {
     //printf("Found a file for filter %s\n", filter);
-    rc = defaultrss(handle, name, url, filter, metatype, rssfile); 
+    rc = defaultrss(handle, downed->name, downed->url, downed->parser, downed->metatype, rssfile); 
     return 0;
   }
 
-  if(strcmp(filter, "twitter") == 0) {
+  if(strcmp(downed->parser, "twitter") == 0) {
     //printf("Found a file for filter %s\n", filter);
-    rc = twitter(handle, name, url, filter, metatype, rssfile); 
+    rc = twitter(handle, downed->name, downed->url, downed->parser, downed->metatype, rssfile); 
+
     return 0;
   }
 
   /*
    * When no filter found.
    */
-  rsstwritelog(LOG_ERROR, "No filter found '%s', ignoring file %s:%d", filter, __FILE__, __LINE__);
+  rsstwritelog(LOG_ERROR, "No filter found '%s', ignoring file %s:%d", downed->parser, __FILE__, __LINE__);
   return -1;
 }
 
@@ -113,35 +113,6 @@ static void deleteold(rsstor_handle *handle)
 	}
 }
 
-/*
- * Call RSS download callback
- * @arguments
- * handle 	RSS-torrent handle
- * id				id of RSS that was downloaded
- * status		0 if okay, otherwise -1, error is set when status is -1
- * error		String containing printable error, when status is okay set to NULL
- * @return
- * 0 if all callbacks returned 0, otherwise !0
- */
-static int rsstrssdownloadcallback(rsstor_handle *handle, int id, int status, char *error)
-{
-	int rc=0;
-	struct_download down;
-
-	/*
-	 * Build struct
-	 */
-	down.id=id;
-	down.status=status;
-	down.error=error;
-
-	/*
-	 * Execute callbacks
-	 */
-	rc = rsstexecdownrsscallbacks(handle, &down);
-
-	return rc;
-}
 
 /*
  * Do the main work here
@@ -158,11 +129,12 @@ static void dowork(rsstor_handle *handle){
   char                    *zErrMsg=NULL;
   char           					*name=NULL;
   char           					*url=NULL;
-  char                    *metatype=NULL;
-  char           					*parser=NULL;
+  //char                    *metatype=NULL;
+  //char           					*parser=NULL;
 	char										errstr[ERRORLEN+1];
-	int											id=0;
+	//int											id=0;
   MemoryStruct            rssfile;
+  struct_download         downed;
 
   /*
    * Prepare the Sqlite statement
@@ -189,35 +161,40 @@ static void dowork(rsstor_handle *handle){
     /*
      * Get the values
      */
-    name    = (char *) sqlite3_column_text(ppStmt, 0);
-    url     = (char *) sqlite3_column_text(ppStmt, 1);
-    parser  = (char *) sqlite3_column_text(ppStmt, 2); 
-    metatype= (char *) sqlite3_column_text(ppStmt, 3);
-		id      = 				 sqlite3_column_int (ppStmt, 4);
+    memset(&downed, 0, sizeof(downed));
+    downed.name     = (char *) sqlite3_column_text(ppStmt, 0);
+    downed.url      = (char *) sqlite3_column_text(ppStmt, 1);
+    downed.parser   = (char *) sqlite3_column_text(ppStmt, 2); 
+    downed.metatype = (char *) sqlite3_column_text(ppStmt, 3);
+		downed.id       = 				 sqlite3_column_int (ppStmt, 4);
   
-    rc = rsstdownloadtobuffer(url, &rssfile);
+    rc = rsstdownloadtobuffer(downed.url, &rssfile);
     if(rc == 0) {
       /*
        * Download succeeded.
        */
-      rsstwritelog(LOG_DEBUG, "Download succeeded for %s : %s : %s", name, url, metatype);
+      rsstwritelog(LOG_DEBUG, "Download succeeded for %s : %s : %s", downed.name, downed.url, downed.metatype);
 
       /*
        * Filter the stuff and add it to the database.
+       * rc = parserdownload(handle, name, url, metatype, parser, &rssfile);
        */
-      rc = parserdownload(handle, name, url, metatype, parser, &rssfile);
+      rc = parserdownload(handle, &downed, &rssfile);
       if(rc == 0) {
 				/*
 				 * Callback RSS download is okay
 				 */
-				rsstrssdownloadcallback(handle, id, 0, NULL);
+        downed.status=0;
+        rsstexecallbacks(handle, rssdownload, &downed);
 
 			} else {
 				/*
 				 * Call RSS download has failed because the content could not be parsed
 				 */
-				snprintf(errstr, ERRORLEN, "RSS source '%s' '%s' failed to download.", name, url);
-				rsstrssdownloadcallback(handle, id, -1, errstr);
+				snprintf(errstr, ERRORLEN, "RSS source '%s' '%s' failed to parse.", name, url);
+        downed.errstr=errstr;
+        downed.status=-1;
+        rsstexecallbacks(handle, rssdownload, &downed);
         rsstwritelog(LOG_ERROR, "Filtering failed for %s : %s %s:%d", name, url, __FILE__, __LINE__);
       }
       
@@ -225,6 +202,10 @@ static void dowork(rsstor_handle *handle){
 			/*
 			 * Call RSS download has failed, because file could not be retrieved.
 			 */
+      snprintf(errstr, ERRORLEN, "RSS source '%s' '%s' failed to parse.", name, url);
+      downed.errstr=errstr;
+      downed.status=-1;
+      rsstexecallbacks(handle, rssdownload, &downed);
       rsstwritelog(LOG_ERROR, "Download failed for %s : %s %s:%d", name, url, __FILE__, __LINE__);
     }
     rsstfreedownload(&rssfile);
@@ -245,38 +226,33 @@ static void dowork(rsstor_handle *handle){
  */
 int runcycle(rsstor_handle *handle)
 {
-
-  int 			rc=0;
-
   /*
    * Call callback to signal start of update
    */
-  rc = rsstexecstartupcallbacks(handle);
+  rsstexecallbacks(handle, startcycle, NULL);
+  
 
   /*
    * work through the sources and process them
    */
-  rsstexecrssdownloadcallbacks(handle);
   dowork(handle);
 
   /*
    * Execute SQL and simple filters on new entries.
    */
-  rsstexecapplyfilterscallbacks(handle);
   rsstdownloadtorrents(handle);
   rsstdownloadsimple(handle, 0);
 
   /*
    * Torrents are no longer new
    */
-  rsstexecwrapupcallbacks(handle);
   rsstnonewtorrents(handle);
   deleteold(handle);
 
   /*
    * Call callback to signal start of update, -1 as parameter, as we don't know anything about time
    */
-  rc = rsstexecendupcallbacks(handle, -1);
+  rsstexecallbacks(handle, endcycle, NULL);
 
   return 0;
 }
@@ -311,7 +287,7 @@ int rsstrunloop(rsstor_handle *handle, LOOPMODE onetime)
     /*
      * Call callback to signal start of update
      */
-    rc = rsstexecstartupcallbacks(handle);
+    rc = rsstexecallbacks(handle, startcycle, NULL);
     if(rc != 0){
       rsstwritelog(LOG_ERROR, "Error returned by 'startup' callback. %s:%d", __FILE__, __LINE__);
     }
@@ -350,7 +326,7 @@ int rsstrunloop(rsstor_handle *handle, LOOPMODE onetime)
 		 * Call callback to signal start of update
 		 * Time left is also given when run once
 		 */
-		rc = rsstexecendupcallbacks(handle, timeleft);
+    rc = rsstexecallbacks(handle, endcycle, NULL);
 		if(rc != 0){
 			rsstwritelog(LOG_ERROR, "Error returned by 'endup' callback. %s:%d", __FILE__, __LINE__);
 		}
