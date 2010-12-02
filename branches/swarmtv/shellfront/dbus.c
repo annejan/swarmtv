@@ -285,15 +285,8 @@ int rssfdbusinit(DBusConnection **bus)
   dbus_error_init (&error);
   *bus = dbus_bus_get (DBUS_BUS_SESSION, &error);
   if (dbus_error_is_set(&error)) {
-    fprintf(stderr, "Connection Error (%s)\n", error.message);
+    rsstwritelog(LOG_ERROR, "Connection Error (%s)\n", error.message);
     dbus_error_free(&error);
-    rssfdbusfree(*bus);
-    *bus=NULL;
-    return -1;
-  }
-  if (bus == NULL) {
-    rsstwritelog(LOG_ERROR, "Failed to connect to the D-BUS daemon: %s", error.message);
-    dbus_error_free (&error);
     return -1;
   }
   dbus_connection_setup_with_g_main (*bus, NULL);
@@ -308,6 +301,8 @@ int rssfdbusinit(DBusConnection **bus)
  */
 void rssfdbusfree(DBusConnection *bus)
 {
-  dbus_connection_unref(bus);
+  if(bus != NULL) {
+    dbus_connection_unref(bus);
+  }
 }
 
