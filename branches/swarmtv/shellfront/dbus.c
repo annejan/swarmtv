@@ -33,10 +33,16 @@
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
 
+/*
+ * LibXML2
+ */
+#include <libxml/parser.h>
+
 #include <swarm.h>
 
 #include "runloop.h"
 #include "dbus.h"
+#include "xmlencode.h"
 
 //path  the path to the object emitting the signal
 #define RSSFDBUSPATH "/"
@@ -156,7 +162,8 @@ static int rssfcallbackrssfnct(void *data, void *calldata)
   DBusConnection  *bus=NULL;
   runcycledata    *rundata=NULL;
   struct_download *down=NULL;
-  char             msg[MAXSIZE+1];
+  xmlChar         *xmlbuf=NULL;
+  int              buffersize=0;
 
   /*
    * Retrieve pointers
@@ -170,13 +177,9 @@ static int rssfcallbackrssfnct(void *data, void *calldata)
 	/*
 	 * Call the dbus method to send the message through.
 	 */
-  snprintf(msg, MAXSIZE, "%s", down->name);
-  rssfsenddbusmsg(bus, "rss", msg);
-
-	/*
-	 * Print a silly message
-	 */
-	//printf("Callback RSS '%s'.\n", msg);
+  rssfrsstoxml(down, &xmlbuf, &buffersize);
+  rssfsenddbusmsg(bus, "rss", (char*) xmlbuf);
+  rssffreexmldoc(xmlbuf);
 
 	return 0;
 }
@@ -191,7 +194,8 @@ static int rssfcallbacksimplefnct(void *data, void *calldata)
   DBusConnection  *bus=NULL;
   runcycledata    *rundata=NULL;
   simplefilter_struct *simple=NULL;
-  char             msg[MAXSIZE+1];
+  xmlChar         *xmlbuf=NULL;
+  int              buffersize=0;
 
   /*
    * Retrieve pointers
@@ -205,13 +209,9 @@ static int rssfcallbacksimplefnct(void *data, void *calldata)
 	/*
 	 * Call the dbus method to send the message through.
 	 */
-  snprintf(msg, MAXSIZE, "%s", simple->name);
-  rssfsenddbusmsg(bus, "rss", msg);
-
-	/*
-	 * Print a silly message
-	 */
-	//printf("Callback simple '%s'.\n", msg);
+  rssfsimpletoxml(simple, &xmlbuf, &buffersize);
+  rssfsenddbusmsg(bus, "simple", (char*) xmlbuf);
+  rssffreexmldoc(xmlbuf);
 
 	return 0;
 }
@@ -226,7 +226,8 @@ static int rssfcallbacksqlfnct(void *data, void *calldata)
   DBusConnection  *bus=NULL;
   runcycledata    *rundata=NULL;
   filter_struct   *sql=NULL;
-  char             msg[MAXSIZE+1];
+  xmlChar         *xmlbuf=NULL;
+  int              buffersize=0;
 
   /*
    * Retrieve pointers
@@ -236,17 +237,43 @@ static int rssfcallbacksqlfnct(void *data, void *calldata)
   bus=rundata->bus;
   sql=(filter_struct*) calldata;
 
+	/*
+	 * Call the dbus method to send the message through.
+	 */
+  rssfsqltoxml(sql, &xmlbuf, &buffersize);
+  rssfsenddbusmsg(bus, "sql", (char*) xmlbuf);
+  rssffreexmldoc(xmlbuf);
+
+	return 0;
+}
+
+
+/*
+ * @@Debug
+ */
+static int rssfcallbackdownedfnct(void *data, void *calldata)
+{
+  rsstor_handle     *handle=NULL;
+  DBusConnection    *bus=NULL;
+  runcycledata      *rundata=NULL;
+  downloaded_struct *down=NULL;
+  xmlChar           *xmlbuf=NULL;
+  int                buffersize=0;
+
+  /*
+   * Retrieve pointers
+   */
+  handle=(rsstor_handle*) data;
+  rundata=(runcycledata*) handle->data;
+  bus=rundata->bus;
+  down=(downloaded_struct*) calldata;
 
 	/*
 	 * Call the dbus method to send the message through.
 	 */
-  snprintf(msg, MAXSIZE, "%s", sql->name);
-  rssfsenddbusmsg(bus, "rss", msg);
-
-	/*
-	 * Print a silly message
-	 */
-	//printf("Callback simple '%s'.\n", msg);
+  rssfdownedtoxml(down, &xmlbuf, &buffersize);
+  rssfsenddbusmsg(bus, "downed", (char*) xmlbuf);
+  rssffreexmldoc(xmlbuf);
 
 	return 0;
 }
@@ -265,6 +292,7 @@ void rssfinitcallbacks(rsstor_handle *handle)
     rsstaddcallback(handle, startcycle,       rssfcallbackstartfnct,  handle);
     rsstaddcallback(handle, endcycle,         rssfcallbackendfnct,    handle);
     rsstaddcallback(handle, rssdownload,      rssfcallbackrssfnct,    handle);
+    rsstaddcallback(handle, downloadtorrent,  rssfcallbackdownedfnct, handle);
     rsstaddcallback(handle, applysimplefilt,  rssfcallbacksimplefnct, handle);
     rsstaddcallback(handle, applysqlfilt,     rssfcallbacksqlfnct,    handle);
 }
@@ -285,7 +313,7 @@ int rssfdbusinit(DBusConnection **bus)
   dbus_error_init (&error);
   *bus = dbus_bus_get (DBUS_BUS_SESSION, &error);
   if (dbus_error_is_set(&error)) {
-    rsstwritelog(LOG_ERROR, "Connection Error (%s)\n", error.message);
+    rsstwritelog(LOG_ERROR, "Connection Error (%s)", error.message);
     dbus_error_free(&error);
     return -1;
   }

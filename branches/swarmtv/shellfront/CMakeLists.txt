@@ -45,7 +45,7 @@ include_directories(. ${RSSTORRENT_BASE_DIR}/libswarm)
 link_directories (${RSSTORRENT_BASE_DIR}/libswarm) 
 
 # Add the sources to be build
-SET(SRC swarmtv handleopts present frontfuncts daemonize simplewizard runloop)
+SET(SRC swarmtv handleopts present frontfuncts daemonize simplewizard runloop xmlencode)
 
 # When dbusglib is available add the dbus source
 IF(DBUSGLIB_FOUND)
