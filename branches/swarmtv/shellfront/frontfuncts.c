@@ -27,7 +27,7 @@
 #include <ctype.h>
 #include <math.h>
 
-#include <swarm.h>
+#include <swarmtv.h>
 
 #include <handleopts.h>
 

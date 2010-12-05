@@ -51,35 +51,20 @@ INCLUDE(srcparser/CMakeLists.txt)
 INCLUDE(filehandler/CMakeLists.txt)
 
 # Add library
-add_library (swarm SHARED ${LIBSRC})
-TARGET_LINK_LIBRARIES(swarm ${optionalLibs} )
+add_library (swarmtv SHARED ${LIBSRC})
+TARGET_LINK_LIBRARIES(swarmtv ${optionalLibs} )
 # Set the build version (VERSION) and the API version (SOVERSION)
-SET_TARGET_PROPERTIES(swarm
+SET_TARGET_PROPERTIES(swarmtv
 		PROPERTIES
-		VERSION 1.1.0
+		VERSION 1.0.0
 		SOVERSION 1)
 
 # Installation of the library
-INSTALL(TARGETS swarm
+INSTALL(TARGETS swarmtv
 		DESTINATION lib
 		PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
 
-INSTALL(FILES swarm.h
+INSTALL(FILES swarmtv.h
 		DESTINATION include
 		PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
-
-# Implement uninstall
-#CONFIGURE_FILE(
-#    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
-#    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-#    IMMEDIATE @ONLY)
-
-#ADD_CUSTOM_TARGET(uninstall
-#    "${CMAKE_COMMAND}" -P
-#    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
-
-#ADD_CUSTOM_TARGET(realclean
-#		make clean
-#		COMMAND rm CMakeCache.txt
-#		COMMAND rm -rf CMakeFiles )
 

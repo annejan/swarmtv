@@ -38,7 +38,7 @@
  */
 #include <libxml/parser.h>
 
-#include <swarm.h>
+#include <swarmtv.h>
 
 #include "runloop.h"
 #include "dbus.h"

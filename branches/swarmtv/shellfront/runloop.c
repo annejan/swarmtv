@@ -34,7 +34,7 @@
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
 
-#include <swarm.h>
+#include <swarmtv.h>
 
 #include "dbus.h"
 #include "runloop.h"

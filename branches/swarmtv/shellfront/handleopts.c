@@ -25,7 +25,7 @@
 #include <string.h>
 #include <pcre.h>
 
-#include <swarm.h>
+#include <swarmtv.h>
 
 #include "daemonize.h"
 #include "handleopts.h"

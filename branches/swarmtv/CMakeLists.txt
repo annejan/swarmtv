@@ -59,7 +59,7 @@ ENDIF()
 SET(RSSTORRENT_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Building libray and shell frontend
-add_subdirectory (libswarm)
+add_subdirectory (libswarmtv)
 
 IF(SHELL_ENABLE) 
 	add_subdirectory (shellfront) 

@@ -39,10 +39,10 @@ ENDIF(DBUSGLIB_FOUND)
 
 # Compiler directives
 add_definitions(-Wall -W -g)
-include_directories(. ${RSSTORRENT_BASE_DIR}/libswarm)
+include_directories(. ${RSSTORRENT_BASE_DIR}/libswarmtv)
 
 # Make sure the linker can find the Hello library once it is built.
-link_directories (${RSSTORRENT_BASE_DIR}/libswarm) 
+link_directories (${RSSTORRENT_BASE_DIR}/libswarmtv) 
 
 # Add the sources to be build
 SET(SRC swarmtv handleopts present frontfuncts daemonize simplewizard runloop xmlencode)
@@ -72,8 +72,10 @@ INSTALL(FILES man/swarmtv.1.gz
 		PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
 
 # Add executables / manuals
-add_executable (swarmtv ${SRC} ${RSS_MAN}) 
-TARGET_LINK_LIBRARIES(swarmtv ${optionalLibs} libswarm.so )
+add_executable (swarmtv_exec ${SRC} ${RSS_MAN}) 
+SET_TARGET_PROPERTIES(swarmtv_exec PROPERTIES OUTPUT_NAME "swarmtv")
+
+TARGET_LINK_LIBRARIES(swarmtv_exec ${optionalLibs} libswarmtv.so )
 
 # We install to /usr/local/bin
 INSTALL(PROGRAMS swarmtv DESTINATION /usr/local/bin)

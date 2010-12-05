@@ -26,8 +26,8 @@
 #include <curl/types.h>
 #include <curl/easy.h>
 #include <libxml/parser.h>
-#include <swarm.h>
 
+#include "swarmtv.h"
 #include "types.h"
 #include "logfile.h"
 #include "filesystem.h"
