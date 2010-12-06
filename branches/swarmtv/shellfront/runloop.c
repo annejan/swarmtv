@@ -108,7 +108,7 @@ int rssfrunloop(rsstor_handle *handle, LOOPMODE onetime)
 		/*
 		 * Inform user
 		 */
-    rsstwritelog(LOG_NORMAL,"Refresh done, sleeping %d seconds.", timeleft); 
+    rsstwritelog(LOG_NORMAL,"Refresh done, sleeping %ds, cycle took %ds.", timeleft, (after - before)); 
 
     /*
      * Sleep timeout
@@ -190,7 +190,7 @@ static gboolean rssfglibcycle(rsstor_handle *handle)
     /*
      * Reschedule for a new cycle
      */
-    rsstwritelog(LOG_NORMAL, "Sleeping %d seconds.", timeleft);
+    rsstwritelog(LOG_NORMAL, "Sleeping %ds, cycle took %ds.", timeleft, runtime);
     g_timeout_add_seconds(timeleft, (GSourceFunc)rssfglibcycle, handle);
   }
   return FALSE;

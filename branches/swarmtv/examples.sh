@@ -25,19 +25,19 @@ echo "Done."
 # Although SQL filters are still supported they are not the default filter method anymore.
 # Plus 99% of the filters can be written using simple filters now.
 #echo "Insert SQL filters."
-#./swarmtv -F "DollHouse:select link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^[Dd]ollhouse') AND size < '400000000' AND new = 'Y'" \
+#./swarmtv -F "DollHouse:select id, link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^[Dd]ollhouse') AND size < '400000000' AND new = 'Y'" \
 #  -T "SELECT title FROM downloaded WHERE link=?1 OR (season>=?2 AND episode>=?3 AND title REGEXP('^[Dd]ollhouse'))"
-#./swarmtv -F "House:select link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^[hH]ouse') AND size < '400000000' AND new = 'Y'" \
+#./swarmtv -F "House:select id, link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^[hH]ouse') AND size < '400000000' AND new = 'Y'" \
 #  -T "SELECT title FROM downloaded WHERE link=?1 OR (season>=?2 AND episode>=?3 AND title REGEXP('^[hH]ouse'))"
-#./swarmtv -F "Stargate Universe:select link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^[sS]targate [Uu]niverse') AND size < '800000000' AND new = 'Y'" \
+#./swarmtv -F "Stargate Universe:select id, link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^[sS]targate [Uu]niverse') AND size < '800000000' AND new = 'Y'" \
 #  -T "SELECT title FROM downloaded WHERE link=?1 OR (season>=?2 AND episode>=?3 AND title REGEXP('^[sS]targate [Uu]niverse'))"
-#./swarmtv -F "BBC:select link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^BBC') AND size < '800000000' AND new = 'Y'" \
+#./swarmtv -F "BBC:select id, link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^BBC') AND size < '800000000' AND new = 'Y'" \
 #  -T "SELECT title FROM downloaded WHERE link=?1"
-#./swarmtv -F "Mythbusters:select link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^[Mm]ythbusters') AND size < '800000000' AND new = 'Y'" \
+#./swarmtv -F "Mythbusters:select id, link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^[Mm]ythbusters') AND size < '800000000' AND new = 'Y'" \
 #  -T "SELECT title FROM downloaded WHERE link=?1 OR (season>=?2 AND episode>=?3 AND title REGEXP('^[mM]ythbusters'))"
-#./swarmtv -F "Dirty Jobs:select link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^[dD]irty [jJ]obs') AND size < '400000000' AND new = 'Y'" \
+#./swarmtv -F "Dirty Jobs:select id, link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^[dD]irty [jJ]obs') AND size < '400000000' AND new = 'Y'" \
 #  -T "SELECT title FROM downloaded WHERE link=?1 OR (season>=?2 AND episode>=?3 AND title REGEXP('^[dD]irty [jJ]obs'))"
-#./swarmtv -F "Lost:select link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^[Ll]ost') AND size < '400000000' AND new = 'Y'" \
+#./swarmtv -F "Lost:select id, link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^[Ll]ost') AND size < '400000000' AND new = 'Y'" \
 #  -T "SELECT title FROM downloaded WHERE link=?1 OR (season>=?2 AND episode>=?3 AND title REGEXP('^[Ll]ost'))"
 #echo "Done."
 

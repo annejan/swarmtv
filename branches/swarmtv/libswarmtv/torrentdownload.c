@@ -354,7 +354,6 @@ static void rssthandlenewresults(rsstor_handle *handle, char *filtername, FILTER
 			 * Send email and call callbacks
 			 */
 			rsstsendemail(handle->db, filtername, downed);
-			//rsstexetorcallback(handle, downed->id, 0, NULL);
       rsstexecallbacks(handle, downloadtorrent, downed);
 		} else {
 			/*
@@ -402,14 +401,14 @@ static void rssthandlefiltresults(rsstor_handle *handle, sqlite3_stmt *ppStmt, c
 		 * Get name and query of the filters
 		 */
 		memset(&downed, 0, sizeof(downloaded_struct));
-    //downed.id        =  sqlite3_column_int(ppStmt, 0);
-		downed.link      = (char*) sqlite3_column_text(ppStmt, 0);
-		downed.title     = (char*) sqlite3_column_text(ppStmt, 1);
-		downed.pubdate   = (char*) sqlite3_column_text(ppStmt, 2);
-		downed.category  = (char*) sqlite3_column_text(ppStmt, 3);
-    downed.metatype  = (char*) sqlite3_column_text(ppStmt, 4);
-		downed.season    =  sqlite3_column_int(ppStmt, 5);
-		downed.episode   =  sqlite3_column_int(ppStmt, 6);
+    downed.id        =  sqlite3_column_int(ppStmt, 0);
+		downed.link      = (char*) sqlite3_column_text(ppStmt, 1);
+		downed.title     = (char*) sqlite3_column_text(ppStmt, 2);
+		downed.pubdate   = (char*) sqlite3_column_text(ppStmt, 3);
+		downed.category  = (char*) sqlite3_column_text(ppStmt, 4);
+    downed.metatype  = (char*) sqlite3_column_text(ppStmt, 5);
+		downed.season    =  sqlite3_column_int(ppStmt, 6);
+		downed.episode   =  sqlite3_column_int(ppStmt, 7);
 
     /*
      * Use the downed.title to isolate to name in the title.

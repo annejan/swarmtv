@@ -55,7 +55,7 @@
 /*
  * Filter that is used to convert the simple filter into SQL.
  */
-static char *sqlfilter="SELECT link, title, pubdate, category, metatype, season, episode FROM newtorrents WHERE "
+static char *sqlfilter="SELECT id, link, title, pubdate, category, metatype, season, episode FROM newtorrents WHERE "
 		"IREGEXP(?1, title) AND "
 		"(size < ?2 OR ?2 = 0) AND "
 		"(size > ?3 OR ?3 = 0) AND "
@@ -360,7 +360,7 @@ int rsstdownloadsimple(rsstor_handle *handle, SIM simulate)
 	/*
 	 * Query to retrieve filters from simple filters table.
 	 */ 
-	char *query = "select name, title, maxsize, minsize, nodup, fromseason, fromepisode, exclude, category, source from simplefilters";
+	char *query = "select id, name, title, maxsize, minsize, nodup, fromseason, fromepisode, exclude, category, source from simplefilters";
 
   /*
    * clear simple struct
@@ -393,16 +393,17 @@ int rsstdownloadsimple(rsstor_handle *handle, SIM simulate)
 		/*
 		 * Get name and query of the filters
      */
-    simple_data.name     = (char*) sqlite3_column_text(ppStmt, 0);
-    simple_data.title    = (char*) sqlite3_column_text(ppStmt, 1);
-    simple_data.maxsize  = sqlite3_column_double(ppStmt, 2);
-    simple_data.minsize  = sqlite3_column_double(ppStmt, 3);
-    simple_data.nodup    = (char*) sqlite3_column_text(ppStmt, 4);
-    simple_data.fromseason   = sqlite3_column_int(ppStmt,    5);
-    simple_data.fromepisode  = sqlite3_column_int(ppStmt,    6);
-    simple_data.exclude  = (char*) sqlite3_column_text(ppStmt, 7);
-    simple_data.category = (char*) sqlite3_column_text(ppStmt, 8);
-    simple_data.source   = (char*) sqlite3_column_text(ppStmt, 9);
+    simple_data.id       =         sqlite3_column_int   (ppStmt, 0);
+    simple_data.name     = (char*) sqlite3_column_text  (ppStmt, 1);
+    simple_data.title    = (char*) sqlite3_column_text  (ppStmt, 2);
+    simple_data.maxsize  =         sqlite3_column_double(ppStmt, 3);
+    simple_data.minsize  =         sqlite3_column_double(ppStmt, 4);
+    simple_data.nodup    = (char*) sqlite3_column_text  (ppStmt, 5);
+    simple_data.fromseason   =     sqlite3_column_int   (ppStmt, 6);
+    simple_data.fromepisode  =     sqlite3_column_int   (ppStmt, 7);
+    simple_data.exclude  = (char*) sqlite3_column_text  (ppStmt, 8);
+    simple_data.category = (char*) sqlite3_column_text  (ppStmt, 9);
+    simple_data.source   = (char*) sqlite3_column_text  (ppStmt, 10);
 
     /*
      * Generate SQL-filter and SQL-nodup
