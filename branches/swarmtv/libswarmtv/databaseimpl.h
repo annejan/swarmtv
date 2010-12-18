@@ -111,6 +111,13 @@ int rsstgetdownloaded(rsstor_handle *handle, downloaded_container **downloaded, 
 void rsstfreedownloaded(downloaded_struct *downloaded);
 
 /*
+ * Free source structure
+ * @Arguments
+ * source pointer to source struct to be freed
+ */
+void rsstfreesource(source_struct *source);
+
+/*
  * Delete content from source_container struct
  * @Arguments
  * container downloaded container content needs freeing
@@ -146,7 +153,7 @@ int rsstgetsimplefiltername(rsstor_handle *handle, simplefilter_container **simp
  * @Return
  * Returns 0 on success -1 on failure
  */
-int rsstgetsimplefilterid(rsstor_handle *handle, simplefilter_container **simplefilter, int id);
+int rsstgetsimplefilterid(rsstor_handle *handle, simplefilter_struct **simplefilter, int id);
 
 /*
  * Free simplefilter structure

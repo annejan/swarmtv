@@ -31,11 +31,6 @@
 typedef enum {real=0, sim} SIM;
 
 /*
- * Enum holdig filter types
- */
-typedef enum {sql=0, simple} FILTER_TYPE;
-
-/*
  * Struct holding file info
  */
 struct FtpFile {

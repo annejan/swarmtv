@@ -291,54 +291,6 @@ static int rssfaskreplace(char **answer, char *question)
 	return rc;
 }
 
-/*
- * This function returns a single simple struct
- * @arguments
- * handle RSS-torrent handle
- * name simple filter name
- * simple simple filter pointer to store answer in. (NULL when name is not found)
- * @return
- * 0 on success
- * -1 on error 
- */
-static int rssfgetsimple(rsstor_handle *handle, int id, simplefilter_struct **simple)
-{
-	int rc=0;
-	simplefilter_container *container=NULL;
-
-	/*
-	 * Get container, return when not found
-	 */
-	rc = rsstgetsimplefilterid(handle, &container, id);
-	if(rc < 0) {
-		return rc;
-	}
-
-	/*
-	 * When more then one filter match, this is not okay
-	 */
-	if(container->nr > 1){	
-		fprintf(stderr, "More than 1 filter is known by this id '%d'!\n", id);
-		rsstfreesimplefiltercontainer(container);
-		return -1;
-	}
-
-	/*
-	 * When no simple filter is found return -1
-	 */
-	if(container->nr == 0){
-		*simple=NULL;
-	} else {
-		/*
-		 * get pointer to the structure, free the container
-		 */
-		*simple=container->simplefilter;
-	}
-	free(container);
-
-	return 0;
-}
-
 
 /*
  * Get user input and decide what to put in the simplefilter_struct
@@ -386,7 +338,7 @@ static int rssfasksimplefilter(rsstor_handle *handle, simplefilter_struct **simp
 		 * Find simple struct by name
 		 */
     ansint = atoi(answer);
-		rc = rssfgetsimple(handle, ansint, simple);
+    rc = rsstgetsimplefilterid(handle, simple, ansint);
 		if(rc < 0){
 			fprintf(stderr, "Error filter finding failed\n");
 			break;

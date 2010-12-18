@@ -76,6 +76,7 @@ static int rsstaddlastdowned(sqlite3_stmt *ppStmt, int count, char *type, lastdo
 {
   lastdowned_struct *lastdownload=NULL;
   downloaded_struct *downloaded=NULL;
+  int   id=0;
   char *name=NULL;
   char *link=NULL;
   char *title=NULL;
@@ -88,14 +89,15 @@ static int rsstaddlastdowned(sqlite3_stmt *ppStmt, int count, char *type, lastdo
   /*
    * Get the values from the query
    */
-  name      = (char*) sqlite3_column_text(ppStmt, 0);
-  link      = (char*) sqlite3_column_text(ppStmt, 1);
-  title     = (char*) sqlite3_column_text(ppStmt, 2);
-  pubdate   = (char*) sqlite3_column_text(ppStmt, 3);
-  category  = (char*) sqlite3_column_text(ppStmt, 4);
-  metatype  = (char*) sqlite3_column_text(ppStmt, 5);
-  season    =  sqlite3_column_int(ppStmt, 6);
-  episode   =  sqlite3_column_int(ppStmt, 7);
+  id        = sqlite3_column_int(ppStmt, 0);
+  name      = (char*) sqlite3_column_text(ppStmt, 1);
+  link      = (char*) sqlite3_column_text(ppStmt, 2);
+  title     = (char*) sqlite3_column_text(ppStmt, 3);
+  pubdate   = (char*) sqlite3_column_text(ppStmt, 4);
+  category  = (char*) sqlite3_column_text(ppStmt, 5);
+  metatype  = (char*) sqlite3_column_text(ppStmt, 6);
+  season    =  sqlite3_column_int(ppStmt, 7);
+  episode   =  sqlite3_column_int(ppStmt, 8);
 
   /*
    * Allocate and reallocate the structures
@@ -106,28 +108,39 @@ static int rsstaddlastdowned(sqlite3_stmt *ppStmt, int count, char *type, lastdo
   /*
    * Allocate the downloaded structure
    */
-  container->lastdownloaded[count].downloaded = calloc(1, sizeof(downloaded_struct));
+  if(link == NULL) {
+    container->lastdownloaded[count].downloaded = NULL;
+  } else {
+    container->lastdownloaded[count].downloaded = calloc(1, sizeof(downloaded_struct));
+  }
 
   /*
    * Initialize the pointers
    */
   lastdownload = &(container->lastdownloaded[count]);
-  downloaded = lastdownload->downloaded;
 
 
   /*
    * Add the data to the container
    * int rsstalloccopy(char **dest, const char *src, const size_t size);
    */
+  lastdownload->filterid = id;
   rsstalloccopy(&(lastdownload->filtername), name, strlen(name));
   rsstalloccopy(&(lastdownload->filtertype), type, strlen(type));
-  rsstalloccopy(&(downloaded->link), link, strlen(link));
-  rsstalloccopy(&(downloaded->title), title, strlen(title));
-  rsstalloccopy(&(downloaded->pubdate), pubdate, strlen(pubdate));
-  rsstalloccopy(&(downloaded->category), category, strlen(category));
-  rsstalloccopy(&(downloaded->metatype), metatype, strlen(metatype));
-  downloaded->season = season;
-  downloaded->episode = episode;
+  /*
+   * When the filter has downloaded something set the variables.
+   * In other cases NULL everting.
+   */
+  if(link != NULL) {
+    downloaded = lastdownload->downloaded;
+    rsstalloccopy(&(downloaded->link), link, strlen(link));
+    rsstalloccopy(&(downloaded->title), title, strlen(title));
+    rsstalloccopy(&(downloaded->pubdate), pubdate, strlen(pubdate));
+    rsstalloccopy(&(downloaded->category), category, strlen(category));
+    rsstalloccopy(&(downloaded->metatype), metatype, strlen(metatype));
+    downloaded->season = season;
+    downloaded->episode = episode;
+  } 
 
   /*
    * All done
@@ -162,14 +175,21 @@ int rsstgetlastdownloaded(rsstor_handle *handle, lastdowned_container *container
    * Get the following values
    * name link title pubdate category metatype season episode
    */
+#if 0
   char *simplequery=
-    "SELECT spl.name, dow.link, dow.title, dow.pubdate, dow.category, dow.metatype, dow.season, dow.episode "
+    "SELECT spl.id, spl.name, dow.link, dow.title, dow.pubdate, dow.category, dow.metatype, dow.season, dow.episode "
     "FROM simplefilters spl, downloaded as dow, lastdownload as last " 
     "WHERE spl.id = last.simple_id and dow.id = last.downloaded_id";
+#endif
+  char *simplequery=
+    "SELECT spl.id, spl.name, dow.link, dow.title, dow.pubdate, dow.category, dow.metatype, dow.season, dow.episode "
+    "FROM simplefilters spl LEFT JOIN lastdownload as last ON spl.id = last.simple_id LEFT JOIN downloaded as dow ON last.downloaded_id = dow.id "
+    "ORDER BY spl.name";
   char *sqlquery=
-    "SELECT flt.name, dow.link, dow.title, dow.pubdate, dow.category, dow.metatype, dow.season, dow.episode "
+    "SELECT flt.id, flt.name, dow.link, dow.title, dow.pubdate, dow.category, dow.metatype, dow.season, dow.episode "
     "FROM filters flt, downloaded as dow, lastdownload as last "
-    "WHERE flt.id = last.simple_id and dow.id = last.downloaded_id";
+    "WHERE flt.id = last.sql_id and dow.id = last.downloaded_id "
+    "ORDER BY flt.name";
 
   /*
    * Execute the query to get all simple filter last downloads

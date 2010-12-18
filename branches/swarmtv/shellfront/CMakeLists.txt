@@ -47,6 +47,11 @@ link_directories (${RSSTORRENT_BASE_DIR}/libswarmtv)
 # Add the sources to be build
 SET(SRC swarmtv handleopts present frontfuncts daemonize simplewizard runloop xmlencode)
 
+IF(ESMTP_FOUND)
+	SET(SRC ${SRC} mailmsg)
+ENDIF()
+
+
 # When dbusglib is available add the dbus source
 IF(DBUSGLIB_FOUND)
   SET(SRC ${SRC} dbus)

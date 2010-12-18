@@ -485,7 +485,7 @@ static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_st
         stopop = 1; // no more
         break;
       case 'D': // delete RSS source
-        rc = rsstdelsource(handle, optarg);
+        rc = rsstdelsourcename(handle, optarg);
         break;
       case 'r': // run as daemon 
         opts->run = 1;
@@ -515,7 +515,7 @@ static int parsearguments(rsstor_handle *handle, int argc, char *argv[], opts_st
         stopop =1; // no more
         break;
       case 'j': // Del simple filter
-        rc = rsstdelsimple(handle, optarg);
+        rc = rsstdelsimplename(handle, optarg);
         if(rc == 0) {
           printf("Deletion of simple filters '%s' Successful.\n", optarg);
         }
@@ -710,6 +710,7 @@ void handlemultiple(rsstor_handle *handle, opts_struct *opts)
 	char 				 *name=NULL;
 	char 				 *value=NULL;
 	simplefilter_struct simple;
+  source_struct       source;
 
 	/*
 	 * NULL simple
@@ -724,7 +725,11 @@ void handlemultiple(rsstor_handle *handle, opts_struct *opts)
 		//rssfsplitnameval(opts->source, &name, &value);
     rc = rssftestmetatype(opts->metatype);
     if(rc == 0) {
-      rsstaddsource(handle, opts->source, opts->url, opts->sourcefilter, opts->metatype);
+      source.name = opts->source;
+      source.url = opts->url;
+      source.parser = opts->sourcefilter;
+      source.metatype = opts->metatype;
+      rsstaddsource(handle, &source);
     } else {
       fprintf(stderr, "Could not add source, metatype '%s' is not supported.\n", opts->metatype);
     }

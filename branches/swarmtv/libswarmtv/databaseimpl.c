@@ -265,7 +265,7 @@ int rsstrundbinitscript(rsstor_handle *handle)
 
 
 /*
- * This function implement PCRE functionality to the queries.
+ * This function implements PCRE functionality to the queries.
  * called every time Sqlite crosses an regexp.
  */
 static void genregexpfunc(sqlite3_context *db, int num, sqlite3_value **sqlite3_value, int opt){
@@ -1048,6 +1048,10 @@ int rsstgetdownloaded(rsstor_handle *handle, downloaded_container **downloaded, 
  */
 void rsstfreedownloaded(downloaded_struct *downloaded)
 {
+  if(downloaded == NULL) {
+    return;
+  }
+
 	/*
 	 * char *title;
 	 * char *link;
@@ -1098,6 +1102,35 @@ int rsstfreedownloadedcontainer(downloaded_container *container)
 	return 0;
 }
 
+/*
+ * Store the database result into a simple struct
+ */
+static void rsststoresimplestruct(sqlite3_stmt *result, simplefilter_struct *simple)
+{
+	char 	 *column=NULL;
+
+  /*
+   * Store values
+   */
+  simple->id = sqlite3_column_int(result, 0);
+  column = (char*) sqlite3_column_text(result, 1);
+  rsstalloccopy(&(simple->name), column, strlen(column));
+  column = (char*) sqlite3_column_text(result, 2);
+  rsstalloccopy(&(simple->title), column, strlen(column));
+  column = (char*) sqlite3_column_text(result, 3);
+  rsstalloccopy(&(simple->exclude), column, strlen(column));
+  column = (char*)sqlite3_column_text(result, 4);
+  rsstalloccopy(&(simple->category), column, strlen(column));
+  column = (char*)sqlite3_column_text(result, 5);
+  rsstalloccopy(&(simple->source), column, strlen(column));
+  simple->maxsize = sqlite3_column_double(result, 6);
+  simple->minsize = sqlite3_column_double(result, 7);
+  column = (char*)sqlite3_column_text(result, 8);
+  rsstalloccopy(&(simple->nodup), column, strlen(column));
+  simple->fromseason  = sqlite3_column_double(result, 9);
+  simple->fromepisode = sqlite3_column_double(result, 10);
+}
+
 
 /*
  * Store database result into struct
@@ -1111,7 +1144,7 @@ static int rsststoresimplecontainer(sqlite3_stmt *result, simplefilter_container
 {
 	int 		count=0;
 	int 		allocrecords=0;
-	char 	 *column=NULL;
+  simplefilter_struct *simplestruct=NULL;
 
 	/*
 	 * reallocate for START_ELEMENTS number of records
@@ -1128,38 +1161,12 @@ static int rsststoresimplecontainer(sqlite3_stmt *result, simplefilter_container
 	 * Copy results to struct
    */
   while( SQLITE_DONE != sqlite3_step(result)) {
-		/*
-		 * Store values
-		 *
-		 * int   id;				// Id of the filter
-		 * char *name;			// Simple filter name
-		 * char *title;		// Simple title regexp
-		 * char *exclude;	// Simple exclude regexp
-		 * char *category; // Simple category
-		 * char *source;		// Source the newtorrent originated from
-		 * double maxsize;	// Simple max size
-		 * double minsize;	// Simple minimal size
-		 * char *nodup;	// Simple no double filter type
-		 * int fromseason;		// From what season to download
-		 * int fromepisode;	// From episode
-		 */
-		container->simplefilter[count].id = sqlite3_column_int(result, 0);
-		column = (char*) sqlite3_column_text(result, 1);
-		rsstalloccopy(&(container->simplefilter[count].name), column, strlen(column));
-		column = (char*) sqlite3_column_text(result, 2);
-		rsstalloccopy(&(container->simplefilter[count].title), column, strlen(column));
-		column = (char*) sqlite3_column_text(result, 3);
-		rsstalloccopy(&(container->simplefilter[count].exclude), column, strlen(column));
-		column = (char*)sqlite3_column_text(result, 4);
-		rsstalloccopy(&(container->simplefilter[count].category), column, strlen(column));
-		column = (char*)sqlite3_column_text(result, 5);
-		rsstalloccopy(&(container->simplefilter[count].source), column, strlen(column));
-		container->simplefilter[count].maxsize = sqlite3_column_double(result, 6);
-		container->simplefilter[count].minsize = sqlite3_column_double(result, 7);
-		column = (char*)sqlite3_column_text(result, 8);
-		rsstalloccopy(&(container->simplefilter[count].nodup), column, strlen(column));
-		container->simplefilter[count].fromseason  = sqlite3_column_double(result, 9);
-		container->simplefilter[count].fromepisode = sqlite3_column_double(result, 10);
+    /*
+     * Fill the simple structure
+     */
+    simplestruct=&(container->simplefilter[count]);
+    rsststoresimplestruct(result, simplestruct);
+
 		count++;
 
 		/*
@@ -1202,7 +1209,7 @@ int rsstgetallsimplefilter(rsstor_handle *handle, simplefilter_container **simpl
 	 * Query to retrieve simplefilter items
 	 */
 	const char *query =  "SELECT id, name, title, exclude, category, source, maxsize, minsize, nodup, fromseason, fromepisode "
-											 "FROM 'simplefilters' LIMIT ?1 OFFSET ?2";
+											 "FROM 'simplefilters' ORDER BY name LIMIT ?1 OFFSET ?2";
 
 	/*
 	 * Allocate the container
@@ -1250,12 +1257,12 @@ int rsstgetallsimplefilter(rsstor_handle *handle, simplefilter_container **simpl
  * @Return
  * Returns 0 on success -1 on failure
  */
-int rsstgetsimplefilterid(rsstor_handle *handle, simplefilter_container **simplefilter, int id)
+int rsstgetsimplefilterid(rsstor_handle *handle, simplefilter_struct **simplefilter, int id)
 {
 	int 					rc=0;
 	int 					retval=0;
 	sqlite3_stmt *ppstmt=NULL;
-	simplefilter_container *localitems=NULL;
+	simplefilter_struct *localitem=NULL;
 	char         *zErrMsg=NULL;
 	sqlite3      *db=NULL;
 
@@ -1273,8 +1280,8 @@ int rsstgetsimplefilterid(rsstor_handle *handle, simplefilter_container **simple
 	/*
 	 * Allocate the container
 	 */
-	localitems = calloc(1, sizeof(simplefilter_container));
-	if(localitems == NULL) {
+	localitem = calloc(1, sizeof(simplefilter_struct));
+	if(localitem == NULL) {
 		rsstwritelog(LOG_ERROR, "Calloc failed ! %s:%d", __FILE__, __LINE__);
 		exit(1);
 	}
@@ -1292,19 +1299,25 @@ int rsstgetsimplefilterid(rsstor_handle *handle, simplefilter_container **simple
 
 	/*
 	 * Store result into container
-	 */
-	rc = rsststoresimplecontainer(ppstmt, localitems);
+   * Do one step before executing
+   */
+  if(SQLITE_DONE != sqlite3_step(ppstmt)) {
 
-	/*
-	 * Set output.
-	 */
-	*simplefilter = localitems;
+    /*
+     * Set output.
+     */
+    rsststoresimplestruct(ppstmt, localitem);
+    *simplefilter = localitem;
+  } else {
+    *simplefilter = NULL;
+    retval=-1;
+  }
 
-	/*
-	 * Done with query, finalizing.
-	 */
-	rc = sqlite3_finalize(ppstmt);
-	return retval;
+  /*
+   * Done with query, finalizing.
+   */
+  rc = sqlite3_finalize(ppstmt);
+  return retval;
 }
 
 
@@ -1490,6 +1503,77 @@ static int rsststoresourcecontainer(sqlite3_stmt *result, source_container *cont
 	return 0;
 }
 
+
+/*
+ * Get RSS-source by id
+ * @arguments
+ * handle RSS-torrent handle
+ * id source id to get
+ * source structure containing the retrieved struct
+ * @Return
+ * 0 when okay, -1 on error
+ */
+int rsstgetsource(rsstor_handle *handle, int id, source_struct **source)
+{
+  int            rc=0;
+  source_struct *sourcestr=NULL;
+	sqlite3_stmt  *ppstmt=NULL;
+	char 	        *column=NULL;
+	char          *zErrMsg=NULL;
+
+	/*
+	 * Query to retrieve source items
+	 */
+	const char *query = "SELECT id, name, url, parser, metatype FROM sources WHERE id=?1";
+
+	/*
+	 * Alloc the container
+	 */
+	sourcestr = calloc(1, sizeof(source_struct));
+	if(sourcestr == NULL) {
+		rsstwritelog(LOG_ERROR, "Calloc failed ! %s:%d", __FILE__, __LINE__);
+		exit(1);
+	}
+
+	/*
+	 * Execute query
+	 */
+	rc = rsstexecqueryresult(handle->db, &ppstmt, query, "d", id);
+	if( rc!=SQLITE_OK ){
+		rsstwritelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+		sqlite3_free(zErrMsg);
+		return -1;
+	}
+  sqlite3_step(ppstmt);
+
+  /*
+   * Store retrieved data
+   */
+  sourcestr->id = sqlite3_column_int(ppstmt, 0);
+  column = (char*) sqlite3_column_text(ppstmt, 1);
+  rsstalloccopy(&(sourcestr->name), column, strlen(column));
+  column = (char*)sqlite3_column_text(ppstmt, 2);
+  rsstalloccopy(&(sourcestr->url), column, strlen(column));
+  column = (char*)sqlite3_column_text(ppstmt, 3);
+  rsstalloccopy(&(sourcestr->parser), column, strlen(column));
+  column = (char*)sqlite3_column_text(ppstmt, 4);
+  rsstalloccopy(&(sourcestr->metatype), column, strlen(column));
+  
+  /*
+   * Set structure to be returned.
+   */
+  *source = sourcestr;
+
+  /*
+   * Clean up
+   */
+	rc = sqlite3_finalize(ppstmt);
+
+  return 0;
+}
+
+
 /*
  * Get all RSS-sources
  * @arguments
@@ -1514,7 +1598,7 @@ int rsstgetallsources(rsstor_handle *handle, source_container **sources)
 	/*
 	 * Query to retrieve source items
 	 */
-	const char *query = "select id, name, url, parser, metatype from sources";
+	const char *query = "SELECT id, name, url, parser, metatype FROM sources ORDER BY name";
 
 	/*
 	 * Alloc the container
@@ -1553,18 +1637,20 @@ int rsstgetallsources(rsstor_handle *handle, source_container **sources)
 	return retval;
 }
 
+
 /*
  * Free source structure
  * @Arguments
  * source pointer to source struct to be freed
  */
-static void rsstfreesource(source_struct *source)
+void rsstfreesource(source_struct *source)
 {
 	free(source->name);
 	free(source->url);
 	free(source->parser);
   free(source->metatype);
 }
+
 
 /*
  * Delete content from source_container struct

@@ -18,21 +18,14 @@
  */
 
 /*
- * db       : pointer to sqlite3 database
- * subject  : pointer to mail subject
- * msqtext  : Message text for mail body
+ * Send email containing information about torrent
+ * @arguments 
+ * db	database pointers
+ * downed 
+ * @return
+ *
  */
-int rsstsendrssmail(sqlite3 *db, const char *subject, const char *msgtxt);
-
-/*
- * Send an email through esmtp
- * host     : host used to send message through "localhost:25"
- * from     : from address "test@foobar.com"
- * to       : to address "test2@foobar.com"
- * subject  : pointer to mail-subject text
- * message  : pointer to message inside email has to start with '\r\n' or strange things will happen
- */
-int rsstsendmail(const char *host, const char *from, const char *to, const char *subject, const char *message);
+void rsstsendemail(rsstor_handle *handle, downloaded_struct *downed);
 
 /*
  * Uses the mail routine to send a testmail.
@@ -40,3 +33,4 @@ int rsstsendmail(const char *host, const char *from, const char *to, const char 
  * testxt, test message to send.
  */
 void rssttestmail(rsstor_handle *handle, char *testtxt);
+

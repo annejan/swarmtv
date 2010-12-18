@@ -140,6 +140,24 @@ void rsstfreecallbacks(struct_callbacks *callbacks)
   }
 }
 
+/*
+ * Check if the database is build with thread safe code.
+ * print a warning message
+ * @Arguments
+ * handle rsstorrent handle
+ * @return
+ * 0 when no thread support else !0 
+ */
+static void rssfcheckthreadsafe()
+{
+  int rc=0;
+
+  rc = sqlite3_threadsafe();
+  if(rc == 0){
+    fprintf(stderr, "libSQLite3 was not built with thread support, make sure no instances of the library run at the same time.\n");
+  }
+}
+
 
 /*
  * Initialize RSS-torrent handle
@@ -198,6 +216,11 @@ rsstor_handle *initrsstor()
     fprintf(stderr, "Allocation callbacks failed! %s:%d\n", __FILE__, __LINE__);
 		exit(1);
 	}
+
+  /*
+   * Check thread-safeness of database
+   */
+  rssfcheckthreadsafe();
 
 	/*
 	 * Return handle to struct

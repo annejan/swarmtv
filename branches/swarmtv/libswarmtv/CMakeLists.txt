@@ -42,10 +42,6 @@ SET(LIBSRC setup database databaseimpl config regexp source
 		sandboxdb testfilter filesystem lastdownloaded 
 		simplefilter callback stats baretitle)
 
-IF(ESMTP_FOUND)
-	SET(LIBSRC ${LIBSRC} mailmsg)
-ENDIF()
-
 # Subdirectories
 INCLUDE(srcparser/CMakeLists.txt)
 INCLUDE(filehandler/CMakeLists.txt)

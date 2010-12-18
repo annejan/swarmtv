@@ -29,7 +29,19 @@
  * When allready existing -1 is returned.
  * On succes 0 is returned.
  */
-int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char *parsertype, char *metatype);
+int rsstaddsource(rsstor_handle *handle, source_struct *source);
+//int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char *parsertype, char *metatype);
+
+/*
+ * Delete source item by name
+ * @arguments
+ * handle RSS-torrent handle
+ * name source id to delete
+ * @return
+ * When already existing -1 is returned.
+ * On success 0 is returned.
+ */
+int rsstdelsourceid(rsstor_handle *handle, const int *id);
 
 /*
  * del source item
@@ -39,5 +51,5 @@ int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char
  * When allready existing -1 is returned.
  * On succes 0 is returned.
  */
-int rsstdelsource(rsstor_handle *handle, const char *name);
+int rsstdelsourcename(rsstor_handle *handle, const char *name);
 

@@ -40,14 +40,14 @@
 /*
  * When libesmtp is included add header here.
  */
-#ifdef RSST_ESMTP_ENABLE
-  #include "mailmsg.h"
-#endif
-
+//#ifdef RSST_ESMTP_ENABLE
+//  #include "mailmsg.h"
+//#endif
 /*
  * Max message and subject lenght for notification email
  */
 #define MAXMSGLEN 2024
+
 
 /*
  * Apply the filters from the query.
@@ -208,41 +208,6 @@ static int testdouble(sqlite3 *db, char *nodouble, char *titleregexp, downloaded
   }
 }
 
-/*
- * Send email containing information about torrent
- * @arguments 
- * db	database pointers
- * downed 
- * @return
- *
- */
-static void rsstsendemail(sqlite3 *db, char *filtername, downloaded_struct *downed)
-{
-	char 					header[MAXMSGLEN+1];
-	char          message[MAXMSGLEN+1];
-
-#ifdef RSST_ESMTP_ENABLE
-	/*
-	 * Build header and email-message
-	 */
-	snprintf(header, MAXMSGLEN, 
-			"Downloading %s S%dE%d", 
-			downed->title, downed->season, downed->episode);
-	snprintf(message, MAXMSGLEN, 
-			"Downloading %s S%dE%d\n"
-      "\n--------------------------------\n"
-			"URL: %s\n"
-      "This content was found by Filter: %s\n"
-      "Download method used: %s\n"
-      "\n--------------------------------", 
-			downed->title, downed->season, downed->episode, downed->link, filtername, downed->metatype);
-
-  /*
-   * Call the send mail routine.
-   */
-	rsstsendrssmail(db, header, message);
-#endif
-}
 
 
 /*
@@ -255,7 +220,7 @@ static void rsstsendemail(sqlite3 *db, char *filtername, downloaded_struct *down
  * @Return
  * 0 on success -1 on failure
  */
-int rsstupdatelastdowned(rsstor_handle *handle, downloaded_struct *downed, char *filtername, FILTER_TYPE type)
+int rsstupdatelastdowned(rsstor_handle *handle, downloaded_struct *downed, FILTER_TYPE type)
 {
   int rc=0;
   int downloadedid=0;
@@ -284,7 +249,7 @@ int rsstupdatelastdowned(rsstor_handle *handle, downloaded_struct *downed, char 
    */
   switch(type){
     case sql:
-      rc = rsstdosingletextquery(handle->db, (unsigned char const**)&value, sqlidquery, "s", filtername);
+      rc = rsstdosingletextquery(handle->db, (unsigned char const**)&value, sqlidquery, "s", downed->filter);
       if(rc != 0){
         rsstwritelog(LOG_ERROR, "Quering for sql filter id failed  %s:%d", __FILE__, __LINE__);
         free(value);
@@ -293,7 +258,7 @@ int rsstupdatelastdowned(rsstor_handle *handle, downloaded_struct *downed, char 
 
       break;
     case simple:
-      rc = rsstdosingletextquery(handle->db, (unsigned char const**)&value, simpleidquery, "s", filtername);
+      rc = rsstdosingletextquery(handle->db, (unsigned char const**)&value, simpleidquery, "s", downed->filter);
       if(rc != 0){
         rsstwritelog(LOG_ERROR, "Quering for simple filter id failed %s:%d", __FILE__, __LINE__);
         free(value);
@@ -329,7 +294,7 @@ int rsstupdatelastdowned(rsstor_handle *handle, downloaded_struct *downed, char 
 /*
  * Handle new results
  */
-static void rssthandlenewresults(rsstor_handle *handle, char *filtername, FILTER_TYPE type, downloaded_struct *downed, SIM simulate)
+static void rssthandlenewresults(rsstor_handle *handle, FILTER_TYPE type, downloaded_struct *downed, SIM simulate)
 {
 	int downsuccess=0;
 	char errorstr[MAXMSGLEN+1];
@@ -353,7 +318,7 @@ static void rssthandlenewresults(rsstor_handle *handle, char *filtername, FILTER
 			/*
 			 * Send email and call callbacks
 			 */
-			rsstsendemail(handle->db, filtername, downed);
+			//rsstsendemail(handle->db, filter, downed);
       rsstexecallbacks(handle, downloadtorrent, downed);
 		} else {
 			/*
@@ -379,7 +344,7 @@ static void rssthandlenewresults(rsstor_handle *handle, char *filtername, FILTER
     /*
      * Update the lastdownloaded table
      */
-    rsstupdatelastdowned(handle, downed, filtername, type);
+    rsstupdatelastdowned(handle, downed, type);
 	}
 }
 
@@ -409,6 +374,8 @@ static void rssthandlefiltresults(rsstor_handle *handle, sqlite3_stmt *ppStmt, c
     downed.metatype  = (char*) sqlite3_column_text(ppStmt, 5);
 		downed.season    =  sqlite3_column_int(ppStmt, 6);
 		downed.episode   =  sqlite3_column_int(ppStmt, 7);
+    downed.filter    =  filtername;
+    downed.type      =  type;
 
     /*
      * Use the downed.title to isolate to name in the title.
@@ -428,7 +395,7 @@ static void rssthandlefiltresults(rsstor_handle *handle, sqlite3_stmt *ppStmt, c
 			/*
 			 * Handle results that are no duplicate.
 			 */
-			rssthandlenewresults(handle, filtername, type, &downed, simulate);
+			rssthandlenewresults(handle, type, &downed, simulate);
 		} else {
 			rsstwritelog(LOG_DEBUG, "%s Season %d Episode %d is a duplicate %s:%d", 
 					downed.title, downed.episode, downed.season, __FILE__, __LINE__);

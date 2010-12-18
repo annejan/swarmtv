@@ -263,6 +263,27 @@ int rssfsqltoxml(filter_struct *filter, xmlChar **xmlbuff, int *buffersize)
   return (0);
 }
 
+char *typetostring(FILTER_TYPE type)
+{
+  char *typename=NULL;
+
+  /*
+   * Create type string
+   */
+  switch(type){
+    case sql:
+      typename="sql";
+      break;
+    case simple:
+      typename="simple";
+      break;
+    default:
+      typename="unknown";
+  }
+  return typename;
+}
+
+
 /*
  * Encode downloaded_struct
  *	int   id;           
@@ -274,6 +295,7 @@ int rssfsqltoxml(filter_struct *filter, xmlChar **xmlbuff, int *buffersize)
  *  char *baretitle;     The bare title of the show/content 
  *	int  season;         The season number
  *	int  episode;        The episode number
+ *	char *filter;        The filter name, that produced the download.
  * @Arguments
  * filter     Structure to encode
  * xmlbuff    Pointer to buffer containing XML
@@ -286,6 +308,7 @@ int rssfdownedtoxml(downloaded_struct *downed, xmlChar **xmlbuff, int *buffersiz
   xmlDocPtr   doc=NULL;
   xmlNodePtr  root=NULL;
   xmlNodePtr  swarmtv=NULL;
+  char       *typename=NULL;
 
   rssfnewdocument(&doc, "swarmtv");
 
@@ -304,6 +327,9 @@ int rssfdownedtoxml(downloaded_struct *downed, xmlChar **xmlbuff, int *buffersiz
   xmlNewTextChild   (swarmtv, NULL, BAD_CAST "baretitle" , BAD_CAST downed->baretitle);
   rssfxmlnewintchild(swarmtv, NULL, BAD_CAST "season"    , downed->season);
   rssfxmlnewintchild(swarmtv, NULL, BAD_CAST "episode"   , downed->episode);
+  xmlNewTextChild   (swarmtv, NULL, BAD_CAST "filtername", BAD_CAST downed->filter);
+  typename = typetostring(downed->type);
+  xmlNewTextChild   (swarmtv, NULL, BAD_CAST "filtertype", BAD_CAST typename);
 
   /*
    * Dump generated document to string

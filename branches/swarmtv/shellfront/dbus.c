@@ -44,6 +44,10 @@
 #include "dbus.h"
 #include "xmlencode.h"
 
+#ifdef RSST_ESMTP_ENABLE
+#include "mailmsg.h"
+#endif
+
 //path  the path to the object emitting the signal
 #define RSSFDBUSPATH "/"
 //interface   the interface the signal is emitted from
@@ -267,6 +271,13 @@ static int rssfcallbackdownedfnct(void *data, void *calldata)
   rundata=(runcycledata*) handle->data;
   bus=rundata->bus;
   down=(downloaded_struct*) calldata;
+
+#ifdef RSST_ESMTP_ENABLE
+  /*
+   * Send email when enabled
+   */
+  rsstsendemail(handle, down);
+#endif
 
 	/*
 	 * Call the dbus method to send the message through.

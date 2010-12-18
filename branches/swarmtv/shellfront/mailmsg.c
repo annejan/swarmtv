@@ -39,6 +39,11 @@
 #include "config.h"
 #include "logfile.h"
 
+/*
+ * Max message and subject lenght for notification email
+ */
+#define MAXMSGLEN 2024
+
 #if !defined (__GNUC__) || __GNUC__ < 2
 # define __attribute__(x)
 #endif
@@ -59,7 +64,7 @@ void version (void);
 /*
  * predeclaration
  */
-int rsstsendmail(const char *host, const char *from, const char *to, const char *subject, const char *msgtxt);
+static int rsstsendmail(const char *host, const char *from, const char *to, const char *subject, const char *msgtxt);
 
 /*
  * Send email, using settings in the config database.
@@ -70,7 +75,7 @@ int rsstsendmail(const char *host, const char *from, const char *to, const char 
  * returns
  * 0 on success, -1 on error
  */
-int rsstsendrssmail(sqlite3 *db, const char *subject, const char *msgtxt)
+static int rsstsendrssmail(sqlite3 *db, const char *subject, const char *msgtxt)
 {
   int  rc;
   char *smtpenable = NULL;
@@ -140,7 +145,7 @@ int rsstsendrssmail(sqlite3 *db, const char *subject, const char *msgtxt)
  * returns :
  * 0 on success, else -1
  */
-int rsstsendmail(const char *host, const char *from, const char *to, const char *subject, const char *msgtxt)
+static int rsstsendmail(const char *host, const char *from, const char *to, const char *subject, const char *msgtxt)
 {
 	int						 retval=0;
   smtp_session_t session;
@@ -525,3 +530,38 @@ static void event_cb(int event_no, void *arg,...)
 }
 #endif
 
+/*
+ * Send email containing information about torrent
+ * @arguments 
+ * db	database pointers
+ * downed 
+ * @return
+ *
+ */
+void rsstsendemail(rsstor_handle *handle, downloaded_struct *downed)
+{
+	char 					header[MAXMSGLEN+1];
+	char          message[MAXMSGLEN+1];
+
+#ifdef RSST_ESMTP_ENABLE
+	/*
+	 * Build header and email-message
+	 */
+	snprintf(header, MAXMSGLEN, 
+			"Downloading %s S%dE%d", 
+			downed->title, downed->season, downed->episode);
+	snprintf(message, MAXMSGLEN, 
+			"Downloading %s S%dE%d\n"
+      "\n--------------------------------\n"
+			"URL: %s\n"
+      "This content was found by Filter: %s\n"
+      "Download method used: %s\n"
+      "\n--------------------------------", 
+			downed->title, downed->season, downed->episode, downed->link, downed->filter, downed->metatype);
+
+  /*
+   * Call the send mail routine.
+   */
+	rsstsendrssmail(handle->db, header, message);
+#endif
+}

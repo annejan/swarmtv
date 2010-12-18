@@ -34,11 +34,58 @@
 #define  MAXLENGHT 400
 
 /*
+ * Delete source item by name
+ * @arguments
+ * handle RSS-torrent handle
+ * id source id to delete
+ * @return
+ * When already existing -1 is returned.
+ * On success 0 is returned.
+ */
+int rsstdelsourceid(rsstor_handle *handle, const int id)
+{
+  int         rc=0;
+	sqlite3    *db=NULL;
+
+	/*
+	 * Get database pointer
+	 */
+	db = handle->db;
+
+  /*
+   * Init query
+   */
+  const char* query = "DELETE FROM 'sources' WHERE id=?1";
+
+  /*
+   * Execute query
+   * When name is all, delete all filters.
+   */
+  rc = rsstexecutequery(db, query, "d", id);
+  switch(rc) {
+    case(ROWS_CHANGED):
+      printf("Source '%d' deleted.\n", id);
+      rsstwritelog(LOG_DEBUG, "Source '%d' deleted.", id);
+      return 0;
+      break;
+    case(ROWS_EMPTY):
+      printf("Source '%d' not found, could not delete.\n", id);
+      rsstwritelog(LOG_DEBUG, "Source '%d' not found, could not delete.", id);
+      return -1;
+      break;
+    default: 
+      rsstwritelog(LOG_ERROR, "Query error during deletesource '%s':%d",  __FILE__, __LINE__);
+      return -1;
+  }
+
+}
+
+/*
  * Delete source item
  * When already existing -1 is returned.
  * On success 0 is returned.
  */
-int rsstdelsource(rsstor_handle *handle, const char *name)
+int rsstdelsourcename(rsstor_handle *handle, const char *name)
 {
   int         rc=0;
 	sqlite3    *db=NULL;
@@ -109,10 +156,10 @@ static int rssttestmetatype(char *metatype)
 
 /*
  * Add source item
- * When already existing -1 is returned.
+ * When already existing the source is updated.
  * On success 0 is returned.
  */
-int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char *parsertype, char *metatype)
+int rsstaddsource(rsstor_handle *handle, source_struct *source)
 {
   int         rc=0;
   char       *localparser=NULL;
@@ -126,33 +173,33 @@ int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char
   /*
    * Init query
    */
-  const char* query = "INSERT INTO 'sources' (name, url, parser, metatype) VALUES(?2, ?1, ?3, ?4)";
+  const char* query = "INSERT OR REPLACE INTO 'sources' (name, url, parser, metatype) VALUES(?2, ?1, ?3, ?4)";
 
   /*
    * Test the metatype is supported
    */
-  rc = rssttestmetatype(metatype);
+  rc = rssttestmetatype(source->metatype);
   if(rc == -1) {
-    rsstwritelog(LOG_ERROR, "Adding source failed, metatype '%s' is not supported.", metatype);
+    rsstwritelog(LOG_ERROR, "Adding source failed, metatype '%s' is not supported.", source->metatype);
     return -1;    
   } 
 
   /*
    * When parser type is not set use the default.
    */
-  if(parsertype == NULL){
+  if(source->parser == NULL){
     rsstconfiggetproperty(handle, CONF_DEFPARSER, &localparser);
   } else {
-		rsstalloccopy(&localparser, parsertype, strlen(parsertype));
+		rsstalloccopy(&localparser, source->parser, strlen(source->parser));
   }
   
-  printf("Adding:%s, url:%s, parser type:%s\n", name, url, localparser);
-  rsstwritelog(LOG_DEBUG, "Adding:%s, url:%s, parsertype:%s", name, url, localparser);
+  //printf("Adding:%s, url:%s, parser type:%s\n", source->name, source->url, localparser);
+  rsstwritelog(LOG_DEBUG, "Adding:%s, url:%s, parsertype:%s", source->name, source->url, localparser);
 
   /*
    * Execute query
    */
-  rc = rsstexecutequery(db, query, "ssss", url, name, localparser, metatype);
+  rc = rsstexecutequery(db, query, "ssss", source->url, source->name, localparser, source->metatype);
 
   /*
    * free parser type.
@@ -164,18 +211,18 @@ int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char
    */
   switch(rc) {
     case(ROWS_CHANGED):
-      printf("Source '%s' added succesfully.\n", name);
-      rsstwritelog(LOG_DEBUG, "Source '%s' added succesfully.", name);
+      printf("Source '%s' added succesfully.\n", source->name);
+      rsstwritelog(LOG_DEBUG, "Source '%s' added succesfully.", source->name);
       return 0;
       break;
     case(ROWS_CONSTRAINT):
     case(ROWS_EMPTY):
-      fprintf(stderr, "Could not add source '%s', does the source allready exist?\n", name);
-      rsstwritelog(LOG_ERROR, "Could not add source '%s'. %s:%d", name, __FILE__, __LINE__);
+      fprintf(stderr, "Could not add source '%s', does the source allready exist?\n", source->name);
+      rsstwritelog(LOG_ERROR, "Could not add source '%s'. %s:%d", source->name, __FILE__, __LINE__);
       return -1;
       break;
     default: 
-      rsstwritelog(LOG_ERROR, "Query error during addsource '%s'. %s:%d", name,  __FILE__, __LINE__);
+      rsstwritelog(LOG_ERROR, "Query error during addsource '%s'. %s:%d", source->name,  __FILE__, __LINE__);
       return -1;
   }
 }

@@ -27,6 +27,16 @@
  */
 int rsstaddsimplefilter(rsstor_handle *handle, simplefilter_struct *filter);
 
+/*
+ * Edit simple filter function, pointed by Id
+ * @Arguments 
+ * handle SwarmTv handle
+ * simple structure holding simple filter informaion
+ * @returns
+ * returns 0 when edited successfully ,returns -1 when editing failed
+ */
+int rssteditsimplefilter(rsstor_handle *handle, simplefilter_struct *simple);
+
 #if 0
 /*
  * Print filter in shell format
@@ -46,11 +56,21 @@ int rsstdelallsimple(rsstor_handle *handle);
  * Del filter item
  * When already existing -1 is returned.
  * @variables
+ * id filter id to delete
+ * @returns
+ * On success 0 is returned.
+ */
+int rsstdelsimplename(rsstor_handle *handle, const char *id);
+
+/*
+ * Del filter item
+ * When already existing -1 is returned.
+ * @variables
  * name filter name to delete
  * @returns
  * On success 0 is returned.
  */
-int rsstdelsimple(rsstor_handle *handle, const char *name);
+int rsstdelsimplename(rsstor_handle *handle, const char *name);
 
 /*
  * Apply filters

@@ -146,6 +146,62 @@ static int validearguments(simplefilter_struct *filter)
 
 
 /*
+ * Edit simple filter function, pointed by Id
+ * @Arguments 
+ * handle SwarmTv handle
+ * simple structure holding simple filter informaion
+ * @returns
+ * returns 0 when edited successfully ,returns -1 when editing failed
+ */
+int rssteditsimplefilter(rsstor_handle *handle, simplefilter_struct *simple)
+{
+  int 			rc=0;
+
+  /*
+   * Check if values are sane
+   */
+  if(simple->id <= 0){
+    rsstwritelog(LOG_ERROR, "Id must be set when updating a simple filter! %s:%d", __FILE__, __LINE__);
+    return -1;
+  }
+
+  /*
+   * Query and format used to insert the simple filter into the database
+   */
+  static char *query = "UPDATE 'simplefilters' "
+		"SET name=?1, title=?2, exclude=?3, category=?4, maxsize=?5, minsize=?6, nodup=?7, fromseason=?8, fromepisode=?9, source=?10 "
+		"WHERE id=?11";
+  static char *fmt   = "ssssffsddsd";
+
+  /*
+   * Call database execute query function
+   */
+  rc = rsstexecutequery(handle->db, query, fmt, 
+      simple->name,
+      simple->title,
+			simple->exclude,
+			simple->category,
+      simple->maxsize,
+      simple->minsize,
+      simple->nodup,
+      simple->fromseason,
+      simple->fromepisode,
+			simple->source,
+      simple->id);
+
+  /*
+   * Handle output
+   */
+  if(rc < 1) {
+    rsstwritelog(LOG_ERROR, "Editing of simple failed, execute query returned %d! %s:%d", rc, __FILE__, __LINE__);
+    return -1;
+  } else {
+    return 0;
+  }
+}
+
+
+/*
  * Add simple filter adds the filter to the database
  * Arguments  : simplefilter_struct * 
  * returns    : 0 when added successfully
@@ -242,7 +298,7 @@ int rsstaddsimplefilter(rsstor_handle *handle, simplefilter_struct *simple)
    */
   rc = checksimple(db, simple->name);
   if(rc == 1){
-    rsstdelsimple(handle, simple->name);
+    rsstdelsimplename(handle, simple->name);
   }
 
   /*
@@ -303,7 +359,48 @@ int rsstdelallsimple(rsstor_handle *handle)
  * When the name is not found -1 is returned.
  * On success 0 is returned.
  */
-int rsstdelsimple(rsstor_handle *handle, const char *name)
+int rsstdelsimpleid(rsstor_handle *handle, const int id)
+{
+  int         rc=0;
+	sqlite3		 *db=NULL;
+
+  /*
+   * Init query
+   */
+  const char* query = "delete from simplefilters where id=?1";
+
+	/*
+	 * Get db pointer
+	 */
+	db = handle->db;
+
+  /*
+   * Execute query
+   * When name is all, delete all filters.
+   */
+  rc = rsstexecutequery(db, query, "d", id);
+  switch(rc) {
+    case(ROWS_CHANGED):
+      return 0;
+      break;
+    case(ROWS_EMPTY):
+      fprintf(stderr, "Could not delete filter '%d' %s:%di\n", id,  __FILE__, __LINE__);
+      rsstwritelog(LOG_ERROR, "Could not delete filter '%d' %s:%d", id,  __FILE__, __LINE__);
+      return -1;
+      break;
+    default: 
+      rsstwritelog(LOG_ERROR, "Query error during delfilter, returned: '%d' '%s' ?2 = '%d' %s:%d", rc, query, id,  __FILE__, __LINE__);
+      return -1;
+  }
+}
+
+
+/*
+ * Delete single simple filter 
+ * When the name is not found -1 is returned.
+ * On success 0 is returned.
+ */
+int rsstdelsimplename(rsstor_handle *handle, const char *name)
 {
   int         rc=0;
 	sqlite3		 *db=NULL;
@@ -424,7 +521,9 @@ int rsstdownloadsimple(rsstor_handle *handle, SIM simulate)
     /*
      * Emit callback 
      */
-    rsstexecallbacks(handle, applysimplefilt, &simple_data);
+    if(simulate ==  real) {
+      rsstexecallbacks(handle, applysimplefilt, &simple_data);
+    }
 
     /*
      * call apply filter (Should be put in a struct in the future

@@ -203,6 +203,11 @@ typedef struct {
 } newtorrents_container;
 
 /*
+ * Enum holdig filter types
+ */
+typedef enum {sql=0, simple} FILTER_TYPE;
+
+/*
  * Struct holding the values to enter into the downloaded table
  */
 typedef struct {
@@ -215,6 +220,8 @@ typedef struct {
   char *baretitle;    // The bare title of the show/content 
 	int  season;        // The season number
 	int  episode;       // The episode number
+  char *filter;       // Filter name the match was found by
+  FILTER_TYPE type;   // Filter type the match produced
 } downloaded_struct;  
 
 /*
@@ -229,6 +236,7 @@ typedef struct {
  * Last downloaded 
  */
 typedef struct {
+  int   filterid;
   char *filtername;
   char *filtertype;
   downloaded_struct *downloaded;
@@ -409,6 +417,24 @@ int rsstconfiggetint(rsstor_handle *handle, char *prop, int *number);
 char **getsupportedmetatypes(); 
 
 /*
+ * Free source structure
+ * @Arguments
+ * source pointer to source struct to be freed
+ */
+void rsstfreesource(source_struct *source);
+
+/*
+ * Get RSS-source by id
+ * @arguments
+ * handle RSS-torrent handle
+ * id source id to get
+ * source structure containing the retrieved struct
+ * @Return
+ * 0 when okay, -1 on error
+ */
+int rsstgetsource(rsstor_handle *handle, int id, source_struct **source);
+
+/*
  * Get all RSS-sources
  * @arguments
  * handle RSS-torrent handle
@@ -439,10 +465,21 @@ int rsstfreesourcecontainer(source_container *sources);
  * When already existing -1 is returned.
  * On success 0 is returned.
  */
-int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char *parsertype, char *metatype );
+int rsstaddsource(rsstor_handle *handle, source_struct *source);
 
 /*
- * Delete source item
+ * Delete source item by name
+ * @arguments
+ * handle RSS-torrent handle
+ * id source id to delete
+ * @return
+ * When already existing -1 is returned.
+ * On success 0 is returned.
+ */
+int rsstdelsourceid(rsstor_handle *handle, const int id);
+
+/*
+ * Delete source item by name
  * @arguments
  * handle RSS-torrent handle
  * name source name to delete
@@ -450,7 +487,7 @@ int rsstaddsource(rsstor_handle *handle, const char *name, const char *url, char
  * When already existing -1 is returned.
  * On success 0 is returned.
  */
-int rsstdelsource(rsstor_handle *handle, const char *name);
+int rsstdelsourcename(rsstor_handle *handle, const char *name);
 
 /*
  * == Functions to manipulate downloaded database
@@ -667,6 +704,16 @@ int rsstaddfilter(rsstor_handle *handle, const char *name, const char *filter, c
 int rsstaddsimplefilter(rsstor_handle *handle, simplefilter_struct *filter);
 
 /*
+ * Edit simple filter function, pointed by Id
+ * @Arguments 
+ * handle SwarmTv handle
+ * simple structure holding simple filter informaion
+ * @returns
+ * returns 0 when edited successfully ,returns -1 when editing failed
+ */
+int rssteditsimplefilter(rsstor_handle *handle, simplefilter_struct *simple);
+
+/*
  * Get simplefilter torrents
  * @arguments
  * simplefilter The container to store the simplefilter in
@@ -695,7 +742,7 @@ int rsstgetsimplefiltername(rsstor_handle *handle, simplefilter_container **simp
  * @Return
  * Returns 0 on success -1 on failure
  */
-int rsstgetsimplefilterid(rsstor_handle *handle, simplefilter_container **simplefilter, int id);
+int rsstgetsimplefilterid(rsstor_handle *handle, simplefilter_struct **simplefilter, int id);
 
 /*
  * Free simplefilter structure
@@ -741,7 +788,17 @@ int rsstdosimpletest(simplefilter_struct *filter);
  * @returns
  * On success 0 is returned.
  */
-int rsstdelsimple(rsstor_handle *handle, const char *name);
+int rsstdelsimpleid(rsstor_handle *handle, const int id);
+
+/*
+ * Del filter filter
+ * When already existing -1 is returned.
+ * @variables
+ * name filter name to delete
+ * @returns
+ * On success 0 is returned.
+ */
+int rsstdelsimplename(rsstor_handle *handle, const char *name);
 
 /*
  * delete filter item
