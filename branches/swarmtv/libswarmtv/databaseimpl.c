@@ -1695,7 +1695,7 @@ int rsstfreesourcecontainer(source_container *container)
  * @returns
  * 0 on success otherwise -1
  */
-static int rsststorenewtorrentcontainer(sqlite3_stmt *result, newtorrents_container *container)
+int rsststorenewtorrentcontainer(sqlite3_stmt *result, newtorrents_container *container)
 {
 	int 		count=0;
 	int 		allocrecords=0;
@@ -1779,8 +1779,11 @@ int rsstfindnewtorrents(simplefilter_struct *filter, newtorrents_container **new
 	 * Query to retrieve the data from the sandbox after all the work is done.
 	 */
 	char *query="SELECT newtorrents.id, downloaded.title, newtorrents.link, newtorrents.pubdate, newtorrents.category, "
-		"newtorrents.source, downloaded.metatype, downloaded.season, downloaded.episode, newtorrents.seeds, newtorrents.peers, newtorrents.size FROM newtorrents, downloaded "
-		"WHERE newtorrents.link = downloaded.link ORDER BY newtorrents.id LIMIT ?1 OFFSET ?2"; // get values from downloaded table
+		"newtorrents.source, downloaded.metatype, downloaded.season, downloaded.episode, newtorrents.seeds, "
+    "newtorrents.peers, newtorrents.size "
+    "FROM newtorrents, downloaded "
+		"WHERE newtorrents.link = downloaded.link "
+    "ORDER BY newtorrents.id LIMIT ?1 OFFSET ?2"; // get values from downloaded table
 
 	/*
 	 * Create sandbox
@@ -1862,6 +1865,64 @@ int rsstfindnewtorrents(simplefilter_struct *filter, newtorrents_container **new
 
 	return 0;
 }
+
+
+/*
+ * Find newtorrents entries
+ * @Arguments
+ * handle SwarmTv Handle
+ * title title to match to
+ * newtorrents container handling newtorrents entries
+ * limit is the amount of rows we want to retrieve
+ * offset is the amount of rows we want to skip at the start
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstfindnewtorrentsbytitle(rsstor_handle *handle, char *title, newtorrents_container **newtorrents, int limit, int offset)
+{
+  int            rc=0;
+	sqlite3_stmt 	*ppstmt=NULL;
+	char         	*zErrMsg=NULL;
+
+  /*
+   * Query To filter newtorrents on filter.
+   */
+	char *query="SELECT newtorrents.id, newtorrents.title, newtorrents.link, newtorrents.pubdate, newtorrents.category, "
+		"newtorrents.source, newtorrents.metatype, newtorrents.season, newtorrents.episode, newtorrents.seeds, "
+    "newtorrents.peers, newtorrents.size "
+    "FROM newtorrents "
+		"WHERE IREGEXP(?1, newtorrents.title) "
+    "ORDER BY newtorrents.id LIMIT ?2 OFFSET ?3"; // get values from downloaded table
+
+	/*
+	 * Get records using query
+	 */
+	rc = rsstexecqueryresult(handle->db, &ppstmt, query, "sdd", title, limit, offset);
+	if( rc!=SQLITE_OK ){
+		rsstwritelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+		sqlite3_free(zErrMsg);
+		return -1;
+	}
+
+	/*
+	 * Allocate and fill container
+	 */
+	*newtorrents = calloc(1, sizeof(newtorrents_container));
+	rc = rsststorenewtorrentcontainer(ppstmt, *newtorrents);
+	if(rc != 0){
+		rsstwritelog(LOG_ERROR, "Storing in newtor failed %s:%d", __FILE__, __LINE__);
+		return -1;
+	}
+
+	/*
+	 * Done with Sqlite result set
+	 */
+	sqlite3_finalize(ppstmt);
+
+  return 0;
+}
+
 
 /*
  * Delete content from newtorrents_container

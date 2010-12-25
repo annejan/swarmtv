@@ -190,6 +190,16 @@ int rsstgetallsources(rsstor_handle *handle, source_container **sources);
 int rsstfreesourcecontainer(source_container *sources);
 
 /*
+ * Store database result into struct
+ * @Arguments 
+ * result
+ * container
+ * @returns
+ * 0 on success otherwise -1
+ */
+int rsststorenewtorrentcontainer(sqlite3_stmt *result, newtorrents_container *container);
+
+/*
  * Find newtorrents entries
  * @Arguments
  * filter simplefilterstruct to filter out the newtorrent entries we want
@@ -200,6 +210,19 @@ int rsstfreesourcecontainer(source_container *sources);
  * Returns 0 on success -1 on failure
  */
 int rsstfindnewtorrents(simplefilter_struct *filter, newtorrents_container **newtorrents, int limit, int offset);
+
+/*
+ * Find newtorrents entries
+ * @Arguments
+ * handle SwarmTv Handle
+ * title title to match to
+ * newtorrents container handling newtorrents entries
+ * limit is the amount of rows we want to retrieve
+ * offset is the amount of rows we want to skip at the start
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstfindnewtorrentsbytitle(rsstor_handle *handle, char *title, newtorrents_container **newtorrents, int limit, int offset);
 
 /*
  * Delete content from newtorrents_container
