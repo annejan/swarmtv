@@ -610,6 +610,19 @@ int rsstdownloadbyidstr(rsstor_handle *handle, char *torid);
 int rsstfindnewtorrents(simplefilter_struct *filter, newtorrents_container **newtorrents, int limit, int offset);
 
 /*
+ * Find newtorrents entries
+ * @Arguments
+ * handle SwarmTv Handle
+ * title title to match to
+ * newtorrents container handling newtorrents entries
+ * limit is the amount of rows we want to retrieve
+ * offset is the amount of rows we want to skip at the start
+ * @Return
+ * Returns 0 on success -1 on failure
+ */
+int rsstfindnewtorrentsbytitle(rsstor_handle *handle, char *title, newtorrents_container **newtorrents, int limit, int offset);
+
+/*
  * Delete content from newtorrents_container
  * @Arguments
  * container newtorrents container the content needs freeing
