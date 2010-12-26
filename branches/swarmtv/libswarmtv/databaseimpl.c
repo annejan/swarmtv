@@ -1688,6 +1688,38 @@ int rsstfreesourcecontainer(source_container *container)
 }
 
 /*
+ * Store newtorrent result into newtorrents_struct
+ * @arguments
+ * newtor newtorrents_struct
+ * result sqlstatement set to the current record to store
+ */
+void rsststorenewtorrentstruct(sqlite3_stmt *result, newtorrents_struct *newstruct)
+{
+  char 	 *column=NULL;
+
+  /*
+   * Store values
+   */
+  newstruct->id = sqlite3_column_int(result, 0);
+  column = (char*) sqlite3_column_text(result, 1);
+  rsstalloccopy(&(newstruct->title), column, strlen(column));
+  column = (char*)sqlite3_column_text(result, 2);
+  rsstalloccopy(&(newstruct->link), column, strlen(column));
+  newstruct->pubdate = sqlite3_column_int(result, 3);
+  column = (char*)sqlite3_column_text(result, 4);
+  rsstalloccopy(&(newstruct->category), column, strlen(column));
+  column = (char*)sqlite3_column_text(result, 5);
+  rsstalloccopy(&(newstruct->source), column, strlen(column));
+  column = (char*)sqlite3_column_text(result, 6);
+  rsstalloccopy(&(newstruct->metatype), column, strlen(column));
+  newstruct->season = sqlite3_column_int(result, 7);
+  newstruct->episode = sqlite3_column_int(result,8);
+  newstruct->seeds = sqlite3_column_int(result, 9);
+  newstruct->peers = sqlite3_column_int(result, 10);
+  newstruct->size = sqlite3_column_double(result, 11);
+}
+
+/*
  * Store database result into struct
  * @Arguments 
  * result
@@ -1699,7 +1731,6 @@ int rsststorenewtorrentcontainer(sqlite3_stmt *result, newtorrents_container *co
 {
 	int 		count=0;
 	int 		allocrecords=0;
-	char 	 *column=NULL;
 
 	/*
 	 * reallocate for START_ELEMENTS number of records
@@ -1716,31 +1747,15 @@ int rsststorenewtorrentcontainer(sqlite3_stmt *result, newtorrents_container *co
 	 * Copy results to struct
 	 */
 	while( SQLITE_DONE != sqlite3_step(result)) {
-		/*
-		 * Store values
-		 */
-		container->newtorrent[count].id = sqlite3_column_int(result, 0);
-		column = (char*) sqlite3_column_text(result, 1);
-		rsstalloccopy(&(container->newtorrent[count].title), column, strlen(column));
-		column = (char*)sqlite3_column_text(result, 2);
-		rsstalloccopy(&(container->newtorrent[count].link), column, strlen(column));
-		container->newtorrent[count].pubdate = sqlite3_column_int(result, 3);
-		column = (char*)sqlite3_column_text(result, 4);
-		rsstalloccopy(&(container->newtorrent[count].category), column, strlen(column));
-		column = (char*)sqlite3_column_text(result, 5);
-		rsstalloccopy(&(container->newtorrent[count].source), column, strlen(column));
-		column = (char*)sqlite3_column_text(result, 6);
-		rsstalloccopy(&(container->newtorrent[count].metatype), column, strlen(column));
-		container->newtorrent[count].season = sqlite3_column_int(result, 7);
-		container->newtorrent[count].episode = sqlite3_column_int(result,8);
-		container->newtorrent[count].seeds = sqlite3_column_int(result, 9);
-		container->newtorrent[count].peers = sqlite3_column_int(result, 10);
-		container->newtorrent[count].size = sqlite3_column_double(result, 11);
-		count++;
+    /*
+     * Fill struct
+     */
+    rsststorenewtorrentstruct(result, &(container->newtorrent[count]));
 
 		/*
-		 * reallocate goes here
+		 * Move to next record & reallocate 
 		 */
+		count++;
 		container->newtorrent = rsstmakespace(container->newtorrent, &allocrecords, count, sizeof(newtorrents_struct));
 	}
 
@@ -1864,6 +1879,63 @@ int rsstfindnewtorrents(simplefilter_struct *filter, newtorrents_container **new
 	}
 
 	return 0;
+}
+
+
+/*
+ * Get newtorrent information providing its ID
+ * @Arguments
+ * handle Swarmtv Handle
+ * id id number of torrent to retrieve
+ * newtorrent structure holding information
+ * @Return
+ * Returns 0 when found, -1 on not found or error
+ */
+int rsstnewtorrentsbyid(rsstor_handle *handle, int newtorid, newtorrents_struct *newtorrent)
+{
+  int            rc=0;
+	sqlite3_stmt 	*ppstmt=NULL;
+	char         	*zErrMsg=NULL;
+
+  /*
+   * Query To filter newtorrents on filter.
+   */
+	char *query="SELECT newtorrents.id, newtorrents.title, newtorrents.link, newtorrents.pubdate, newtorrents.category, "
+		"newtorrents.source, newtorrents.metatype, newtorrents.season, newtorrents.episode, newtorrents.seeds, "
+    "newtorrents.peers, newtorrents.size "
+    "FROM newtorrents "
+		"WHERE newtorrents.id = ?1";
+
+	/*
+	 * Get records using query
+	 */
+	rc = rsstexecqueryresult(handle->db, &ppstmt, query, "d", newtorid);
+	if( rc!=SQLITE_OK ){
+		rsstwritelog(LOG_ERROR, "sqlite3_prepare_v2 %s:%d", __FILE__, __LINE__);
+		rsstwritelog(LOG_ERROR, "SQL error: %s", zErrMsg);
+		sqlite3_free(zErrMsg);
+		return -1;
+	}
+
+  /*
+   * Did we find anything ?
+   */
+	if( SQLITE_DONE == sqlite3_step(ppstmt)) {
+		rsstwritelog(LOG_ERROR, "No records found for id: %d %s:%d", newtorid, __FILE__, __LINE__);
+    return -1;
+  }
+
+  /*
+   * Store result in newtorrents struct
+   */
+  rsststorenewtorrentstruct(ppstmt, newtorrent);
+
+  /*
+   * Clean up
+   */
+	sqlite3_finalize(ppstmt);
+
+  return 0;
 }
 
 

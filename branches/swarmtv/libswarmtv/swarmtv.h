@@ -623,6 +623,16 @@ int rsstfindnewtorrents(simplefilter_struct *filter, newtorrents_container **new
 int rsstfindnewtorrentsbytitle(rsstor_handle *handle, char *title, newtorrents_container **newtorrents, int limit, int offset);
 
 /*
+ * Free strings in newtorrents_struct 
+ * Be sure to free the struct yourself.
+ * @Arguments 
+ * newtor structure pointer
+ * @Return 
+ * void, exits on failure
+ */
+void rsstfreenewtor(newtorrents_struct *newtor);
+
+/*
  * Delete content from newtorrents_container
  * @Arguments
  * container newtorrents container the content needs freeing
@@ -632,16 +642,15 @@ int rsstfindnewtorrentsbytitle(rsstor_handle *handle, char *title, newtorrents_c
 int rsstfreenewtorrentscontainer(newtorrents_container *newtorrents);
 
 /*
- * This routine function downloads the torrent indicated by ID.
- * The routine looks through the newtorrents table to pick the torrent by id.
- * @arguments
- * handle RSS-torrent handle
- * id	The id that points to the torrent
- * @returns
- * 0 on success
- * -1 on failure
+ * Get newtorrent information providing its ID
+ * @Arguments
+ * handle Swarmtv Handle
+ * id id number of torrent to retrieve
+ * newtorrent structure holding information
+ * @Return
+ * Returns 0 when found, -1 on not found or error
  */
-int rsstdownloadbyid(rsstor_handle *handle, int torid);
+int rsstnewtorrentsbyid(rsstor_handle *handle, int newtorid, newtorrents_struct *newtorrent);
 
 /*
  * Functions to manipulate the SQL filters

@@ -212,6 +212,17 @@ int rsststorenewtorrentcontainer(sqlite3_stmt *result, newtorrents_container *co
 int rsstfindnewtorrents(simplefilter_struct *filter, newtorrents_container **newtorrents, int limit, int offset);
 
 /*
+ * Get newtorrent information providing its ID
+ * @Arguments
+ * handle Swarmtv Handle
+ * newtorid id number of torrent to retrieve
+ * newtorrent structure holding information
+ * @Return
+ * Returns 0 when found, -1 on not found or error
+ */
+int rsstnewtorrentsbyid(rsstor_handle *handle, int newtorid, newtorrents_struct *newtorrent);
+
+/*
  * Find newtorrents entries
  * @Arguments
  * handle SwarmTv Handle
