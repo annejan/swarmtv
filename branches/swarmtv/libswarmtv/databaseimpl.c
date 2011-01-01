@@ -951,8 +951,14 @@ static int rsststoredownloadedcontainer(sqlite3_stmt *result, downloaded_contain
 		rsstalloccopy(&(container->downloaded[count].pubdate), column, strlen(column));
 		column = (char*)sqlite3_column_text(result, 4);
 		rsstalloccopy(&(container->downloaded[count].category), column, strlen(column));
-		container->downloaded[count].id = sqlite3_column_int(result, 5);
-		container->downloaded[count].id = sqlite3_column_int(result, 6);
+		container->downloaded[count].season = sqlite3_column_int(result, 5);
+		container->downloaded[count].episode = sqlite3_column_int(result, 6);
+		column = (char*)sqlite3_column_text(result, 7);
+		rsstalloccopy(&(container->downloaded[count].downdate), column, strlen(column));
+		column = (char*)sqlite3_column_text(result, 8);
+		rsstalloccopy(&(container->downloaded[count].metatype), column, strlen(column));
+    container->downloaded[count].baretitle=NULL;
+    container->downloaded[count].filter=NULL;
 		count++;
 
 		/*
@@ -1001,7 +1007,9 @@ int rsstgetdownloaded(rsstor_handle *handle, downloaded_container **downloaded, 
 	 * int  season;
 	 * int  episode;
 	 */
-	const char *query = "SELECT id, title, link, pubdate, category, season, episode FROM downloaded LIMIT ?1 OFFSET ?2";
+	const char *query = "SELECT id, title, link, pubdate, category, season, episode, date, metatype "
+    "FROM downloaded "
+    "ORDER BY date DESC LIMIT ?1 OFFSET ?2";
 
 	/*
 	 * Allocate the container
@@ -1064,6 +1072,8 @@ void rsstfreedownloaded(downloaded_struct *downloaded)
 	free(downloaded->category);
   free(downloaded->metatype);
   free(downloaded->baretitle);
+  free(downloaded->downdate);
+  free(downloaded->filter);
 }
 
 
