@@ -220,6 +220,7 @@ typedef struct {
   char *baretitle;    // The bare title of the show/content 
 	int  season;        // The season number
 	int  episode;       // The episode number
+  char *downdate;     // Date download occurred
   char *filter;       // Filter name the match was found by
   FILTER_TYPE type;   // Filter type the match produced
 } downloaded_struct;  
