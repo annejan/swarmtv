@@ -28,6 +28,38 @@
 #include "regexp.h"
 #include "logfile.h"
 
+
+/*
+ * This function removes all charakters from string NOT being
+ * a-z, A-Z or 0-9
+ * This in order to keep the regexps created from this title sane.
+ * This function alters the input-string !
+ * @arguments
+ * baretitle title to clean up
+ */
+static void rsstcleantitle(char *baretitle)
+{
+  int loop=0;
+  char *current=NULL;
+  /*
+   * Loop all the characters
+   */
+  while(baretitle[loop] != '\0'){
+    current = baretitle+loop;
+
+    /*
+     * When not in range of valid characters, replace with a ' '
+     */
+    if(!(*current >= 'a' && *current <= 'z') &&
+        !(*current >= 'A' && *current <= 'Z') &&
+        !(*current >= '0' && *current <= '9'))
+    {
+      *current = ' ';
+    }
+    loop++;
+  }
+}
+
 /*
  * Isolate the title from the title captured from the RSS-title
  * @Arguments
@@ -69,6 +101,11 @@ int rsstfillbaretitle(downloaded_struct *downed)
     rsstwritelog(LOG_ERROR, "Regep failed in baretitle %s:%d", __FILE__, __LINE__);
     retval = -1;
   }
+
+  /*
+   * Strip all none letter chars from string
+   */
+  rsstcleantitle(baretitle);
 
   //printf("title:      '%s'\n", title);
   //printf("baretitle:  '%s'\n", baretitle);
