@@ -53,3 +53,8 @@ FORMS    += mainwindow.ui \
     newtorrentfullinfodialog.ui
 
 LIBS 	 += -lswarmtv
+
+# install
+target.path = /usr/local/
+INSTALLS += target
+
