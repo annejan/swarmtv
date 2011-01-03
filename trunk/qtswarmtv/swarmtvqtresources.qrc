@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/swarmtv/logo">
-        <file>swarmtv_logo.png</file>
+        <file>resources/swarmtv_logo.png</file>
     </qresource>
 </RCC>

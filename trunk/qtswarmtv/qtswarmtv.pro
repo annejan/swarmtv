@@ -55,8 +55,11 @@ FORMS    += mainwindow.ui \
 LIBS 	 += -lswarmtv
 
 # install
-target.path = /usr/local/
+target.path = /usr/local/bin/
 INSTALLS += target
 
 RESOURCES += \
     swarmtvqtresources.qrc
+
+OTHER_FILES += \
+    ../logo/swarmtv_logo.png
