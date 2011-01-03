@@ -59,7 +59,7 @@ int sourceTableControl::updateTable()
     return 0;
 }
 
-int sourceTableControl::initHeaders()
+void sourceTableControl::initHeaders()
 {
   // Make sure ui is set
   if(this->table == NULL){
@@ -117,7 +117,7 @@ void sourceTableControl::fillTable(source_container *container)
 
 }
 
-void sourceTableControl::cellDoubleClicked(int row, int column)
+void sourceTableControl::cellDoubleClicked(int row, int )
 {
     int id=0;
     simpleCell 	*scell=NULL;

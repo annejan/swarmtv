@@ -60,6 +60,3 @@ INSTALLS += target
 
 RESOURCES += \
     swarmtvqtresources.qrc
-
-OTHER_FILES += \
-    ../logo/swarmtv_logo.png

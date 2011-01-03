@@ -107,7 +107,7 @@ void	searchControl::searchClicked()
   free(searchValue);
 }
 
-void searchControl::tableDownload(int row, int column)
+void searchControl::tableDownload(int row, int )
 {
   simpleCell *scell=NULL;
   int	id=0;
@@ -154,9 +154,6 @@ int searchControl::rowToId(int row)
 {
   simpleCell *scell=NULL;
   int	id=0;
-
-  // Get SwarmTv handle
-  swarmTv *swarm = &Singleton<swarmTv>::Instance();
 
   // Get the id
   scell = (simpleCell*) ui->searchTableWidget->cellWidget(row, 0);

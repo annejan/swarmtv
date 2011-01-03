@@ -116,7 +116,7 @@ void simpleTableControl::fillTable(lastdowned_container *container)
     }
 }
 
-void simpleTableControl::cellDoubleClicked(int row, int column)
+void simpleTableControl::cellDoubleClicked(int row, int)
 {
     int 		id=0;
     simpleCell *scell=NULL;

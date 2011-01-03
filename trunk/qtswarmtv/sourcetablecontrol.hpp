@@ -16,7 +16,7 @@ public:
     explicit sourceTableControl(QWidget *parent = 0);
     void setTable(QTableWidget *table);
     int updateTable();
-    int initHeaders();
+    void initHeaders();
 
 signals:
 

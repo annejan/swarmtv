@@ -6,7 +6,7 @@ simpleCell::simpleCell(QWidget *parent) :
 {
 }
 
-simpleCell::simpleCell ( const QString & text, QWidget * parent, Qt::WindowFlags f) :
+simpleCell::simpleCell ( const QString & text, QWidget * , Qt::WindowFlags ) :
     QLabel(text)
 {
 }
