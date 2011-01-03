@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="swarmtvqtresources.qrc">
-    <normaloff>:/swarmtv/logo/swarmtv_logo.png</normaloff>:/swarmtv/logo/swarmtv_logo.png</iconset>
+    <normaloff>:/swarmtv/mainlogo/resources/swarmtv_logo.png</normaloff>:/swarmtv/mainlogo/resources/swarmtv_logo.png</iconset>
   </property>
   <property name="tabShape">
    <enum>QTabWidget::Triangular</enum>
