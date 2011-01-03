@@ -14,8 +14,8 @@
    <string>SwarmTv</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>../rss-torrent/trunk/logo/swarmtv_logo.png</normaloff>../rss-torrent/trunk/logo/swarmtv_logo.png</iconset>
+   <iconset resource="swarmtvqtresources.qrc">
+    <normaloff>:/swarmtv/logo/swarmtv_logo.png</normaloff>:/swarmtv/logo/swarmtv_logo.png</iconset>
   </property>
   <property name="tabShape">
    <enum>QTabWidget::Triangular</enum>
@@ -498,7 +498,9 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="swarmtvqtresources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>actionClose</sender>

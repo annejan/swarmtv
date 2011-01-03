@@ -58,3 +58,5 @@ LIBS 	 += -lswarmtv
 target.path = /usr/local/
 INSTALLS += target
 
+RESOURCES += \
+    swarmtvqtresources.qrc
