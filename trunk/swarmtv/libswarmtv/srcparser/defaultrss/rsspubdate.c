@@ -63,14 +63,19 @@ int rsspubdate(newtorrents_struct *newtor, rssdatastruct *rssdata)
 		 */
 		rc = rssdisectdate(retdate, &founddate);
 		free(retdate);	
-		rssdata->pubdate=founddate;
+		newtor->pubdate=founddate;
 
 		return 0;
 	}
 
+  /*
+   * If all else fails, use the date of today
+   */
+  newtor->pubdate=time(NULL);
+
 	/*
 	 * Not found
 	 */
-	return -1;
+	return 0;
 }
 
