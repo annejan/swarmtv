@@ -1910,7 +1910,7 @@ int rsstnewtorrentsbyid(rsstor_handle *handle, int newtorid, newtorrents_struct 
   /*
    * Query To filter newtorrents on filter.
    */
-	char *query="SELECT newtorrents.id, newtorrents.title, newtorrents.link, newtorrents.pubdate, newtorrents.category, "
+	char *query="SELECT newtorrents.id, newtorrents.title, newtorrents.link, strftime('%s', newtorrents.pubdate), newtorrents.category, "
 		"newtorrents.source, newtorrents.metatype, newtorrents.season, newtorrents.episode, newtorrents.seeds, "
     "newtorrents.peers, newtorrents.size "
     "FROM newtorrents "
