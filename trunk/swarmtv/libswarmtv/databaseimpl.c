@@ -1974,7 +1974,7 @@ int rsstfindnewtorrentsbytitle(rsstor_handle *handle, char *title, newtorrents_c
     "newtorrents.peers, newtorrents.size "
     "FROM newtorrents "
 		"WHERE IREGEXP(?1, newtorrents.title) "
-    "ORDER BY newtorrents.id LIMIT ?2 OFFSET ?3"; // get values from downloaded table
+    "ORDER BY newtorrents.id DESC LIMIT ?2 OFFSET ?3"; // get values from downloaded table
 
 	/*
 	 * Get records using query
