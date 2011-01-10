@@ -37,6 +37,10 @@
   <property name="windowTitle">
    <string>Edit Source</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="swarmtvqtresources.qrc">
+    <normaloff>:/swarmtv/mainlogo/resources/swarmtv_logo.png</normaloff>:/swarmtv/mainlogo/resources/swarmtv_logo.png</iconset>
+  </property>
   <property name="sizeGripEnabled">
    <bool>true</bool>
   </property>
@@ -168,7 +172,9 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="swarmtvqtresources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Meta file info </string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="swarmtvqtresources.qrc">
+    <normaloff>:/swarmtv/mainlogo/resources/swarmtv_logo.png</normaloff>:/swarmtv/mainlogo/resources/swarmtv_logo.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
@@ -270,7 +274,9 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="swarmtvqtresources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>closePushButton</sender>

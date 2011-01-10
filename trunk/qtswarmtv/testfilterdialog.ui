@@ -6,12 +6,16 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>510</width>
-    <height>300</height>
+    <width>820</width>
+    <height>455</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Test Filter</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="swarmtvqtresources.qrc">
+    <normaloff>:/swarmtv/mainlogo/resources/swarmtv_logo.png</normaloff>:/swarmtv/mainlogo/resources/swarmtv_logo.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
@@ -99,7 +103,9 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="swarmtvqtresources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>ClosePushButton</sender>
