@@ -28,7 +28,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="SourcesTab">
        <attribute name="title">
@@ -341,7 +341,14 @@
             <item>
              <widget class="QPushButton" name="delDownedPushButton">
               <property name="text">
-               <string>Del</string>
+               <string>Delete</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="updateDownedPushButton">
+              <property name="text">
+               <string>Update</string>
               </property>
              </widget>
             </item>

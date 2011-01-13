@@ -92,7 +92,6 @@ void downloadedTableControl::fillTable()
     // clean up
     rsstfreedownloadedcontainer(downed);
   }
-
 }
 
 void downloadedTableControl::initHeaders()

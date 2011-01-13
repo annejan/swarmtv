@@ -65,6 +65,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->SearchLineEdit, SIGNAL(returnPressed()), sc, SLOT(searchClicked()));
     QObject::connect(ui->searchTableWidget, SIGNAL(cellDoubleClicked(int,int)), sc, SLOT(tableDownload(int,int)));
     QObject::connect(ui->delDownedPushButton, SIGNAL(clicked()), dtc, SLOT(delClicked()));
+    QObject::connect(ui->updateDownedPushButton, SIGNAL(clicked()), dtc, SLOT(fillTable()));
     QObject::connect(ui->downloadedTableWidget, SIGNAL(cellDoubleClicked(int,int)), dtc, SLOT(cellDoubleClicked(int,int)));
 }
 

@@ -10,16 +10,14 @@ class downloadedTableControl : public QWidget
   Q_OBJECT
 public:
   explicit downloadedTableControl(QWidget *parent = 0);
-
   void setTable(QTableWidget *downtable);
-
-  void fillTable();
 
 signals:
 
 public slots:
   void delClicked();
   void cellDoubleClicked(int,int);
+  void fillTable();
 
 private:
   void initHeaders();
