@@ -25,7 +25,8 @@ SOURCES += main.cpp\
     searchcontrol.cpp \
     testfilterdialog.cpp \
     newtorrentfullinfodialog.cpp \
-    downloadedtablecontrol.cpp
+    downloadedtablecontrol.cpp \
+    swarmtvtrayicon.cpp
 
 HEADERS  += mainwindow.h \
     singleton.h \
@@ -42,7 +43,8 @@ HEADERS  += mainwindow.h \
     searchcontrol.hpp \
     testfilterdialog.hpp \
     newtorrentfullinfodialog.hpp \
-    downloadedtablecontrol.hpp
+    downloadedtablecontrol.hpp \
+    swarmtvtrayicon.h
 
 FORMS    += mainwindow.ui \
     simpleeditdialog.ui \

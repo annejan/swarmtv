@@ -6,6 +6,7 @@ extern "C" {
 #include <swarmtv.h>
 }
 
+#include "swarmtvtrayicon.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "singleton.h"
@@ -24,6 +25,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    // Setup tray icon
+    swarmtvTrayIcon* tray = new swarmtvTrayIcon(this);
 
     // Initialize the table singleton
     simpleTableControl *stc = &Singleton<simpleTableControl>::Instance();
@@ -50,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
     dtc->setTable(ui->downloadedTableWidget);
     dtc->fillTable();
 
-    // Connect signal
+    // Connect signals
     QObject::connect(ui->statsUpdatePushButton, SIGNAL(clicked()), this, SLOT(statsUpdateClicked()));
     QObject::connect(ui->simpleTableWidget, SIGNAL(cellDoubleClicked(int,int)), stc, SLOT(cellDoubleClicked(int,int)));
     QObject::connect(ui->sourceTableWidget, SIGNAL(cellDoubleClicked(int,int)), srctc, SLOT(cellDoubleClicked(int,int)));
