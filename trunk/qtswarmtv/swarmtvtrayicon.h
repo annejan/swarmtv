@@ -19,6 +19,7 @@ signals:
 
 public slots:
     void showHideParent();
+    void iconActivated(QSystemTrayIcon::ActivationReason reason);
 
 private:
     void createActions();

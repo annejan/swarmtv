@@ -12,6 +12,9 @@ swarmtvTrayIcon::swarmtvTrayIcon(QMainWindow *parent) :
   trayIcon->show();
 
   QObject::connect(trayIcon, SIGNAL(clicked()), this, SLOT(showHideParent()));
+  QObject::connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
+          this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
+
 }
 
 void swarmtvTrayIcon::setVisible(bool visible)
@@ -64,4 +67,21 @@ void swarmtvTrayIcon::showHideParent(){
   } else {
     parentwin->show();
   }
+}
+
+void swarmtvTrayIcon::iconActivated(QSystemTrayIcon::ActivationReason reason)
+{
+    switch (reason) {
+    case QSystemTrayIcon::Trigger:
+    case QSystemTrayIcon::DoubleClick:
+    //    iconComboBox->setCurrentIndex((iconComboBox->currentIndex() + 1)
+    //                                  % iconComboBox->count());
+        this->showHideParent();
+        break;
+    //case QSystemTrayIcon::MiddleClick:
+    //    showMessage();
+    //    break;
+    default:
+        ;
+    }
 }
