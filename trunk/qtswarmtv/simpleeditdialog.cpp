@@ -49,6 +49,7 @@ simpleEditDialog::simpleEditDialog(int id, QWidget *parent) :
   // Connect signal
   QObject::connect(ui->simpleButtonBox, SIGNAL(accepted()), this, SLOT(simpleAccepted()));
   QObject::connect(ui->testPushButton, SIGNAL(clicked()), this, SLOT(testClicked()));
+  QObject::connect(ui->guessSEPushButton, SIGNAL(clicked()), this, SLOT(fillSeasonEpisode()));
 }
 
 
@@ -182,4 +183,29 @@ void simpleEditDialog::getFromUi(simplefilter_struct &simple)
   // Get from season/episode
   simple.fromseason = ui->seasonSpinBox->value();
   simple.fromepisode = ui->episodeSpinBox->value();
+}
+
+
+void simpleEditDialog::fillSeasonEpisode()
+{
+  int rc=0;
+  simplefilter_struct filter;
+  int season=0;
+  int episode=0;
+
+  // Get SwarmTv handle
+  swarmTv *swarm = &Singleton<swarmTv>::Instance();
+
+  // Get values from interface and build the filter object
+  this->getFromUi(filter);
+
+  // Get season and episode from number using current filter setup
+  rc = rsstgetnewestepisode(&filter, &season, &episode);
+
+  // Fill out fields in gui
+  ui->seasonSpinBox->setValue(season);
+  ui->episodeSpinBox->setValue(episode);
+
+  // Free Simple filter
+  rsstfreesimplefilter(&filter);
 }

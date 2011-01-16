@@ -27,7 +27,7 @@ public:
 public slots:
     void simpleAccepted();
     void testClicked();
-
+    void fillSeasonEpisode();
 
 private:
     addoredit mode;
