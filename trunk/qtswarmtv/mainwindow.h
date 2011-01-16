@@ -17,6 +17,7 @@ public:
 
 public slots:
     void statsUpdateClicked();
+    void initTrayIcon();
 
 private:
     Ui::MainWindow *ui;

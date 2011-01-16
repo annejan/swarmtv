@@ -26,8 +26,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    // Setup tray icon
-    swarmtvTrayIcon* tray = new swarmtvTrayIcon(this);
+    // Init tray icon
+    initTrayIcon();
 
     // Initialize the table singleton
     simpleTableControl *stc = &Singleton<simpleTableControl>::Instance();
@@ -76,6 +76,14 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::initTrayIcon()
+{
+  if(QSystemTrayIcon::isSystemTrayAvailable() == true) {
+    // Setup tray icon
+    swarmtvTrayIcon* tray = new swarmtvTrayIcon(this);
+  }
 }
 
 void MainWindow::statsUpdateClicked()
