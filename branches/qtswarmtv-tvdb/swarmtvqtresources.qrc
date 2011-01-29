@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/swarmtv/mainlogo">
+        <file>resources/swarmtv_logo.png</file>
+    </qresource>
+</RCC>

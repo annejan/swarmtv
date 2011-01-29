@@ -185,6 +185,7 @@ void simpleEditDialog::getFromUi(simplefilter_struct &simple)
   simple.fromepisode = ui->episodeSpinBox->value();
 }
 
+
 void simpleEditDialog::fillSeasonEpisode()
 {
   int rc=0;
