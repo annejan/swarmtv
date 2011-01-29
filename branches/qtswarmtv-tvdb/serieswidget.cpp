@@ -60,7 +60,6 @@ seriesWidget::seriesWidget(QString &title, QString &overview, tvdb_buffer_t *ban
 
 seriesWidget::~seriesWidget()
 {
-  delete(banner);
   delete(title);
   delete(overview);
 }

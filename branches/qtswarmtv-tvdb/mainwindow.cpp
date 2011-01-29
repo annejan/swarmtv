@@ -78,6 +78,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->updateDownedPushButton, SIGNAL(clicked()), dtc, SLOT(fillTable()));
     QObject::connect(ui->downloadedTableWidget, SIGNAL(cellDoubleClicked(int,int)), dtc, SLOT(cellDoubleClicked(int,int)));
     QObject::connect(ui->seriesFindPushButton, SIGNAL(clicked()), slc, SLOT(findSeries()));
+    QObject::connect(ui->seriesSearchLineEdit, SIGNAL(returnPressed()), slc, SLOT(findSeries()));
 }
 
 MainWindow::~MainWindow()
