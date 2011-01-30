@@ -24,8 +24,8 @@ public slots:
     void findSeries();
 
 private:
-    void handleSeries(htvdb_t tvdb, tvdb_list_front_t *series);
-    void addWidget(htvdb_t tvdb, tvdb_series_t *series);
+    void handleSeries(tvdb_list_front_t *series);
+    void addWidget(tvdb_series_t *series);
 
     QListWidget *list;
     QLineEdit *searchLine;

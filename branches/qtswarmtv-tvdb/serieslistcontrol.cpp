@@ -3,11 +3,11 @@
 extern "C" {
 #include <tvdb.h>
 }
+#include "singleton.h"
 #include "serieslistcontrol.hpp"
 #include "serieswidget.hpp"
-
-// This should be handled by a gui setting in the future
-#define MY_API_KEY "<MY_API_KEY>"
+#include "singleton.h"
+#include "thetvdb.hpp"
 
 seriesListControl::seriesListControl(QWidget *parent) :
     QWidget(parent)
@@ -31,17 +31,18 @@ void seriesListControl::setSeriesListWidget(QListWidget *list)
   this->list = list;
 }
 
-void seriesListControl::addWidget(htvdb_t tvdb, tvdb_series_t *series)
+void seriesListControl::addWidget(tvdb_series_t *series)
 {
   int rc=0;
   QString title(series->name);
   QString overview(series->overview);
   tvdb_buffer_t bannerBuffer;
+  theTvdb *tvdb = &Singleton<theTvdb>::Instance();
 
   memset(&bannerBuffer, 0, sizeof(tvdb_buffer_t));
 
   // Get image from tvdb server
-  rc = tvdb_banners(tvdb, series->banner, &bannerBuffer);
+  rc = tvdb_banners(tvdb->getTvdb(), series->banner, &bannerBuffer);
   if(rc != TVDB_OK) {
     memset(&bannerBuffer, 0, sizeof(tvdb_buffer_t));
   }
@@ -57,7 +58,7 @@ void seriesListControl::addWidget(htvdb_t tvdb, tvdb_series_t *series)
   tvdb_free_buffer(&bannerBuffer);
 }
 
-void seriesListControl::handleSeries(htvdb_t tvdb, tvdb_list_front_t *series)
+void seriesListControl::handleSeries(tvdb_list_front_t *series)
 {
   tvdb_list_node_t *n=NULL;
   tvdb_series_t *m=NULL;
@@ -68,7 +69,7 @@ void seriesListControl::handleSeries(htvdb_t tvdb, tvdb_list_front_t *series)
   while(n != NULL) {
     m = (tvdb_series_t *)n->data;
     //this->list->addItem(m->overview);
-    addWidget(tvdb, m);
+    addWidget(m);
     n=tvdb_list_next(series);
   }
 }
@@ -78,14 +79,13 @@ void seriesListControl::findSeries()
   int rc=0;
   tvdb_list_front_t series;
   tvdb_buffer_t series_xml;
-
+  theTvdb *tvdb = &Singleton<theTvdb>::Instance();
 
   // Init tvdb
-  htvdb_t tvdb = tvdb_init(MY_API_KEY);
   memset(&series_xml, 0, sizeof(tvdb_buffer_t));
 
   // Do search
-  tvdb_series(tvdb, this->searchLine->text().toUtf8(), "en", &series_xml);
+  tvdb_series(tvdb->getTvdb(), this->searchLine->text().toUtf8(), "en", &series_xml);
 
   // Clean ListWidget
   list->clear();
@@ -95,14 +95,11 @@ void seriesListControl::findSeries()
   rc = tvdb_parse_series(&series_xml, 0, &series);
   if(rc == TVDB_OK) {
     // Insert text for now
-    handleSeries(tvdb, &series);
+    handleSeries(&series);
   }
 
   // Put resulting objects in QListView
   tvdb_free_buffer(&series_xml);
   tvdb_list_remove(&series);
-
-  // Delete tvdb handle
-  tvdb_uninit(tvdb);
 }
 

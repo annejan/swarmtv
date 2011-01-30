@@ -20,6 +20,7 @@ extern "C" {
 #include "searchcontrol.hpp"
 #include "downloadedtablecontrol.hpp"
 #include "serieslistcontrol.hpp"
+#include "thetvdb.hpp"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -38,9 +39,13 @@ MainWindow::MainWindow(QWidget *parent) :
     helpDialog *hd = &Singleton<helpDialog>::Instance();
     seriesListControl *slc = &Singleton<seriesListControl>::Instance();
     downloadedTableControl *dtc = &Singleton<downloadedTableControl>::Instance();
+    theTvdb *tvdb = &Singleton<theTvdb>::Instance();
     stc->setTable(ui->simpleTableWidget);
     srctc->setTable(ui->sourceTableWidget);
     sc->setUi(ui);
+
+    // Set API Key The TVDB here for now
+    tvdb->initKey("<API_KEY>");
 
     // Set statistics first time
     this->statsUpdateClicked();

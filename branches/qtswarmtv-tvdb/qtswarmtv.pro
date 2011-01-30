@@ -28,7 +28,8 @@ SOURCES += main.cpp\
     downloadedtablecontrol.cpp \
     swarmtvtrayicon.cpp \
     serieslistcontrol.cpp \
-    serieswidget.cpp
+    serieswidget.cpp \
+    thetvdb.cpp
 
 HEADERS  += mainwindow.h \
     singleton.h \
@@ -48,7 +49,8 @@ HEADERS  += mainwindow.h \
     downloadedtablecontrol.hpp \
     swarmtvtrayicon.h \
     serieslistcontrol.hpp \
-    serieswidget.hpp
+    serieswidget.hpp \
+    thetvdb.hpp
 
 FORMS    += mainwindow.ui \
     simpleeditdialog.ui \
