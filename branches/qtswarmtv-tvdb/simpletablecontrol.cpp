@@ -43,7 +43,7 @@ int simpleTableControl::updateTable()
     // Get the last downloaded data
     rc = rsstgetlastdownloaded(swarm->getHandle() , &container);
     if(rc != 0) {
-      fprintf(stderr, "Could not retrieve last downloaded data.\n");
+     fprintf(stderr, "Could not retrieve last downloaded data.\n");
       return -1;
     }
 

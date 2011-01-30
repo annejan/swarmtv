@@ -24,6 +24,14 @@ public:
     void getFromUi(simplefilter_struct &simple);
     typedef enum{add, edit} addoredit;
 
+    void setName(QString *name);
+    void setTitle(QString *title);
+
+    void setMaxSize(size_t max);
+    void setMinSize(size_t min);
+    void setMaxSize(QString *max);
+    void setMinSize(QString *min);
+
 public slots:
     void simpleAccepted();
     void testClicked();

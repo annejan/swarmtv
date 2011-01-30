@@ -10,6 +10,8 @@ extern "C" {
 #include <tvdb.h>
 }
 
+class seriesWidget;
+
 class seriesListControl : public QWidget
 {
     Q_OBJECT
@@ -22,10 +24,12 @@ signals:
 
 public slots:
     void findSeries();
+    void itemDoubleClicked(QListWidgetItem *item);
 
 private:
     void handleSeries(tvdb_list_front_t *series);
     void addWidget(tvdb_series_t *series);
+    void openSimpleEditDialog(seriesWidget *series);
 
     QListWidget *list;
     QLineEdit *searchLine;

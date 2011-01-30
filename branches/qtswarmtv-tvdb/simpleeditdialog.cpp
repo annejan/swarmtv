@@ -19,15 +19,17 @@ simpleEditDialog::simpleEditDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::simpleEditDialog)
 {
-    setAttribute(Qt::WA_DeleteOnClose);
+  setAttribute(Qt::WA_DeleteOnClose);
 
-    ui->setupUi(this);
+  ui->setupUi(this);
 
-    // Set mode to add
-    mode = add;
+  // Set mode to add
+  mode = add;
 
-    // Connect signal
-    QObject::connect(ui->simpleButtonBox, SIGNAL(accepted()), this, SLOT(simpleAccepted()));
+  // Connect signal
+  QObject::connect(ui->simpleButtonBox, SIGNAL(accepted()), this, SLOT(simpleAccepted()));
+  QObject::connect(ui->testPushButton, SIGNAL(clicked()), this, SLOT(testClicked()));
+  QObject::connect(ui->guessSEPushButton, SIGNAL(clicked()), this, SLOT(fillSeasonEpisode()));
 }
 
 
@@ -79,10 +81,48 @@ void simpleEditDialog::testClicked()
   new testFilterDialog(simple);
 }
 
+void simpleEditDialog::setName(QString *name)
+{
+  ui->nameSimpleLineEdit->setText(*name);
+}
+
+void simpleEditDialog::setTitle(QString *title)
+{
+  ui->titleSimpleLineEdit->setText(*title);
+}
+
+void simpleEditDialog::setMaxSize(size_t max)
+{
+  readableSize sizeconv(max);
+  std::string maxString;
+
+  sizeconv.getSize(maxString);
+  ui->maxSizeSimpleLineEdit->setText(maxString.c_str());
+}
+
+void simpleEditDialog::setMinSize(size_t min)
+{
+  readableSize sizeconv(min);
+  std::string minString;
+
+  sizeconv.getSize(minString);
+  ui->minSizeSimpleLineEdit->setText(minString.c_str());
+}
+
+void simpleEditDialog::setMaxSize(QString *max)
+{
+  ui->maxSizeSimpleLineEdit->setText(*max);
+}
+
+void simpleEditDialog::setMinSize(QString *min)
+{
+  ui->minSizeSimpleLineEdit->setText(*min);
+}
+
 void simpleEditDialog::simpleAccepted()
 {
   simplefilter_struct simple;
-  simpleTableControl *stc=NULL;
+  simpleTableControl *stc = &Singleton<simpleTableControl>::Instance();
 
   // Get SwarmTv handle
   swarmTv *swarm = &Singleton<swarmTv>::Instance();
@@ -101,7 +141,6 @@ void simpleEditDialog::simpleAccepted()
   rsstfreesimplefilter(&simple);
 
   // Update parent
-  stc = (simpleTableControl*) this->parent();
   stc->updateTable();
 
   // Close dialog

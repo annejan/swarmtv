@@ -8,6 +8,7 @@ extern "C" {
 #include "serieswidget.hpp"
 #include "singleton.h"
 #include "thetvdb.hpp"
+#include "simpleeditdialog.hpp"
 
 seriesListControl::seriesListControl(QWidget *parent) :
     QWidget(parent)
@@ -29,6 +30,8 @@ void seriesListControl::setSeriesSearchLine(QLineEdit *searchLine)
 void seriesListControl::setSeriesListWidget(QListWidget *list)
 {
   this->list = list;
+
+  QObject::connect(list, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(itemDoubleClicked(QListWidgetItem*)));
 }
 
 void seriesListControl::addWidget(tvdb_series_t *series)
@@ -48,7 +51,7 @@ void seriesListControl::addWidget(tvdb_series_t *series)
   }
 
   //MyItem is a custom widget that takes two strings and sets two labels to those string.
-  seriesWidget *myItem = new seriesWidget(title, overview, &bannerBuffer, list);
+  seriesWidget *myItem = new seriesWidget(series, &bannerBuffer, list);
   QListWidgetItem *item = new QListWidgetItem();
   item->setSizeHint(QSize(0,180));
   this->list->addItem(item);
@@ -103,3 +106,36 @@ void seriesListControl::findSeries()
   tvdb_list_remove(&series);
 }
 
+void seriesListControl::itemDoubleClicked(QListWidgetItem *item)
+{
+  seriesWidget *series=NULL;
+  // Get widget pointer
+  series = dynamic_cast<seriesWidget*>(list->itemWidget(item));
+
+  // Print name for now
+  std::cout << "Name double clicked: " << series->getTitle()->toUtf8().begin() << std::endl;
+
+  // Create new simple filter window
+  openSimpleEditDialog(series);
+}
+
+void seriesListControl::openSimpleEditDialog(seriesWidget *series)
+{
+  simpleEditDialog *dialog=NULL;
+  QString title;
+  QString name;
+
+  // Get strings
+  title = series->getTitle()->toUtf8();
+  name = series->getTitle()->toUtf8();
+
+  // Open dialog, and disable the name field.
+  dialog = new simpleEditDialog(list);
+  dialog->setAttribute(Qt::WA_DeleteOnClose);
+  dialog->setTitle(&title);
+  dialog->setName(&name);
+  dialog->setMaxSize(&QString("700MB"));
+  dialog->setMinSize(&QString("300MB"));
+  dialog->enableNameEnable(true);
+  dialog->show();
+}

@@ -16,7 +16,9 @@ class seriesWidget : public QWidget
     Q_OBJECT
 public:
     explicit seriesWidget(QWidget *parent = 0);
-    explicit seriesWidget(QString &title, QString &overview, tvdb_buffer_t *banner, QWidget *parent);
+    explicit seriesWidget(tvdb_series_t *series, tvdb_buffer_t *banner, QWidget *parent);
+
+    QString *getTitle();
 
     ~seriesWidget();
 signals:
@@ -29,6 +31,7 @@ private:
     QLabel *bannerImage; // Image when available
     QLabel *title; // Title of the serie
     QLabel *overview; // Overview description
+    QLabel *firstaired; // First aired
     tvdb_buffer_t *banner; // Buffer holding the banner image
 };
 
