@@ -1,5 +1,13 @@
 #include "serieswidget.hpp"
+#include "singleton.h"
+#include "taskinterface.hpp"
+#include "taskqueue.hpp"
+#include "getbannertask.hpp"
 #include <iostream>
+
+extern "C" {
+#include <tvdb.h>
+}
 
 #include <QVBoxLayout>
 #include <QLabel>
@@ -7,19 +15,24 @@
 
 void seriesWidget::createLayout()
 {
+  taskQueue *tq = &Singleton<taskQueue>::Instance();
   QVBoxLayout *layout = new QVBoxLayout(this);
   QHBoxLayout *hLayout = new QHBoxLayout();
   layout->setMargin(2);
   hLayout->setMargin(2);
-  QPixmap *bannerPixmap = new QPixmap(); // Image to show as banner
+  //QPixmap *bannerPixmap = new QPixmap(); // Image to show as banner
   bannerImage = new QLabel();
+  imageBuffer = (tvdb_buffer_t*) calloc(1, sizeof(tvdb_buffer_t));
 
   std::cout << "Added: " << title->text().toUtf8().begin() << std::endl;
 
-  // Set Content
-  if(banner->size != 0) {
-    bannerPixmap->loadFromData((uchar*) banner->memory, (int) banner->size);
-    bannerImage->setPixmap(*bannerPixmap);
+  // Create thread to get Image from TheTvdb
+  if(strlen(bannerName) != 0) {
+    getBannerTask *banTask = new getBannerTask();
+    banTask->setFilename(bannerName);
+    QObject::connect(banTask, SIGNAL(bannerReady(tvdb_buffer_t*)),this, SLOT(imageReady(tvdb_buffer_t*)));
+    QObject::connect(banTask, SIGNAL(bannerFailed()), this, SLOT(imageFailed()));
+    tq->addTask(banTask);
   }
 
   // Set layout
@@ -31,9 +44,7 @@ void seriesWidget::createLayout()
   hLayout->addWidget(firstaired);
 
   // Add labels to layout
-  if(banner->size != 0) {
-    layout->addWidget(bannerImage);
-  }
+  layout->addWidget(bannerImage);
   layout->addLayout(hLayout);
   layout->addWidget(overview);
 }
@@ -41,16 +52,16 @@ void seriesWidget::createLayout()
 seriesWidget::seriesWidget(QWidget *parent) :
     QWidget(parent)
 {
-  this->banner = NULL;
+  this->bannerName = NULL;
   this->title = new QLabel("");
   this->overview = new QLabel("");
 
   createLayout();
 }
 
-seriesWidget::seriesWidget(tvdb_series_t *series, tvdb_buffer_t *banner,  QWidget *parent)
+seriesWidget::seriesWidget(tvdb_series_t *series, char *bannerName,  QWidget *parent)
 {
-  this->banner = banner;
+  this->bannerName = bannerName;
   this->title = new QLabel(series->name);
   this->overview = new QLabel(series->overview);
   this->firstaired = new QLabel(series->first_aired);
@@ -62,6 +73,20 @@ seriesWidget::~seriesWidget()
 {
   delete(title);
   delete(overview);
+}
+
+void seriesWidget::imageReady(tvdb_buffer_t *banner)
+{
+  QPixmap *bannerPixmap = new QPixmap(); // Image to show as banner
+
+  // set banner information to the Image
+  bannerPixmap->loadFromData((uchar*) banner->memory, (int) banner->size);
+  bannerImage->setPixmap(*bannerPixmap);
+}
+
+void seriesWidget::imageFailed(void)
+{
+  // Set bogus image in future
 }
 
 QString *seriesWidget::getTitle()

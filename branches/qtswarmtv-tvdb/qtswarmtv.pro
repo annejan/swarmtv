@@ -29,7 +29,9 @@ SOURCES += main.cpp\
     swarmtvtrayicon.cpp \
     serieslistcontrol.cpp \
     serieswidget.cpp \
-    thetvdb.cpp
+    thetvdb.cpp \
+    taskqueue.cpp \
+    getbannertask.cpp
 
 HEADERS  += mainwindow.h \
     singleton.h \
@@ -50,7 +52,10 @@ HEADERS  += mainwindow.h \
     swarmtvtrayicon.h \
     serieslistcontrol.hpp \
     serieswidget.hpp \
-    thetvdb.hpp
+    thetvdb.hpp \
+    taskqueue.hpp \
+    taskinterface.hpp \
+    getbannertask.hpp
 
 FORMS    += mainwindow.ui \
     simpleeditdialog.ui \

@@ -44,14 +44,8 @@ void seriesListControl::addWidget(tvdb_series_t *series)
 
   memset(&bannerBuffer, 0, sizeof(tvdb_buffer_t));
 
-  // Get image from tvdb server
-  rc = tvdb_banners(tvdb->getTvdb(), series->banner, &bannerBuffer);
-  if(rc != TVDB_OK) {
-    memset(&bannerBuffer, 0, sizeof(tvdb_buffer_t));
-  }
-
   //MyItem is a custom widget that takes two strings and sets two labels to those string.
-  seriesWidget *myItem = new seriesWidget(series, &bannerBuffer, list);
+  seriesWidget *myItem = new seriesWidget(series, series->banner, list);
   QListWidgetItem *item = new QListWidgetItem();
   item->setSizeHint(QSize(0,180));
   this->list->addItem(item);

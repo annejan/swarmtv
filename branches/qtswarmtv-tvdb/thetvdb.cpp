@@ -23,7 +23,7 @@ theTvdb::~theTvdb()
 
 void theTvdb::initKey(char *apiKey)
 {
-  if(tvdb == NULL) {
+  if(tvdb == 0) {
     tvdb = tvdb_init(apiKey);
   }
 }

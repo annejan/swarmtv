@@ -20,6 +20,7 @@ extern "C" {
 #include "searchcontrol.hpp"
 #include "downloadedtablecontrol.hpp"
 #include "serieslistcontrol.hpp"
+#include "taskqueue.hpp"
 #include "thetvdb.hpp"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -40,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
     seriesListControl *slc = &Singleton<seriesListControl>::Instance();
     downloadedTableControl *dtc = &Singleton<downloadedTableControl>::Instance();
     theTvdb *tvdb = &Singleton<theTvdb>::Instance();
+    taskQueue *tq = &Singleton<taskQueue>::Instance();
     stc->setTable(ui->simpleTableWidget);
     srctc->setTable(ui->sourceTableWidget);
     sc->setUi(ui);
