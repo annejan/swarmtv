@@ -9,6 +9,7 @@ QT       += core gui dbus
 TARGET = qtswarmtv
 TEMPLATE = app
 
+CONFIG += qt debug
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -31,7 +32,8 @@ SOURCES += main.cpp\
     serieswidget.cpp \
     thetvdb.cpp \
     taskqueue.cpp \
-    getbannertask.cpp
+    getbannertask.cpp \
+    getseriestask.cpp
 
 HEADERS  += mainwindow.h \
     singleton.h \
@@ -55,7 +57,8 @@ HEADERS  += mainwindow.h \
     thetvdb.hpp \
     taskqueue.hpp \
     taskinterface.hpp \
-    getbannertask.hpp
+    getbannertask.hpp \
+    getseriestask.hpp
 
 FORMS    += mainwindow.ui \
     simpleeditdialog.ui \

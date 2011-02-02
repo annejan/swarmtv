@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <sqlite3.h>
 #include <stdlib.h>
+#include <iostream>
 
 extern "C" {
 #include <swarmtv.h>
@@ -23,6 +24,8 @@ extern "C" {
 #include "taskqueue.hpp"
 #include "thetvdb.hpp"
 
+const char* api_key = "<API_KEY>";
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -41,13 +44,12 @@ MainWindow::MainWindow(QWidget *parent) :
     seriesListControl *slc = &Singleton<seriesListControl>::Instance();
     downloadedTableControl *dtc = &Singleton<downloadedTableControl>::Instance();
     theTvdb *tvdb = &Singleton<theTvdb>::Instance();
-    taskQueue *tq = &Singleton<taskQueue>::Instance();
     stc->setTable(ui->simpleTableWidget);
     srctc->setTable(ui->sourceTableWidget);
     sc->setUi(ui);
 
     // Set API Key The TVDB here for now
-    tvdb->initKey("<API_KEY>");
+    tvdb->initKey((char*) api_key);
 
     // Set statistics first time
     this->statsUpdateClicked();
@@ -98,6 +100,10 @@ void MainWindow::initTrayIcon()
   if(QSystemTrayIcon::isSystemTrayAvailable() == true) {
     // Setup tray icon
     swarmtvTrayIcon* tray = new swarmtvTrayIcon(this);
+    if(tray == NULL){
+      std::cerr << "Allocating tray icon failed." << std::endl;
+      exit(1);
+    }
   }
 }
 

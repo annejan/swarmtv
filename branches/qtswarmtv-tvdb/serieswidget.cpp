@@ -1,5 +1,5 @@
 #include "serieswidget.hpp"
-#include "singleton.h"
+//#include "singleton.h"
 #include "taskinterface.hpp"
 #include "taskqueue.hpp"
 #include "getbannertask.hpp"
@@ -15,16 +15,13 @@ extern "C" {
 
 void seriesWidget::createLayout()
 {
-  taskQueue *tq = &Singleton<taskQueue>::Instance();
+  //taskQueue *tq = &Singleton<taskQueue>::Instance();
   QVBoxLayout *layout = new QVBoxLayout(this);
   QHBoxLayout *hLayout = new QHBoxLayout();
   layout->setMargin(2);
   hLayout->setMargin(2);
-  //QPixmap *bannerPixmap = new QPixmap(); // Image to show as banner
   bannerImage = new QLabel();
   imageBuffer = (tvdb_buffer_t*) calloc(1, sizeof(tvdb_buffer_t));
-
-  std::cout << "Added: " << title->text().toUtf8().begin() << std::endl;
 
   // Create thread to get Image from TheTvdb
   if(strlen(bannerName) != 0) {
@@ -32,7 +29,7 @@ void seriesWidget::createLayout()
     banTask->setFilename(bannerName);
     QObject::connect(banTask, SIGNAL(bannerReady(tvdb_buffer_t*)),this, SLOT(imageReady(tvdb_buffer_t*)));
     QObject::connect(banTask, SIGNAL(bannerFailed()), this, SLOT(imageFailed()));
-    tq->addTask(banTask);
+    tasks->addTask(banTask);
   }
 
   // Set layout
@@ -49,6 +46,7 @@ void seriesWidget::createLayout()
   layout->addWidget(overview);
 }
 
+#if 0
 seriesWidget::seriesWidget(QWidget *parent) :
     QWidget(parent)
 {
@@ -58,19 +56,24 @@ seriesWidget::seriesWidget(QWidget *parent) :
 
   createLayout();
 }
+#endif
 
-seriesWidget::seriesWidget(tvdb_series_t *series, char *bannerName,  QWidget *parent)
+seriesWidget::seriesWidget(tvdb_series_t *series, char *bannerName, taskQueue *tasks, QWidget *parent) :
+    QWidget(parent)
 {
   this->bannerName = bannerName;
   this->title = new QLabel(series->name);
+  this->titleString = new QString(series->name);
   this->overview = new QLabel(series->overview);
   this->firstaired = new QLabel(series->first_aired);
+  this->tasks = tasks;
 
   createLayout();
 }
 
 seriesWidget::~seriesWidget()
 {
+  delete(titleString);
   delete(title);
   delete(overview);
 }
@@ -91,5 +94,5 @@ void seriesWidget::imageFailed(void)
 
 QString *seriesWidget::getTitle()
 {
-  return &(title->text());
+  return titleString;
 }

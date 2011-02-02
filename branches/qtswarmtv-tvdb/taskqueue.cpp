@@ -1,6 +1,7 @@
 #include <QList>
 #include <QThread>
 #include <QObject>
+#include <iostream>
 
 #include "taskqueue.hpp"
 
@@ -49,13 +50,18 @@ void taskQueue::addTask(taskInterface *task)
 // Stops thread after current task, deleting all tasks after that.
 void taskQueue::clearTasks(void)
 {
-  // Stop the tasks
+  std::cout << "Clear called." << std::endl;
+  // Stop the tasks and wait for thread to finish
   stopTasks();
   // Wait for the thread to stop
   wait();
+
   // Free all tasks in the Task queue
-  qDeleteAll(tasks);
+  mutex.lock();
   tasks.clear();
+  qDeleteAll(tasks);
+  current_task=0;
+  mutex.unlock();
 }
 
 // Stops thread execution after current task
@@ -84,6 +90,7 @@ void taskQueue::run(void)
   }
 
   // State to idle
+  std::cout << "Task queue idle." << std::endl;
   current_state = state_idle;
 }
 

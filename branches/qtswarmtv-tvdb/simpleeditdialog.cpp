@@ -233,7 +233,7 @@ void simpleEditDialog::fillSeasonEpisode()
   int episode=0;
 
   // Get SwarmTv handle
-  swarmTv *swarm = &Singleton<swarmTv>::Instance();
+  //swarmTv *swarm = &Singleton<swarmTv>::Instance();
 
   // Get values from interface and build the filter object
   this->getFromUi(filter);

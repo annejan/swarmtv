@@ -10,14 +10,14 @@ extern "C" {
 #include <QWidget>
 #include <QLabel>
 #include <QPixmap>
-//#include "getepisodebanner.hpp"
+#include "taskqueue.hpp"
 
 class seriesWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit seriesWidget(QWidget *parent = 0);
-    explicit seriesWidget(tvdb_series_t *series, char *banner, QWidget *parent);
+    //explicit seriesWidget(QWidget *parent = 0);
+    explicit seriesWidget(tvdb_series_t *series, char *banner, taskQueue *tasks, QWidget *parent);
 
     QString *getTitle();
 
@@ -33,11 +33,12 @@ private:
 
     QLabel *bannerImage; // Image when available
     QLabel *title; // Title of the serie
+    QString *titleString; // Title text
     QLabel *overview; // Overview description
     QLabel *firstaired; // First aired
     char *bannerName; // Buffer holding the banner image
-    //getEpisodeBanner *getBan; // QThread object to get Image from Tvdb
     tvdb_buffer_t *imageBuffer; // Image buffer
+    taskQueue *tasks; // Task queue object
 };
 
 #endif // SERIESWIDGET_HPP

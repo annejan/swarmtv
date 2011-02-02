@@ -1,5 +1,6 @@
 #include <iostream>
 #include <stdlib.h>
+#include <QApplication>
 extern "C" {
 #include <tvdb.h>
 }
@@ -9,10 +10,15 @@ extern "C" {
 #include "singleton.h"
 #include "thetvdb.hpp"
 #include "simpleeditdialog.hpp"
+#include "getseriestask.hpp"
+
+const QString max_string("700mb");
+const QString min_string("300MB");
 
 seriesListControl::seriesListControl(QWidget *parent) :
     QWidget(parent)
 {
+  tasks = new taskQueue();
 }
 
 seriesListControl::seriesListControl(QWidget *parent, QLineEdit *searchLine, QListWidget *list) :
@@ -20,6 +26,12 @@ seriesListControl::seriesListControl(QWidget *parent, QLineEdit *searchLine, QLi
 {
   this->list = list;
   this->searchLine = searchLine;
+  tasks = new taskQueue();
+}
+
+seriesListControl::~seriesListControl()
+{
+  delete(tasks);
 }
 
 void seriesListControl::setSeriesSearchLine(QLineEdit *searchLine)
@@ -36,23 +48,16 @@ void seriesListControl::setSeriesListWidget(QListWidget *list)
 
 void seriesListControl::addWidget(tvdb_series_t *series)
 {
-  int rc=0;
   QString title(series->name);
   QString overview(series->overview);
-  tvdb_buffer_t bannerBuffer;
-  theTvdb *tvdb = &Singleton<theTvdb>::Instance();
-
-  memset(&bannerBuffer, 0, sizeof(tvdb_buffer_t));
 
   //MyItem is a custom widget that takes two strings and sets two labels to those string.
-  seriesWidget *myItem = new seriesWidget(series, series->banner, list);
+  seriesWidget *myItem = new seriesWidget(series, series->banner, tasks, list);
   QListWidgetItem *item = new QListWidgetItem();
   item->setSizeHint(QSize(0,180));
   this->list->addItem(item);
   this->list->setItemWidget(item, myItem);
   myItem->show();
-
-  tvdb_free_buffer(&bannerBuffer);
 }
 
 void seriesListControl::handleSeries(tvdb_list_front_t *series)
@@ -73,31 +78,38 @@ void seriesListControl::handleSeries(tvdb_list_front_t *series)
 
 void seriesListControl::findSeries()
 {
+  getSeriesTask *st=NULL;
+
+  // Disable line edit
+  searchLine->setEnabled(false);
+
+  // Wait for running task to finish then empty queue
+  tasks->clearTasks();
+  list->clear();
+
+  // Create and initialize query task
+  st = new getSeriesTask(this->searchLine->text().toUtf8().begin(), this);
+  QObject::connect(st, SIGNAL(results(tvdb_buffer_t*)), this, SLOT(searchResults(tvdb_buffer_t*)));
+
+  // Start task
+  tasks->addTask(st);
+}
+
+void seriesListControl::searchResults(tvdb_buffer_t *series_xml)
+{
   int rc=0;
   tvdb_list_front_t series;
-  tvdb_buffer_t series_xml;
-  theTvdb *tvdb = &Singleton<theTvdb>::Instance();
-
-  // Init tvdb
-  memset(&series_xml, 0, sizeof(tvdb_buffer_t));
-
-  // Do search
-  tvdb_series(tvdb->getTvdb(), this->searchLine->text().toUtf8(), "en", &series_xml);
-
-  // Clean ListWidget
-  list->clear();
 
   // Parse results
   tvdb_list_init(&series);
-  rc = tvdb_parse_series(&series_xml, 0, &series);
+  rc = tvdb_parse_series(series_xml, 0, &series);
   if(rc == TVDB_OK) {
     // Insert text for now
     handleSeries(&series);
   }
 
-  // Put resulting objects in QListView
-  tvdb_free_buffer(&series_xml);
-  tvdb_list_remove(&series);
+  // Set searchbar to editable again
+  searchLine->setEnabled(true);
 }
 
 void seriesListControl::itemDoubleClicked(QListWidgetItem *item)
@@ -128,8 +140,8 @@ void seriesListControl::openSimpleEditDialog(seriesWidget *series)
   dialog->setAttribute(Qt::WA_DeleteOnClose);
   dialog->setTitle(&title);
   dialog->setName(&name);
-  dialog->setMaxSize(&QString("700MB"));
-  dialog->setMinSize(&QString("300MB"));
+  dialog->setMaxSize((QString*)&max_string);
+  dialog->setMinSize((QString*)&min_string);
   dialog->enableNameEnable(true);
   dialog->show();
 }
