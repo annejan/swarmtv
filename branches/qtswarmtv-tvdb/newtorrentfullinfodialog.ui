@@ -66,6 +66,9 @@
              <property name="readOnly">
               <bool>true</bool>
              </property>
+             <property name="placeholderText">
+              <string/>
+             </property>
             </widget>
            </item>
            <item>
@@ -73,12 +76,18 @@
              <property name="readOnly">
               <bool>true</bool>
              </property>
+             <property name="placeholderText">
+              <string/>
+             </property>
             </widget>
            </item>
            <item>
             <widget class="QLineEdit" name="pubDateLineEdit">
              <property name="readOnly">
               <bool>true</bool>
+             </property>
+             <property name="placeholderText">
+              <string/>
              </property>
             </widget>
            </item>

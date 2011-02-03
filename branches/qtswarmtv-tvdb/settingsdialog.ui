@@ -47,8 +47,14 @@
            </item>
            <item>
             <widget class="QLineEdit" name="torrentDirLineEdit">
+             <property name="toolTip">
+              <string>Directory to store downloaded bittorent files.</string>
+             </property>
              <property name="whatsThis">
               <string>This is the path the Torrents are downloaded to.</string>
+             </property>
+             <property name="placeholderText">
+              <string>&lt;directory to put torrents in&gt;</string>
              </property>
             </widget>
            </item>
@@ -71,8 +77,14 @@
            </item>
            <item>
             <widget class="QLineEdit" name="nzbDirectoryLineEdit">
+             <property name="toolTip">
+              <string>Directory to store downloaded nzb files.</string>
+             </property>
              <property name="whatsThis">
               <string>This is the path the NZBs are downloaded to.</string>
+             </property>
+             <property name="placeholderText">
+              <string>&lt;directory to put NZB's in&gt;</string>
              </property>
             </widget>
            </item>
@@ -89,14 +101,20 @@
               </size>
              </property>
              <property name="text">
-              <string>Refresh (minutes)</string>
+              <string>Refresh (s)</string>
              </property>
             </widget>
            </item>
            <item>
             <widget class="QLineEdit" name="refreshLineEdit">
+             <property name="toolTip">
+              <string>Seconds between fetching RSS feeds</string>
+             </property>
              <property name="whatsThis">
               <string>The number of minutes between refreshes.</string>
+             </property>
+             <property name="placeholderText">
+              <string>&lt;time between refreshes&gt;</string>
              </property>
             </widget>
            </item>
@@ -119,8 +137,14 @@
            </item>
            <item>
             <widget class="QLineEdit" name="retainLineEdit">
+             <property name="toolTip">
+              <string>Number of days to retain downloaded RSS information.</string>
+             </property>
              <property name="whatsThis">
               <string>The number of months to keep meta files (torrents or NZBs) in the database.</string>
+             </property>
+             <property name="placeholderText">
+              <string>&lt;number of days to keep RSS information&gt;</string>
              </property>
             </widget>
            </item>
@@ -143,8 +167,14 @@
            </item>
            <item>
             <widget class="QLineEdit" name="minimalSizeLineEdit">
+             <property name="toolTip">
+              <string>Minimal size the RSS information has to indicate below this threshold, download the meta file to check.</string>
+             </property>
              <property name="whatsThis">
               <string>The minimal size a RSS feed has to provide for content. When this size is not met, the meta file is downloaded and the size will be red from there.</string>
+             </property>
+             <property name="placeholderText">
+              <string>&lt;Double check sizes below this threshold&gt;</string>
              </property>
             </widget>
            </item>
@@ -178,6 +208,9 @@
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
             <widget class="QCheckBox" name="emailEnableCheckBox">
+             <property name="toolTip">
+              <string>When enabled emails will be sent when a download occurs.</string>
+             </property>
              <property name="text">
               <string>Enable email notifications</string>
              </property>
@@ -204,7 +237,7 @@
                <item>
                 <widget class="QLabel" name="label_8">
                  <property name="text">
-                  <string>SMTP server:port</string>
+                  <string>SMTP server</string>
                  </property>
                 </widget>
                </item>
@@ -213,13 +246,28 @@
              <item>
               <layout class="QVBoxLayout" name="verticalLayout_3">
                <item>
-                <widget class="QLineEdit" name="destinationLineEdit"/>
+                <widget class="QLineEdit" name="destinationLineEdit">
+                 <property name="placeholderText">
+                  <string>&lt;email address&gt;</string>
+                 </property>
+                </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="senderLineEdit"/>
+                <widget class="QLineEdit" name="senderLineEdit">
+                 <property name="placeholderText">
+                  <string>&lt;email address&gt;</string>
+                 </property>
+                </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="ServerLineEdit"/>
+                <widget class="QLineEdit" name="ServerLineEdit">
+                 <property name="toolTip">
+                  <string>server:port</string>
+                 </property>
+                 <property name="placeholderText">
+                  <string>&lt;server:port&gt;</string>
+                 </property>
+                </widget>
                </item>
               </layout>
              </item>

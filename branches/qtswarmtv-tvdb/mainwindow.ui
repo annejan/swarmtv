@@ -24,6 +24,9 @@
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="1">
      <widget class="QTabWidget" name="mainTab">
+      <property name="toolTip">
+       <string/>
+      </property>
       <property name="tabShape">
        <enum>QTabWidget::Rounded</enum>
       </property>
@@ -41,6 +44,9 @@
            <layout class="QHBoxLayout" name="horizontalLayout_6">
             <item>
              <widget class="QLineEdit" name="seriesSearchLineEdit">
+              <property name="toolTip">
+               <string>Find series by name on thetvdb.com.</string>
+              </property>
               <property name="placeholderText">
                <string>&lt;Series Name&gt;</string>
               </property>
@@ -293,6 +299,9 @@
            <layout class="QHBoxLayout" name="horizontalLayout_5">
             <item>
              <widget class="QLineEdit" name="SearchLineEdit">
+              <property name="toolTip">
+               <string>Search Swarmtv database for entries matching the title.</string>
+              </property>
               <property name="placeholderText">
                <string>&lt;regexp to find content in database&gt;</string>
               </property>
@@ -433,6 +442,9 @@
              <font>
               <family>Monospace</family>
              </font>
+            </property>
+            <property name="toolTip">
+             <string>THE _GAME</string>
             </property>
             <property name="autoFillBackground">
              <bool>false</bool>
