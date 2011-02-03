@@ -3,7 +3,8 @@
 swarmtvTrayIcon::swarmtvTrayIcon(QMainWindow *parent) :
     QWidget(parent)
 {
-  // @@TODO Parent should not be NULL
+  parentwin = parent;
+
   createActions();
   createTrayIcon();
 
@@ -11,16 +12,13 @@ swarmtvTrayIcon::swarmtvTrayIcon(QMainWindow *parent) :
 
   trayIcon->show();
 
-  QObject::connect(trayIcon, SIGNAL(clicked()), this, SLOT(showHideParent()));
+  QObject::connect(trayIcon, SIGNAL(triggered()), this, SLOT(showHideParent()));
   QObject::connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
           this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
-
 }
 
 void swarmtvTrayIcon::setVisible(bool visible)
 {
-  QMainWindow *parentwin = static_cast<QMainWindow*>(this->parent());
-
   if(visible == true) {
     parentwin->show();
   } else {
@@ -30,8 +28,6 @@ void swarmtvTrayIcon::setVisible(bool visible)
 
 void swarmtvTrayIcon::createActions()
 {
-  QMainWindow *parentwin = static_cast<QMainWindow*>(this->parent());
-
   minimizeAction = new QAction(tr("Mi&nimize"), this);
   connect(minimizeAction, SIGNAL(triggered()), parentwin, SLOT(hide()));
 
@@ -48,20 +44,19 @@ void swarmtvTrayIcon::createActions()
 
 void swarmtvTrayIcon::createTrayIcon()
 {
-  trayIconMenu = new QMenu(this);
-  trayIconMenu->addAction(minimizeAction);
-  trayIconMenu->addAction(maximizeAction);
-  trayIconMenu->addAction(restoreAction);
-  trayIconMenu->addSeparator();
-  trayIconMenu->addAction(quitAction);
+//  trayIconMenu = new QMenu(this);
+//  trayIconMenu->addAction(minimizeAction);
+//  trayIconMenu->addAction(maximizeAction);
+//  trayIconMenu->addAction(restoreAction);
+//  trayIconMenu->addSeparator();
+//  trayIconMenu->addAction(quitAction);
 
   trayIcon = new QSystemTrayIcon(this);
-  trayIcon->setContextMenu(trayIconMenu);
+//  trayIcon->setContextMenu(trayIconMenu);
 }
 
-void swarmtvTrayIcon::showHideParent(){
-  QMainWindow *parentwin = static_cast<QMainWindow*>(this->parent());
-
+void swarmtvTrayIcon::showHideParent()
+{
   if(parentwin->isVisible() == true) {
     parentwin->hide();
   } else {
