@@ -37,27 +37,41 @@
  * @arguments
  * baretitle title to clean up
  */
-static void rsstcleantitle(char *baretitle)
+static void rsstcleantitle(char *baretitle, char **strippedtitle)
 {
-  int loop=0;
   char *current=NULL;
+  char *curwrite=NULL;
+  char *stripped=NULL;
+
+  /*
+   * Allocate the stripped title
+   * +1 to have an extra /0 at the end of the string at all times.
+   */
+  stripped = calloc(1, strlen(baretitle)+1);
+
   /*
    * Loop all the characters
    */
-  while(baretitle[loop] != '\0'){
-    current = baretitle+loop;
+  curwrite=stripped;
+  current=baretitle;
+  while(*current != '\0'){
 
     /*
      * When not in range of valid characters, replace with a ' '
      */
-    if(!(*current >= 'a' && *current <= 'z') &&
-        !(*current >= 'A' && *current <= 'Z') &&
-        !(*current >= '0' && *current <= '9'))
+    if((*current >= 'a' && *current <= 'z') ||
+        (*current >= 'A' && *current <= 'Z') ||
+        (*current >= '0' && *current <= '9') ||
+        (*current == ' '))
     {
-      *current = ' ';
+      *curwrite=*current;
+      curwrite++;
     }
-    loop++;
+
+    current++;
   }
+
+  *strippedtitle = stripped;
 }
 
 /*
@@ -73,6 +87,7 @@ int rsstfillbaretitle(downloaded_struct *downed)
   int   retval=0;
   char *title=NULL;
   char *baretitle=NULL;
+  char *strippedtitle=NULL;
 
   /*
    * Regexp to strip bare title from title.
@@ -105,7 +120,8 @@ int rsstfillbaretitle(downloaded_struct *downed)
   /*
    * Strip all none letter chars from string
    */
-  rsstcleantitle(baretitle);
+  rsstcleantitle(baretitle, &strippedtitle);
+  free(baretitle);
 
   //printf("title:      '%s'\n", title);
   //printf("baretitle:  '%s'\n", baretitle);
@@ -113,7 +129,7 @@ int rsstfillbaretitle(downloaded_struct *downed)
   /*
    * write back bare title.
    */
-  downed->baretitle=baretitle; 
+  downed->baretitle=strippedtitle; 
 
   /*
    * return outcome.
