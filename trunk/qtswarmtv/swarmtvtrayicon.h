@@ -32,6 +32,7 @@ private:
 
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
+    QMainWindow *parentwin;
 };
 
 #endif // SWARMTVTRAYICON_H

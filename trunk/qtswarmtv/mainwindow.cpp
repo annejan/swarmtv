@@ -82,7 +82,7 @@ void MainWindow::initTrayIcon()
 {
   if(QSystemTrayIcon::isSystemTrayAvailable() == true) {
     // Setup tray icon
-    swarmtvTrayIcon* tray = new swarmtvTrayIcon(this);
+    new swarmtvTrayIcon(this);
   }
 }
 

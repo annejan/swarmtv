@@ -1,9 +1,9 @@
 #include "swarmtvtrayicon.h"
 
-swarmtvTrayIcon::swarmtvTrayIcon(QMainWindow *parent) :
-    QWidget(parent)
+swarmtvTrayIcon::swarmtvTrayIcon(QMainWindow *parent)
 {
-  // @@TODO Parent should not be NULL
+  parentwin = parent;
+
   createActions();
   createTrayIcon();
 
@@ -11,7 +11,6 @@ swarmtvTrayIcon::swarmtvTrayIcon(QMainWindow *parent) :
 
   trayIcon->show();
 
-  QObject::connect(trayIcon, SIGNAL(clicked()), this, SLOT(showHideParent()));
   QObject::connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
           this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
 
@@ -19,8 +18,6 @@ swarmtvTrayIcon::swarmtvTrayIcon(QMainWindow *parent) :
 
 void swarmtvTrayIcon::setVisible(bool visible)
 {
-  QMainWindow *parentwin = static_cast<QMainWindow*>(this->parent());
-
   if(visible == true) {
     parentwin->show();
   } else {
@@ -30,16 +27,14 @@ void swarmtvTrayIcon::setVisible(bool visible)
 
 void swarmtvTrayIcon::createActions()
 {
-  QMainWindow *parentwin = static_cast<QMainWindow*>(this->parent());
-
   minimizeAction = new QAction(tr("Mi&nimize"), this);
-  connect(minimizeAction, SIGNAL(triggered()), parentwin, SLOT(hide()));
+  connect(minimizeAction, SIGNAL(triggered()), this, SLOT(hide()));
 
   maximizeAction = new QAction(tr("Ma&ximize"), this);
-  connect(maximizeAction, SIGNAL(triggered()), parentwin, SLOT(showMaximized()));
+  connect(maximizeAction, SIGNAL(triggered()), this, SLOT(showMaximized()));
 
   restoreAction = new QAction(tr("&Restore"), this);
-  connect(restoreAction, SIGNAL(triggered()), parentwin, SLOT(showNormal()));
+  connect(restoreAction, SIGNAL(triggered()), this, SLOT(showNormal()));
 
   quitAction = new QAction(tr("&Quit"), this);
   connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
@@ -59,9 +54,8 @@ void swarmtvTrayIcon::createTrayIcon()
   trayIcon->setContextMenu(trayIconMenu);
 }
 
-void swarmtvTrayIcon::showHideParent(){
-  QMainWindow *parentwin = static_cast<QMainWindow*>(this->parent());
-
+void swarmtvTrayIcon::showHideParent()
+{
   if(parentwin->isVisible() == true) {
     parentwin->hide();
   } else {
@@ -74,9 +68,7 @@ void swarmtvTrayIcon::iconActivated(QSystemTrayIcon::ActivationReason reason)
     switch (reason) {
     case QSystemTrayIcon::Trigger:
     case QSystemTrayIcon::DoubleClick:
-    //    iconComboBox->setCurrentIndex((iconComboBox->currentIndex() + 1)
-    //                                  % iconComboBox->count());
-        this->showHideParent();
+         showHideParent();
         break;
     //case QSystemTrayIcon::MiddleClick:
     //    showMessage();
