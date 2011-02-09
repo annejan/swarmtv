@@ -6,6 +6,9 @@ helpDialog::helpDialog(QWidget *parent) :
     ui(new Ui::helpDialog)
 {
     ui->setupUi(this);
+    // open links in 'real' browser
+    ui->about->setOpenExternalLinks(true);
+    ui->license->setOpenExternalLinks(true);
 }
 
 helpDialog::~helpDialog()
