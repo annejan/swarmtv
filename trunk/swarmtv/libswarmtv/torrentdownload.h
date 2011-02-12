@@ -71,5 +71,5 @@ int rsstdownloadbyid(rsstor_handle *handle, int torid);
  * @return
  * 0 when writabe, -1 if not.
  */
-int rssttesttorrentdir(rsstor_handle *handle);
+int rssttestmetafiledir(rsstor_handle *handle);
 

@@ -98,7 +98,7 @@ int rssfsplitnameval(char *input,char **name, char **value)
   /*
    * Compile the regexp to split the two strings.
    */
-  p = pcre_compile("^([^:]+):(.+)$", 0, &errmsg, &errpos, 0);
+  p = pcre_compile("^([^:]+):(.*)$", 0, &errmsg, &errpos, 0);
   if (p == NULL) {
     /* should not happen, because init has already tested and set to NULL on error */
     rsstwritelog(LOG_ERROR, "Ouch! Can't compile regular expression: %s (char %i) %s:%d",

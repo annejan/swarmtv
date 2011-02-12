@@ -258,13 +258,27 @@ static int handlestart(void *data)
 }
 
 
-static int handleenclosurelenght(void *data, size_t newtor)
+static int handleenclosurelength(void *data, size_t newtor)
 {
 	rssdatastruct *rssdata = (rssdatastruct *) data;
 	/*
-	 * set lenght in struct
+	 * set length in structure
 	 */
 	rssdata->enclosurelength = newtor;
+
+	/*
+	 * Dummy for now.
+	 */
+	return 0;
+}
+
+static int handlecontentlength(void *data, size_t newtor)
+{
+	rssdatastruct *rssdata = (rssdatastruct *) data;
+	/*
+	 * set length in structure
+	 */
+	rssdata->contentlength = newtor;
 
 	/*
 	 * Dummy for now.
@@ -495,7 +509,8 @@ int defaultrss(rsstor_handle *handle, char *name, char *url, char *filter, char 
 	callback.category					= handlecategory;
 	callback.pubdate					= handlepubdate;
 	callback.description			= handledescription;
-	callback.enclosurelenght 	= handleenclosurelenght;
+	callback.enclosurelength 	= handleenclosurelength;
+  callback.contentlength    = handlecontentlength;
 	callback.enclosuretype		= handleenclosuretype;
 	callback.enclosureurl			=	handleenclosereurl;
 	callback.comments					= handlecomments;

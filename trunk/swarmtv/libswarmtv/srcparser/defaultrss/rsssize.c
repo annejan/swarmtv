@@ -41,6 +41,57 @@
 static const char* unitmatch  = "BKMGTPEZY";
 
 /*
+ * Remove any XML strings from the string
+ * free **out after use.
+ * @Arguments
+ * in
+ * out
+ * @return
+ */
+static int rsstremoveescaped(char *in, double *size, char **out)
+{
+  char *cread=NULL;
+  char *cwrite=NULL;
+  char *cout=NULL;
+  int copy=1; // 1 is copy, 0 is don't 
+
+  cread=in;
+  cwrite=calloc(1, ((size_t)*size) +1);
+  cout=cwrite;
+  if(cwrite == NULL)
+  {
+    return 0;
+  }
+
+  while(*cread != '\0'){
+    // Copy off on start escape
+    if(*cread == '&')
+    {
+      copy=0;
+    }
+
+    // When copy is on, copy the data
+    if(copy == 1)
+    {
+      *cwrite=*cread;
+      cwrite++;
+    }
+
+    // Copy on end of escape
+    if(*cread == ';')
+    {
+      copy=1;
+    }
+    
+    cread++;
+  }
+
+  *out=cout;
+  
+  return 0;
+}
+
+/*
  * buf must be a pre-allocated buffer with size BUFSIZE+1
  * returns 0 and -1 on error
  * size in bytes is returned in argument size
@@ -49,9 +100,11 @@ int rssthumantosize(char *buf, double *size)
 {
   char    upcasenum[BUFSIZE+1];
   char    *unit=NULL;
+  char    *stripped=NULL;
   int     i=0;
   long double  tempsize=0.0;
   int     power=0;
+  int     rc=0;
 
   /*
    * When buf or size = NULL, return -1
@@ -62,10 +115,20 @@ int rssthumantosize(char *buf, double *size)
   }
 
   /*
+   * Remove any XML escaped characters.
+   */
+  rc = rsstremoveescaped(buf, size, &stripped);
+  if(rc != 0){
+    rsstwritelog(LOG_ERROR, "Could not parse escaped strings.k%s:%d", __FILE__, __LINE__);
+    return -1;
+  }
+
+  /*
    * Initialize stuff
    */
   memset(upcasenum, 0, BUFSIZE+1);
-  strncpy(upcasenum, buf, BUFSIZE);
+  strncpy(upcasenum, stripped, BUFSIZE);
+  free(stripped);
 
   /*
    * transform the human readable string to a power of 1024
@@ -198,6 +261,7 @@ int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata)
 	int				    rc=0;
 	size_t 		    i_size=0;
 	size_t 		    i_length=0;
+  size_t        i_contlength=0;
 	long			    min_config=0;
 	metafileprops	*props=NULL;
 	int				    retval=0;
@@ -209,9 +273,14 @@ int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata)
 	i_size = rssdata->size;
 
 	/*
-	 * Get size from enclosurelength
+	 * Get size from enclosure length
 	 */
 	i_length = rssdata->enclosurelength;
+
+  /*
+   * Get the content length
+   */
+  i_contlength = rssdata->contentlength;
 
 	/*
 	 * Pick the biggest.
@@ -221,9 +290,12 @@ int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata)
 	} else {
 		newtor->size = i_length;
 	}
+  if(newtor->size < i_contlength) {
+    newtor->size = i_contlength;
+  }
 
   /*
-   * convert metafiletype
+   * convert metafile type
    */
   rc = metafilestrtotype(newtor->metatype, &type);
   if(rc != 0){

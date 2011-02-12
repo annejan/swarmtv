@@ -765,10 +765,15 @@ int rsstdownloadbyidstr(rsstor_handle *handle, char *torid)
  * returns 
  * 0 on succes otherwise -1
  */
-int rssttesttorrentdir(rsstor_handle *handle)
+int rssttestmetafiledir(rsstor_handle *handle)
 {
-	int rc=0;
-	char *path = NULL;
+  int retval=0;
+	int torexist=0;
+	int nzbexist=0;
+  int torwritable=0;
+  int nzbwritable=0;
+	char *torpath = NULL;
+	char *nzbpath = NULL;
 	char *fullpath = NULL;
 	sqlite3 *db=NULL;
 
@@ -780,34 +785,62 @@ int rssttesttorrentdir(rsstor_handle *handle)
 	/*
 	 * get path to put torrent in
 	 */
-	rsstconfiggetproperty(handle, CONF_TORRENTDIR, &path);
+	rsstconfiggetproperty(handle, CONF_TORRENTDIR, &torpath);
+	rsstconfiggetproperty(handle, CONF_NZBDIR, &nzbpath);
 
 	/*
-	 * Test if the directory exists
+	 * Test if the Torrent or NZB directory exists
 	 */
-	rc = rsstfsexists(path);
-	if(rc != 0) {
-		rsstwritelog(LOG_ERROR, "Torrent directory '%s' does not exist!", path);
+	torexist = rsstfsexists(torpath);
+	nzbexist = rsstfsexists(nzbpath);
+
+  /*
+   * Print the errors
+   */
+	if(torexist != 0 && strlen(torpath) != 0) {
+		rsstwritelog(LOG_ERROR, "Torrent directory '%s' does not exist!", torpath);
 		rsstwritelog(LOG_ERROR, 
-				"Please create the directory, or alter torrent directory by setting 'torrentdir' in the config. (--set-config \"torrentdir:<path>\")");
+				"Please create the directory, or alter torrent directory by setting 'torrentdir' in the config. (--set-config \"torrentdir:<path>\"), "
+        "clear the setting to disable NZB download.");
 	}
+  if(nzbexist !=0 && strlen(nzbpath) != 0) {
+		rsstwritelog(LOG_ERROR, "NZB directory '%s' does not exist!", nzbpath);
+		rsstwritelog(LOG_ERROR, 
+				"Please create the directory, or alter NZB directory by setting 'nzbdir' in the config. (--set-config \"nzbdir:<path>\"), "
+        "clear the setting to disable NZB download.");
+  }
 
 	/*
 	 * Test if the directry is writable to us
 	 */
-	if(rc == 0) {
-		rc |= rssttestwrite(path);
-		if(rc != 0) {
-			rsstwritelog(LOG_ERROR, "Torrent directory '%s' is not writable!", path);
+	if(torexist == 0 && strlen(torpath) != 0) {
+		torwritable |= rssttestwrite(torpath);
+		if(torwritable != 0) {
+			rsstwritelog(LOG_ERROR, "Torrent directory '%s' is not writable!", torpath);
 		}
 	}
+	if(nzbexist == 0 && strlen(nzbpath) != 0) {
+		nzbwritable |= rssttestwrite(nzbpath);
+		if(nzbwritable != 0) {
+			rsstwritelog(LOG_ERROR, "NZB directory '%s' is not writable!", nzbpath);
+		}
+	}
+
+  /*
+   * Return != 0 when both torrent and nzb are invalid
+   */
+  if(((torexist != 0 || torwritable != 0) && strlen(torpath) != 0) ||
+      ((nzbexist != 0 || nzbwritable != 0) && strlen(nzbpath) != 0)) {
+    retval = -1;
+  }
 
 	/*
 	 * Cleanup
 	 */
-	free(path);
+	free(torpath);
+	free(nzbpath);
 	free(fullpath);
 
-	return rc;
+	return retval;
 }
 

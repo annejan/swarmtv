@@ -26,7 +26,7 @@ typedef struct {
 	int (*comments)(void *data, char *string); // Called if the comments is found
 	void *data; // Data struct pointer
 	int (*description)(void *data, char *string); // Called if the description is found
-	int (*enclosurelenght)(void *data, size_t torsize); // Called if enclosure 
+	int (*enclosurelength)(void *data, size_t torsize); // Called if enclosure 
 	int (*enclosuretype)(void *data, char *string); // Called if enclosure 
 	int (*enclosureurl)(void *data, char *string); // Called if the enclosure url is found
 	int (*end)(void *data); // End of RSS entry
@@ -38,6 +38,7 @@ typedef struct {
 	int (*pubdate)(void *data, char *string); // Called if the pubdate is found
 	int (*seeds)(void *data, int seeds); // Called when a number of seeds is found
 	int (*size)(void *data, size_t size); // Called when a number of size is found
+	int (*contentlength)(void *data, size_t size); // Called when a number of size is found
 	int	(*start)(void *data); // Start new RSS entry 
 	int (*title)(void *data, char *string); // Called if the title is found
 	int (*verified)(void *data, char *string); // Called if verified node is found

@@ -543,11 +543,11 @@ int rsstfinddowned(rsstor_handle *handle, char *optarg);
  */
 
 /*
- * Test torrentdir
+ * Test Torrent or NZB directories, do they exist and are they writable ?
  * @return
  * 0 when writabe, -1 if not.
  */
-int rssttesttorrentdir(rsstor_handle *handle);
+int rssttestmetafiledir(rsstor_handle *handle);
 
 /*
  * Get the newest season and episode

@@ -36,6 +36,7 @@ typedef struct {
 	int			 peers;
 	size_t	 size;
 	size_t	 enclosurelength;
+  size_t   contentlength;
 	char		*enclosuretype;
 	char		*enclosureurl;
   char    *metatype;

@@ -50,6 +50,7 @@ static char *tocomments			= "comments";
 static char *topeers				= "peers";
 static char *toseeds				= "seeds";
 static char *tosize					= "size";
+static char *tocontentlength= "eztv:torrent/eztv:contentLength";
 static char *toguid					= "guid";
 
 
@@ -130,7 +131,7 @@ static int getxpathstring(const xmlChar * str, xmlXPathContextPtr ctxt, unsigned
   /*
    * When no results are found fail.
    */
-  if( xpathObj->nodesetval->nodeNr == 0) {
+  if(xpathObj->nodesetval == NULL || xpathObj->nodesetval->nodeNr == 0) {
     xmlXPathFreeObject(xpathObj);
     return -1;
   }
@@ -211,8 +212,8 @@ static int disectenclosure(xmlNode *encnode, rssparse_callback *call)
        */
       torsize = atol(attr);
       rsstwritelog(LOG_DEBUG, "length : %s %ld", attr, torsize);
-			if(call->enclosurelenght != NULL){
-				call->enclosurelenght(call->data, torsize);
+			if(call->enclosurelength != NULL){
+				call->enclosurelength(call->data, torsize);
 			}
     }
     else if(!strcmp(name, "type")) {
@@ -465,6 +466,23 @@ int rssparse(rssparse_callback *call, char *url, MemoryStruct *buffer)
 			if(call->size != NULL){
 				filesize = atol((const char*) value);
 				call->size(call->data, filesize);
+			}
+		}
+		value=NULL;
+
+		/*
+		 * Look for content length
+		 */
+    if(xmlXPathRegisterNs(xpathCtx,  BAD_CAST "eztv", BAD_CAST "http://xmlns.ezrss.it/0.1/") != 0) {
+      rsstwritelog(LOG_DEBUG, "Error: unable to register NS with prefix");
+    }
+    rc = getxpathstring(BAD_CAST tocontentlength, xpathCtx, &value);
+    if( rc < 0 ) {
+      rsstwritelog(LOG_DEBUG, "No contentlength found");
+    } else {
+			if(call->contentlength != NULL){
+				filesize = atol((const char*) value);
+				call->contentlength(call->data, filesize);
 			}
 		}
 		value=NULL;

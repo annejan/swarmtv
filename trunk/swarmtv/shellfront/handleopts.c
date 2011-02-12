@@ -873,10 +873,10 @@ static void runmode(rsstor_handle *handle, opts_struct *opts)
 	/*
 	 * Test if torrent directory is writable
 	 */
-	rc = rssttesttorrentdir(handle);
+	rc = rssttestmetafiledir(handle);
 	if(rc != 0) {
-		rsstwritelog(LOG_ERROR, "Torrent directory not usable exiting.");
-		fprintf(stderr, "Torrent directory is not usable, please look in log to find out why!\n");
+		rsstwritelog(LOG_ERROR, "NZB or Torrent directory not writable or exiting.");
+		fprintf(stderr, "No usable Torrent or NZB directory, please look in log to find out why!\n");
 	} else {
 		/*
 		 * Fork to background 
