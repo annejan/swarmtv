@@ -32,6 +32,7 @@
 #include "defaultrss.h"
 #include "filehandler/filehandler.h"
 #include "disectdescription.h"
+#include "database.h"
 
 /*
  * Used for unit conversion see humantosize and sizetohuman
@@ -247,6 +248,55 @@ static int rsstsizefromdesription(rssdatastruct *rssdata, size_t *foundsize)
   return retval;
 }
 
+static int rsstsizefromdatabase(rssdatastruct *rssdata, size_t *size) 
+{
+  int rc=0;
+  char *result=NULL;
+  rsstor_handle *handle=NULL;
+  char *link=NULL;
+
+  /* 
+   * Query to retrieve the size from the database
+   */
+  char *query="select size from newtorrents where link=?1";
+
+  /*
+   * Get the handle
+   */
+  handle = rssdata->handle;
+
+  /*
+   * Choose between link and torrentlink
+   */
+  if(rssdata->torrentlink != NULL) {
+    link=rssdata->torrentlink;
+  } else {
+    link=rssdata->link;
+  }
+
+  /*
+   * execute query to retrieve the size stored in the database
+   */
+  rc = rsstdosingletextquery(handle->db, (unsigned char const**) &result, query, "s", link);
+  if(rc != 0 || result == NULL) {
+    /*
+     * not yet in database.
+     */
+    return -1;
+  }
+
+  /*
+   * When found set the new size 
+   */
+  *size = (size_t) atol(result);
+  free(result);
+
+  /*
+   * Success !
+   */
+  return 0;
+}
+
 /*
  * Use the rss data to fill out the seeds and peers field in the new torrent struct.
  * @Arguments
@@ -314,6 +364,13 @@ int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata)
 	}
 
   /*
+   * When smaller than min_size get size from the database
+   */
+	if( newtor->size < (size_t) min_config) {
+    rsstsizefromdatabase(rssdata, &(newtor->size)); 
+  }
+
+  /*
    * Get the size from the description
    */
 	if( newtor->size < (size_t) min_config) {
@@ -324,6 +381,7 @@ int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata)
    * When still smaller than size resort to downloading the metafile and getting the size that way.
    */
 	if( newtor->size < (size_t) min_config) {
+    printf("Downloading to double check: '%s'\n", rssdata->link);
 		/*
 		 * Download the torrent to verify the length
 		 */
