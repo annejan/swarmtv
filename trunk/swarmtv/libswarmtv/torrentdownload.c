@@ -556,6 +556,19 @@ static int rsstgetdownloadpath(rsstor_handle *handle, downloaded_struct *downed,
   }
 
   /*
+   * If the meta file path is not set error
+   */
+  if(strlen(path) == 0) {
+    if(type == torrent) {
+      rsstwritelog(LOG_NORMAL, "Trying to download Torrent while no download path is set!");
+    }
+    if(type == nzb) {
+      rsstwritelog(LOG_NORMAL, "Trying to download NZB while no download path is set!");
+    }
+    return -1;
+  }
+
+  /*
    * Create full path from abbreviations
    */
 	rsstcompletepath(path, &fullpath);
@@ -630,7 +643,7 @@ static int dodownload(rsstor_handle *handle, downloaded_struct *downed)
     /*
      * Meta type unknown, this is problematic
      */
-    rsstwritelog(LOG_ERROR, "'%s' Did not have meta type !", fullpath);
+    rsstwritelog(LOG_ERROR, "Download failed! %s:%d", __FILE__, __LINE__);
     retval=-1;
   }
 
@@ -772,38 +785,38 @@ int rssttestmetafiledir(rsstor_handle *handle)
 	int nzbexist=0;
   int torwritable=0;
   int nzbwritable=0;
+  int torpathlen=0;
+  int nzbpathlen=0;
 	char *torpath = NULL;
 	char *nzbpath = NULL;
 	char *fullpath = NULL;
 	sqlite3 *db=NULL;
 
 	/*
-	 * Get db pointer
+	 * Get database pointer
 	 */
 	db = handle->db;
 
 	/*
-	 * get path to put torrent in
+	 *  Get all the information into the variables
 	 */
 	rsstconfiggetproperty(handle, CONF_TORRENTDIR, &torpath);
 	rsstconfiggetproperty(handle, CONF_NZBDIR, &nzbpath);
-
-	/*
-	 * Test if the Torrent or NZB directory exists
-	 */
 	torexist = rsstfsexists(torpath);
 	nzbexist = rsstfsexists(nzbpath);
+  torpathlen = strlen(torpath);
+  nzbpathlen = strlen(nzbpath);
 
   /*
    * Print the errors
    */
-	if(torexist != 0 && strlen(torpath) != 0) {
+	if(torexist != 0 && torpathlen != 0) {
 		rsstwritelog(LOG_ERROR, "Torrent directory '%s' does not exist!", torpath);
 		rsstwritelog(LOG_ERROR, 
 				"Please create the directory, or alter torrent directory by setting 'torrentdir' in the config. (--set-config \"torrentdir:<path>\"), "
         "clear the setting to disable NZB download.");
 	}
-  if(nzbexist !=0 && strlen(nzbpath) != 0) {
+  if(nzbexist !=0 && nzbpathlen != 0) {
 		rsstwritelog(LOG_ERROR, "NZB directory '%s' does not exist!", nzbpath);
 		rsstwritelog(LOG_ERROR, 
 				"Please create the directory, or alter NZB directory by setting 'nzbdir' in the config. (--set-config \"nzbdir:<path>\"), "
@@ -811,15 +824,15 @@ int rssttestmetafiledir(rsstor_handle *handle)
   }
 
 	/*
-	 * Test if the directry is writable to us
+	 * Test if the directory is writable to us
 	 */
-	if(torexist == 0 && strlen(torpath) != 0) {
+	if(torexist == 0 && torpathlen != 0) {
 		torwritable |= rssttestwrite(torpath);
 		if(torwritable != 0) {
 			rsstwritelog(LOG_ERROR, "Torrent directory '%s' is not writable!", torpath);
 		}
 	}
-	if(nzbexist == 0 && strlen(nzbpath) != 0) {
+	if(nzbexist == 0 && nzbpathlen != 0) {
 		nzbwritable |= rssttestwrite(nzbpath);
 		if(nzbwritable != 0) {
 			rsstwritelog(LOG_ERROR, "NZB directory '%s' is not writable!", nzbpath);
@@ -827,20 +840,25 @@ int rssttestmetafiledir(rsstor_handle *handle)
 	}
 
   /*
-   * Return != 0 when both torrent and nzb are invalid
+   * Return != 0 when both torrent and NZB are invalid
    */
-  if(((torexist != 0 || torwritable != 0) && strlen(torpath) != 0) ||
-      ((nzbexist != 0 || nzbwritable != 0) && strlen(nzbpath) != 0)) {
+  if(((torexist != 0 || torwritable != 0) && torpathlen != 0) ||
+      ((nzbexist != 0 || nzbwritable != 0) && nzbpathlen != 0)) {
+    retval = -1;
+  }
+  if(torpathlen == 0 && nzbpathlen == 0) {
+    rsstwritelog(LOG_ERROR, "No torrent or NZB directory was set, please specify at least one.");
     retval = -1;
   }
 
-	/*
-	 * Cleanup
-	 */
-	free(torpath);
-	free(nzbpath);
-	free(fullpath);
 
-	return retval;
+  /*
+   * Cleanup
+   */
+  free(torpath);
+  free(nzbpath);
+  free(fullpath);
+
+  return retval;
 }
 

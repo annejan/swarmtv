@@ -120,11 +120,11 @@ int rssfsplitnameval(char *input,char **name, char **value)
   if (rc < 0) {
     switch (rc) {
       case PCRE_ERROR_NOMATCH:
-        rsstwritelog(LOG_ERROR, "String could not be split. %s:%d", __FILE__, __LINE__);
+        rsstwritelog(LOG_NORMAL, "String could not be split. %s:%d", __FILE__, __LINE__);
         break;
 
       default:
-        rsstwritelog(LOG_ERROR, "Error while matching: %d %s:%d", rc, __FILE__, __LINE__);
+        rsstwritelog(LOG_NORMAL, "Error while matching: %d %s:%d", rc, __FILE__, __LINE__);
         break;
     }
     free(p);

@@ -875,7 +875,7 @@ static void runmode(rsstor_handle *handle, opts_struct *opts)
 	 */
 	rc = rssttestmetafiledir(handle);
 	if(rc != 0) {
-		rsstwritelog(LOG_ERROR, "NZB or Torrent directory not writable or exiting.");
+		rsstwritelog(LOG_ERROR, "NZB or Torrent directory not writable or existing.");
 		fprintf(stderr, "No usable Torrent or NZB directory, please look in log to find out why!\n");
 	} else {
 		/*
