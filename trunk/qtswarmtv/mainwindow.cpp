@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <sqlite3.h>
 #include <stdlib.h>
+#include <iostream>
 
 extern "C" {
 #include <swarmtv.h>
@@ -19,6 +20,11 @@ extern "C" {
 #include "helpdialog.hpp"
 #include "searchcontrol.hpp"
 #include "downloadedtablecontrol.hpp"
+#include "serieslistcontrol.hpp"
+#include "taskqueue.hpp"
+#include "thetvdb.hpp"
+
+const char* api_key = "<API_KEY>";
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -35,10 +41,15 @@ MainWindow::MainWindow(QWidget *parent) :
     searchControl *sc = &Singleton<searchControl>::Instance();
     settingsDialog *sd = &Singleton<settingsDialog>::Instance();
     helpDialog *hd = &Singleton<helpDialog>::Instance();
+    seriesListControl *slc = &Singleton<seriesListControl>::Instance();
     downloadedTableControl *dtc = &Singleton<downloadedTableControl>::Instance();
+    theTvdb *tvdb = &Singleton<theTvdb>::Instance();
     stc->setTable(ui->simpleTableWidget);
     srctc->setTable(ui->sourceTableWidget);
     sc->setUi(ui);
+
+    // Set API Key The TVDB here for now
+    tvdb->initKey((char*) api_key);
 
     // Set statistics first time
     this->statsUpdateClicked();
@@ -53,6 +64,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // Initialize Downloaded table
     dtc->setTable(ui->downloadedTableWidget);
     dtc->fillTable();
+
+    // Set the LineEdit and List to put results in
+    slc->setSeriesListWidget(ui->seriesListWidget);
+    slc->setSeriesSearchLine(ui->seriesSearchLineEdit);
 
     // Connect signals
     QObject::connect(ui->statsUpdatePushButton, SIGNAL(clicked()), this, SLOT(statsUpdateClicked()));
@@ -71,6 +86,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->delDownedPushButton, SIGNAL(clicked()), dtc, SLOT(delClicked()));
     QObject::connect(ui->updateDownedPushButton, SIGNAL(clicked()), dtc, SLOT(fillTable()));
     QObject::connect(ui->downloadedTableWidget, SIGNAL(cellDoubleClicked(int,int)), dtc, SLOT(cellDoubleClicked(int,int)));
+    QObject::connect(ui->seriesFindPushButton, SIGNAL(clicked()), slc, SLOT(findSeries()));
+    QObject::connect(ui->seriesSearchLineEdit, SIGNAL(returnPressed()), slc, SLOT(findSeries()));
 }
 
 MainWindow::~MainWindow()
@@ -82,7 +99,11 @@ void MainWindow::initTrayIcon()
 {
   if(QSystemTrayIcon::isSystemTrayAvailable() == true) {
     // Setup tray icon
-    new swarmtvTrayIcon(this);
+    swarmtvTrayIcon* tray = new swarmtvTrayIcon(this);
+    if(tray == NULL){
+      std::cerr << "Allocating tray icon failed." << std::endl;
+      exit(1);
+    }
   }
 }
 

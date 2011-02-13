@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>simpleEditDialog</class>
  <widget class="QDialog" name="simpleEditDialog">
+  <property name="windowModality">
+   <enum>Qt::ApplicationModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -64,19 +67,39 @@
        <item>
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
-          <widget class="QLineEdit" name="nameSimpleLineEdit"/>
+          <widget class="QLineEdit" name="nameSimpleLineEdit">
+           <property name="placeholderText">
+            <string>&lt;Filter name&gt;</string>
+           </property>
+          </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="titleSimpleLineEdit"/>
+          <widget class="QLineEdit" name="titleSimpleLineEdit">
+           <property name="placeholderText">
+            <string>&lt;regexp for title to match&gt;</string>
+           </property>
+          </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="excludeSimpleLineEdit"/>
+          <widget class="QLineEdit" name="excludeSimpleLineEdit">
+           <property name="placeholderText">
+            <string>&lt;regexp for things to exclude&gt;</string>
+           </property>
+          </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="categorySimpleLineEdit"/>
+          <widget class="QLineEdit" name="categorySimpleLineEdit">
+           <property name="placeholderText">
+            <string>&lt;category to match&gt;</string>
+           </property>
+          </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="sourceSimpleLineEdit"/>
+          <widget class="QLineEdit" name="sourceSimpleLineEdit">
+           <property name="placeholderText">
+            <string>&lt;regexp to match RSS source&gt;</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -96,7 +119,11 @@
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="minSizeSimpleLineEdit"/>
+            <widget class="QLineEdit" name="minSizeSimpleLineEdit">
+             <property name="placeholderText">
+              <string>&lt;min size KB/MB/GB&gt;</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -110,7 +137,11 @@
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="maxSizeSimpleLineEdit"/>
+            <widget class="QLineEdit" name="maxSizeSimpleLineEdit">
+             <property name="placeholderText">
+              <string>&lt;max size KB/MB/GB&gt;</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -269,7 +300,6 @@
     </layout>
    </item>
   </layout>
-  <zorder>label_8</zorder>
  </widget>
  <tabstops>
   <tabstop>nameSimpleLineEdit</tabstop>

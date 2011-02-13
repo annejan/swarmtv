@@ -9,6 +9,7 @@ QT       += core gui dbus
 TARGET = qtswarmtv
 TEMPLATE = app
 
+CONFIG += qt debug
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -26,7 +27,13 @@ SOURCES += main.cpp\
     testfilterdialog.cpp \
     newtorrentfullinfodialog.cpp \
     downloadedtablecontrol.cpp \
-    swarmtvtrayicon.cpp
+    swarmtvtrayicon.cpp \
+    serieslistcontrol.cpp \
+    serieswidget.cpp \
+    thetvdb.cpp \
+    taskqueue.cpp \
+    getbannertask.cpp \
+    getseriestask.cpp
 
 HEADERS  += mainwindow.h \
     singleton.h \
@@ -44,7 +51,14 @@ HEADERS  += mainwindow.h \
     testfilterdialog.hpp \
     newtorrentfullinfodialog.hpp \
     downloadedtablecontrol.hpp \
-    swarmtvtrayicon.h
+    swarmtvtrayicon.h \
+    serieslistcontrol.hpp \
+    serieswidget.hpp \
+    thetvdb.hpp \
+    taskqueue.hpp \
+    taskinterface.hpp \
+    getbannertask.hpp \
+    getseriestask.hpp
 
 FORMS    += mainwindow.ui \
     simpleeditdialog.ui \
@@ -54,7 +68,7 @@ FORMS    += mainwindow.ui \
     testfilterdialog.ui \
     newtorrentfullinfodialog.ui
 
-LIBS 	 += -lswarmtv
+LIBS 	 += -lswarmtv -ltvdb
 
 # install
 target.path = /usr/local/bin/

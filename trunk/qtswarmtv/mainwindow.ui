@@ -24,12 +24,63 @@
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="1">
      <widget class="QTabWidget" name="mainTab">
+      <property name="toolTip">
+       <string/>
+      </property>
       <property name="tabShape">
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Series</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_7">
+        <item row="0" column="0">
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <widget class="QLineEdit" name="seriesSearchLineEdit">
+              <property name="toolTip">
+               <string>Find series by name on thetvdb.com.</string>
+              </property>
+              <property name="placeholderText">
+               <string>&lt;Series Name&gt;</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="seriesFindPushButton">
+              <property name="text">
+               <string>Find</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="0">
+         <widget class="QListWidget" name="seriesListWidget">
+          <property name="spacing">
+           <number>10</number>
+          </property>
+          <property name="uniformItemSizes">
+           <bool>false</bool>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+          <property name="selectionRectVisible">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="SourcesTab">
        <attribute name="title">
         <string>Sources</string>
@@ -247,7 +298,14 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_5">
             <item>
-             <widget class="QLineEdit" name="SearchLineEdit"/>
+             <widget class="QLineEdit" name="SearchLineEdit">
+              <property name="toolTip">
+               <string>Search Swarmtv database for entries matching the title.</string>
+              </property>
+              <property name="placeholderText">
+               <string>&lt;regexp to find content in database&gt;</string>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QPushButton" name="searchPushButton">
@@ -384,6 +442,9 @@
              <font>
               <family>Monospace</family>
              </font>
+            </property>
+            <property name="toolTip">
+             <string>THE _GAME</string>
             </property>
             <property name="autoFillBackground">
              <bool>false</bool>
