@@ -1,6 +1,6 @@
 Introduction :
 
-RSS-torrent is a program that downloads selected torrents from an RSS stream, and puts them in a
+SwarmTv is a program that downloads selected torrents from an RSS stream, and puts them in a
 directory for your torrent program to find them.
 When RSS information is downloaded, the usefull fields are extracted and
 inserted into an Sqlite database.
@@ -24,7 +24,7 @@ To create some example filters and sources in the database
 
 # ./examples.sh
 
-When you want to install rsstorrent
+When you want to install swarmtv
 
 # make install
 
@@ -35,12 +35,12 @@ Adding sources:
 Example
 
 rss source
-./rsstorrent -s "Eztv:http://www.ezrss.it/feed/" -t "defaultrss"
+./swarmtv -s "Eztv:http://www.ezrss.it/feed/" -t "defaultrss"
 
 Twitter
-./rsstorrent -s "Twitter://<username>:<password>@twitter.com/statuses/friends_timeline.xml" -t "twitter"
+./swarmtv -s "Twitter://<username>:<password>@twitter.com/statuses/friends_timeline.xml" -t "twitter"
 
-The first option -s tells rsstorrent to expect an <name>:<url> combination.
+The first option -s tells swarmtv to expect an <name>:<url> combination.
 the first ':' that is found in the sctring is the delimiter, any ':''s after that are included in the url
 
 The second option the -t selects what parser is to be used in order to convert the rss into database records in the 'newtorrents' table.
@@ -118,7 +118,7 @@ looks at row count any row count of => 1 indicates a torrent has been
 downloaded before. 
 
 Examples
-./rsstorrent -F "DollHouse:select link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^[Dd]ollhouse') AND size < '400000000' AND new = 'Y'" \
+./swarmtv -F "DollHouse:select link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^[Dd]ollhouse') AND size < '400000000' AND new = 'Y'" \
   -T "SELECT title FROM downloaded WHERE link=?1 OR (season=?2 AND episode=?3 AND title REGEXP('^[Dd]ollhouse'))"
 
 The -F option expects "<name:filter query>" the name will be the name of the filter.

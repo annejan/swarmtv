@@ -38,7 +38,11 @@ IF(DBUSGLIB_FOUND)
 ENDIF(DBUSGLIB_FOUND)
 
 # Compiler directives
-add_definitions(-Wall -W)
+if (UNIX AND NOT WIN32)
+	add_definitions(-Wall -W -fPIC)
+else (WIN32)
+	add_definitions(-Wall -W)	
+endif (UNIX AND NOT WIN32)
 IF(DEBUG_ENABLE)
   add_definitions(-g)
 ENDIF()
@@ -83,7 +87,11 @@ INSTALL(FILES man/swarmtv.1.gz
 add_executable (swarmtv_exec ${SRC} ${RSS_MAN}) 
 SET_TARGET_PROPERTIES(swarmtv_exec PROPERTIES OUTPUT_NAME "swarmtv")
 
-TARGET_LINK_LIBRARIES(swarmtv_exec ${optionalLibs} libswarmtv.so )
+if (UNIX AND NOT WIN32)
+	TARGET_LINK_LIBRARIES(swarmtv_exec ${optionalLibs} libswarmtv.so )
+else (WIN32)
+	TARGET_LINK_LIBRARIES(swarmtv_exec ${optionalLibs} libswarmtv.dll )
+endif (UNIX AND NOT WIN32)
 
 # We install to /usr/local/bin
 INSTALL(PROGRAMS swarmtv DESTINATION /usr/local/bin)
