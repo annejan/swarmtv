@@ -23,6 +23,8 @@
 #include <sqlite3.h>
 #include <time.h>
 #include <string.h>
+#include <swarmtv.h>
+#include "runloop.h"
 
 #ifdef RSST_DBUS_GLIB_ENABLE
 
@@ -34,10 +36,7 @@
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
 
-#include <swarmtv.h>
-
 #include "dbus.h"
-#include "runloop.h"
 
 #endif
 
