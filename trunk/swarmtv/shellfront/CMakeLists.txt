@@ -38,7 +38,10 @@ IF(DBUSGLIB_FOUND)
 ENDIF(DBUSGLIB_FOUND)
 
 # Compiler directives
-add_definitions(-Wall -W -g)
+add_definitions(-Wall -W)
+IF(DEBUG_ENABLE)
+  add_definitions(-g)
+ENDIF()
 include_directories(. ${RSSTORRENT_BASE_DIR}/libswarmtv)
 
 # Make sure the linker can find the Hello library once it is built.

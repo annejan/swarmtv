@@ -32,7 +32,10 @@ IF(ESMTP_FOUND)
 ENDIF(ESMTP_FOUND)
 
 # Compiler directives
-add_definitions(-Wall -W -g -fPIC)
+add_definitions(-Wall -W -fPIC)
+IF(DEBUG_ENABLE)
+  add_definitions(-g)
+ENDIF()
 include_directories(.)
 
 # All other sources

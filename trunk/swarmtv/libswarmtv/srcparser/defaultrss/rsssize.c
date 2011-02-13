@@ -314,6 +314,7 @@ int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata)
   size_t        i_contlength=0;
 	long			    min_config=0;
 	metafileprops	*props=NULL;
+  char          *torlink=NULL;
 	int				    retval=0;
   METAFILETYPE  type=undefined;
 
@@ -381,11 +382,16 @@ int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata)
    * When still smaller than size resort to downloading the metafile and getting the size that way.
    */
 	if( newtor->size < (size_t) min_config) {
-    printf("Downloading to double check: '%s'\n", rssdata->link);
+    if(rssdata->torrentlink != NULL){
+      torlink = rssdata->torrentlink;
+    } else {
+      torlink = rssdata->link;
+    }
+    printf("Downloading to double check: '%s'\n", torlink);
 		/*
 		 * Download the torrent to verify the length
 		 */
-		rc = rsstgetmetafileinfo(type, rssdata->link, &props);
+		rc = rsstgetmetafileinfo(type, torlink, &props);
 		if(rc == 0) {
 			newtor->size = props->size;	
 		} else {
