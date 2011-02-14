@@ -2,6 +2,7 @@
 #include <sqlite3.h>
 #include <stdlib.h>
 #include <iostream>
+#include <QSettings>
 
 extern "C" {
 #include <swarmtv.h>
@@ -24,12 +25,14 @@ extern "C" {
 #include "taskqueue.hpp"
 #include "thetvdb.hpp"
 
-const char* api_key = "<API_KEY>";
+//const char* api_key = "<API_KEY>";
+static const QString TVDB_API_CONFIG("config/tvdbapiconfig");
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    QSettings settings;
     ui->setupUi(this);
 
     // Init tray icon
@@ -49,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
     sc->setUi(ui);
 
     // Set API Key The TVDB here for now
-    tvdb->initKey((char*) api_key);
+    tvdb->initKey(settings.value(TVDB_API_CONFIG).toString().toUtf8().data());
 
     // Set statistics first time
     this->statsUpdateClicked();
