@@ -1,7 +1,5 @@
-#include <stdio.h>
+#include <QtGui>
 #include <sqlite3.h>
-#include <stdlib.h>
-#include <iostream>
 
 extern "C" {
 #include <swarmtv.h>
@@ -101,7 +99,7 @@ void MainWindow::initTrayIcon()
     // Setup tray icon
     swarmtvTrayIcon* tray = new swarmtvTrayIcon(this);
     if(tray == NULL){
-      std::cerr << "Allocating tray icon failed." << std::endl;
+      qDebug() << "Allocating tray icon failed.";
       exit(1);
     }
   }
@@ -116,4 +114,52 @@ void MainWindow::statsUpdateClicked()
     ui->statsTextEdit->setText(*statsstr);
 
     delete(statsstr);
+}
+
+void MainWindow::dbusStartReceived(QString msg)
+{
+    if (msg.isEmpty()) {
+        msg = "Swarmtv run started";
+    }
+    ui->statusBar->showMessage(msg, 3000);
+}
+
+void MainWindow::dbusEndReceived(QString msg)
+{
+    if (msg.isEmpty()) {
+        msg = "Swarmtv run ended";
+    }
+    ui->statusBar->showMessage(msg, 3000);
+}
+
+void MainWindow::dbusRssReceived(QString msg)
+{
+    if (msg.isEmpty()) {
+        msg = "Swarmtv rss notification";
+    }
+    ui->statusBar->showMessage(msg, 3000);
+}
+
+void MainWindow::dbusSimpleReceived(QString msg)
+{
+    if (msg.isEmpty()) {
+        msg = "Swarmtv simple filter notification";
+    }
+    ui->statusBar->showMessage(msg, 3000);
+}
+
+void MainWindow::dbusSqlReceived(QString msg)
+{
+    if (msg.isEmpty()) {
+        msg = "Swarmtv sql notification";
+    }
+    ui->statusBar->showMessage(msg, 3000);
+}
+
+void MainWindow::dbusDownedReceived(QString msg)
+{
+    if (msg.isEmpty()) {
+        msg = "Swarmtv downloaded file notification";
+    }
+    ui->statusBar->showMessage(msg, 3000);
 }

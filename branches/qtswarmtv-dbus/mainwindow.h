@@ -18,6 +18,12 @@ public:
 public slots:
     void statsUpdateClicked();
     void initTrayIcon();
+    void dbusStartReceived(QString);
+    void dbusEndReceived(QString);
+    void dbusRssReceived(QString);
+    void dbusSimpleReceived(QString);
+    void dbusSqlReceived(QString);
+    void dbusDownedReceived(QString);
 
 private:
     Ui::MainWindow *ui;
