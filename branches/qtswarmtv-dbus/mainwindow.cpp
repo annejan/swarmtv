@@ -1,4 +1,5 @@
 #include <QtGui>
+#include <QtXml>
 #include <sqlite3.h>
 
 extern "C" {
@@ -119,7 +120,7 @@ void MainWindow::statsUpdateClicked()
 void MainWindow::dbusStartReceived(QString msg)
 {
     if (msg.isEmpty()) {
-        msg = "Swarmtv run started";
+        msg = msg.fromUtf8("Swarmtv run started");
     }
     ui->statusBar->showMessage(msg, 3000);
 }
@@ -127,31 +128,34 @@ void MainWindow::dbusStartReceived(QString msg)
 void MainWindow::dbusEndReceived(QString msg)
 {
     if (msg.isEmpty()) {
-        msg = "Swarmtv run ended";
+        msg = msg.fromUtf8("Swarmtv run ended");
     }
     ui->statusBar->showMessage(msg, 3000);
+    statsUpdateClicked();
 }
 
 void MainWindow::dbusRssReceived(QString msg)
 {
-    if (msg.isEmpty()) {
-        msg = "Swarmtv rss notification";
+    QDomDocument xml;
+    if (xml.setContent(msg)) {
+        ui->statusBar->showMessage(tr("RSS retrieved from: %1").
+                               arg(xml.elementsByTagName("name").item(0).toElement().text()), 3000);
     }
-    ui->statusBar->showMessage(msg, 3000);
 }
 
 void MainWindow::dbusSimpleReceived(QString msg)
 {
-    if (msg.isEmpty()) {
-        msg = "Swarmtv simple filter notification";
+    QDomDocument xml;
+    if (xml.setContent(msg)) {
+        ui->statusBar->showMessage(tr("Simple filter ran: %1").
+                               arg(xml.elementsByTagName("name").item(0).toElement().text()), 3000);
     }
-    ui->statusBar->showMessage(msg, 3000);
 }
 
 void MainWindow::dbusSqlReceived(QString msg)
 {
     if (msg.isEmpty()) {
-        msg = "Swarmtv sql notification";
+        msg = msg.fromUtf8("Swarmtv sql notification");
     }
     ui->statusBar->showMessage(msg, 3000);
 }
@@ -159,7 +163,7 @@ void MainWindow::dbusSqlReceived(QString msg)
 void MainWindow::dbusDownedReceived(QString msg)
 {
     if (msg.isEmpty()) {
-        msg = "Swarmtv downloaded file notification";
+        msg = msg.fromUtf8("Swarmtv downloaded file notification");
     }
     ui->statusBar->showMessage(msg, 3000);
 }
