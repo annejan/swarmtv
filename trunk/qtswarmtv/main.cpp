@@ -1,11 +1,16 @@
 #include <QtDBus>
 #include <QtGui/QApplication>
 #include <QSplashScreen>
+#include "singleapplication.h"
 #include "mainwindow.h"
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    SingleApplication a(argc, argv, "QtSwarmTv");
+    if (a.isRunning()) {
+        return 0;
+    }
+
     MainWindow w;
 
     QSplashScreen *splash = new QSplashScreen;

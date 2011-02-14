@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui dbus
+QT       += core gui dbus network
 
 TARGET = qtswarmtv
 TEMPLATE = app
@@ -33,7 +33,8 @@ SOURCES += main.cpp\
     thetvdb.cpp \
     taskqueue.cpp \
     getbannertask.cpp \
-    getseriestask.cpp
+    getseriestask.cpp \
+    singleapplication.cpp
 
 HEADERS  += mainwindow.h \
     singleton.h \
@@ -58,7 +59,8 @@ HEADERS  += mainwindow.h \
     taskqueue.hpp \
     taskinterface.hpp \
     getbannertask.hpp \
-    getseriestask.hpp
+    getseriestask.hpp \
+    singleapplication.h
 
 FORMS    += mainwindow.ui \
     simpleeditdialog.ui \
