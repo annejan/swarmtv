@@ -77,3 +77,8 @@ void swarmtvTrayIcon::iconActivated(QSystemTrayIcon::ActivationReason reason)
         ;
     }
 }
+
+void swarmtvTrayIcon::showMessage(QString title, QString msg, int time)
+{
+    trayIcon->showMessage(title, msg, QSystemTrayIcon::Information, time);
+}

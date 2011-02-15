@@ -13,8 +13,9 @@ class swarmtvTrayIcon : public QWidget
     Q_OBJECT
 public:
     explicit swarmtvTrayIcon(QMainWindow *parent);
-
+    void showMessage(QString title, QString msg, int time);
     void setVisible(bool visible);
+
 signals:
 
 public slots:

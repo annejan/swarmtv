@@ -6,7 +6,6 @@ extern "C" {
 #include <swarmtv.h>
 }
 
-#include "swarmtvtrayicon.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "singleton.h"
@@ -98,7 +97,7 @@ void MainWindow::initTrayIcon()
 {
   if(QSystemTrayIcon::isSystemTrayAvailable() == true) {
     // Setup tray icon
-    swarmtvTrayIcon* tray = new swarmtvTrayIcon(this);
+    this->tray = new swarmtvTrayIcon(this);
     if(tray == NULL){
       qDebug() << "Allocating tray icon failed.";
       exit(1);
@@ -117,12 +116,21 @@ void MainWindow::statsUpdateClicked()
     delete(statsstr);
 }
 
+void MainWindow::fancyMessage(QString msg)
+{
+    if (this->isVisible()) {
+        ui->statusBar->showMessage(msg, 3000);
+    } else {
+        tray->showMessage("SwarmTv", msg, 3000);
+    }
+}
+
 void MainWindow::dbusStartReceived(QString msg)
 {
     if (msg.isEmpty()) {
         msg = msg.fromUtf8("Swarmtv run started");
     }
-    ui->statusBar->showMessage(msg, 3000);
+    fancyMessage(msg);
 }
 
 void MainWindow::dbusEndReceived(QString msg)
@@ -130,16 +138,21 @@ void MainWindow::dbusEndReceived(QString msg)
     if (msg.isEmpty()) {
         msg = msg.fromUtf8("Swarmtv run ended");
     }
-    ui->statusBar->showMessage(msg, 3000);
+
     statsUpdateClicked();
+    downloadedTableControl *dtc = &Singleton<downloadedTableControl>::Instance();
+    dtc->fillTable();
+    simpleTableControl *stc = &Singleton<simpleTableControl>::Instance();
+    stc->updateTable();
+    fancyMessage(msg);
 }
 
 void MainWindow::dbusRssReceived(QString msg)
 {
     QDomDocument xml;
     if (xml.setContent(msg)) {
-        ui->statusBar->showMessage(tr("RSS retrieved from: %1").
-                               arg(xml.elementsByTagName("name").item(0).toElement().text()), 3000);
+        fancyMessage(tr("RSS retrieved from: %1").
+                     arg(xml.elementsByTagName("name").item(0).toElement().text()));
     }
 }
 
@@ -147,8 +160,8 @@ void MainWindow::dbusSimpleReceived(QString msg)
 {
     QDomDocument xml;
     if (xml.setContent(msg)) {
-        ui->statusBar->showMessage(tr("Simple filter ran: %1").
-                               arg(xml.elementsByTagName("name").item(0).toElement().text()), 3000);
+        fancyMessage(tr("Simple filter ran: %1").
+                               arg(xml.elementsByTagName("name").item(0).toElement().text()));
     }
 }
 
@@ -157,7 +170,7 @@ void MainWindow::dbusSqlReceived(QString msg)
     if (msg.isEmpty()) {
         msg = msg.fromUtf8("Swarmtv sql notification");
     }
-    ui->statusBar->showMessage(msg, 3000);
+    fancyMessage(msg);
 }
 
 void MainWindow::dbusDownedReceived(QString msg)
@@ -165,5 +178,6 @@ void MainWindow::dbusDownedReceived(QString msg)
     if (msg.isEmpty()) {
         msg = msg.fromUtf8("Swarmtv downloaded file notification");
     }
-    ui->statusBar->showMessage(msg, 3000);
+    QMessageBox::about(this, "Downloaded", msg);
+    fancyMessage(msg);
 }

@@ -542,7 +542,7 @@
     <string>About</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+A</string>
+    <string>Alt+A</string>
    </property>
   </action>
   <action name="actionClose">
@@ -550,7 +550,7 @@
     <string>Close</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+W</string>
+    <string>Ctrl+Q, Ctrl+W</string>
    </property>
   </action>
   <action name="actionSettings">
@@ -558,7 +558,7 @@
     <string>Settings</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+S</string>
+    <string>Ctrl+E</string>
    </property>
   </action>
   <action name="actionEmail_Settings">

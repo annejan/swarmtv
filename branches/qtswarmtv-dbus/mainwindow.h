@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "swarmtvtrayicon.h"
 
 namespace Ui {
     class MainWindow;
@@ -27,6 +28,8 @@ public slots:
 
 private:
     Ui::MainWindow *ui;
+    swarmtvTrayIcon *tray;
+    void fancyMessage(QString);
 };
 
 #endif // MAINWINDOW_H
