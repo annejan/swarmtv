@@ -138,7 +138,6 @@ void MainWindow::dbusEndReceived(QString msg)
     if (msg.isEmpty()) {
         msg = msg.fromUtf8("Swarmtv run ended");
     }
-
     statsUpdateClicked();
     downloadedTableControl *dtc = &Singleton<downloadedTableControl>::Instance();
     dtc->fillTable();
@@ -175,9 +174,12 @@ void MainWindow::dbusSqlReceived(QString msg)
 
 void MainWindow::dbusDownedReceived(QString msg)
 {
-    if (msg.isEmpty()) {
-        msg = msg.fromUtf8("Swarmtv downloaded file notification");
+    QDomDocument xml;
+    if (xml.setContent(msg)) {
+        QString cleantitle = tr("Downloaded torrent for: %1 season %2 episode %3").arg(
+                xml.elementsByTagName("baretitle").item(0).toElement().text(),
+                xml.elementsByTagName("season").item(0).toElement().text(),
+                xml.elementsByTagName("episode").item(0).toElement().text());
+        fancyMessage(cleantitle);
     }
-    QMessageBox::about(this, "Downloaded", msg);
-    fancyMessage(msg);
 }
