@@ -185,7 +185,11 @@ int rsstmakedir(char *path)
 	/*
 	 * Create directory depending on users umask.
 	 */
+	#ifdef __MINGW32__  
+	rc = mkdir(path);
+	#else
 	rc = mkdir(path, 0777);
+	#endif
 
 	return rc;
 }

@@ -169,6 +169,10 @@ void searchControl::showContextMenu(const QPoint& pos) // this is a slot
   int row=0;
   newTorrentFullInfoDialog *ntfid = NULL;
 
+  if(ui->searchTableWidget->selectedRanges().isEmpty() == true) {
+    return;
+  }
+
   // for most widgets
   QPoint globalPos = ui->searchTableWidget->mapToGlobal(pos);
   // for QAbstractScrollArea and derived classes you would use:
