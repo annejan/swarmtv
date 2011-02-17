@@ -45,6 +45,11 @@
  */
 #ifndef RSST_DBUS_GLIB_ENABLE
 
+#ifdef __MINGW32__
+#include <windows.h>
+#define sleep(n) Sleep(1000 * n)
+#endif
+
 /*
  * Main loop, dispatches tasks
  * When onetime != 0 run once then exit

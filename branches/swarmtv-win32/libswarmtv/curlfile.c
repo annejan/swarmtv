@@ -28,6 +28,11 @@
 #include "regexp.h"
 #include "logfile.h"
 
+#ifdef __MINGW32__
+#define strtok_r( _s, _sep, _lasts ) \
+( *(_lasts) = strtok( (_s), (_sep) ) )
+#endif /* !__MINGW32__ */
+
 /* Size of array to store regexp match pointers in */
 #define REGEXPSIZE      40      
 /* End of line Character sequence in http header */

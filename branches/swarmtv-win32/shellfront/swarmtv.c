@@ -44,10 +44,12 @@ static rsstor_handle *cleanhandle = NULL;
 void Signal_Handler(int sig) /* signal handler function */
 {
   switch(sig){
+#ifndef __MINGW32__
     case SIGHUP:
     case SIGPIPE:
       /* Do nothing */
       break;    
+#endif
     case SIGINT:
     case SIGTERM:
       /* finalize the server */
@@ -69,10 +71,12 @@ int main(int argc, char **argv){
 	/*
 	 * Handle signals the nice way.
 	 */
+#ifndef __MINGW32__
   signal(SIGHUP,Signal_Handler); /* hangup signal */
+  signal(SIGPIPE,Signal_Handler); /* software termination signal CTRL+C */
+#endif
   signal(SIGTERM,Signal_Handler); /* software termination signal from kill */
   signal(SIGINT,Signal_Handler); /* software termination signal CTRL+C */
-  signal(SIGPIPE,Signal_Handler); /* software termination signal CTRL+C */
 
 	/*
 	 * Init RSS tor

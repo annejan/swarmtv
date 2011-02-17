@@ -44,10 +44,17 @@ include_directories(.)
 
 # All other sources
 # getmissed callbackimpl 
+if (UNIX AND NOT WIN32)
 SET(LIBSRC setup database databaseimpl config regexp source
 		filter runloop curlfile torrentdb torrentdownload logfile
 		sandboxdb testfilter filesystem lastdownloaded 
 		simplefilter callback stats baretitle)
+else (WIN32)
+SET(LIBSRC setup database databaseimpl config regexp source workarounds
+		filter runloop curlfile torrentdb torrentdownload logfile
+		sandboxdb testfilter filesystem lastdownloaded 
+		simplefilter callback stats baretitle)
+endif (UNIX AND NOT WIN32)
 
 # Subdirectories
 INCLUDE(srcparser/CMakeLists.txt)

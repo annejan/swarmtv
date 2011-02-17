@@ -25,6 +25,10 @@
 
 #include "logfile.h"
 
+#ifdef __MINGW32__
+#include "workarounds.h"
+#endif
+
 /*
  * Gets the timestring.
  * Exports time_t value

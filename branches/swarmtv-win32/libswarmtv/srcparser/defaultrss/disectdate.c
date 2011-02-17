@@ -29,6 +29,10 @@
 #include "rssparse.h"
 #include "defaultrss.h"
 
+#ifdef __MINGW32__
+#include "workarounds.h"
+#endif
+
 /*
  * Standard date decoding
  */

@@ -31,6 +31,17 @@
 #include "types.h"
 #include "config.h"
 
+#ifdef __MINGW32__
+#include <windows.h>
+/* TODO get 'good' Windows CreateProcess stuff going on */
+#define getppid() 0
+#define fork() 0
+#define setsid() 0
+#define lockf(fd,cmd,len) 0
+#define F_TLOCK 0
+#define F_ULOCK 0
+#endif
+
 /*
  * Fork process to daemon.
  */
