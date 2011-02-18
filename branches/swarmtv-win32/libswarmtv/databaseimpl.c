@@ -87,10 +87,10 @@ static const char *dbinitscript =
 "INSERT INTO 'config' (prop, value, descr) VALUES('logfile', '~/.swarmtv/swarmtv.log', 'Path to logfile.');\n"
 "INSERT INTO 'config' (prop, value, descr) VALUES('lockfile', '~/.swarmtv/lockfile.pid', 'Path to lockfile.');\n"
 #else
-"INSERT INTO 'config' (prop, value, descr) VALUES('torrentdir', '%USERPROFILE%/torrents', 'Path the downloaded Torrents are placed in.');\n"
-"INSERT INTO 'config' (prop, value, descr) VALUES('nzbdir', '%USERPROFILE%/nzb', 'Path the downloaded NZBs are placed in.');\n"
-"INSERT INTO 'config' (prop, value, descr) VALUES('logfile', '%USERPROFILE%/.swarmtv/swarmtv.log', 'Path to logfile.');\n"
-"INSERT INTO 'config' (prop, value, descr) VALUES('lockfile', '%USERPROFILE%/.swarmtv/lockfile.pid', 'Path to lockfile.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('torrentdir', 'c:\\swarmtv\\torrents', 'Path the downloaded Torrents are placed in.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('nzbdir', 'c:\\swarmtv\\nzb', 'Path the downloaded NZBs are placed in.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('logfile', 'c:\\swarmtv\\swarmtv.log', 'Path to logfile.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('lockfile', 'c:\\swarmtv\\lockfile.pid', 'Path to lockfile.');\n"
 #endif
 "INSERT INTO 'config' (prop, value, descr) VALUES('refresh', '3600', 'Seconds between refreshes.');\n"
 "INSERT INTO 'config' (prop, value, descr) VALUES('retain', '30', 'The number of days source information is retained.');\n"

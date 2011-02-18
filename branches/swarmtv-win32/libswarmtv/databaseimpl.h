@@ -31,7 +31,7 @@
 #ifndef __MINGW32__
 #define  RSST_DBFILE "~/.swarmtv/swarm.db"
 #else
-#define  RSST_DBFILE "%USERPROFILE%/.swarmtv/swarm.db"
+#define  RSST_DBFILE "c:\\swarmtv\\swarm.db"
 #endif
 
 /*

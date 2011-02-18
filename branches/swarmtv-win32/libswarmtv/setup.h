@@ -25,8 +25,8 @@
 #define RSS_BASEDIR 	"~/.swarmtv"
 #define RSS_LOGFILE 	"~/.swarmtv/swarmtv.log"
 #else
-#define RSS_BASEDIR 	"%USERPROFILE%/.swarmtv"
-#define RSS_LOGFILE 	"%USERPROFILE%/.swarmtv/swarmtv.log"
+#define RSS_BASEDIR 	"c:\\swarmtv"
+#define RSS_LOGFILE 	"c:\\swarmtv\\swarmtv.log"
 #endif
 //#define RSS_LOCKFILE	"~/.swarmtv/lockfile.pid"
 
