@@ -21,8 +21,13 @@
 /*
  * Defines The basic places of RSS-Torrent files.
  */
+#ifndef __MINGW32__ 
 #define RSS_BASEDIR 	"~/.swarmtv"
 #define RSS_LOGFILE 	"~/.swarmtv/swarmtv.log"
+#else
+#define RSS_BASEDIR 	"%USERPROFILE%/.swarmtv"
+#define RSS_LOGFILE 	"%USERPROFILE%/.swarmtv/swarmtv.log"
+#endif
 //#define RSS_LOCKFILE	"~/.swarmtv/lockfile.pid"
 
 #if 0

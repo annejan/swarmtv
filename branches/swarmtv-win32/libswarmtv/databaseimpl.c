@@ -81,10 +81,17 @@ static const char *dbinitscript =
 "\n"
 "-- Create the config table, and fill out the table with the 'standard' values\n"
 "create table config (id INTEGER PRIMARY KEY, prop TEXT UNIQUE, value TEXT, descr TEXT);\n"
+#ifndef __MINGW32__
 "INSERT INTO 'config' (prop, value, descr) VALUES('torrentdir', '~/torrents', 'Path the downloaded Torrents are placed in.');\n"
 "INSERT INTO 'config' (prop, value, descr) VALUES('nzbdir', '~/nzb', 'Path the downloaded NZBs are placed in.');\n"
 "INSERT INTO 'config' (prop, value, descr) VALUES('logfile', '~/.swarmtv/swarmtv.log', 'Path to logfile.');\n"
 "INSERT INTO 'config' (prop, value, descr) VALUES('lockfile', '~/.swarmtv/lockfile.pid', 'Path to lockfile.');\n"
+#else
+"INSERT INTO 'config' (prop, value, descr) VALUES('torrentdir', '%USERPROFILE%/torrents', 'Path the downloaded Torrents are placed in.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('nzbdir', '%USERPROFILE%/nzb', 'Path the downloaded NZBs are placed in.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('logfile', '%USERPROFILE%/.swarmtv/swarmtv.log', 'Path to logfile.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('lockfile', '%USERPROFILE%/.swarmtv/lockfile.pid', 'Path to lockfile.');\n"
+#endif
 "INSERT INTO 'config' (prop, value, descr) VALUES('refresh', '3600', 'Seconds between refreshes.');\n"
 "INSERT INTO 'config' (prop, value, descr) VALUES('retain', '30', 'The number of days source information is retained.');\n"
 "INSERT INTO 'config' (prop, value, descr) VALUES('default_parser', 'defaultrss', 'The default RSS filter to add to new rss sources.');\n"

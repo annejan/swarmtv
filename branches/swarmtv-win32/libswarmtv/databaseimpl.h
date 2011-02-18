@@ -28,7 +28,11 @@
 /*
  * path to database file.
  */
+#ifndef __MINGW32__
 #define  RSST_DBFILE "~/.swarmtv/swarm.db"
+#else
+#define  RSST_DBFILE "%USERPROFILE%/.swarmtv/swarm.db"
+#endif
 
 /*
  * Run the Database init script.
