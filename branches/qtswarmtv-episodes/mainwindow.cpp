@@ -69,7 +69,7 @@ MainWindow::MainWindow(QWidget *parent) :
     dtc->fillTable();
 
     // Set the LineEdit and List to put results in
-    slc->setSeriesListWidget(ui->seriesListWidget);
+    slc->setSeriesTableWidget(ui->seriesTableWidget);
     slc->setSeriesSearchLine(ui->seriesSearchLineEdit);
 
     // Connect signals

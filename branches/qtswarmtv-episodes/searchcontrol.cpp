@@ -36,7 +36,6 @@ void searchControl::setUi(Ui::MainWindow *ui)
   ui->searchTableWidget->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(ui->searchTableWidget, SIGNAL(customContextMenuRequested(const QPoint&)),
       this, SLOT(showContextMenu(const QPoint&)));
-
 }
 
 void searchControl::fillTable(newtorrents_container *newtorrents)
@@ -169,10 +168,16 @@ void searchControl::showContextMenu(const QPoint& pos) // this is a slot
   int row=0;
   newTorrentFullInfoDialog *ntfid = NULL;
 
+  // When nothing is selected do not show menu
+  if(ui->searchTableWidget->rowCount() == 0) {
+    return;
+  }
+
   // for most widgets
   QPoint globalPos = ui->searchTableWidget->mapToGlobal(pos);
   // for QAbstractScrollArea and derived classes you would use:
   // QPoint globalPos = myWidget->viewport()->mapToGlobal(pos);
+
 
   QMenu myMenu;
   myMenu.addAction(tr("Full Info"));

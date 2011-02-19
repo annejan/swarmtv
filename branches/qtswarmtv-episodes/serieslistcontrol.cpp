@@ -1,6 +1,8 @@
 #include <iostream>
 #include <stdlib.h>
 #include <QApplication>
+#include <QMenu>
+#include <QDebug>
 extern "C" {
 #include <tvdb.h>
 }
@@ -21,12 +23,19 @@ seriesListControl::seriesListControl(QWidget *parent) :
   tasks = new taskQueue();
 }
 
-seriesListControl::seriesListControl(QWidget *parent, QLineEdit *searchLine, QListWidget *list) :
+seriesListControl::seriesListControl(QWidget *parent, QLineEdit *searchLine, QTableWidget *table) :
     QWidget(parent)
 {
-  this->list = list;
+  this->table = table;
   this->searchLine = searchLine;
+  table->setContextMenuPolicy(Qt::CustomContextMenu);
   tasks = new taskQueue();
+
+  qDebug() << "Connected through constructor.";
+  QObject::connect(table, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+                   this, SLOT(itemDoubleClicked(QListWidgetItem*)));
+  QObject::connect(table, SIGNAL(customContextMenuRequested(QPoint)),
+                   this, SLOT(showContextMenu(QPoint)));
 }
 
 seriesListControl::~seriesListControl()
@@ -39,31 +48,36 @@ void seriesListControl::setSeriesSearchLine(QLineEdit *searchLine)
   this->searchLine = searchLine;
 }
 
-void seriesListControl::setSeriesListWidget(QListWidget *list)
+void seriesListControl::setSeriesTableWidget(QTableWidget *table)
 {
-  this->list = list;
+  this->table = table;
 
-  QObject::connect(list, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(itemDoubleClicked(QListWidgetItem*)));
+  qDebug() << "Connected through setList.";
+  QObject::connect(table, SIGNAL(doubleClicked(QModelIndex)),
+                   this, SLOT(itemDoubleClicked()));
+  QObject::connect(table, SIGNAL(customContextMenuRequested(QPoint)),
+                   this, SLOT(showContextMenu(QPoint)));
 }
 
-void seriesListControl::addWidget(tvdb_series_t *series)
+void seriesListControl::addWidget(int count, tvdb_series_t *series)
 {
   QString title(series->name);
   QString overview(series->overview);
 
-  //MyItem is a custom widget that takes two strings and sets two labels to those string.
-  seriesWidget *myItem = new seriesWidget(series, series->banner, tasks, list);
-  QListWidgetItem *item = new QListWidgetItem();
-  item->setSizeHint(QSize(0,180));
-  this->list->addItem(item);
-  this->list->setItemWidget(item, myItem);
+  seriesWidget *myItem = new seriesWidget(series, series->banner, tasks, table);
+  myItem->setMinimumHeight(180);
+  table->setCellWidget(count, 0, myItem);
+  table->setRowHeight(count, myItem->height()+25);
   myItem->show();
 }
 
 void seriesListControl::handleSeries(tvdb_list_front_t *series)
 {
+  int count=0;
   tvdb_list_node_t *n=NULL;
   tvdb_series_t *m=NULL;
+
+  table->setRowCount(series->count);
 
   tvdb_list_reset(series);
 
@@ -71,8 +85,9 @@ void seriesListControl::handleSeries(tvdb_list_front_t *series)
   while(n != NULL) {
     m = (tvdb_series_t *)n->data;
     //this->list->addItem(m->overview);
-    addWidget(m);
+    addWidget(count, m);
     n=tvdb_list_next(series);
+    count++;
   }
 }
 
@@ -85,7 +100,8 @@ void seriesListControl::findSeries()
 
   // Wait for running task to finish then empty queue
   tasks->clearTasks();
-  list->clear();
+  //list->clear();
+  table->clear();
 
   // Create and initialize query task
   st = new getSeriesTask(this->searchLine->text().toUtf8().begin(), this);
@@ -112,17 +128,24 @@ void seriesListControl::searchResults(tvdb_buffer_t *series_xml)
   searchLine->setEnabled(true);
 }
 
-void seriesListControl::itemDoubleClicked(QListWidgetItem *item)
+void seriesListControl::itemDoubleClicked()
 {
   seriesWidget *series=NULL;
+
+  qDebug() << "Series widget double clicked." ;
+
+
+#if 0
+  seriesWidget *series=NULL;
   // Get widget pointer
-  series = dynamic_cast<seriesWidget*>(list->itemWidget(item));
+  series = dynamic_cast<seriesWidget*>(table->itemWidget(item));
 
   // Print name for now
   std::cout << "Name double clicked: " << series->getTitle()->toUtf8().begin() << std::endl;
 
   // Create new simple filter window
   openSimpleEditDialog(series);
+#endif
 }
 
 void seriesListControl::openSimpleEditDialog(seriesWidget *series)
@@ -136,7 +159,7 @@ void seriesListControl::openSimpleEditDialog(seriesWidget *series)
   name = series->getTitle()->toUtf8();
 
   // Open dialog, and disable the name field.
-  dialog = new simpleEditDialog(list);
+  dialog = new simpleEditDialog(table);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
   dialog->setTitle(&title);
   dialog->setName(&name);
@@ -144,4 +167,48 @@ void seriesListControl::openSimpleEditDialog(seriesWidget *series)
   dialog->setMinSize((QString*)&min_string);
   dialog->enableNameEnable(true);
   dialog->show();
+}
+
+void seriesListControl::showContextMenu(const QPoint& pos) // this is a slot
+{
+  int row=0;
+
+  //newTorrentFullInfoDialog *ntfid = NULL;
+  qDebug() << "Context menu called.";
+
+  // for most widgets
+  QPoint globalPos = table->mapToGlobal(pos);
+  // for QAbstractScrollArea and derived classes you would use:
+  // QPoint globalPos = myWidget->viewport()->mapToGlobal(pos);
+  if(table->selectedRanges().isEmpty() == true) {
+    return;
+  }
+
+  QMenu myMenu;
+  myMenu.addAction(tr("Create filter"));
+  myMenu.addAction(tr("Get Episode info"));
+  // ...
+
+  QAction* selectedItem = myMenu.exec(globalPos);
+  if (selectedItem)
+  {
+    // Get the selected row from the table
+    row = table->selectedRanges().first().topRow();
+
+    // Identify the different items clicked
+    if(selectedItem->text().compare("Create filter") == 0){
+      qDebug() << "Create Filter Selected";
+      //ntfid = new newTorrentFullInfoDialog(this->rowToId(row));
+      //ntfid->show();
+    }
+    else if(selectedItem->text().compare("Get Episode info") == 0){
+      qDebug() << "Get episode info clicked.";
+    }
+
+    // something was chosen, do stuff
+  }
+  else
+  {
+    // nothing was chosen
+  }
 }
