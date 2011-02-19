@@ -130,22 +130,7 @@ void seriesListControl::searchResults(tvdb_buffer_t *series_xml)
 
 void seriesListControl::itemDoubleClicked()
 {
-  seriesWidget *series=NULL;
-
-  qDebug() << "Series widget double clicked." ;
-
-
-#if 0
-  seriesWidget *series=NULL;
-  // Get widget pointer
-  series = dynamic_cast<seriesWidget*>(table->itemWidget(item));
-
-  // Print name for now
-  std::cout << "Name double clicked: " << series->getTitle()->toUtf8().begin() << std::endl;
-
-  // Create new simple filter window
-  openSimpleEditDialog(series);
-#endif
+  createFilter();
 }
 
 void seriesListControl::openSimpleEditDialog(seriesWidget *series)
@@ -198,6 +183,7 @@ void seriesListControl::showContextMenu(const QPoint& pos) // this is a slot
     // Identify the different items clicked
     if(selectedItem->text().compare("Create filter") == 0){
       qDebug() << "Create Filter Selected";
+      createFilter();
       //ntfid = new newTorrentFullInfoDialog(this->rowToId(row));
       //ntfid->show();
     }
@@ -211,4 +197,24 @@ void seriesListControl::showContextMenu(const QPoint& pos) // this is a slot
   {
     // nothing was chosen
   }
+}
+
+void seriesListControl::createFilter()
+{
+  seriesWidget *series=NULL;
+  int selectedRow=0;
+
+  qDebug() << "Series widget double clicked." ;
+
+  selectedRow = table->selectedRanges().first().topRow();
+  qDebug() << "Row selected: " << selectedRow;
+  series = dynamic_cast<seriesWidget*>(table->cellWidget(selectedRow, 0));
+
+  // Create new simple filter window
+  openSimpleEditDialog(series);
+}
+
+void seriesListControl::showEpisodes()
+{
+
 }

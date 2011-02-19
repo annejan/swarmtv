@@ -35,6 +35,8 @@ private:
     void handleSeries(tvdb_list_front_t *series);
     void addWidget(int count, tvdb_series_t *series);
     void openSimpleEditDialog(seriesWidget *series);
+    void createFilter();
+    void showEpisodes();
 
     QTableWidget *table;
     QLineEdit *searchLine;
