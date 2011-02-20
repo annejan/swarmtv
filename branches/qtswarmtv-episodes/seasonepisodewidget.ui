@@ -51,16 +51,33 @@
       </layout>
      </item>
      <item row="1" column="0">
-      <widget class="QListWidget" name="listWidget">
+      <widget class="QTreeWidget" name="treeWidget">
        <property name="contextMenuPolicy">
         <enum>Qt::CustomContextMenu</enum>
        </property>
        <property name="toolTip">
         <string>Double click here to download seasons or episodes.</string>
        </property>
-       <property name="currentRow">
-        <number>-1</number>
+       <property name="iconSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
        </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+       <attribute name="headerVisible">
+        <bool>false</bool>
+       </attribute>
+       <attribute name="headerCascadingSectionResizes">
+        <bool>false</bool>
+       </attribute>
+       <column>
+        <property name="text">
+         <string notr="true">1</string>
+        </property>
+       </column>
       </widget>
      </item>
     </layout>
