@@ -58,7 +58,7 @@ seriesWidget::seriesWidget(QWidget *parent) :
 }
 #endif
 
-seriesWidget::seriesWidget(tvdb_series_t *series, char *bannerName, taskQueue *tasks, QWidget *parent) :
+seriesWidget::seriesWidget(tvdb_series_t *series, char *bannerName, taskQueue *tasks, int seriesId, QWidget *parent) :
     QWidget(parent)
 {
   this->bannerName = bannerName;
@@ -66,6 +66,7 @@ seriesWidget::seriesWidget(tvdb_series_t *series, char *bannerName, taskQueue *t
   this->titleString = new QString(series->name);
   this->overview = new QLabel(series->overview);
   this->firstaired = new QLabel(series->first_aired);
+  this->seriesId = seriesId;
   this->tasks = tasks;
 
   createLayout();
@@ -96,3 +97,9 @@ QString *seriesWidget::getTitle()
 {
   return titleString;
 }
+
+int seriesWidget::getSeriesId()
+{
+  return seriesId;
+}
+

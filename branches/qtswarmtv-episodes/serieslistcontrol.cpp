@@ -13,6 +13,7 @@ extern "C" {
 #include "thetvdb.hpp"
 #include "simpleeditdialog.hpp"
 #include "getseriestask.hpp"
+#include "seasonepisodewidget.hpp"
 
 const QString max_string("700mb");
 const QString min_string("300MB");
@@ -64,7 +65,7 @@ void seriesListControl::addWidget(int count, tvdb_series_t *series)
   QString title(series->name);
   QString overview(series->overview);
 
-  seriesWidget *myItem = new seriesWidget(series, series->banner, tasks, table);
+  seriesWidget *myItem = new seriesWidget(series, series->banner, tasks, series->series_id, table);
   myItem->setMinimumHeight(180);
   table->setCellWidget(count, 0, myItem);
   table->setRowHeight(count, myItem->height()+25);
@@ -189,6 +190,7 @@ void seriesListControl::showContextMenu(const QPoint& pos) // this is a slot
     }
     else if(selectedItem->text().compare("Get Episode info") == 0){
       qDebug() << "Get episode info clicked.";
+      showEpisodes();
     }
 
     // something was chosen, do stuff
@@ -204,10 +206,7 @@ void seriesListControl::createFilter()
   seriesWidget *series=NULL;
   int selectedRow=0;
 
-  qDebug() << "Series widget double clicked." ;
-
   selectedRow = table->selectedRanges().first().topRow();
-  qDebug() << "Row selected: " << selectedRow;
   series = dynamic_cast<seriesWidget*>(table->cellWidget(selectedRow, 0));
 
   // Create new simple filter window
@@ -216,5 +215,15 @@ void seriesListControl::createFilter()
 
 void seriesListControl::showEpisodes()
 {
+  seriesWidget *series=NULL;
+  int selectedRow=0;
 
+  selectedRow = table->selectedRanges().first().topRow();
+  series = dynamic_cast<seriesWidget*>(table->cellWidget(selectedRow, 0));
+
+  seasonEpisodeWidget *seasonEpisode = new seasonEpisodeWidget(table);
+  seasonEpisode->setSeriesTitle(*(series->getTitle()));
+  seasonEpisode->setSeriesId(series->getSeriesId());
+  seasonEpisode->retrieveEpisodeData();
+  seasonEpisode->show();
 }
