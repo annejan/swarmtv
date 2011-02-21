@@ -25,6 +25,11 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
+#ifdef __MINGW32__
+#include <windows.h>
+#define _WIN32_IE 0x0400
+#include "shlobj.h"
+#endif
 
 #include "regexp.h"
 
@@ -55,7 +60,11 @@ void rsstcompletepath(const char *origpath, char **destpath)
    * Test if the string starts with a '~'
    */
   if(*origpath == '~') {
+#ifdef __MINGW32__
+     SHGetFolderPath( NULL, CSIDL_PERSONAL , NULL, 0, homedir );
+#else
     homedir = getenv("HOME");
+#endif
 
     /*
      * if it does insert home path in place of '~'
