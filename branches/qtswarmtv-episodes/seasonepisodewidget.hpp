@@ -5,6 +5,10 @@
 extern "C" {
 #include <tvdb.h>
 }
+#include <QTreeWidget>
+#include <taskqueue.hpp>
+
+class episodeInfoWidget;
 
 namespace Ui {
     class seasonEpisodeWidget;
@@ -25,10 +29,17 @@ public:
     void addSeason();
     void addEpisode();
 
+public slots:
+    void itemExpanded(QTreeWidgetItem *item);
+
 private:
+    void addTask(episodeInfoWidget *widget);
+
     Ui::seasonEpisodeWidget *ui;
     QString seriesName;
     int seriesId;
+    taskQueue tc;
+    htvdb_t tvdb;
 };
 
 #endif // SEASONEPISODEWIDGET_HPP

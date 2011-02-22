@@ -1,11 +1,16 @@
 #include "seasonepisodewidget.hpp"
 #include "ui_seasonepisodewidget.h"
+
 extern "C" {
   #include "tvdb.h"
 }
+
 #include "QSettings"
 #include "QDebug"
 #include "QTreeWidget"
+
+#include "episodeinfowidget.hpp"
+#include "getbannertask.hpp"
 
 static const QString TVDB_API_CONFIG("config/tvdbapiconfig");
 
@@ -13,12 +18,22 @@ seasonEpisodeWidget::seasonEpisodeWidget(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::seasonEpisodeWidget)
 {
-    ui->setupUi(this);
+  QString api_key;
+  QSettings settings;
+
+  ui->setupUi(this);
+
+  // Create the tvdb instance for this window
+  api_key = settings.value(TVDB_API_CONFIG).toString();
+  tvdb = tvdb_init((char *) api_key.toUtf8().data());
 }
 
 seasonEpisodeWidget::~seasonEpisodeWidget()
 {
-    delete ui;
+  tc.stopTasks();
+
+  tvdb_uninit(tvdb);
+  delete ui;
 }
 
 void seasonEpisodeWidget::setSeriesTitle(QString &name)
@@ -27,6 +42,9 @@ void seasonEpisodeWidget::setSeriesTitle(QString &name)
 
   // Set series name in window
   ui->nameLabel->setText(seriesName);
+
+  // Connect the expand signal
+  QObject::connect(ui->treeWidget, SIGNAL(itemExpanded(QTreeWidgetItem*)), this, SLOT(itemExpanded(QTreeWidgetItem*)));
 }
 
 void seasonEpisodeWidget::setSeriesId(int id)
@@ -36,9 +54,6 @@ void seasonEpisodeWidget::setSeriesId(int id)
 
 void seasonEpisodeWidget::retrieveEpisodeData()
 {
-  QSettings settings;
-  QString api_key;
-  htvdb_t tvdb=0;
   int rc=0;
   tvdb_buffer_t buf;
   tvdb_list_front_t seriesInfo;
@@ -47,11 +62,6 @@ void seasonEpisodeWidget::retrieveEpisodeData()
   memset(&buf, 0, sizeof(tvdb_buffer_t));
   memset(&seriesInfo, 0, sizeof(tvdb_list_front_t));
 
-  // Get the API-key
-  api_key = settings.value(TVDB_API_CONFIG).toString();
-
-  // create a new tvdb handle (not to get problems with threads)
-  tvdb = tvdb_init((char *) api_key.toUtf8().data());
 
   // Execute query
   rc = tvdb_series_info(tvdb, seriesId, "en", &buf);
@@ -71,7 +81,6 @@ void seasonEpisodeWidget::retrieveEpisodeData()
 
   // Detroy the tvdb instance
   tvdb_list_remove(&seriesInfo);
-  tvdb_uninit(tvdb);
 }
 
 void seasonEpisodeWidget::addSeason()
@@ -84,6 +93,51 @@ void seasonEpisodeWidget::addEpisode()
 
 }
 
+void seasonEpisodeWidget::addTask(episodeInfoWidget *widget)
+{
+  getBannerTask *task = NULL;
+
+  // Get the filename
+  QString &filename = widget->getBannerName();
+
+  // Create the task
+  task = new getBannerTask(filename.toUtf8().data(), tvdb);
+
+  // Connect the widget to the task
+  QObject::connect(task, SIGNAL(bannerReady(tvdb_buffer_t*)), widget, SLOT(bannerReady(tvdb_buffer_t*)));
+  QObject::connect(task, SIGNAL(bannerFailed()), widget, SLOT(bannerFailed()));
+
+  // Add the task to the taskqueue
+  tc.addTask(task);
+
+  // Start the task
+  tc.start();
+}
+
+void seasonEpisodeWidget::itemExpanded(QTreeWidgetItem *item)
+{
+  episodeInfoWidget *episode =NULL;
+  QWidget *widget=NULL;
+  QTreeWidgetItem *child=NULL;
+
+  qDebug() << "Item text: " << item->text(0);
+
+  if(item->childCount() == 1) {
+    child = item->child(0);
+
+    widget = ui->treeWidget->itemWidget(child, 0);
+
+    // Check if the widget is an episodeInfoWidget.
+    episode = dynamic_cast<episodeInfoWidget*>(widget);
+
+    // When the picture is not downloaded, download it now.
+    if(episode != NULL && episode->imageSet() == false){
+      qDebug() << "Add Task to download banner.";
+      addTask(episode);
+    }
+  }
+}
+
 void seasonEpisodeWidget::fillListView(tvdb_list_front_t *seriesInfo)
 {
   tvdb_list_reset(seriesInfo);
@@ -94,9 +148,12 @@ void seasonEpisodeWidget::fillListView(tvdb_list_front_t *seriesInfo)
   int curEpisode=0;
   QString episodeName;
   QString seasonName;
+  QString episodeStory;
+  QString bannerFilename;
   QTreeWidgetItem *seasonItem = NULL;
   QTreeWidgetItem *episodeItem = NULL;
   QTreeWidgetItem *overviewItem = NULL;
+  episodeInfoWidget *overviewWidget = NULL;
 
   n = tvdb_list_next(seriesInfo);
   while(n != NULL) {
@@ -106,7 +163,8 @@ void seasonEpisodeWidget::fillListView(tvdb_list_front_t *seriesInfo)
 
     if(curSeason != 0 && curEpisode != 0){
       // Add season entry
-      if(curSeason > widgetSeason){
+      if(curSeason > widgetSeason)
+      {
         qDebug() << "Add season: " << curSeason;
 
         // Create new season entry
@@ -121,15 +179,19 @@ void seasonEpisodeWidget::fillListView(tvdb_list_front_t *seriesInfo)
       if(seasonItem != NULL) {
         // Add episode entry
         episodeItem = new QTreeWidgetItem(*seasonItem);
-        episodeName.sprintf("%d - %s", s->episode_number, s->episode_name);
+        episodeName.sprintf("%d - %s - %s", s->episode_number, s->episode_name, s->first_aired);
         episodeItem->setText(0, episodeName);
         seasonItem->addChild(episodeItem);
         overviewItem = new QTreeWidgetItem(episodeItem);
-        overviewItem->setText(0, s->overview);
+        //overviewItem->setText(0, s->overview);
         episodeItem->addChild(overviewItem);
+        episodeStory = s->overview;
+        bannerFilename = s->filename;
+        overviewWidget = new episodeInfoWidget(episodeStory, bannerFilename);
+        ui->treeWidget->setItemWidget(overviewItem, 0, overviewWidget);
 
-        qDebug() << "	id [" << s->id << "], seriesid [" << s->series_id << "], name [" << s->episode_name <<
-            "] episode [" << s->episode_number << "]";
+        qDebug() << "	id [" << s->id << "], seriesid [" << s->series_id << "], name ["
+            << s->episode_name << "] episode [" << s->episode_number << "]";
       }
 
     }
