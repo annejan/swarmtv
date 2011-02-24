@@ -5,7 +5,7 @@
 
 # Check if RSS-torrent is built
 if [ ! -e `which swarmtv` ]; then
-  echo "Please install RSS-torrent before running this script."
+  echo "Please install SwarmTv before running this script."
   exit
 fi 
 
