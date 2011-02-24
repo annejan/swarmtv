@@ -47,7 +47,11 @@
 void rsstcompletepath(const char *origpath, char **destpath)
 {
   int   lenght=0;
+  #ifdef __MINGW32__
+  char homedir[MAX_PATH];
+  #else
   char *homedir=NULL;
+  #endif
 
 	/*
 	 * Test input
@@ -61,7 +65,19 @@ void rsstcompletepath(const char *origpath, char **destpath)
    */
   if(*origpath == '~') {
 #ifdef __MINGW32__
-     SHGetFolderPath( NULL, CSIDL_PERSONAL , NULL, 0, homedir );
+    /* let's assume Windows gives me a folder
+     * and not check for 0 every step of the way
+     */
+
+    SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, 0, homedir);
+    /* might need some UNICODE safety here !! */
+    //LPSTR homefolder=NULL;
+    //int cw=lstrlenW(homefolder);
+    //int cc=WideCharToMultiByte(CP_ACP, 0, homefolder, cw, NULL, 0, NULL, NULL);
+    /* now we know how many chars */
+    //cc=WideCharToMultiByte(CP_ACP, 0, homefolder, cw, homedir, cc, NULL, NULL);
+    //homedir[cc]='\0';
+    //delete homefolder;
 #else
     homedir = getenv("HOME");
 #endif
