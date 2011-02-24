@@ -187,7 +187,7 @@ void seasonEpisodeWidget::fillListView(tvdb_list_front_t *seriesInfo)
         episodeItem->addChild(overviewItem);
         episodeStory = s->overview;
         bannerFilename = s->filename;
-        overviewWidget = new episodeInfoWidget(episodeStory, bannerFilename);
+        overviewWidget = new episodeInfoWidget(episodeStory, bannerFilename, overviewItem, ui->treeWidget);
         ui->treeWidget->setItemWidget(overviewItem, 0, overviewWidget);
 
         qDebug() << "	id [" << s->id << "], seriesid [" << s->series_id << "], name ["

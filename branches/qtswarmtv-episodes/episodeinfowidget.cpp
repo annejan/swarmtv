@@ -3,6 +3,8 @@
 #include <QLabel>
 #include <QString>
 #include <QDebug>
+#include <QTreeView>
+#include <QSize>
 
 episodeInfoWidget::episodeInfoWidget(QWidget *parent) :
     QWidget(parent)
@@ -10,11 +12,13 @@ episodeInfoWidget::episodeInfoWidget(QWidget *parent) :
   init();
 }
 
-episodeInfoWidget::episodeInfoWidget(QString &storyName, QString &bannerName, QWidget *parent) :
+episodeInfoWidget::episodeInfoWidget(QString &storyName, QString &bannerName,
+                                     QTreeWidgetItem *treeItem, QWidget *parent) :
     QWidget(parent)
 {
   init();
   story->setText(storyName);
+  this->treeItem = treeItem;
   this->bannerName = bannerName;
 }
 
@@ -43,6 +47,7 @@ void episodeInfoWidget::setImageText(const QString &imageTest)
 void episodeInfoWidget::bannerReady(tvdb_buffer_t *tvdb)
 {
   QPixmap *bannerPixmap = new QPixmap(); // Image to show as banner
+  QTreeView *view = dynamic_cast<QTreeView*>(parent());
   int oldHeight=0;
 
   // set banner information to the Image
@@ -50,7 +55,12 @@ void episodeInfoWidget::bannerReady(tvdb_buffer_t *tvdb)
   bannerImage->setPixmap(*bannerPixmap);
   qDebug() << "Banner ready called.";
   oldHeight=this->height();
+
+  // Try to adjust the widget size
   this->setMinimumHeight(oldHeight + bannerPixmap->height());
+  QSize itemSize = treeItem->sizeHint(0);
+  itemSize.setHeight(oldHeight + bannerPixmap->height());
+  treeItem->setSizeHint(0, itemSize);
 }
 
 void episodeInfoWidget::bannerFailed()
@@ -70,4 +80,9 @@ bool episodeInfoWidget::imageSet()
   } else {
     return true;
   }
+}
+
+void episodeInfoWidget::setTreeItem(QTreeWidgetItem &treeItem)
+{
+  this->treeItem=&treeItem;
 }
