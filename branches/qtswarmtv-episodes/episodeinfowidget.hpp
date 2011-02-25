@@ -2,13 +2,14 @@
 #define EPISODEINFOWIDGET_HPP
 
 #include <QWidget>
+#include <QFrame>
 #include <QLabel>
 #include <QString>
 #include <QTreeWidget>
 
 #include "tvdb.h"
 
-class episodeInfoWidget : public QWidget
+class episodeInfoWidget : public QFrame
 {
   Q_OBJECT
 public:
