@@ -34,6 +34,8 @@ public slots:
 
 private:
     void addTask(episodeInfoWidget *widget);
+    QTreeWidgetItem *addSeasonEntry(int seasonNum);
+    void addEpisodeEntry(QTreeWidgetItem *season, tvdb_series_info_t *s);
 
     Ui::seasonEpisodeWidget *ui;
     QString seriesName;

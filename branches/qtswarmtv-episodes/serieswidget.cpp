@@ -4,6 +4,7 @@
 #include "taskqueue.hpp"
 #include "getbannertask.hpp"
 #include <iostream>
+#include <QTextCodec>
 
 extern "C" {
 #include <tvdb.h>
@@ -12,6 +13,20 @@ extern "C" {
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QImage>
+
+// Add task to the queue in order to retrieve banner image.
+void seriesWidget::addBannerTask(const QString &bannerString)
+{
+  getBannerTask *banTask=NULL;
+
+  if(bannerString.length() != 0){
+    banTask = new getBannerTask();
+    banTask->setFilename(bannerString.toUtf8().data());
+    QObject::connect(banTask, SIGNAL(bannerReady(tvdb_buffer_t*)),this, SLOT(imageReady(tvdb_buffer_t*)));
+    QObject::connect(banTask, SIGNAL(bannerFailed()), this, SLOT(imageFailed()));
+    tasks->addTask(banTask);
+  }
+}
 
 void seriesWidget::createLayout()
 {
@@ -23,6 +38,8 @@ void seriesWidget::createLayout()
   bannerImage = new QLabel();
   imageBuffer = (tvdb_buffer_t*) calloc(1, sizeof(tvdb_buffer_t));
 
+  addBannerTask(QString(bannerName));
+#if 0
   // Create thread to get Image from TheTvdb
   if(strlen(bannerName) != 0) {
     getBannerTask *banTask = new getBannerTask();
@@ -31,6 +48,7 @@ void seriesWidget::createLayout()
     QObject::connect(banTask, SIGNAL(bannerFailed()), this, SLOT(imageFailed()));
     tasks->addTask(banTask);
   }
+#endif
 
   // Set layout
   title->setFont(QFont("Times",20,QFont::Bold));
@@ -61,10 +79,21 @@ seriesWidget::seriesWidget(QWidget *parent) :
 seriesWidget::seriesWidget(tvdb_series_t *series, char *bannerName, taskQueue *tasks, int seriesId, QWidget *parent) :
     QWidget(parent)
 {
+  QTextCodec *codec = QTextCodec::codecForName("utf-8");
+  QString converted;
+
   this->bannerName = bannerName;
-  this->title = new QLabel(series->name);
-  this->titleString = new QString(series->name);
-  this->overview = new QLabel(series->overview);
+
+  // Process name
+  converted = codec->toUnicode(series->name);
+  this->title = new QLabel(converted);
+  this->titleString = new QString(converted);
+
+  // Process overview
+  converted = codec->toUnicode(series->overview);
+  this->overview = new QLabel(converted);
+
+  // Handle rest
   this->firstaired = new QLabel(series->first_aired);
   this->seriesId = seriesId;
   this->tasks = tasks;

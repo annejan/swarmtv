@@ -7,14 +7,16 @@
 #include <QString>
 #include <QTreeWidget>
 
-#include "tvdb.h"
+extern "C" {
+  #include "tvdb.h"
+}
 
 class episodeInfoWidget : public QFrame
 {
   Q_OBJECT
 public:
   explicit episodeInfoWidget(QWidget *parent = 0);
-  explicit episodeInfoWidget(QString &storyName, QString &bannerName, QTreeWidgetItem *treeItem, QWidget *parent = 0);
+  explicit episodeInfoWidget(tvdb_series_info_t *seriesInfo, QTreeWidgetItem *treeItem, QWidget *parent = 0);
 
   void setImageText(const QString &imageTest);
   void setStory(QString &story);

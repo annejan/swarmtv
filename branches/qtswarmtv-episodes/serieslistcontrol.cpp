@@ -172,7 +172,7 @@ void seriesListControl::showContextMenu(const QPoint& pos) // this is a slot
 
   QMenu myMenu;
   myMenu.addAction(tr("Create filter"));
-  myMenu.addAction(tr("Get Episode info"));
+  myMenu.addAction(tr("Episode guide"));
   // ...
 
   QAction* selectedItem = myMenu.exec(globalPos);
@@ -182,13 +182,13 @@ void seriesListControl::showContextMenu(const QPoint& pos) // this is a slot
     row = table->selectedRanges().first().topRow();
 
     // Identify the different items clicked
-    if(selectedItem->text().compare("Create filter") == 0){
+    if(selectedItem->text().compare(tr("Create filter")) == 0){
       qDebug() << "Create Filter Selected";
       createFilter();
       //ntfid = new newTorrentFullInfoDialog(this->rowToId(row));
       //ntfid->show();
     }
-    else if(selectedItem->text().compare("Get Episode info") == 0){
+    else if(selectedItem->text().compare(tr("Episode guide")) == 0){
       qDebug() << "Get episode info clicked.";
       showEpisodes();
     }

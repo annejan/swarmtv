@@ -31,6 +31,7 @@ public slots:
 
 private:
     void createLayout();
+    void addBannerTask(const QString &bannerString);
 
     QLabel *bannerImage; // Image when available
     QLabel *title; // Title of the serie

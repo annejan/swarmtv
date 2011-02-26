@@ -6,7 +6,7 @@
 #include <QTreeView>
 #include <QSize>
 #include <QFrame>
-
+#include <QTextCodec>
 
 episodeInfoWidget::episodeInfoWidget(QWidget *parent) :
     QFrame(parent)
@@ -14,14 +14,20 @@ episodeInfoWidget::episodeInfoWidget(QWidget *parent) :
   init();
 }
 
-episodeInfoWidget::episodeInfoWidget(QString &storyName, QString &bannerName,
-                                     QTreeWidgetItem *treeItem, QWidget *parent) :
+episodeInfoWidget::episodeInfoWidget(tvdb_series_info_t *seriesInfo, QTreeWidgetItem *treeItem, QWidget *parent) :
     QFrame(parent)
 {
+  QTextCodec *codec = QTextCodec::codecForName("utf-8");
+  QString overview;
+
   init();
-  story->setText(storyName);
+
+  // Convert and set overview
+  overview = codec->toUnicode(seriesInfo->overview);
+  story->setText(overview);
+
+  this->bannerName = seriesInfo->filename;
   this->treeItem = treeItem;
-  this->bannerName = bannerName;
 }
 
 void episodeInfoWidget::init()
@@ -62,8 +68,6 @@ void episodeInfoWidget::setImageText(const QString &imageTest)
 void episodeInfoWidget::bannerReady(tvdb_buffer_t *tvdb)
 {
   QPixmap *bannerPixmap = new QPixmap(); // Image to show as banner
-  //QTreeView *view = dynamic_cast<QTreeView*>(parent());
-  //int oldHeight=0;
 
   // set banner information to the Image
   bannerPixmap->loadFromData((uchar*) tvdb->memory, (int) tvdb->size);
@@ -72,13 +76,6 @@ void episodeInfoWidget::bannerReady(tvdb_buffer_t *tvdb)
   } else {
     bannerImage->setText(tr("No Image available."));
   }
-  //oldHeight=this->height();
-
-  // Try to adjust the widget size
-  //this->setMinimumHeight(oldHeight + bannerPixmap->height());
-  //QSize itemSize = treeItem->sizeHint(0);
-  //itemSize.setHeight(oldHeight + bannerPixmap->height());
-  //treeItem->setSizeHint(0, itemSize);
 }
 
 void episodeInfoWidget::bannerFailed()

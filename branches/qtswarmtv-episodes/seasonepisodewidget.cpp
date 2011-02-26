@@ -138,6 +138,51 @@ void seasonEpisodeWidget::itemExpanded(QTreeWidgetItem *item)
   }
 }
 
+QTreeWidgetItem *seasonEpisodeWidget::addSeasonEntry(int seasonNum)
+{
+  QString seasonName;
+  QTreeWidgetItem *seasonItem=NULL;
+
+  qDebug() << "Add season: " << seasonNum;
+
+  // Build season name
+  seasonName.sprintf("Season %d", seasonNum);
+
+  // Create new season entry
+  seasonItem = new QTreeWidgetItem();
+  seasonName.sprintf("Season %d", seasonNum);
+  seasonItem->setText(0, seasonName);
+  ui->treeWidget->addTopLevelItem(seasonItem);
+
+  return seasonItem;
+}
+
+void seasonEpisodeWidget::addEpisodeEntry(QTreeWidgetItem *seasonItem, tvdb_series_info_t *s)
+{
+  QString episodeStory;
+  QString episodeName;
+  QString bannerFilename;
+  QTreeWidgetItem *episodeItem = NULL;
+  QTreeWidgetItem *overviewItem = NULL;
+  episodeInfoWidget *overviewWidget = NULL;
+
+  // Add episode entry
+  episodeItem = new QTreeWidgetItem(*seasonItem);
+  episodeName.sprintf("%d - %s - %s", s->episode_number, s->episode_name, s->first_aired);
+  episodeItem->setText(0, episodeName);
+  seasonItem->addChild(episodeItem);
+  overviewItem = new QTreeWidgetItem(episodeItem);
+  //overviewItem->setText(0, s->overview);
+  episodeItem->addChild(overviewItem);
+  episodeStory = s->overview;
+  bannerFilename = s->filename;
+  overviewWidget = new episodeInfoWidget(s, overviewItem, ui->treeWidget);
+  ui->treeWidget->setItemWidget(overviewItem, 0, overviewWidget);
+
+  qDebug() << "	id [" << s->id << "], seriesid [" << s->series_id << "], name ["
+      << s->episode_name << "] episode [" << s->episode_number << "]";
+}
+
 void seasonEpisodeWidget::fillListView(tvdb_list_front_t *seriesInfo)
 {
   tvdb_list_reset(seriesInfo);
@@ -147,13 +192,7 @@ void seasonEpisodeWidget::fillListView(tvdb_list_front_t *seriesInfo)
   int curSeason=0;
   int curEpisode=0;
   QString episodeName;
-  QString seasonName;
-  QString episodeStory;
-  QString bannerFilename;
   QTreeWidgetItem *seasonItem = NULL;
-  QTreeWidgetItem *episodeItem = NULL;
-  QTreeWidgetItem *overviewItem = NULL;
-  episodeInfoWidget *overviewWidget = NULL;
 
   n = tvdb_list_next(seriesInfo);
   while(n != NULL) {
@@ -165,35 +204,14 @@ void seasonEpisodeWidget::fillListView(tvdb_list_front_t *seriesInfo)
       // Add season entry
       if(curSeason > widgetSeason)
       {
-        qDebug() << "Add season: " << curSeason;
-
-        // Create new season entry
-        seasonItem = new QTreeWidgetItem();
-        seasonName.sprintf("Season %d", curSeason);
-        seasonItem->setText(0, seasonName);
-        ui->treeWidget->addTopLevelItem(seasonItem);
+        seasonItem = addSeasonEntry(curSeason);
 
         // Set new season
         widgetSeason=curSeason;
       }
       if(seasonItem != NULL) {
-        // Add episode entry
-        episodeItem = new QTreeWidgetItem(*seasonItem);
-        episodeName.sprintf("%d - %s - %s", s->episode_number, s->episode_name, s->first_aired);
-        episodeItem->setText(0, episodeName);
-        seasonItem->addChild(episodeItem);
-        overviewItem = new QTreeWidgetItem(episodeItem);
-        //overviewItem->setText(0, s->overview);
-        episodeItem->addChild(overviewItem);
-        episodeStory = s->overview;
-        bannerFilename = s->filename;
-        overviewWidget = new episodeInfoWidget(episodeStory, bannerFilename, overviewItem, ui->treeWidget);
-        ui->treeWidget->setItemWidget(overviewItem, 0, overviewWidget);
-
-        qDebug() << "	id [" << s->id << "], seriesid [" << s->series_id << "], name ["
-            << s->episode_name << "] episode [" << s->episode_number << "]";
+        addEpisodeEntry(seasonItem, s);
       }
-
     }
 
     n = tvdb_list_next(seriesInfo);
