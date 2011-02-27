@@ -26,11 +26,15 @@ public:
     void setrieveEpisodeData();
     void fillListView(tvdb_list_front_t *);
     void retrieveEpisodeData();
-    void addSeason();
-    void addEpisode();
 
 public slots:
+    // GUI signals
     void itemExpanded(QTreeWidgetItem *item);
+    void itemDoubleClicked(QTreeWidgetItem *item, int column);
+
+    // Task signals
+    void seriesResults(tvdb_buffer_t *series_xml);
+    void seriesFailed();
 
 private:
     void addTask(episodeInfoWidget *widget);

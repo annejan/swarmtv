@@ -36,7 +36,8 @@ SOURCES += main.cpp\
     getseriestask.cpp \
     singleapplication.cpp \
     seasonepisodewidget.cpp \
-    episodeinfowidget.cpp
+    episodeinfowidget.cpp \
+    getseriesinfotask.cpp
 
 HEADERS  += mainwindow.h \
     singleton.h \
@@ -64,7 +65,8 @@ HEADERS  += mainwindow.h \
     getseriestask.hpp \
     singleapplication.h \
     seasonepisodewidget.hpp \
-    episodeinfowidget.hpp
+    episodeinfowidget.hpp \
+    getseriesinfotask.hpp
 
 FORMS    += mainwindow.ui \
     simpleeditdialog.ui \

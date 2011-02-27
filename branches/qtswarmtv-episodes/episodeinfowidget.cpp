@@ -14,7 +14,7 @@ episodeInfoWidget::episodeInfoWidget(QWidget *parent) :
   init();
 }
 
-episodeInfoWidget::episodeInfoWidget(tvdb_series_info_t *seriesInfo, QTreeWidgetItem *treeItem, QWidget *parent) :
+episodeInfoWidget::episodeInfoWidget(tvdb_series_info_t *seriesInfo, QTreeWidgetItem *treeItem, QString &seriesName, QWidget *parent) :
     QFrame(parent)
 {
   QTextCodec *codec = QTextCodec::codecForName("utf-8");
@@ -22,12 +22,15 @@ episodeInfoWidget::episodeInfoWidget(tvdb_series_info_t *seriesInfo, QTreeWidget
 
   init();
 
-  // Convert and set overview
+  // Convert overview and seriesName
   overview = codec->toUnicode(seriesInfo->overview);
   story->setText(overview);
 
-  this->bannerName = seriesInfo->filename;
+  bannerName = seriesInfo->filename;
   this->treeItem = treeItem;
+  this->seriesName = seriesName;
+  season = seriesInfo->season_number;
+  episode = seriesInfo->episode_number;
 }
 
 void episodeInfoWidget::init()
@@ -100,4 +103,19 @@ bool episodeInfoWidget::imageSet()
 void episodeInfoWidget::setTreeItem(QTreeWidgetItem &treeItem)
 {
   this->treeItem=&treeItem;
+}
+
+QString &episodeInfoWidget::getSeriesName()
+{
+  return seriesName;
+}
+
+int episodeInfoWidget::getSeason()
+{
+  return season;
+}
+
+int episodeInfoWidget::getEpisode()
+{
+  return episode;
 }
