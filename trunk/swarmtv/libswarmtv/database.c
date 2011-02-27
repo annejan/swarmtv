@@ -37,6 +37,11 @@
 #include "simplefilter.h"
 #include "torrentdb.h"
 
+#ifdef __MINGW32__
+#define strtok_r( _s, _sep, _lasts ) \
+( *(_lasts) = strtok( (_s), (_sep) ) )
+#endif /* !__MINGW32__ */
+
 /*
  * End of line character used by execute script routine.
  */

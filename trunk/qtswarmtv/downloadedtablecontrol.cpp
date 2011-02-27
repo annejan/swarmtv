@@ -127,8 +127,6 @@ void downloadedTableControl::delClicked()
   scell = static_cast<simpleCell*>(downtable->cellWidget(row, 0));
   id = scell->getSimpleId();
 
-  std::cout << "The id = " << id << std::endl;
-
   /*
    * Delete the entry from the downloaded table.
    */

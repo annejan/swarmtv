@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui dbus network
+QT       += core gui dbus network xml
 
 TARGET = qtswarmtv
 TEMPLATE = app

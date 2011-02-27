@@ -24,6 +24,12 @@ int main(int argc, char *argv[])
 
     // Connect DBus
     QDBusConnection connection = QDBusConnection::sessionBus();
+    connection.connect("", "", "nl.swarmtv.dbus", "start", &w, SLOT(dbusStartReceived(QString)));
+    connection.connect("", "", "nl.swarmtv.dbus", "end", &w, SLOT(dbusEndReceived(QString)));
+    connection.connect("", "", "nl.swarmtv.dbus", "rss", &w, SLOT(dbusRssReceived(QString)));
+    connection.connect("", "", "nl.swarmtv.dbus", "simple", &w, SLOT(dbusSimpleReceived(QString)));
+    connection.connect("", "", "nl.swarmtv.dbus", "sql", &w, SLOT(dbusSqlReceived(QString)));
+    connection.connect("", "", "nl.swarmtv.dbus", "downed", &w, SLOT(dbusDownedReceived(QString)));
 
     splash->finish(&w);
     delete splash;

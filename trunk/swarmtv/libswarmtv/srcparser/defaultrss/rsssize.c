@@ -34,6 +34,10 @@
 #include "disectdescription.h"
 #include "database.h"
 
+#ifdef __MINGW32__
+#include "workarounds.h"
+#endif
+
 /*
  * Used for unit conversion see humantosize and sizetohuman
  */

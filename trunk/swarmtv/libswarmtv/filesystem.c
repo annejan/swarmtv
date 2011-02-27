@@ -25,6 +25,11 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
+#ifdef __MINGW32__
+#include <windows.h>
+#define _WIN32_IE 0x0400
+#include "shlobj.h"
+#endif
 
 #include "regexp.h"
 
@@ -42,7 +47,11 @@
 void rsstcompletepath(const char *origpath, char **destpath)
 {
   int   lenght=0;
+  #ifdef __MINGW32__
+  char homedir[MAX_PATH];
+  #else
   char *homedir=NULL;
+  #endif
 
 	/*
 	 * Test input
@@ -55,7 +64,23 @@ void rsstcompletepath(const char *origpath, char **destpath)
    * Test if the string starts with a '~'
    */
   if(*origpath == '~') {
+#ifdef __MINGW32__
+    /* let's assume Windows gives me a folder
+     * and not check for 0 every step of the way
+     */
+
+    SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, 0, homedir);
+    /* might need some UNICODE safety here !! */
+    //LPSTR homefolder=NULL;
+    //int cw=lstrlenW(homefolder);
+    //int cc=WideCharToMultiByte(CP_ACP, 0, homefolder, cw, NULL, 0, NULL, NULL);
+    /* now we know how many chars */
+    //cc=WideCharToMultiByte(CP_ACP, 0, homefolder, cw, homedir, cc, NULL, NULL);
+    //homedir[cc]='\0';
+    //delete homefolder;
+#else
     homedir = getenv("HOME");
+#endif
 
     /*
      * if it does insert home path in place of '~'
@@ -185,7 +210,11 @@ int rsstmakedir(char *path)
 	/*
 	 * Create directory depending on users umask.
 	 */
+	#ifdef __MINGW32__  
+	rc = mkdir(path);
+	#else
 	rc = mkdir(path, 0777);
+	#endif
 
 	return rc;
 }

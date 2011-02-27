@@ -35,6 +35,11 @@
 #include "torrentdb.h"
 #include "callback.h"
 
+#ifdef __MINGW32__
+#include <windows.h>
+#define sleep(n) Sleep(1000 * n)
+#endif
+
 /*
  * Parser includes
  */

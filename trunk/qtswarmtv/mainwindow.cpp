@@ -1,13 +1,11 @@
-#include <stdio.h>
+#include <QtGui>
+#include <QtXml>
 #include <sqlite3.h>
-#include <stdlib.h>
-#include <iostream>
 
 extern "C" {
 #include <swarmtv.h>
 }
 
-#include "swarmtvtrayicon.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "singleton.h"
@@ -99,9 +97,9 @@ void MainWindow::initTrayIcon()
 {
   if(QSystemTrayIcon::isSystemTrayAvailable() == true) {
     // Setup tray icon
-    swarmtvTrayIcon* tray = new swarmtvTrayIcon(this);
+    this->tray = new swarmtvTrayIcon(this);
     if(tray == NULL){
-      std::cerr << "Allocating tray icon failed." << std::endl;
+      qDebug() << "Allocating tray icon failed.";
       exit(1);
     }
   }
@@ -116,4 +114,72 @@ void MainWindow::statsUpdateClicked()
     ui->statsTextEdit->setText(*statsstr);
 
     delete(statsstr);
+}
+
+void MainWindow::fancyMessage(QString msg)
+{
+    if (this->isVisible()) {
+        ui->statusBar->showMessage(msg, 3000);
+    } else {
+        tray->showMessage("SwarmTv", msg, 3000);
+    }
+}
+
+void MainWindow::dbusStartReceived(QString msg)
+{
+    if (msg.isEmpty()) {
+        msg = msg.fromUtf8("Swarmtv run started");
+    }
+    fancyMessage(msg);
+}
+
+void MainWindow::dbusEndReceived(QString msg)
+{
+    if (msg.isEmpty()) {
+        msg = msg.fromUtf8("Swarmtv run ended");
+    }
+    statsUpdateClicked();
+    downloadedTableControl *dtc = &Singleton<downloadedTableControl>::Instance();
+    dtc->fillTable();
+    simpleTableControl *stc = &Singleton<simpleTableControl>::Instance();
+    stc->updateTable();
+    fancyMessage(msg);
+}
+
+void MainWindow::dbusRssReceived(QString msg)
+{
+    QDomDocument xml;
+    if (xml.setContent(msg)) {
+        fancyMessage(tr("RSS retrieved from: %1").
+                     arg(xml.elementsByTagName("name").item(0).toElement().text()));
+    }
+}
+
+void MainWindow::dbusSimpleReceived(QString msg)
+{
+    QDomDocument xml;
+    if (xml.setContent(msg)) {
+        fancyMessage(tr("Simple filter ran: %1").
+                               arg(xml.elementsByTagName("name").item(0).toElement().text()));
+    }
+}
+
+void MainWindow::dbusSqlReceived(QString msg)
+{
+    if (msg.isEmpty()) {
+        msg = msg.fromUtf8("Swarmtv sql notification");
+    }
+    fancyMessage(msg);
+}
+
+void MainWindow::dbusDownedReceived(QString msg)
+{
+    QDomDocument xml;
+    if (xml.setContent(msg)) {
+        QString cleantitle = tr("Downloaded torrent for: %1 season %2 episode %3").arg(
+                xml.elementsByTagName("baretitle").item(0).toElement().text(),
+                xml.elementsByTagName("season").item(0).toElement().text(),
+                xml.elementsByTagName("episode").item(0).toElement().text());
+        fancyMessage(cleantitle);
+    }
 }
