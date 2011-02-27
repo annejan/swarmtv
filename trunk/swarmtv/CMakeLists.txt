@@ -70,6 +70,11 @@ IF(SHELL_ENABLE)
 	add_subdirectory (shellfront) 
 ENDIF()
 
+if (WIN32)
+	add_subdirectory (winservice) 
+endif (WIN32)
+
+
 # Implement uninstall
 CONFIGURE_FILE(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"

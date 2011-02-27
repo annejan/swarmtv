@@ -177,7 +177,7 @@ rsstor_handle *initrsstor()
 	if(rc != 0) {
 		rc= makersstorrentdir();
 		if(rc != 0) {
-			return NULL;
+      return NULL;
 		}
 	}
 
@@ -192,7 +192,7 @@ rsstor_handle *initrsstor()
   rc = rsstinitdatabase(RSST_DBFILE, handle);  
   if( rc!=SQLITE_OK ){
     fprintf(stderr, "Initializing db : \'%s\' failed %s:%d\n", RSST_DBFILE, __FILE__, __LINE__);
-		return NULL;
+    return NULL;
   }
 
   /*
@@ -205,7 +205,7 @@ rsstor_handle *initrsstor()
    */
   rc = rsstinitlogdb(handle->db);
   if(rc != 0) {
-		return NULL;
+    return NULL;
   }
 
 	/*

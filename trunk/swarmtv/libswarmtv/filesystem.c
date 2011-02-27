@@ -69,7 +69,7 @@ void rsstcompletepath(const char *origpath, char **destpath)
      * and not check for 0 every step of the way
      */
 
-    SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, 0, homedir);
+    SHGetFolderPath(NULL, CSIDL_COMMON_DOCUMENTS, NULL, 0, homedir);
     /* might need some UNICODE safety here !! */
     //LPSTR homefolder=NULL;
     //int cw=lstrlenW(homefolder);
