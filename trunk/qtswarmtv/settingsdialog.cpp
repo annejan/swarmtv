@@ -1,6 +1,7 @@
 #include <sqlite3.h>
 #include <stdlib.h>
 #include <string.h>
+#include <QSettings>
 
 extern "C" {
 #include <swarmtv.h>
@@ -12,6 +13,8 @@ extern "C" {
 #include "singleton.h"
 #include "settingsdialog.hpp"
 #include "ui_settingsdialog.h"
+
+static const QString TVDB_API_CONFIG("config/tvdbapiconfig");
 
 settingsDialog::settingsDialog(QWidget *parent) :
     QDialog(parent),
@@ -29,6 +32,7 @@ void settingsDialog::show()
 {
   int rc=0;
   config_container *configitems=NULL;
+  QSettings settings;
 
   // Get data from SwarmTv
   swarmTv *swarm = &Singleton<swarmTv>::Instance();
@@ -46,6 +50,7 @@ void settingsDialog::show()
   // Set retrieved values into setup
   ui->refreshLineEdit->setText("900");
   this->containerToUI(configitems);
+  ui->apiKeyLineEdit->setText(settings.value(TVDB_API_CONFIG).toString());
 
   // Free the settings container
   rsstfreeconfigcontainer(configitems);
@@ -108,6 +113,8 @@ void settingsDialog::containerToUI(config_container *configitems)
 
 void settingsDialog::accept()
 {
+  QSettings settings;
+
   // Get the SwarmTv pointer
   swarmTv *swarm = &Singleton<swarmTv>::Instance();
 
@@ -134,6 +141,9 @@ void settingsDialog::accept()
   rsstsetconfigitem(swarm->getHandle(), smtp_to.c_str(), ui->destinationLineEdit->text().toUtf8().data());
   rsstsetconfigitem(swarm->getHandle(), smtp_from.c_str(), ui->senderLineEdit->text().toUtf8().data());
   rsstsetconfigitem(swarm->getHandle(), smtp_host.c_str(), ui->ServerLineEdit->text().toUtf8().data());
+
+  // Store values in the config settings
+  settings.setValue(TVDB_API_CONFIG, ui->apiKeyLineEdit->text());
 
   if(ui->emailEnableCheckBox->checkState() == Qt::Checked) {
     rsstsetconfigitem(swarm->getHandle(), smtp_enable.c_str(), choice_true.c_str());

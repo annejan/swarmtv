@@ -64,19 +64,30 @@
          </layout>
         </item>
         <item row="1" column="0">
-         <widget class="QListWidget" name="seriesListWidget">
-          <property name="spacing">
-           <number>10</number>
+         <widget class="QTableWidget" name="seriesTableWidget">
+          <property name="contextMenuPolicy">
+           <enum>Qt::CustomContextMenu</enum>
           </property>
-          <property name="uniformItemSizes">
+          <property name="lineWidth">
+           <number>1</number>
+          </property>
+          <property name="alternatingRowColors">
            <bool>false</bool>
           </property>
-          <property name="wordWrap">
+          <attribute name="horizontalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="horizontalHeaderStretchLastSection">
            <bool>true</bool>
-          </property>
-          <property name="selectionRectVisible">
-           <bool>true</bool>
-          </property>
+          </attribute>
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
+          <column>
+           <property name="text">
+            <string>Do not show</string>
+           </property>
+          </column>
          </widget>
         </item>
        </layout>

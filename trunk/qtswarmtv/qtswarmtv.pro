@@ -34,7 +34,10 @@ SOURCES += main.cpp\
     taskqueue.cpp \
     getbannertask.cpp \
     getseriestask.cpp \
-    singleapplication.cpp
+    singleapplication.cpp \
+    seasonepisodewidget.cpp \
+    episodeinfowidget.cpp \
+    getseriesinfotask.cpp
 
 HEADERS  += mainwindow.h \
     singleton.h \
@@ -60,7 +63,10 @@ HEADERS  += mainwindow.h \
     taskinterface.hpp \
     getbannertask.hpp \
     getseriestask.hpp \
-    singleapplication.h
+    singleapplication.h \
+    seasonepisodewidget.hpp \
+    episodeinfowidget.hpp \
+    getseriesinfotask.hpp
 
 FORMS    += mainwindow.ui \
     simpleeditdialog.ui \
@@ -68,7 +74,8 @@ FORMS    += mainwindow.ui \
     settingsdialog.ui \
     helpdialog.ui \
     testfilterdialog.ui \
-    newtorrentfullinfodialog.ui
+    newtorrentfullinfodialog.ui \
+    seasonepisodewidget.ui
 
 LIBS 	 += -lswarmtv -ltvdb
 

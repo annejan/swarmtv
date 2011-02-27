@@ -12,6 +12,10 @@ extern "C" {
 getBannerTask::getBannerTask(QObject *parent) :
     QObject(parent)
 {
+  theTvdb *htvdb=NULL;
+  htvdb = &Singleton<theTvdb>::Instance();
+  this->tvdb = htvdb->getTvdb();
+
   this->filename=NULL;
   memset(&bannerData, 0, sizeof(tvdb_buffer_t));
 }
@@ -20,6 +24,28 @@ getBannerTask::getBannerTask(char *filename, QObject *parent) :
     QObject(parent)
 {
   std::cout << "Filename set: " << filename << std::endl;
+
+  theTvdb *htvdb=NULL;
+  this->tvdb = htvdb->getTvdb();
+
+  this->filename=strdup(filename);
+  memset(&bannerData, 0, sizeof(tvdb_buffer_t));
+}
+
+getBannerTask::getBannerTask(char *filename, theTvdb *htvdb, QObject *parent) :
+    QObject(parent)
+{
+  std::cout << "Filename set: " << filename << std::endl;
+  this->tvdb=htvdb->getTvdb();
+  this->filename=strdup(filename);
+  memset(&bannerData, 0, sizeof(tvdb_buffer_t));
+}
+
+getBannerTask::getBannerTask(char* filename, htvdb_t tvdb, QObject *parent) :
+    QObject(parent)
+{
+  std::cout << "Filename set: " << filename << std::endl;
+  this->tvdb=tvdb;
   this->filename=strdup(filename);
   memset(&bannerData, 0, sizeof(tvdb_buffer_t));
 }
@@ -40,13 +66,17 @@ void getBannerTask::setFilename(char *filename)
   this->filename = strdup(filename);
 }
 
+void getBannerTask::setTvdbHandle(theTvdb *htvdb)
+{
+  this->tvdb = htvdb->getTvdb();
+}
+
 void getBannerTask::start(void)
 {
   int rc=NULL;
-  theTvdb *htvdb = &Singleton<theTvdb>::Instance();
 
   std::cout << "Task started, getting: " << filename << std::endl;
-  rc = tvdb_banners(htvdb->getTvdb(), filename, &bannerData);
+  rc = tvdb_banners(tvdb, filename, &bannerData);
   if(rc == TVDB_OK) {
     emit bannerReady(&bannerData);
   } else {

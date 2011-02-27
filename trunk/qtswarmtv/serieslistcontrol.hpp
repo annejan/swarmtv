@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #include <QWidget>
-#include <QListWidget>
+#include <QTableWidget>
 #include <QLineEdit>
 extern "C" {
 #include <tvdb.h>
@@ -19,23 +19,26 @@ class seriesListControl : public QWidget
     Q_OBJECT
 public:
     explicit seriesListControl(QWidget *parent=0);
-    explicit seriesListControl(QWidget *parent, QLineEdit *searchLine, QListWidget *list);
+    explicit seriesListControl(QWidget *parent, QLineEdit *searchLine, QTableWidget *table);
     ~seriesListControl();
     void setSeriesSearchLine(QLineEdit *searchLine);
-    void setSeriesListWidget(QListWidget *list);
+    void setSeriesTableWidget(QTableWidget *table);
 signals:
 
 public slots:
     void findSeries();
     void searchResults(tvdb_buffer_t *series_xml);
-    void itemDoubleClicked(QListWidgetItem *item);
+    void itemDoubleClicked();
+    void showContextMenu(const QPoint&);
 
 private:
     void handleSeries(tvdb_list_front_t *series);
-    void addWidget(tvdb_series_t *series);
+    void addWidget(int count, tvdb_series_t *series);
     void openSimpleEditDialog(seriesWidget *series);
+    void createFilter();
+    void showEpisodes();
 
-    QListWidget *list;
+    QTableWidget *table;
     QLineEdit *searchLine;
     taskQueue *tasks;
 };
