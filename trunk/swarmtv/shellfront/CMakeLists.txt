@@ -89,10 +89,11 @@ SET_TARGET_PROPERTIES(swarmtv_exec PROPERTIES OUTPUT_NAME "swarmtv")
 
 if (UNIX AND NOT WIN32)
 	TARGET_LINK_LIBRARIES(swarmtv_exec ${optionalLibs} libswarmtv.so )
+	# We install to /usr/local/bin
+	INSTALL(PROGRAMS swarmtv DESTINATION /usr/local/bin)
 else (WIN32)
 	TARGET_LINK_LIBRARIES(swarmtv_exec ${optionalLibs} libswarmtv.dll )
+	INSTALL(PROGRAMS)	
 endif (UNIX AND NOT WIN32)
 
-# We install to /usr/local/bin
-INSTALL(PROGRAMS swarmtv DESTINATION /usr/local/bin)
 
