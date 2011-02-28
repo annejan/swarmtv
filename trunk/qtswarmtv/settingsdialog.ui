@@ -21,10 +21,20 @@
     <normaloff>:/swarmtv/mainlogo/resources/swarmtv_logo.png</normaloff>:/swarmtv/mainlogo/resources/swarmtv_logo.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="1">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="1">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -309,16 +319,70 @@
        </item>
       </layout>
      </widget>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
+       <string>Tray Events</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_5">
+       <item row="0" column="0">
+        <layout class="QVBoxLayout" name="verticalLayout_7">
+         <item>
+          <widget class="QLabel" name="label_10">
+           <property name="text">
+            <string>When QtSwarmtv is minimized show these messages at the tray icon.</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="QCheckBox" name="dbusStartCheckBox">
+             <property name="text">
+              <string>Show SwarmTv start of cycle</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="dbusStopCheckBox">
+             <property name="text">
+              <string>Show SwartmTv end of cycle</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="dbusRssCheckBox">
+             <property name="text">
+              <string>Show RSS download</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="dbusSimpleCheckBox">
+             <property name="text">
+              <string>Show application of a simple filter</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="dbusSqlCheckBox">
+             <property name="text">
+              <string>Show aplication of an SQL filter</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="dbusDownedCheckBox">
+             <property name="text">
+              <string>Show meta file download</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>

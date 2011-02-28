@@ -22,9 +22,10 @@ extern "C" {
 #include "serieslistcontrol.hpp"
 #include "taskqueue.hpp"
 #include "thetvdb.hpp"
+#include "settingsnames.hpp"
 
 //const char* api_key = "<API_KEY>";
-static const QString TVDB_API_CONFIG("config/tvdbapiconfig");
+//static const QString TVDB_API_CONFIG("config/tvdbapiconfig");
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -119,70 +120,81 @@ void MainWindow::statsUpdateClicked()
     delete(statsstr);
 }
 
-void MainWindow::fancyMessage(QString msg)
+void MainWindow::fancyMessage(QString msg, bool showInTray)
 {
     if (this->isVisible()) {
         ui->statusBar->showMessage(msg, 3000);
-    } else {
+    } else if(showInTray == true) {
         tray->showMessage("SwarmTv", msg, 3000);
     }
 }
 
 void MainWindow::dbusStartReceived(QString msg)
 {
-    if (msg.isEmpty()) {
-        msg = msg.fromUtf8("Swarmtv run started");
-    }
-    fancyMessage(msg);
+  QSettings settings;
+
+  if (msg.isEmpty()) {
+    msg = msg.fromUtf8("Swarmtv run started");
+  }
+  fancyMessage(msg, settings.value(TRAY_SHOW_DBUSSTART).toBool());
 }
 
 void MainWindow::dbusEndReceived(QString msg)
 {
-    if (msg.isEmpty()) {
-        msg = msg.fromUtf8("Swarmtv run ended");
-    }
-    statsUpdateClicked();
-    downloadedTableControl *dtc = &Singleton<downloadedTableControl>::Instance();
-    dtc->fillTable();
-    simpleTableControl *stc = &Singleton<simpleTableControl>::Instance();
-    stc->updateTable();
-    fancyMessage(msg);
+  QSettings settings;
+
+  if (msg.isEmpty()) {
+    msg = msg.fromUtf8("Swarmtv run ended");
+  }
+  statsUpdateClicked();
+  downloadedTableControl *dtc = &Singleton<downloadedTableControl>::Instance();
+  dtc->fillTable();
+  simpleTableControl *stc = &Singleton<simpleTableControl>::Instance();
+  stc->updateTable();
+  fancyMessage(msg, settings.value(TRAY_SHOW_DBUSSTOP).toBool());
 }
 
 void MainWindow::dbusRssReceived(QString msg)
 {
-    QDomDocument xml;
-    if (xml.setContent(msg)) {
-        fancyMessage(tr("RSS retrieved from: %1").
-                     arg(xml.elementsByTagName("name").item(0).toElement().text()));
-    }
+  QSettings settings;
+  QDomDocument xml;
+  if (xml.setContent(msg)) {
+    fancyMessage(tr("RSS retrieved from: %1").
+                 arg(xml.elementsByTagName("name").item(0).toElement().text()),
+                 settings.value(TRAY_SHOW_RSS).toBool());
+  }
 }
 
 void MainWindow::dbusSimpleReceived(QString msg)
 {
-    QDomDocument xml;
-    if (xml.setContent(msg)) {
-        fancyMessage(tr("Simple filter ran: %1").
-                               arg(xml.elementsByTagName("name").item(0).toElement().text()));
-    }
+  QSettings settings;
+  QDomDocument xml;
+  if (xml.setContent(msg)) {
+    fancyMessage(tr("Simple filter ran: %1").
+                 arg(xml.elementsByTagName("name").item(0).toElement().text())
+                 , settings.value(TRAY_SHOW_SIMPLE).toBool());
+  }
 }
 
 void MainWindow::dbusSqlReceived(QString msg)
 {
-    if (msg.isEmpty()) {
-        msg = msg.fromUtf8("Swarmtv sql notification");
-    }
-    fancyMessage(msg);
+  QSettings settings;
+  if (msg.isEmpty()) {
+    msg = msg.fromUtf8("Swarmtv sql notification");
+  }
+  fancyMessage(msg, settings.value(TRAY_SHOW_SQL).toBool());
 }
 
 void MainWindow::dbusDownedReceived(QString msg)
 {
-    QDomDocument xml;
-    if (xml.setContent(msg)) {
-        QString cleantitle = tr("Downloaded torrent for: %1 season %2 episode %3").arg(
-                xml.elementsByTagName("baretitle").item(0).toElement().text(),
-                xml.elementsByTagName("season").item(0).toElement().text(),
-                xml.elementsByTagName("episode").item(0).toElement().text());
-        fancyMessage(cleantitle);
-    }
+  QDomDocument xml;
+  QSettings settings;
+
+  if (xml.setContent(msg)) {
+    QString cleantitle = tr("Downloaded torrent for: %1 season %2 episode %3").arg(
+        xml.elementsByTagName("baretitle").item(0).toElement().text(),
+        xml.elementsByTagName("season").item(0).toElement().text(),
+        xml.elementsByTagName("episode").item(0).toElement().text());
+    fancyMessage(cleantitle, settings.value(TRAY_SHOW_DOWNED).toBool());
+  }
 }

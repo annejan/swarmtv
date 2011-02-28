@@ -29,7 +29,7 @@ public slots:
 private:
     Ui::MainWindow *ui;
     swarmtvTrayIcon *tray;
-    void fancyMessage(QString);
+    void fancyMessage(QString, bool);
 };
 
 #endif // MAINWINDOW_H

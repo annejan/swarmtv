@@ -66,7 +66,8 @@ HEADERS  += mainwindow.h \
     singleapplication.h \
     seasonepisodewidget.hpp \
     episodeinfowidget.hpp \
-    getseriesinfotask.hpp
+    getseriesinfotask.hpp \
+    settingsnames.hpp
 
 FORMS    += mainwindow.ui \
     simpleeditdialog.ui \

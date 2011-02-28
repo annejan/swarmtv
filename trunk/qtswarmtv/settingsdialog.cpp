@@ -13,8 +13,8 @@ extern "C" {
 #include "singleton.h"
 #include "settingsdialog.hpp"
 #include "ui_settingsdialog.h"
+#include "settingsnames.hpp"
 
-static const QString TVDB_API_CONFIG("config/tvdbapiconfig");
 
 settingsDialog::settingsDialog(QWidget *parent) :
     QDialog(parent),
@@ -51,6 +51,14 @@ void settingsDialog::show()
   ui->refreshLineEdit->setText("900");
   this->containerToUI(configitems);
   ui->apiKeyLineEdit->setText(settings.value(TVDB_API_CONFIG).toString());
+
+  // Restore the DBUS message checkboxes
+  ui->dbusStartCheckBox->setChecked(settings.value(TRAY_SHOW_DBUSSTART).toBool());
+  ui->dbusStopCheckBox->setChecked(settings.value(TRAY_SHOW_DBUSSTOP).toBool());
+  ui->dbusRssCheckBox->setChecked(settings.value(TRAY_SHOW_RSS).toBool());
+  ui->dbusSimpleCheckBox->setChecked(settings.value(TRAY_SHOW_SIMPLE).toBool());
+  ui->dbusSqlCheckBox->setChecked(settings.value(TRAY_SHOW_SQL).toBool());
+  ui->dbusDownedCheckBox->setChecked(settings.value(TRAY_SHOW_DOWNED).toBool());
 
   // Free the settings container
   rsstfreeconfigcontainer(configitems);
@@ -144,6 +152,12 @@ void settingsDialog::accept()
 
   // Store values in the config settings
   settings.setValue(TVDB_API_CONFIG, ui->apiKeyLineEdit->text());
+  settings.setValue(TRAY_SHOW_DBUSSTART, ui->dbusStartCheckBox->isChecked());
+  settings.setValue(TRAY_SHOW_DBUSSTOP, ui->dbusStopCheckBox->isChecked());
+  settings.setValue(TRAY_SHOW_RSS, ui->dbusRssCheckBox->isChecked());
+  settings.setValue(TRAY_SHOW_SIMPLE, ui->dbusSimpleCheckBox->isChecked());
+  settings.setValue(TRAY_SHOW_SQL, ui->dbusSqlCheckBox->isChecked());
+  settings.setValue(TRAY_SHOW_DOWNED, ui->dbusDownedCheckBox->isChecked());
 
   if(ui->emailEnableCheckBox->checkState() == Qt::Checked) {
     rsstsetconfigitem(swarm->getHandle(), smtp_enable.c_str(), choice_true.c_str());
