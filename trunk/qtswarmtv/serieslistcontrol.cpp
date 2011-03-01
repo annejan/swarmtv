@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QMenu>
 #include <QDebug>
+#include <QRegExp>
 extern "C" {
 #include <tvdb.h>
 }
@@ -134,15 +135,27 @@ void seriesListControl::itemDoubleClicked()
   createFilter();
 }
 
+void seriesListControl::nameToRegexp(const QString &name, QString &regexp)
+{
+  regexp = name;
+
+  // Do the replacements to make something resembling a regexp
+  regexp.replace(QRegExp("^"), "^"); 					// Fix Start
+  regexp.replace(QRegExp("[(\[].*$"), ""); 		// Remove any annotations
+  regexp.replace(QRegExp("[\"-',.]"), ".?"); 	// Replaco punctuation with a match
+}
+
 void seriesListControl::openSimpleEditDialog(seriesWidget *series)
 {
   simpleEditDialog *dialog=NULL;
   QString title;
   QString name;
 
-  // Get strings
-  title = series->getTitle()->toUtf8();
+  // Get series title
   name = series->getTitle()->toUtf8();
+
+  // Generate Regexp
+  nameToRegexp(name, title);
 
   // Open dialog, and disable the name field.
   dialog = new simpleEditDialog(table);

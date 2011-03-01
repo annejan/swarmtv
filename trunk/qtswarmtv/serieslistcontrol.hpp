@@ -37,6 +37,7 @@ private:
     void openSimpleEditDialog(seriesWidget *series);
     void createFilter();
     void showEpisodes();
+    void nameToRegexp(const QString &name, QString &regexp);
 
     QTableWidget *table;
     QLineEdit *searchLine;
