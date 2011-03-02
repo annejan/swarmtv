@@ -674,4 +674,12 @@ void printstats(rsstor_handle *handle)
       stats.simples, stats.sqls, stats.metafile,
       stats.downloaded, dbsizestr
       );
+
+  if(stats.tormonenabled == 1) {
+    printf("Usage torrent partition  : %d%%\n", stats.toruse);
+  }
+
+  if(stats.nzbmonenabled == 1) {
+    printf("Usage NZB partition      : %d%%\n", stats.nzbuse);
+  }
 }

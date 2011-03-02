@@ -255,31 +255,44 @@ typedef struct {
  * Statistics structure to be filled.
  */
 typedef struct {
-  int     metafile;   // Number of meta files in newtorrents table.
-  int     downloaded; // Number of downloaded meta files in the downloaded table.
-  int     sources;    // Number sources in the database.
-  char    *version;  // Version string of software version.
-  int     database;   // Database version number.
-  int     simples;    // Number of simple filters.
-  int     sqls;       // SQL filter count.
-  size_t  dbsize;     // Size of the current database file.
+  int     metafile;       // Number of meta files in newtorrents table.
+  int     downloaded;     // Number of downloaded meta files in the downloaded table.
+  int     sources;        // Number sources in the database.
+  char    *version;       // Version string of software version.
+  int     database;       // Database version number.
+  int     simples;        // Number of simple filters.
+  int     sqls;           // SQL filter count.
+  size_t  dbsize;         // Size of the current database file.
+  int     uselimit;       // The percentage of disk usage below a download is performed
+  int     toruse;         // The percentage use in the torrent download partition
+  int     tormonenabled;  // Torrent disk monitoring enabled 0 no, 1 yes
+  int     nzbuse;         // The percentage use in the NZB download partition
+  int     nzbmonenabled;  // NZB disk monitoring enabled 0 no, 1 yes
 } stats_struct;
 
 /*
  * The config item names
  */
-#define CONF_TORRENTDIR "torrentdir"
-#define CONF_NZBDIR     "nzbdir"
-#define CONF_LOGFILE    "logfile"
-#define CONF_REFRESH    "refresh"
-#define CONF_RETAIN     "retain"
-#define CONF_DEFPARSER  "default_parser"
-#define CONF_LOCKFILE   "lockfile"
-#define CONF_SMTPTO     "smtp_to"
-#define CONF_SMTPFROM   "smtp_from"
-#define CONF_SMTPHOST   "smtp_host"
-#define CONF_MIN_SIZE   "min_size"
-#define CONF_SMTPENABLE "smtp_enable"
+#define CONF_TORRENTDIR   "torrentdir"
+#define CONF_NZBDIR       "nzbdir"
+#define CONF_LOGFILE      "logfile"
+#define CONF_REFRESH      "refresh"
+#define CONF_RETAIN       "retain"
+#define CONF_DEFPARSER    "default_parser"
+#define CONF_LOCKFILE     "lockfile"
+#define CONF_SMTPTO       "smtp_to"
+#define CONF_SMTPFROM     "smtp_from"
+#define CONF_SMTPHOST     "smtp_host"
+#define CONF_MIN_SIZE     "min_size"
+#define CONF_SMTPENABLE   "smtp_enable"
+#define CONF_TORMONDIR    "tor_mon_dir"
+#define CONF_TORMONENABLE "tor_mon_enable"
+#define CONF_NZBMONDIR    "nzb_mon_dir"
+#define CONF_NZBMONENABLE "nzb_mon_enable"
+#define CONF_USAGELIMIT   "mon_limit"
+#define CONF_PROXYENABLE  "proxy_enable"
+#define CONF_PROXYURL     "proxy_url"
+#define CONF_PROXYUSEPASS "proxy_userpass"
 
 /*
  * Config record container
@@ -887,7 +900,7 @@ int rsstrunloop(rsstor_handle *handle, LOOPMODE onetime);
 int runcycle(rsstor_handle *handle);
 
 /*
- * == Logi file writing routines
+ * == Log file writing routines
  */
 
 /*
@@ -921,7 +934,7 @@ int rsstwritelog(int level, char *str,...);
 void rssttestmail(rsstor_handle *handle, char *testtxt);
 
 /*
- * Callback interaction functions
+ * == Callback interaction functions
  */
 
 /*
@@ -946,5 +959,38 @@ int rsstaddcallback(rsstor_handle *handle, enum_callbacks enumcall, rsstcallback
  * return 0 when all called functions returned 0, otherwise != 0
  */
 int rsstexecallbacks(rsstor_handle *handle, enum_callbacks callenum, void *load);
+
+/*
+ * == Functions to check Torrent download directories
+ */
+
+/* 
+ * Torrent download partition usage
+ * @arguments
+ * percentage percentage in use
+ * limit percentage limit
+ * @return 
+ * 0 on success, -1 on failure
+ */
+int rssttorusage(rsstor_handle *handle, int *enabled, int *percentage);
+
+/*
+ * NZB download partition usage
+ * @arguments
+ * enabled set to 1 when enabled else 0
+ * percentage percentage in use when enabled is 0, this value is 0
+ * @return 
+ * 0 on success, -1 on failure
+ */
+int rsstnzbusage(rsstor_handle *handle, int *enabled, int *percentage);
+
+/*
+ * Get the set partition usage limit
+ * @Arguments
+ * maxuse get the max level of partition usage
+ * @return
+ * 0 when success otherwise -1
+ */
+int rsstgetmaxusage(rsstor_handle *handle, int *maxuse);
 
 #endif

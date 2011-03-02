@@ -58,3 +58,12 @@ int rssttestwrite(const char *path);
  */
 int rsstmakedir(char *path);
 
+/*
+ * Get the usage of the partition the pointed directory resides in
+ * @arguments
+ * path the path to get the usage for
+ * usage the usage in percents 0 - 100
+ * @returns
+ * 0 on success, -1 on failure
+ */
+int rsstdiskusage(char *path, int *usage);

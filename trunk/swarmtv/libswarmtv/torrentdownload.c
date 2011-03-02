@@ -589,6 +589,65 @@ static int rsstgetdownloadpath(rsstor_handle *handle, downloaded_struct *downed,
 }
 
 
+int rsstcheckdiskspace(rsstor_handle *handle, METAFILETYPE type, int *spaceondisk)
+{
+  int rc=0;
+  int percentage=0;
+  int maxuse=0;
+  int enabled=0;
+
+  /*
+   * Initialize spacedisk when no blocking 
+   */
+  *spaceondisk=1;
+
+  /*
+   * Get the maximal partition usage
+   */
+  rc = rsstgetmaxusage(handle, &maxuse);
+  if(rc != 0){
+    return -1;
+  }
+
+  /*
+   * Use the type to get the NZB or torrent usage
+   */
+  switch(type) {
+    case torrent:
+      rc = rssttorusage(handle, &enabled, &percentage);
+
+      break;
+    case nzb:
+      rc = rsstnzbusage(handle, &enabled, &percentage);
+
+      break;
+    default:
+      rsstwritelog(LOG_ERROR, "Meta file type unknown. %s:%d", __FILE__, __LINE__);
+      return -1;
+  }
+  if(rc != 0){
+    return -1;
+  }
+
+  /*
+   * When the usage is over the limit set spaceondisk to 0 and log a message
+   */
+  if(enabled == 1) {
+    if(percentage > maxuse) {
+      *spaceondisk=0;
+      if(type == torrent) {
+        rsstwritelog(LOG_ERROR, "Torrent download directory full. %s:%d", __FILE__, __LINE__);
+      }
+      if(type == nzb) {
+        rsstwritelog(LOG_ERROR, "NZB download directory full. %s:%d", __FILE__, __LINE__);
+      }
+
+    }
+  }
+
+  return 0;
+}
+
 /*
  * Do download.
  * take url, create name and call curl routine
@@ -598,28 +657,10 @@ static int rsstgetdownloadpath(rsstor_handle *handle, downloaded_struct *downed,
 static int dodownload(rsstor_handle *handle, downloaded_struct *downed) 
 {
 	char filename[256];
-	char *path = NULL;
-	char *fullpath = NULL;
   int   rc=0;
+  int   spaceondisk=0;
 	int   retval=0;
   METAFILETYPE type=undefined;
-
-	/*
-	 * get path to put torrent in
-	 */
-	rsstconfiggetproperty(handle, CONF_TORRENTDIR, &path);
-	rsstcompletepath(path, &fullpath);
-
-	/*
-	 * Create filename.
-	 */
-	snprintf(filename, 150, "%s/%sS%dE%dR%s.torrent", 
-			fullpath, downed->title, downed->season, downed->episode, downed->pubdate); 
-
-  /*
-   * Free the path
-   */
-  free(path);
 
   /*
    * Define METAFILE type
@@ -631,10 +672,19 @@ static int dodownload(rsstor_handle *handle, downloaded_struct *downed)
   }
 
   /*
+   * Check if there is enough space on the download partitions
+   */
+  rc = rsstcheckdiskspace(handle, type, &spaceondisk);
+  if(rc != 0) {
+    rsstwritelog(LOG_ERROR, "Check disk space failed! %s:%d", __FILE__, __LINE__);
+    retval=-1;
+  }
+  
+  /*
    * Determine full Path, and commence download when success
    */
   rc = rsstgetdownloadpath(handle, downed, type, filename);
-  if(rc == 0 && retval == 0) {
+  if(rc == 0 && retval == 0 && spaceondisk == 1) {
     /*
      * download
      */
@@ -647,7 +697,7 @@ static int dodownload(rsstor_handle *handle, downloaded_struct *downed)
     retval=-1;
   }
 
-  free(fullpath);
+  //free(fullpath);
 
 	return retval;
 }
@@ -860,5 +910,112 @@ int rssttestmetafiledir(rsstor_handle *handle)
   free(fullpath);
 
   return retval;
+}
+
+
+/* 
+ * Get download partition usage
+ * @arguments
+ * confmondir config name to the monitor directory
+ * confenabled config name to the monitor enabled
+ * percentage percentage in use
+ * limit percentage limit
+ * @return 
+ * 0 on success, -1 on failure
+ */
+static int rsstgetusage(rsstor_handle *handle, char *confmondir, char *confenabled, int *enabled, int *percentage)
+{
+  int rc=0;
+  int retval=0;
+  char *downpath=NULL;
+  char *enabledstr=NULL;
+
+  /*
+   * Init variables
+   */ 
+  *enabled=0;
+  *percentage=0;
+
+  /*
+   * Get settings
+   */
+  rc = rsstconfiggetproperty(handle, confmondir, &downpath);
+  rc |= rsstconfiggetproperty(handle, confenabled, &enabledstr);
+  if(rc != 0) {
+    rsstwritelog(LOG_ERROR, "Config value was not set, could not get disk usage %s:%d", __FILE__, __LINE__);
+    retval = -1;
+  }
+
+  if(retval == 0) {
+    if(strcasecmp(enabledstr, "y") == 0){
+      *enabled=1;
+    }
+  }
+
+  if(retval == 0 && *enabled == 1) {
+    /*
+     * Get usage
+     */
+    rc = rsstdiskusage(downpath, percentage);
+    if(rc != 0) {
+      rsstwritelog(LOG_ERROR, "Path incorrect, could not get disk usage %s:%d", __FILE__, __LINE__);
+      retval = -1;
+    }
+  }
+
+  free(downpath);
+  free(enabledstr);
+  return retval;
+}
+
+
+/* 
+ * Torrent download partition usage
+ * @arguments
+ * percentage percentage in use
+ * limit percentage limit
+ * @return 
+ * 0 on success, -1 on failure
+ */
+int rssttorusage(rsstor_handle *handle, int *enabled, int *percentage)
+{
+  int rc=0;
+
+  rc = rsstgetusage(handle, CONF_TORMONDIR, CONF_TORMONENABLE, enabled, percentage);
+
+  return rc;
+}
+
+/*
+ * NZB download partition usage
+ * @arguments
+ * enabled set to 1 when enabled else 0
+ * percentage percentage in use when enabled is 0, this value is 0
+ * @return 
+ * 0 on success, -1 on failure
+ */
+int rsstnzbusage(rsstor_handle *handle, int *enabled, int *percentage)
+{
+  int rc=0;
+
+  rc = rsstgetusage(handle, CONF_NZBMONDIR, CONF_NZBMONENABLE, enabled, percentage);
+
+  return rc;
+}
+
+/*
+ * Get the set partition usage limit
+ * @Arguments
+ * maxuse get the max level of partition usage
+ * @return
+ * 0 when success otherwise -1
+ */
+int rsstgetmaxusage(rsstor_handle *handle, int *maxuse)
+{
+  int rc=0;
+
+  rc = rsstconfiggetint(handle, CONF_USAGELIMIT, maxuse);
+
+  return rc;
 }
 

@@ -31,6 +31,7 @@
 #include "filesystem.h"
 #include "database.h"
 #include "databaseimpl.h"
+#include "torrentdownload.h"
 
 /*
  * Get database size
@@ -363,6 +364,8 @@ int rsstgetstats(rsstor_handle *handle, stats_struct *stats)
   retval |= rsstgetsimplecount(handle,&(stats->simples));
   retval |= rsstgetsqlcount(handle, &(stats->sqls));
   retval |= rsstgetdbsize(&(stats->dbsize));
+  retval |= rssttorusage(handle, &(stats->tormonenabled), &(stats->toruse));
+  retval |= rsstnzbusage(handle, &(stats->nzbmonenabled), &(stats->nzbuse));
 
   /*
    * Done return orred value.

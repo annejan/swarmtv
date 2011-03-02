@@ -73,3 +73,32 @@ int rsstdownloadbyid(rsstor_handle *handle, int torid);
  */
 int rssttestmetafiledir(rsstor_handle *handle);
 
+/* 
+ * Torrent download partition usage
+ * @arguments
+ * percentage percentage in use
+ * limit percentage limit
+ * @return 
+ * 0 on success, -1 on failure
+ */
+int rssttorusage(rsstor_handle *handle, int *enabled, int *percentage);
+
+/*
+ * NZB download partition usage
+ * @arguments
+ * enabled set to 1 when enabled else 0
+ * percentage percentage in use when enabled is 0, this value is 0
+ * @return 
+ * 0 on success, -1 on failure
+ */
+int rsstnzbusage(rsstor_handle *handle, int *enabled, int *percentage);
+
+/*
+ * Get the set partition usage limit
+ * @Arguments
+ * maxuse get the max level of partition usage
+ * @return
+ * 0 when success otherwise -1
+ */
+int rsstgetmaxusage(rsstor_handle *handle, int *maxuse);
+

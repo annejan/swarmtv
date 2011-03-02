@@ -42,7 +42,7 @@
 
 
 /*
- * Database create script version 2
+ * Database create script version 4
  */
 static const char *dbinitscript = 
 "BEGIN TRANSACTION"
@@ -58,7 +58,7 @@ static const char *dbinitscript =
 "\n"
 "-- Create versioning field\n"
 "create table version (version INTEGER);\n"
-"INSERT INTO 'version' VALUES(3);\n"
+"INSERT INTO 'version' VALUES(4);\n"
 "\n"
 "-- Create the newtorrents table\n"
 "create table newtorrents (id INTEGER PRIMARY KEY,title TEXT, link TEXT UNIQUE, pubdate DATE, "
@@ -93,6 +93,14 @@ static const char *dbinitscript =
 "INSERT INTO 'config' (prop, value, descr) VALUES('smtp_from', 'user@somehost.nl', 'The from email-address in the mail headers.');\n"
 "INSERT INTO 'config' (prop, value, descr) VALUES('smtp_host', 'smtp.foobar.nl:25', 'The STMP server used to send the notifications.');\n"
 "INSERT INTO 'config' (prop, value, descr) VALUES('min_size', '4000000', 'When size is smaller then this, download torrent and check.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('tor_mon_dir', '~', 'Path downloaded Torrents end up.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('tor_mon_enable', 'n', 'Path downloaded Torrents end up.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('nzb_mon_dir', '~', 'Path downloaded NZBs end up.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('nzb_mon_enable', 'n', 'Path downloaded NZBs end up.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('mon_limit', '90', 'Stop downloading when the disk usage exceeds.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('proxy_enable', 'n', 'Enable proxy support.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('proxy_url', '', 'URL of the HTTP proxy.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('proxy_userpass', '', 'User name and password of the proxy.');\n"
 ""
 "COMMIT"
 "\n";
@@ -136,11 +144,31 @@ static const char *updatev2tov3 =
 "-- Make sure to include the metatype the file came from in the downloaded table.\n"
 "ALTER TABLE downloaded ADD COLUMN metatype TEXT DEFAULT 'torrent';\n"
 ""
-"-- Up database version from version 1 to 2\n"
+"-- Up database version from version 2 to 3\n"
 "update version set version = '3';\n"
 ""
 "-- Add the lastdownloaded tablei\n"
 "CREATE TABLE lastdownload (id INTEGER PRIMARY KEY, simple_id INTEGER UNIQUE, sql_id INTEGER UNIQUE, downloaded_id INTEGER);\n"
+""
+"COMMIT"
+"\n";
+
+static const char *updatev3tov4 =
+"BEGIN TRANSACTION"
+""
+"-- Inserting\n" 
+"INSERT INTO 'config' (prop, value, descr) VALUES('tor_mon_dir', '~', 'Path downloaded Torrents end up.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('tor_mon_enable', 'n', 'Path downloaded Torrents end up.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('nzb_mon_dir', '~', 'Path downloaded NZBs end up.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('nzb_mon_enable', 'n', 'Path downloaded NZBs end up.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('mon_limit', '90', 'Stop downloading when the disk usage exceeds.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('proxy_enable', 'n', 'Enable proxy support.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('proxy_url', '', 'URL of the HTTP proxy.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('proxy_userpass', '', 'User name and password of the proxy.');\n"
+"INSERT INTO 'config' (prop, value, descr) VALUES('proxy_type', '', 'Set the type of proxy to use default is HTTP.');\n"
+""
+"-- Up database version from version 3 to 4\n"
+"update version set version = '4';\n"
 ""
 "COMMIT"
 "\n";
@@ -232,6 +260,15 @@ static int fixdb(rsstor_handle *handle, int version)
     rc = dbexecscript(db, updatev2tov3); 
     if(rc < 0) {
       rsstwritelog(LOG_ERROR, "Update script version 2 to version 3 Failed!");
+      rsstwritelog(LOG_ERROR, "Update aborted.");
+      return rc;
+    }
+  }
+  if(version < 4) {
+    rsstwritelog(LOG_NORMAL, "Updating database from version 3 to version 4.");
+    rc = dbexecscript(db, updatev3tov4); 
+    if(rc < 0) {
+      rsstwritelog(LOG_ERROR, "Update script version 3 to version 4 Failed!");
       rsstwritelog(LOG_ERROR, "Update aborted.");
       return rc;
     }

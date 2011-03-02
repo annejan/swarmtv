@@ -23,8 +23,10 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/statvfs.h>
 #include <unistd.h>
 #include <fcntl.h>
+
 #ifdef __MINGW32__
 #include <windows.h>
 #define _WIN32_IE 0x0400
@@ -217,5 +219,59 @@ int rsstmakedir(char *path)
 	#endif
 
 	return rc;
+}
+
+/*
+ * Get the usage of the partition the pointed directory resides in
+ * @arguments
+ * path the path to get the usage for
+ * usage the usage in percents 0 - 100
+ * @returns
+ * 0 on success, -1 on failure
+ */
+int rsstdiskusage(char *path, int *usage)
+{
+  int rc=0;
+  int retval=0;
+  struct statvfs sbuf;
+  long int left=0;
+  long int total=0;
+  char *exppath=NULL;
+
+  /*
+   * Init struct.
+   */
+  memset(&total, 0, sizeof(statvfs));
+
+  /*
+   * Sanity check
+   */
+  if(strlen(path) == 0){
+    return 0;
+  }
+
+  /*
+   * Expand the current path
+   */
+  rsstcompletepath(path, &exppath);
+
+  rc = statvfs(exppath, &sbuf);
+  if (rc < 0){
+    retval = -1;
+  }
+  left=sbuf.f_bsize*sbuf.f_bavail;
+  total=sbuf.f_bsize*sbuf.f_blocks;
+
+  /*
+   * Calculate the usage percentage
+   */
+  *usage=(int) ((1.0-(float)left/total)*100.0);
+
+  /*
+   * Clean up
+   */
+  free(exppath);
+
+  return retval;
 }
 
