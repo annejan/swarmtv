@@ -129,7 +129,7 @@ int rsstparsebufxml(char *url, MemoryStruct *buffer, xmlNode **root_element)
  * -1 when nothing was found
  * 0 when the NZB is found
  */
-int rsstfindnzb(char *url, char **nzburl, MemoryStruct **nzbbuffer)
+int rsstfindnzb(rsstor_handle *handle, char *url, char **nzburl, MemoryStruct **nzbbuffer)
 {
   int          rc=0;
   xmlNode     *root=NULL;
@@ -145,7 +145,7 @@ int rsstfindnzb(char *url, char **nzburl, MemoryStruct **nzbbuffer)
   /*
    * Download URL into buffer.
    */
-  rc = rsstdownloadtobuffer( url, &buffer);
+  rc = rsstdownloadtobuffer(handle, url, &buffer);
   if(rc != 0) {
     rsstwritelog(LOG_NORMAL,  "%s: Failed to download.", url);
 	  rsstfreedownload(&buffer);
@@ -202,7 +202,7 @@ int rsstfindnzb(char *url, char **nzburl, MemoryStruct **nzbbuffer)
  * 0 on success
  * -1 when NZB was not found or could not be stored.
  */
-int rsstfindnzbwrite(char *url, char *name)
+int rsstfindnzbwrite(rsstor_handle *handle, char *url, char *name)
 {
   int             rc = 0;
   int             rv = 0;
@@ -214,7 +214,7 @@ int rsstfindnzbwrite(char *url, char *name)
   /*
    * Get the buffer and URL to the torrent in there
    */
-  rc = rsstfindnzb(url, &nzburl, &buffer);
+  rc = rsstfindnzb(handle, url, &nzburl, &buffer);
   if(rc != 0) {
     rsstwritelog(LOG_NORMAL, "NZB not found in '%s'", url);
     rv=-1;

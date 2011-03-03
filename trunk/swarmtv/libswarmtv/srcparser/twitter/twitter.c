@@ -92,7 +92,7 @@ static int endtweet(void *data)
 	/*
 	 * Process data
 	 */
-	rc = rsstgetmetafileinfo(torrent, newtor.link, &props);
+	rc = rsstgetmetafileinfo(handle, torrent, newtor.link, &props);
 	if(rc < 0){
 		rsstwritelog(LOG_DEBUG, "Download failed for '%s'\n", newtor.link);
     rsstfreemetafileprops(props);

@@ -297,6 +297,14 @@ typedef struct {
 #define CONF_PROXYENABLE  "proxy_enable"
 #define CONF_PROXYURL     "proxy_url"
 #define CONF_PROXYUSEPASS "proxy_userpass"
+#define CONF_PROXYTYPE    "proxy_type"
+
+/*
+ * The proxy names
+ */
+#define RSST_PROXY_HTTP   "http"
+#define RSST_PROXY_SOCKS4 "socks4"
+#define RSST_PROXY_SOCKS5 "socks5"
 
 /*
  * Config record container

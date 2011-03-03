@@ -263,7 +263,7 @@ static int testiftorrent(char *url, char *mimetype)
  * The URL the torrent was found in torrenturl.
  * Don't forget to free buffer and torrenturl !
  */
-int rsstfindtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int recurse) 
+int rsstfindtorrent(rsstor_handle *handle, char *url, char **torrenturl, MemoryStruct **torbuffer, int recurse) 
 {
   int               rc = 0;
   MemoryStruct      buffer;
@@ -297,7 +297,7 @@ int rsstfindtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int 
   /*
    * Download content
    */
-  rc = rsstdownloadtobuffer( url, &buffer);
+  rc = rsstdownloadtobuffer(handle, url, &buffer);
   if(rc != 0) {
     //rsstwritelog(LOG_NORMAL,  "%s: Failed to download.", url);
 	  rsstfreedownload(&buffer);
@@ -404,7 +404,7 @@ int rsstfindtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int 
        * recurse
        * When one of the children returns 1, return 1 to.
        */
-      rc = rsstfindtorrent(fulllink, torrenturl, torbuffer, recurse-1); 
+      rc = rsstfindtorrent(handle, fulllink, torrenturl, torbuffer, recurse-1); 
       if(rc == 1) {
         /*
          * We found the torrent !
@@ -442,7 +442,7 @@ int rsstfindtorrent(char *url, char **torrenturl, MemoryStruct **torbuffer, int 
 /*
  * Finds and writes torrent to file
  */
-int rsstfindtorrentwrite(char *url, char *name)
+int rsstfindtorrentwrite(rsstor_handle *handle, char *url, char *name)
 {
   int             rc = 0;
   int             rv = 0;
@@ -454,7 +454,7 @@ int rsstfindtorrentwrite(char *url, char *name)
   /*
    * Get the buffer and URL to the torrent in there
    */
-  rc = rsstfindtorrent(url, &torurl, &buffer, RECURSE);
+  rc = rsstfindtorrent(handle, url, &torurl, &buffer, RECURSE);
   if(rc != 1) {
     rsstwritelog(LOG_NORMAL, "Torrent not found in %s", url);
 		rsstfreedownload(buffer);

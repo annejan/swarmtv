@@ -202,7 +202,7 @@ static int getnzbsize(xmlDocPtr doc, size_t *nzbsize, size_t *piece_nr)
  * @return
  * returns -1 on failure to parse URL, otherwise 0 is returned.
  */
-int rsstgetnzbinfo(char *url, metafileprops **props)
+int rsstgetnzbinfo(rsstor_handle *handle, char *url, metafileprops **props)
 {
   int            rc=0;
   int            retval=0;
@@ -218,7 +218,7 @@ int rsstgetnzbinfo(char *url, metafileprops **props)
   /*
    * Download data
    */
-  rc = rsstfindnzb(url, &nzburl, &nzbbuffer);
+  rc = rsstfindnzb(handle, url, &nzburl, &nzbbuffer);
   if(rc != 0){
     rsstwritelog(LOG_DEBUG, "Downloading NZB '%s' failed.", url);
     retval=-1;

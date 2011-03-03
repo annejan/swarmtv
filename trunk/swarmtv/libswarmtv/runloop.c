@@ -173,7 +173,7 @@ static void dowork(rsstor_handle *handle){
     downed.metatype = (char *) sqlite3_column_text(ppStmt, 3);
 		downed.id       = 				 sqlite3_column_int (ppStmt, 4);
   
-    rc = rsstdownloadtobuffer(downed.url, &rssfile);
+    rc = rsstdownloadtobuffer(handle, downed.url, &rssfile);
     if(rc == 0) {
       /*
        * Download succeeded.

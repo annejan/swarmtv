@@ -87,7 +87,7 @@ int metafilestrtotype(char *metastr, METAFILETYPE *type)
  * @return
  * returns -1 on failure to parse URL, otherwise 0 is returned.
  */
-int rsstgetmetafileinfo(METAFILETYPE type, char *url, metafileprops **props)
+int rsstgetmetafileinfo(rsstor_handle *handle, METAFILETYPE type, char *url, metafileprops **props)
 {
   int rc=0;
 
@@ -96,10 +96,10 @@ int rsstgetmetafileinfo(METAFILETYPE type, char *url, metafileprops **props)
    */
   switch(type){
     case torrent:
-      rc = rsstgettorrentinfo(url, props);
+      rc = rsstgettorrentinfo(handle, url, props);
       break;
     case nzb:
-      rc = rsstgetnzbinfo(url, props);
+      rc = rsstgetnzbinfo(handle, url, props);
       break;
     case undefined:
       /*
@@ -147,16 +147,16 @@ void rsstfreemetafileprops(metafileprops *props)
  * 0 when nothing is found
  * 1 when the torrent was found
  */
-int rsstfindmetafile(METAFILETYPE type, char *url, char **torrenturl, MemoryStruct **torbuffer, int recurse)
+int rsstfindmetafile(rsstor_handle *handle, METAFILETYPE type, char *url, char **torrenturl, MemoryStruct **torbuffer, int recurse)
 {
   int rc=0;
 
   switch(type){
     case torrent:
-      rc = rsstfindtorrent(url, torrenturl, torbuffer, recurse);
+      rc = rsstfindtorrent(handle, url, torrenturl, torbuffer, recurse);
       break;
     case nzb:
-      rc = rsstfindnzb(url, torrenturl, torbuffer);
+      rc = rsstfindnzb(handle, url, torrenturl, torbuffer);
       break;
     case undefined:
       /*
@@ -183,16 +183,16 @@ int rsstfindmetafile(METAFILETYPE type, char *url, char **torrenturl, MemoryStru
  * 0 on success
  * -1 when torrent was not found or could not be stored.
  */
-int rsstfindmetafilewrite(METAFILETYPE type, char *url, char *name)
+int rsstfindmetafilewrite(rsstor_handle *handle, METAFILETYPE type, char *url, char *name)
 {
   int rc=0;
 
   switch(type){
     case torrent:
-      rc = rsstfindtorrentwrite(url, name);
+      rc = rsstfindtorrentwrite(handle, url, name);
       break;
     case nzb:
-      rc = rsstfindnzbwrite(url, name);
+      rc = rsstfindnzbwrite(handle, url, name);
       break;
     case undefined:
       /*

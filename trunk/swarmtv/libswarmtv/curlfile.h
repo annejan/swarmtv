@@ -36,7 +36,7 @@
  * chunk 
  * @returns
  */
-int rsstdownloadtobuffer(char *url, MemoryStruct *chunk);
+int rsstdownloadtobuffer(rsstor_handle *handle, char *url, MemoryStruct *chunk);
 
 /*
  * Free the download and clean the leftovers
@@ -54,7 +54,7 @@ void rsstfreedownload(MemoryStruct *chunk);
  * 0 when all goes well
  * -1 when not found
  */
-int rsstdownloadtofile(char *url, char *path);
+int rsstdownloadtofile(rsstor_handle *handle, char *url, char *path);
 
 /*
  * extract from HTTP-header

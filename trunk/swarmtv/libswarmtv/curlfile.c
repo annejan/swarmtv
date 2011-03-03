@@ -27,6 +27,7 @@
 #include "curlfile.h"
 #include "regexp.h"
 #include "logfile.h"
+#include "config.h"
 
 #ifdef __MINGW32__
 #define strtok_r( _s, _sep, _lasts ) \
@@ -95,13 +96,98 @@ static size_t WriteHeaderCallback(void *ptr, size_t size, size_t nmemb, void *da
   return realsize;
 }
 
+
+/*
+ * Set proxy settings to Curl instance
+ */
+static void rsstcurlproxy(rsstor_handle *handle, CURL *curl_handle)
+{
+  char *enabled=NULL;
+  char *url=NULL;
+  char *userpass=NULL;
+  char *type=NULL;
+
+  /*
+   * Get variables for proxy
+   * CONF_PROXYENABLE  "proxy_enable"
+   * CONF_PROXYURL     "proxy_url"
+   * CONF_PROXYUSEPASS "proxy_userpass"
+   */
+  rsstconfiggetproperty(handle, CONF_PROXYENABLE, &enabled);
+  rsstconfiggetproperty(handle, CONF_PROXYURL, &url);
+  rsstconfiggetproperty(handle, CONF_PROXYUSEPASS, &userpass);
+  rsstconfiggetproperty(handle, CONF_PROXYTYPE, &type);
+
+  /*
+   * See if proxy support is set
+   */
+  if(strcasecmp(enabled, "y") == 0){
+    curl_easy_setopt(curl_handle, CURLOPT_PROXY, url); 
+    curl_easy_setopt(curl_handle, CURLOPT_PROXYUSERPWD, userpass); 
+
+    /*
+     * Translate proxy type to curl proxy type
+     */
+    if(strcasecmp(type, RSST_PROXY_SOCKS4) == 0){
+      curl_easy_setopt(curl_handle, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS4); 
+    }
+    if(strcasecmp(type, RSST_PROXY_SOCKS5) == 0){
+      curl_easy_setopt(curl_handle, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5); 
+    }
+  }
+
+  /*
+   * Clean up
+   */
+  free(enabled);
+  free(url);
+  free(userpass);
+  free(type);
+}
+
+
+/*
+ * Initialize the CURL handle.
+ */
+static void rsstcurlinit(rsstor_handle *handle, CURL **curl_handle)
+{
+  /* Initialize the curl session */ 
+  *curl_handle = curl_easy_init();
+  if(*curl_handle == NULL) {
+    return;
+  }
+
+  /* Set max redirects */
+  curl_easy_setopt(*curl_handle, CURLOPT_MAXREDIRS, MAX_REDIR);
+
+  /* Set connection timeout on 1 minute */
+  curl_easy_setopt(*curl_handle, CURLOPT_CONNECTTIMEOUT, CONNECT_TIMEOUT);
+  curl_easy_setopt(*curl_handle, CURLOPT_TIMEOUT, CURL_TIMEOUT);
+
+  /* some servers don't like requests that are made without a user-agent
+   *      field, so we provide one */ 
+  curl_easy_setopt(*curl_handle, CURLOPT_USERAGENT, "SwarmTV");
+
+  /* Set generate error string */
+  curl_easy_setopt(*curl_handle, CURLOPT_ENCODING, "");
+
+  /* Make curl Follow redirects */
+  curl_easy_setopt(*curl_handle, CURLOPT_FOLLOWLOCATION, 1);
+
+  /*
+   * Handle proxy settings here
+   */
+  rsstcurlproxy(handle, *curl_handle);
+}
+
 /*
  * Download URL and put the resulting data in chunk.
  */
-int rsstdownloadtobuffer(char *url, MemoryStruct *chunk)
+int rsstdownloadtobuffer(rsstor_handle *handle, char *url, MemoryStruct *chunk)
 {
   CURL *curl_handle=NULL;
   int 	rc=0;
+  int   retval=0;
 	char *realurl=NULL;
 	char *cleanurl=NULL;
 	char *userpass=NULL;
@@ -138,59 +224,49 @@ int rsstdownloadtobuffer(char *url, MemoryStruct *chunk)
 			 * Any other case
 			 */
 			realurl=cleanurl;
-			cleanurl=NULL;
-			break;
-	}
+      cleanurl=NULL;
+      retval=-1;
+      break;
+  }
 
-  /* Initialize the curl session */ 
-  curl_handle = curl_easy_init();
+  /* Generic initialization */
+  if(retval == 0) {
+    rsstcurlinit(handle, &curl_handle);
+  }
 
-  /* specify URL to get */ 
-  curl_easy_setopt(curl_handle, CURLOPT_URL, realurl);
+  if(curl_handle == NULL) {
+    retval = -1;
+  } else {
+    /* specify URL to get */ 
+    curl_easy_setopt(curl_handle, CURLOPT_URL, realurl);
 
-  /* send all data to this function  */ 
-  curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+    /* send all data to this function  */ 
+    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
 
-  /* send headers to this function */
-  curl_easy_setopt(curl_handle, CURLOPT_HEADERFUNCTION, WriteHeaderCallback);
+    /* send headers to this function */
+    curl_easy_setopt(curl_handle, CURLOPT_HEADERFUNCTION, WriteHeaderCallback);
 
-  /* we pass our 'chunk' struct to the callback function */ 
-  curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)chunk);
+    /* we pass our 'chunk' struct to the callback function */ 
+    curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)chunk);
 
-  /* we pass our 'chunk' struct to the callback function */ 
-  curl_easy_setopt(curl_handle, CURLOPT_WRITEHEADER, (void *)chunk);
+    /* we pass our 'chunk' struct to the callback function */ 
+    curl_easy_setopt(curl_handle, CURLOPT_WRITEHEADER, (void *)chunk);
 
-  /* some servers don't like requests that are made without a user-agent
-   *      field, so we provide one */ 
-  curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "SwarmTV");
+    /* Set generate error string */
+    curl_easy_setopt(curl_handle, CURLOPT_ERRORBUFFER, errorBuffer);
 
-  /* Set generate error string */
-  curl_easy_setopt(curl_handle, CURLOPT_ERRORBUFFER, errorBuffer);
+    /* If a user name and password is set add it to the options */
+    if(userpass != NULL) {
+      curl_easy_setopt(curl_handle, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+      curl_easy_setopt(curl_handle, CURLOPT_USERPWD, userpass);
+    }
 
-  /* Set generate error string */
-  curl_easy_setopt(curl_handle, CURLOPT_ENCODING, "");
+    /* get it! */ 
+    rc = curl_easy_perform(curl_handle);
 
-  /* Make curl Follow redirects */
-  curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1);
-
-  /* Set max redirects */
-  curl_easy_setopt(curl_handle, CURLOPT_MAXREDIRS, MAX_REDIR);
-
-  /* Set connection timeout on 1 minute */
-  curl_easy_setopt(curl_handle, CURLOPT_CONNECTTIMEOUT, CONNECT_TIMEOUT);
-  curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, CURL_TIMEOUT);
-
-	/* If a user name and password is set add it to the options */
-	if(userpass != NULL) {
-		curl_easy_setopt(curl_handle, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-		curl_easy_setopt(curl_handle, CURLOPT_USERPWD, userpass);
-	}
-
-  /* get it! */ 
-  rc = curl_easy_perform(curl_handle);
-
-  /* cleanup curl stuff */ 
-  curl_easy_cleanup(curl_handle);
+    /* cleanup curl stuff */ 
+    curl_easy_cleanup(curl_handle);
+  }
 
   /*
    * Now, our chunk.memory points to a memory block that is chunk.size
@@ -203,13 +279,13 @@ int rsstdownloadtobuffer(char *url, MemoryStruct *chunk)
    * you're done with it, you should free() it as a nice application.
    */ 
 
-	/*
-	 * Cleanup
-	 */
-	free(realurl);
-	free(userpass);
+  /*
+   * Cleanup
+   */
+  free(realurl);
+  free(userpass);
 
-  return rc;
+  return retval;
 }
 
 /*
@@ -235,7 +311,7 @@ static size_t curlfwrite(void *buffer, size_t size, size_t nmemb, void *stream)
  * return
  * return 0 on success and -1 on failure.
  */
-int rsstdownloadtofile(char *url, char *path)
+int rsstdownloadtofile(rsstor_handle *handle, char *url, char *path)
 {
   CURL *curl;
   CURLcode res;
@@ -250,7 +326,8 @@ int rsstdownloadtofile(char *url, char *path)
 
   curl_global_init(CURL_GLOBAL_DEFAULT);
 
-  curl = curl_easy_init();
+  //curl = curl_easy_init();
+  rsstcurlinit(handle, &curl);
   if(curl) {
     /*
 		 * Set the URL the download is originating from.

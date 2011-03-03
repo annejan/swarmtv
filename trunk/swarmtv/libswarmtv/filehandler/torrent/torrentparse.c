@@ -188,7 +188,7 @@ static int parsetorrent(MemoryStruct *buffer, metafileprops **props)
  * returns a struct containing some of the props of the torrent.
  * free struct afterwards
  */
-int rsstgettorrentinfo(char *url, metafileprops **props)
+int rsstgettorrentinfo(rsstor_handle *handle, char *url, metafileprops **props)
 {
   MemoryStruct *buffer=NULL;
   int           rc=0;
@@ -198,7 +198,7 @@ int rsstgettorrentinfo(char *url, metafileprops **props)
   /*
    * Download to buffer
    */
-  rc = rsstfindtorrent(url, &torurl, &buffer, RECURSE);
+  rc = rsstfindtorrent(handle, url, &torurl, &buffer, RECURSE);
   if(rc != 1){
     rsstwritelog(LOG_NORMAL, "could not find torrent '%s' %s:%d", url, __FILE__, __LINE__);
     *props=NULL;

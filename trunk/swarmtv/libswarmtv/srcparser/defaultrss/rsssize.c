@@ -321,6 +321,7 @@ int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata)
   char          *torlink=NULL;
 	int				    retval=0;
   METAFILETYPE  type=undefined;
+  rsstor_handle *handle=rssdata->handle;
 
 	/*
 	 * Get from size node.
@@ -395,7 +396,7 @@ int rsssize(newtorrents_struct *newtor, rssdatastruct *rssdata)
 		/*
 		 * Download the torrent to verify the length
 		 */
-		rc = rsstgetmetafileinfo(type, torlink, &props);
+		rc = rsstgetmetafileinfo(handle, type, torlink, &props);
 		if(rc == 0) {
 			newtor->size = props->size;	
 		} else {

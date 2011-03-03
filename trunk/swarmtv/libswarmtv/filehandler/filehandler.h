@@ -37,7 +37,7 @@ char **getsupportedmetatypes();
  * @return
  * returns -1 on failure to parse URL, otherwise 0 is returned.
  */
-int rsstgetmetafileinfo(METAFILETYPE type, char *url, metafileprops **props);
+int rsstgetmetafileinfo(rsstor_handle *handle, METAFILETYPE type, char *url, metafileprops **props);
 
 /*
  * Free torrentprop structure.
@@ -63,7 +63,7 @@ void rsstfreemetafileprops(metafileprops *props);
  * 0 when nothing is found
  * 1 when the torrent was found
  */
-int rsstfindmetafile(METAFILETYPE type, char *url, char **torrenturl, MemoryStruct **torbuffer, int recurse);
+int rsstfindmetafile(rsstor_handle *handle, METAFILETYPE type, char *url, char **torrenturl, MemoryStruct **torbuffer, int recurse);
 
 /*
  * Finds and writes torrent to file
@@ -74,7 +74,7 @@ int rsstfindmetafile(METAFILETYPE type, char *url, char **torrenturl, MemoryStru
  * 0 on success
  * -1 when torrent was not found or could not be stored.
  */
-int rsstfindmetafilewrite(METAFILETYPE type, char *url, char *name);
+int rsstfindmetafilewrite(rsstor_handle *handle, METAFILETYPE type, char *url, char *name);
 
 /*
  * Convert string into METAFILETYPE 

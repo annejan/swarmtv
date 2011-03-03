@@ -38,7 +38,7 @@
  * 0 when nothing is found
  * 1 when the NZB was found
  */
-int rsstfindnzb(char *url, char **nzburl, MemoryStruct **nzbbuffer);
+int rsstfindnzb(rsstor_handle *handle, char *url, char **nzburl, MemoryStruct **nzbbuffer);
 
 /*
  * Finds and writes NZB to file
@@ -49,7 +49,7 @@ int rsstfindnzb(char *url, char **nzburl, MemoryStruct **nzbbuffer);
  * 0 on success
  * -1 when NZB was not found or could not be stored.
  */
-int rsstfindnzbwrite(char *url, char *name);
+int rsstfindnzbwrite(rsstor_handle *handle, char *url, char *name);
 
 #endif
 

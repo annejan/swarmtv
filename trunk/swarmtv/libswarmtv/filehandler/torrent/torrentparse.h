@@ -57,6 +57,6 @@ typedef struct {
  * @return
  * returns -1 on failure to parse URL, otherwise 0 is returned.
  */
-int rsstgettorrentinfo(char *url, metafileprops **props);
+int rsstgettorrentinfo(rsstor_handle *handle, char *url, metafileprops **props);
 
 #endif
