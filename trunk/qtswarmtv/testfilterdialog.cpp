@@ -1,12 +1,8 @@
 #include <iostream>
-
 #include <stdio.h>
 #include <sqlite3.h>
 #include <stdlib.h>
-
-extern "C" {
 #include <swarmtv.h>
-}
 
 #include "testfilterdialog.hpp"
 #include "ui_testfilterdialog.h"

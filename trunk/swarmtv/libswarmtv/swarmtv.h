@@ -17,7 +17,11 @@
  *
  *  Program written by Paul Honig 2009 - 2010
  */
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <sqlite3.h>
+#include <time.h>
 
 #ifndef RSSTOR
 #define RSSTOR
@@ -993,4 +997,7 @@ int rsstnzbusage(rsstor_handle *handle, int *enabled, int *percentage);
  */
 int rsstgetmaxusage(rsstor_handle *handle, int *maxuse);
 
+#endif
+#ifdef __cplusplus
+}
 #endif

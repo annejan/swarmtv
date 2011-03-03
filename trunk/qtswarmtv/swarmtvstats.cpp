@@ -1,12 +1,8 @@
 #include <stdio.h>
 #include <sqlite3.h>
 #include <stdlib.h>
-
-extern "C" {
-#include <swarmtv.h>
-}
-
 #include <qstring.h>
+#include <swarmtv.h>
 
 #include "singleton.h"
 #include "swarmtvstats.hpp"

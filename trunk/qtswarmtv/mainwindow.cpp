@@ -1,11 +1,8 @@
 #include <QtGui>
 #include <QtXml>
-#include <sqlite3.h>
 #include <QSettings>
-
-extern "C" {
+#include <sqlite3.h>
 #include <swarmtv.h>
-}
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"

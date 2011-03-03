@@ -93,7 +93,7 @@ if (UNIX AND NOT WIN32)
 	INSTALL(PROGRAMS swarmtv DESTINATION /usr/local/bin)
 else (WIN32)
 	TARGET_LINK_LIBRARIES(swarmtv_exec ${optionalLibs} libswarmtv.dll )
-	INSTALL(PROGRAMS)	
+	INSTALL(PROGRAMS swarmtv.exe DESTINATION C:\\Program\ Files\\swarmtv)	
 endif (UNIX AND NOT WIN32)
 
 

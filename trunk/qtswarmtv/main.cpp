@@ -1,4 +1,4 @@
-#include <QtDBus>
+#include <QtDBus/QtDBus>
 #include <QtGui/QApplication>
 #include <QSplashScreen>
 #include <QSettings>
@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     // Setup the config object
     QCoreApplication::setOrganizationName("ETV");
     QCoreApplication::setOrganizationDomain("swarmtv.nl");
-    QCoreApplication::setApplicationName("Swarmtv");
+    QCoreApplication::setApplicationName("SwarmTv");
 
     MainWindow w;
 

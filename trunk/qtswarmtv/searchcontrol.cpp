@@ -2,15 +2,12 @@
 #include <QTableWidget>
 #include <iostream>
 
+#define PAGE_LIMIT 500
+
 #include <stdio.h>
 #include <sqlite3.h>
 #include <stdlib.h>
-
-#define PAGE_LIMIT 500
-
-extern "C" {
 #include <swarmtv.h>
-}
 
 #include "searchcontrol.hpp"
 #include "simplecell.hpp"

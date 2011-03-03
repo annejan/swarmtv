@@ -9,7 +9,7 @@ QT       += core gui dbus network xml
 TARGET = qtswarmtv
 TEMPLATE = app
 
-CONFIG += qt debug
+CONFIG += qt
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -86,3 +86,5 @@ INSTALLS += target
 
 RESOURCES += \
     swarmtvqtresources.qrc
+
+RC_FILE = swarmtvicon.rc

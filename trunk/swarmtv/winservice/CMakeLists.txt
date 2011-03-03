@@ -9,3 +9,4 @@ SET_TARGET_PROPERTIES(winservice_exec PROPERTIES OUTPUT_NAME "swarmtvservice")
 
 TARGET_LINK_LIBRARIES(winservice_exec ${optionalLibs} libswarmtv.dll )
 
+INSTALL(PROGRAMS swarmtvservice.exe DESTINATION C:\\Program\ Files\\swarmtv)

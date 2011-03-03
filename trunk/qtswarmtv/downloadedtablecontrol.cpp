@@ -5,12 +5,8 @@
 
 #include <sqlite3.h>
 #include <stdlib.h>
-
-extern "C" {
-#include <swarmtv.h>
-}
-
 #include <iostream>
+#include <swarmtv.h>
 
 #include "swarmtv.hpp"
 #include "singleton.h"

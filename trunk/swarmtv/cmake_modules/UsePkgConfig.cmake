@@ -23,7 +23,12 @@
 # Calling PKGCONFIG_DEFINITION will fill the definition (e.g -D_REENTRANT) into the argument,
 # e.g. PKGCONFIG_DEFINITION(libart-2.0 LIBART_DEFINITION)
 
-FIND_PROGRAM(PKGCONFIG_EXECUTABLE NAMES pkg-config PATHS /usr/local/bin )
+if (UNIX AND NOT WIN32)
+	FIND_PROGRAM(PKGCONFIG_EXECUTABLE NAMES pkg-config PATHS /bin )
+else (WIN32)
+	FIND_PROGRAM(PKGCONFIG_EXECUTABLE NAMES pkg-config.exe PATHS /bin )
+endif (UNIX AND NOT WIN32)
+
 
 MACRO(PKGCONFIG _package _include_DIR _link_DIR _link_FLAGS _cflags)
 # reset the variables at the beginning

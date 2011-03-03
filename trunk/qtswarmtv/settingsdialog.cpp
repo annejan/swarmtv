@@ -2,12 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <QSettings>
-
-extern "C" {
-#include <swarmtv.h>
-}
-
 #include <QMessageBox>
+#include <swarmtv.h>
 
 #include "swarmtv.hpp"
 #include "singleton.h"

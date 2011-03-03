@@ -100,10 +100,3 @@ ADD_CUSTOM_COMMAND(
 ADD_CUSTOM_TARGET( examples DEPENDS examplescript)
 
 
-ADD_CUSTOM_COMMAND(
-    OUTPUT dbscript
-    COMMAND ${rsstorrent_SOURCE_DIR}/createdb.sh
-    )
-
-ADD_CUSTOM_TARGET( db DEPENDS dbscript)
-

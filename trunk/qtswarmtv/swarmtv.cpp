@@ -1,10 +1,7 @@
 #include <stdio.h>
 #include <sqlite3.h>
 #include <stdlib.h>
-
-extern "C" {
 #include <swarmtv.h>
-}
 
 #include "swarmtv.hpp"
 

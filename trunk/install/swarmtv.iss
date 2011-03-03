@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "SwarmTv"
-#define MyAppVersion "0.9a"
+#define MyAppVersion "0.9b"
 #define MyAppPublisher "ETV"
 #define MyAppURL "http://swarmtv.nl/"
 #define MyAppExeName "qtswarmtv.exe"
@@ -11,7 +11,7 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{510B0FBD-2145-49CB-B5B5-F164BF9A38D8}}
+AppId={{98044E22-CE69-4AB2-BF40-CE3151AF2663}}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppVerName={#MyAppName} {#MyAppVersion}
@@ -22,7 +22,7 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
-LicenseFile=C:\MinGW\msys\1.0\home\JinX\swarmtv\trunk\swarmtv\license.txt
+LicenseFile=C:\Users\jinx\Documents\swarmtv\trunk\swarmtv\license.txt
 OutputBaseFilename=setup
 Compression=lzma
 SolidCompression=yes
@@ -36,26 +36,36 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescrip
 
 [Files]
 ; Fuck anyone complaining :P
-Source: "C:\Documents and Settings\JinX\My Documents\Downloads\swarmtv-win-alpha\qtswarmtv.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents and Settings\JinX\My Documents\Downloads\swarmtv-win-alpha\examples.bat"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents and Settings\JinX\My Documents\Downloads\swarmtv-win-alpha\iconv.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents and Settings\JinX\My Documents\Downloads\swarmtv-win-alpha\libcurl.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents and Settings\JinX\My Documents\Downloads\swarmtv-win-alpha\libeay32.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents and Settings\JinX\My Documents\Downloads\swarmtv-win-alpha\libgcc_s_dw2-1.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents and Settings\JinX\My Documents\Downloads\swarmtv-win-alpha\libidn-11.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents and Settings\JinX\My Documents\Downloads\swarmtv-win-alpha\libssl32.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents and Settings\JinX\My Documents\Downloads\swarmtv-win-alpha\libswarmtv.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents and Settings\JinX\My Documents\Downloads\swarmtv-win-alpha\libtvdb.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents and Settings\JinX\My Documents\Downloads\swarmtv-win-alpha\libxml2.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents and Settings\JinX\My Documents\Downloads\swarmtv-win-alpha\mingwm10.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents and Settings\JinX\My Documents\Downloads\swarmtv-win-alpha\pcre.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents and Settings\JinX\My Documents\Downloads\swarmtv-win-alpha\QtCore4.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents and Settings\JinX\My Documents\Downloads\swarmtv-win-alpha\QtGui4.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents and Settings\JinX\My Documents\Downloads\swarmtv-win-alpha\QtNetwork4.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents and Settings\JinX\My Documents\Downloads\swarmtv-win-alpha\sqlite3.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents and Settings\JinX\My Documents\Downloads\swarmtv-win-alpha\swarmtv.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents and Settings\JinX\My Documents\Downloads\swarmtv-win-alpha\swarmtvservice.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents and Settings\JinX\My Documents\Downloads\swarmtv-win-alpha\zlib1.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\qtswarmtv.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\examples.bat"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\iconv.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\libcurl.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\libeay32.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\libgcc_s_dw2-1.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\libidn-11.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\libssl32.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\libswarmtv.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\libtvdb.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\libxml2.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\mingwm10.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\pcre.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\QtCore4.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\QtGui4.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\QtNetwork4.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\QtDBus4.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\QtXml4.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\sqlite3.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\swarmtv.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\swarmtvservice.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\zlib1.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\imageformats\qjpeg4.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\libdbus-glib-1-2.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\libdbus-1-3.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\libgobject-2.0-0.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\libgthread-2.0-0.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\libglib-2.0-0.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\intl.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jinx\Downloads\swarmtv-win-alpha\dbus-daemon.exe"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
@@ -288,15 +298,24 @@ function InitializeSetup(): Boolean;
 	if IsServiceInstalled('SwarmTv') = true then begin
     StopService('SwarmTv');
     // make sure you can overwrite
- end
-  	Result := true
+  end
+  if IsServiceInstalled('dbus') = true then begin
+    StopService('dbus');
+  end
+  Result := true
 end;
 
 procedure DeinitializeSetup();
 begin
 	if IsServiceInstalled('SwarmTv') = false then begin
-		if InstallService('c:\Program Files\SwarmTv\swarmtvservice.exe','SwarmTv','SwarmTv service','SwarmTv service is doing usefull things',SERVICE_WIN32_OWN_PROCESS,SERVICE_AUTO_START) = true then begin
+		if InstallService(ExpandConstant('{app}\swarmtvservice.exe'),'SwarmTv','SwarmTv service','SwarmTv service for background downloading of torrents and nzb-files',SERVICE_WIN32_OWN_PROCESS,SERVICE_AUTO_START) = true then begin
 			StartService('SwarmTv');
+		end
+	end
+  if IsServiceInstalled('dbus') = false then begin
+		if InstallService(ExpandConstant('{app}\dbus-daemon.exe'),'dbus','DBus service','DBus service is allowing inter process communications',SERVICE_WIN32_OWN_PROCESS,SERVICE_AUTO_START) = true then begin
+      // the above doesn't seem to work .. perhaps not serviceable .. --session doesn't help!
+			StartService('dbus');
 		end
 	end
 end;
@@ -309,5 +328,9 @@ function InitializeUninstall(): Boolean;
     RemoveService('SwarmTv');
     // otherwise removing can fail
 	end
-  	Result := true
+  if IsServiceInstalled('dbus') = true then begin
+    StopService('dbus');
+    RemoveService('dbus');
+	end
+  Result := true
 end;

@@ -23,7 +23,9 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#ifndef __MINGW32__
 #include <sys/statvfs.h>
+#endif
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -233,7 +235,9 @@ int rsstdiskusage(char *path, int *usage)
 {
   int rc=0;
   int retval=0;
+#ifndef __MINGW32__
   struct statvfs sbuf;
+#endif
   long int left=0;
   long int total=0;
   char *exppath=NULL;
@@ -241,7 +245,9 @@ int rsstdiskusage(char *path, int *usage)
   /*
    * Init struct.
    */
+#ifndef __MINGW32__
   memset(&total, 0, sizeof(statvfs));
+#endif
 
   /*
    * Sanity check
@@ -255,13 +261,25 @@ int rsstdiskusage(char *path, int *usage)
    */
   rsstcompletepath(path, &exppath);
 
+#ifndef __MINGW32__
   rc = statvfs(exppath, &sbuf);
   if (rc < 0){
     retval = -1;
+  } else {
+    left=sbuf.f_bsize*sbuf.f_bavail;
+    total=sbuf.f_bsize*sbuf.f_blocks;
   }
-  left=sbuf.f_bsize*sbuf.f_bavail;
-  total=sbuf.f_bsize*sbuf.f_blocks;
-
+#else
+  DWORD dwBytesPerSector, dwSectorsPerCluster, dwFreeClusters, dwTotalClusters; 
+  rc = GetDiskFreeSpace(exppath, &dwBytesPerSector,
+    &dwSectorsPerCluster, &dwFreeClusters, &dwTotalClusters);
+  if (rc < 0){
+    retval = -1;
+  } else {
+    left=dwBytesPerSector*dwSectorsPerCluster*dwFreeClusters;
+    total=dwBytesPerSector*dwSectorsPerCluster*dwTotalClusters;
+  }
+#endif
   /*
    * Calculate the usage percentage
    */

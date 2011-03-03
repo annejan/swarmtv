@@ -1,14 +1,10 @@
+#include <QWidget>
+
 #include <sqlite3.h>
 #include <stdlib.h>
 #include <string.h>
-
-extern "C" {
-#include <swarmtv.h>
-}
-
-#include <QWidget>
-
 #include <iostream>
+#include <swarmtv.h>
 
 #include "sourceeditdialog.hpp"
 #include "singleton.h"

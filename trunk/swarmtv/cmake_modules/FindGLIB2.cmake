@@ -48,6 +48,7 @@ else (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS AND GLIB2_PUBLIC_LINK_FLAGS)
       /sw/lib/glib-2.0/include
       /usr/lib64/glib-2.0/include
       /usr/lib/glib-2.0/include
+      /include
   )
 
   set(GLIB2_DEFINITIONS ${_GLIB2Cflags})
@@ -69,6 +70,7 @@ else (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS AND GLIB2_PUBLIC_LINK_FLAGS)
       /sw/include/glib-2.0
       /usr/include/glib-2.0
       /usr/local/include/glib-2.0
+      /include/glib-2.0
   )
 
   find_library(GLIB2_LIBRARY
@@ -88,6 +90,7 @@ else (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS AND GLIB2_PUBLIC_LINK_FLAGS)
       /sw/lib
       /usr/lib
       /usr/local/lib
+      /lib
   )
   ##
 
@@ -133,6 +136,7 @@ else (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS AND GLIB2_PUBLIC_LINK_FLAGS)
       /sw/lib
       /usr/lib
       /usr/local/lib
+      /lib
   )
   if (GMODULE2_LIBRARY AND GMODULE2_INCLUDE_DIR)
     set(GMODULE2_FOUND TRUE)
@@ -164,6 +168,7 @@ else (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS AND GLIB2_PUBLIC_LINK_FLAGS)
       /sw/include/glib-2.0
       /usr/include/glib-2.0
       /usr/local/include/glib-2.0
+      /include/glib-2.0
     PATH_SUFFIXES
       glib
   )
@@ -185,6 +190,7 @@ else (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS AND GLIB2_PUBLIC_LINK_FLAGS)
       /sw/lib
       /usr/lib
       /usr/local/lib
+      /lib
   )
 
   if (GTHREAD2_LIBRARY AND GTHREAD2_INCLUDE_DIR)
@@ -217,6 +223,7 @@ else (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS AND GLIB2_PUBLIC_LINK_FLAGS)
       /sw/include/glib-2.0
       /usr/include/glib-2.0
       /usr/local/include/glib-2.0
+      /include/glib-2.0
     PATH_SUFFIXES
       gobject
   )
@@ -238,6 +245,7 @@ else (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS AND GLIB2_PUBLIC_LINK_FLAGS)
       /sw/lib
       /usr/lib
       /usr/local/lib
+      /lib
   )
 
   if (GOBJECT2_LIBRARY AND GOBJECT2_INCLUDE_DIR)
@@ -257,6 +265,7 @@ else (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS AND GLIB2_PUBLIC_LINK_FLAGS)
       /sw/include
       /usr/include/glib-2.0
       /usr/local/include/glib-2.0
+      /include/glib-2.0
   )
 
   find_library(LIBINTL_LIBRARY
@@ -269,6 +278,7 @@ else (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS AND GLIB2_PUBLIC_LINK_FLAGS)
       /sw/lib
       /usr/local/lib
       /usr/lib
+      /lib
   )
 
   if (LIBINTL_LIBRARY AND LIBINTL_INCLUDE_DIR)
@@ -289,6 +299,7 @@ else (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS AND GLIB2_PUBLIC_LINK_FLAGS)
       /sw/include/glib-2.0
       /usr/local/include/glib-2.0
       /usr/include/glib-2.0
+      /include/glib-2.0
   )
 
   find_library(LIBICONV_LIBRARY
@@ -300,6 +311,7 @@ else (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS AND GLIB2_PUBLIC_LINK_FLAGS)
       /opt/local/lib
       /sw/lib
       /usr/lib
+      /lib
       /usr/local/lib
   )
 
