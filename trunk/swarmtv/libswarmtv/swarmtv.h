@@ -41,6 +41,12 @@ extern "C" {
 typedef enum {loop=0, once} LOOPMODE;
 
 /*
+ * Structure holding useful torrent properties.
+ */
+typedef enum {undefined=0, torrent, nzb} METAFILETYPE;
+
+
+/*
  * Return values for execute query inside RSS-torrent
  * ROWS_ERROR error occurred
  * ROWS_EMPTY no rows found or changed
@@ -99,6 +105,15 @@ typedef struct {
 } struct_download;
 
 /*
+ * Disk full structure
+ */
+typedef struct {
+  METAFILETYPE  metatype; /* Metatype of the test */
+  int           limit;    /* Limit set */
+  int           use;      /* current usage */
+} struct_diskusage;
+
+/*
  * Enum for callbacks
  * Make sure lastelement is always the last element in the list !
  */
@@ -109,6 +124,7 @@ typedef enum {
   applysqlfilt,       /* load pointer contains filter_struct */
   downloadtorrent,    /* load pointer contains downloaded_struct */
   endcycle,           /* NULL pointer is sent with this callback */
+  diskfull,           /* load pointer contains struct_diskusage */
   lastelement         /* Here as end marker */
 } enum_callbacks;
 
@@ -122,6 +138,7 @@ typedef struct {
   struct_callback *applysqlfilt;    /* Emitted when a SQL filter is processed */
   struct_callback *downloadtorrent; /* When a Torrent is downloaded */
 	struct_callback *endcycle; 			  /* emitted at the end of an update cycle */
+  struct_callback *diskfull;        /* emitted when the download partitions are full */
 } struct_callbacks;	
 
 /*

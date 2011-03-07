@@ -39,11 +39,6 @@ struct FtpFile {
 };
 
 /*
- * Structure holding useful torrent properties.
- */
-typedef enum {undefined=0, torrent, nzb} METAFILETYPE;
-
-/*
  * meta file properties
  * Data extracted from the torrent/nzb is stored in this struct
  */

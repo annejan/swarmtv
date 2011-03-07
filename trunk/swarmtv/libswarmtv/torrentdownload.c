@@ -595,11 +595,13 @@ int rsstcheckdiskspace(rsstor_handle *handle, METAFILETYPE type, int *spaceondis
   int percentage=0;
   int maxuse=0;
   int enabled=0;
+  struct_diskusage usage;
 
   /*
    * Initialize spacedisk when no blocking 
    */
   *spaceondisk=1;
+  memset(&usage, 0, sizeof(struct_diskusage));
 
   /*
    * Get the maximal partition usage
@@ -642,6 +644,13 @@ int rsstcheckdiskspace(rsstor_handle *handle, METAFILETYPE type, int *spaceondis
         rsstwritelog(LOG_ERROR, "NZB download directory full. %s:%d", __FILE__, __LINE__);
       }
 
+      /*
+       * Send callback
+       */
+      usage.limit=maxuse;
+      usage.use=percentage;
+      usage.metatype=type;
+      rsstexecallbacks(handle, diskfull, &usage);
     }
   }
 

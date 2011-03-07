@@ -344,3 +344,63 @@ int rssfdownedtoxml(downloaded_struct *downed, xmlChar **xmlbuff, int *buffersiz
   return (0);
 }
 
+
+/*
+ * Encode struct_diskusage
+ * METAFILETYPE  metatype;  Metatype of the test 
+ * int           limit;     Limit set
+ * int           use;       current usage
+ * @arguments
+ * usage      Structure to encode  
+ * xmlbuff    Pointer to buffer containing XML  
+ * buffersize size of the XML buffer
+ * @return
+ * 0 on success, otherwise -1
+ */
+int rssfusagetoxml(struct_diskusage *usage, xmlChar **xmlbuff, int *buffersize)
+{
+  xmlDocPtr   doc=NULL;
+  xmlNodePtr  root=NULL;
+  xmlNodePtr  swarmtv=NULL;
+  char       *typename=NULL;
+  
+  rssfnewdocument(&doc, "swarmtv");
+
+  root = xmlDocGetRootElement(doc);
+  swarmtv =  xmlNewTextChild(root, NULL, BAD_CAST "diskfull", NULL);
+
+  /*
+   * Determine typename
+   */
+  switch(usage->metatype) {
+    case torrent:
+      typename="torrent";
+      break;
+    case nzb:
+      typename="nzb";
+      break;
+    case undefined:
+      typename="undefined";
+      break;
+  }
+
+  /*
+   * Add data
+   */
+  rssfxmlnewintchild(swarmtv, NULL, BAD_CAST "limit"        , usage->limit);
+  rssfxmlnewintchild(swarmtv, NULL, BAD_CAST "use"        , usage->use);
+  xmlNewTextChild   (swarmtv, NULL, BAD_CAST "metafiletype" , BAD_CAST typename);
+
+  /*
+   * Dump generated document to string
+   */
+  xmlDocDumpFormatMemory(doc, xmlbuff, buffersize, 1);
+
+  /*
+   * Free associated memory.
+   */
+  xmlFreeDoc(doc);
+
+  return (0);
+}
+

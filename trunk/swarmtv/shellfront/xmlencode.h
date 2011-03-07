@@ -116,3 +116,18 @@ int rssfsqltoxml(filter_struct *filter, xmlChar **xmlbuff, int *buffersize);
  * 0 on success, otherwise -1
  */
 int rssfdownedtoxml(downloaded_struct *downed, xmlChar **xmlbuff, int *buffersize);
+
+/*
+ * Encode struct_diskusage
+ * METAFILETYPE  metatype;  Metatype of the test 
+ * int           limit;     Limit set
+ * int           use;       current usage
+ * @arguments
+ * usage      Structure to encode  
+ * xmlbuff    Pointer to buffer containing XML  
+ * buffersize size of the XML buffer
+ * @return
+ * 0 on success, otherwise -1
+ */
+int rssfusagetoxml(struct_diskusage *usage, xmlChar **xmlbuff, int *buffersize);
+

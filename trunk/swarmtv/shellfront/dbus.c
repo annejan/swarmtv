@@ -289,6 +289,32 @@ static int rssfcallbackdownedfnct(void *data, void *calldata)
 	return 0;
 }
 
+/*
+ * Executed when the download partition is full 
+ */
+static int rssfcallbackfullfnct(void *data, void *calldata)
+{
+  rsstor_handle     *handle=NULL;
+  DBusConnection    *bus=NULL;
+  runcycledata      *rundata=NULL;
+  struct_diskusage  *usage=NULL;
+  xmlChar           *xmlbuf=NULL;
+  int                buffersize=0;
+
+  handle=(rsstor_handle*) data;
+  rundata=(runcycledata*) handle->data;
+  bus=rundata->bus;
+  usage=(struct_diskusage*) calldata;
+
+	/*
+	 * Call the dbus method to send the message through.
+	 */
+  rssfusagetoxml(usage, &xmlbuf, &buffersize);
+  rssfsenddbusmsg(bus, "diskfull", (char*) xmlbuf);
+  rssffreexmldoc(xmlbuf);
+
+	return 0;
+}
 
 /*
  * Connect swarmtv events to dbus emits
@@ -306,6 +332,7 @@ void rssfinitcallbacks(rsstor_handle *handle)
     rsstaddcallback(handle, downloadtorrent,  rssfcallbackdownedfnct, handle);
     rsstaddcallback(handle, applysimplefilt,  rssfcallbacksimplefnct, handle);
     rsstaddcallback(handle, applysqlfilt,     rssfcallbacksqlfnct,    handle);
+    rsstaddcallback(handle, diskfull,     rssfcallbackfullfnct,    handle);
 }
 
 /*
