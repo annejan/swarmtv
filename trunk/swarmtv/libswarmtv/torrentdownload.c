@@ -697,7 +697,7 @@ static int dodownload(rsstor_handle *handle, downloaded_struct *downed)
     /*
      * download
      */
-    retval = rsstfindmetafilewrite(handle, type, downed->link, filename);
+    retval = rsstfindmetafilewrite(handle, type, downed->link, filename, downed->filter);
   } else {
     /*
      * Meta type unknown, this is problematic

@@ -55,6 +55,6 @@ int rsstfindtorrent(rsstor_handle *handle, char *url, char **torrenturl, MemoryS
  * 0 on success
  * -1 when torrent was not found or could not be stored.
  */
-int rsstfindtorrentwrite(rsstor_handle *handle, char *url, char *name);
+int rsstfindtorrentwrite(rsstor_handle *handle, char *url, char *name, char *filtername);
 
 #endif

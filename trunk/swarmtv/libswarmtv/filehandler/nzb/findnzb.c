@@ -194,6 +194,37 @@ int rsstfindnzb(rsstor_handle *handle, char *url, char **nzburl, MemoryStruct **
 
 
 /*
+ * Set up handlers structure and call torrent handler (When available)
+ */
+static int rsstcallnzbhandle(rsstor_handle *handle, char *torurl, char *name, char *filtername, MemoryStruct *buffer)
+{
+  int retval=0;
+  struct_downedmetafile nzb;
+
+  /*
+   * Setup the callback structure
+   */
+  memset(&nzb, 0, sizeof(struct_downedmetafile));
+  nzb.name = name;
+  nzb.filtername = filtername;
+  nzb.metatype = "torrent";
+  nzb.url = torurl;
+  nzb.metadata = buffer->memory;
+  nzb.metasize = buffer->size;
+
+  /*
+   * Call the handler 
+   */
+  retval = rsstexecallbacks(handle, handlenzbfile, &nzb);
+
+  /*
+   * Return the handler return code
+   */
+  return retval;
+}
+
+
+/*
  * Finds and writes NZB to file
  * @arguments
  * url the URL to start looking for a NZB.
@@ -202,7 +233,7 @@ int rsstfindnzb(rsstor_handle *handle, char *url, char **nzburl, MemoryStruct **
  * 0 on success
  * -1 when NZB was not found or could not be stored.
  */
-int rsstfindnzbwrite(rsstor_handle *handle, char *url, char *name)
+int rsstfindnzbwrite(rsstor_handle *handle, char *url, char *name, char *filtername)
 {
   int             rc = 0;
   int             rv = 0;
@@ -226,6 +257,17 @@ int rsstfindnzbwrite(rsstor_handle *handle, char *url, char *name)
   if(rv == 0 && strcmp(url, nzburl) != 0) {
     rsstwritelog(LOG_NORMAL, "Original URL : %s", url);
     rsstwritelog(LOG_NORMAL, "NZB URL   : %s", nzburl);
+  }
+
+  /*
+   * Call the front end handler, when this does not provide a 
+   * stop_processing back, continue. 
+   */
+  rc = rsstcallnzbhandle(handle, nzburl, name, filtername, buffer);
+  if(rc == stop_processing) {
+    // When the callback has done the handling do no more
+    rsstwritelog(LOG_NORMAL, "Callback handled nzb download '%s'.", name);
+    rv=-1;
   }
 
   /*

@@ -183,16 +183,16 @@ int rsstfindmetafile(rsstor_handle *handle, METAFILETYPE type, char *url, char *
  * 0 on success
  * -1 when torrent was not found or could not be stored.
  */
-int rsstfindmetafilewrite(rsstor_handle *handle, METAFILETYPE type, char *url, char *name)
+int rsstfindmetafilewrite(rsstor_handle *handle, METAFILETYPE type, char *url, char *name, char *filtername)
 {
   int rc=0;
 
   switch(type){
     case torrent:
-      rc = rsstfindtorrentwrite(handle, url, name);
+      rc = rsstfindtorrentwrite(handle, url, name, filtername);
       break;
     case nzb:
-      rc = rsstfindnzbwrite(handle, url, name);
+      rc = rsstfindnzbwrite(handle, url, name, filtername);
       break;
     case undefined:
       /*

@@ -438,11 +438,41 @@ int rsstfindtorrent(rsstor_handle *handle, char *url, char **torrenturl, MemoryS
   return 0;
 }
 
+/*
+ * Set up handlers structure and call torrent handler (When available)
+ */
+static int rsstcalltorrenthandle(rsstor_handle *handle, char *torurl, char *name, char *filtername, MemoryStruct *buffer)
+{
+  int retval=0;
+  struct_downedmetafile torrent;
+
+  /*
+   * Setup the callback structure
+   */
+  memset(&torrent, 0, sizeof(struct_downedmetafile));
+  torrent.name = name;
+  torrent.filtername = filtername;
+  torrent.metatype = "torrent";
+  torrent.url = torurl;
+  torrent.metadata = buffer->memory;
+  torrent.metasize = buffer->size;
+
+  /*
+   * Call the handler 
+   */
+  retval = rsstexecallbacks(handle, handletorrentfile, &torrent);
+
+  /*
+   * Return the handler return code
+   */
+  return retval;
+}
+
 
 /*
  * Finds and writes torrent to file
  */
-int rsstfindtorrentwrite(rsstor_handle *handle, char *url, char *name)
+int rsstfindtorrentwrite(rsstor_handle *handle, char *url, char *name, char *filtername)
 {
   int             rc = 0;
   int             rv = 0;
@@ -468,6 +498,17 @@ int rsstfindtorrentwrite(rsstor_handle *handle, char *url, char *name)
   if(rv == 0 && strcmp(url, torurl) != 0) {
     rsstwritelog(LOG_NORMAL, "Original URL : %s", url);
     rsstwritelog(LOG_NORMAL, "Torrent URL   : %s", torurl);
+  }
+
+  /*
+   * Call the front end handler, when this does not provide a 
+   * stop_processing back, continue. 
+   */
+  rc = rsstcalltorrenthandle(handle, torurl, name, filtername, buffer);
+  if(rc == stop_processing) {
+    // When the callback has done the handling do no more
+    rsstwritelog(LOG_NORMAL, "Callback handled torrent download '%s'.", name);
+    rv=-1;
   }
 
   /*

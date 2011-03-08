@@ -74,7 +74,7 @@ int rsstfindmetafile(rsstor_handle *handle, METAFILETYPE type, char *url, char *
  * 0 on success
  * -1 when torrent was not found or could not be stored.
  */
-int rsstfindmetafilewrite(rsstor_handle *handle, METAFILETYPE type, char *url, char *name);
+int rsstfindmetafilewrite(rsstor_handle *handle, METAFILETYPE type, char *url, char *name, char *filtername);
 
 /*
  * Convert string into METAFILETYPE 

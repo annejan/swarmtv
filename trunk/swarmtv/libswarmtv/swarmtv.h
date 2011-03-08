@@ -114,8 +114,34 @@ typedef struct {
 } struct_diskusage;
 
 /*
+ * Torrent structure
+ */
+typedef struct {
+  char    *name;      // Name of the download
+  char    *filtername;// Filter name delivering this metafile
+  char    *metatype;  // Torrent or NZB
+  char    *url;       // Origin URL
+  char    *metadata;  // Metafile content
+  size_t   metasize;  // the size of the metafile content
+} struct_downedmetafile;
+
+/*
+ *  Return value for Torrent handle
+ */
+typedef enum {
+  nohandler=0,
+  continue_processing,  // Continue handling the Torrent after receiving signal
+  stop_processing         // Do not save the torrent to disk
+} enum_downedmetafile;
+
+/*
  * Enum for callbacks
- * Make sure lastelement is always the last element in the list !
+ * Make sure "lastelement" is always the last element in the list !
+ *
+ * == Using callback routines to register handle routines
+ * All callbacks to handle content starts with "handle"
+ * Handle routines at the front end can return "stop_process" to take over the handling of the signal.
+ * Handle handletorrentfile, handlenzbfile, can be used to pass Torrent data to the front end.
  */
 typedef enum {
   startcycle=0,       /* NULL pointer is sent with this callback */
@@ -125,6 +151,8 @@ typedef enum {
   downloadtorrent,    /* load pointer contains downloaded_struct */
   endcycle,           /* NULL pointer is sent with this callback */
   diskfull,           /* load pointer contains struct_diskusage */
+  handletorrentfile,  /* load pointer contains struct_downedmetafile */
+  handlenzbfile,      /* load pointer contains struct_downedmetafile */
   lastelement         /* Here as end marker */
 } enum_callbacks;
 
@@ -139,6 +167,8 @@ typedef struct {
   struct_callback *downloadtorrent; /* When a Torrent is downloaded */
 	struct_callback *endcycle; 			  /* emitted at the end of an update cycle */
   struct_callback *diskfull;        /* emitted when the download partitions are full */
+  struct_callback *handletorrentfile;   /* emitted when a torrent is downloaded, returning enum_downedmetafile. */
+  struct_callback *handlenzbfile;       /* emitted when a nzb is downloaded, returning enum_downedmetafile */
 } struct_callbacks;	
 
 /*

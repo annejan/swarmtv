@@ -49,7 +49,7 @@ int rsstfindnzb(rsstor_handle *handle, char *url, char **nzburl, MemoryStruct **
  * 0 on success
  * -1 when NZB was not found or could not be stored.
  */
-int rsstfindnzbwrite(rsstor_handle *handle, char *url, char *name);
+int rsstfindnzbwrite(rsstor_handle *handle, char *url, char *name, char *filtername);
 
 #endif
 
