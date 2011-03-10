@@ -8,8 +8,10 @@ DEPENDPATH += .
 INCLUDEPATH += . ../libswarmtv
 CONFIG += link_pkgconfig
 PKGCONFIG += xml2po dbus-1 glib-2.0 dbus-glib-1 sqlite3
-LIBS += -L../libswarmtv -lswarmtv -lcurl -lesmtp
-
+LIBS += -L../libswarmtv -lswarmtv -lcurl 
+unix{
+LIBS += -lesmtp
+}
 # Input
 HEADERS += daemonize.h \
            dbus.h \
