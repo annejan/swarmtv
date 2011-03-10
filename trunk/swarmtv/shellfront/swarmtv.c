@@ -26,7 +26,11 @@
 #include <libxml/parser.h>
 #include <signal.h>
 
-#include "types.h"
+#ifdef __MINGW32__
+#include "../libswarmtv/types.h"
+#else
+#include "types.h".
+#endif
 #include "database.h"
 #include "logfile.h"
 #include "handleopts.h"

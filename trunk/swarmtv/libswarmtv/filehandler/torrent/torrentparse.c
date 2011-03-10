@@ -25,7 +25,11 @@
 #include <time.h>
 #include <sqlite3.h>
 
+#ifdef __MINGW32__
+#include "../../types.h"  /* looks damn ugly! */
+#else
 #include "types.h"
+#endif
 #include "curlfile.h"
 #include "tbl.h"
 #include "torrentparse.h"

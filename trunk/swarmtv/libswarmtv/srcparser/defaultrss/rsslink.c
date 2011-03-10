@@ -24,7 +24,11 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+#ifdef __MINGW32__
+#include "../../types.h"  /* looks damn ugly! */
+#else
 #include "types.h"
+#endif
 #include "logfile.h"
 #include "regexp.h"
 #include "filehandler/torrent/findtorrent.h"

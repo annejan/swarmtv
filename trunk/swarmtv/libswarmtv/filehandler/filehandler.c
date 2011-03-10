@@ -22,7 +22,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef __MINGW32__
+#include "../types.h"  /* looks stupid! */
+#else
 #include "types.h"
+#endif
 #include "regexp.h"
 #include "curlfile.h"
 #include "filehandler.h"

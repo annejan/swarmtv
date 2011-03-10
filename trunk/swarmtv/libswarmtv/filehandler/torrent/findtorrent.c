@@ -29,7 +29,11 @@
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
 
+#ifdef __MINGW32__
+#include "../../types.h"  /* looks damn ugly! */
+#else
 #include "types.h"
+#endif
 #include "regexp.h"
 #include "curlfile.h"
 #include "logfile.h"

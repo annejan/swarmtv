@@ -28,12 +28,16 @@
 #include "filesystem.h"
 
 #include "sqlite3.h"
-#include "types.h"
+#ifdef __MINGW32__
+#include "../libswarmtv/types.h"
+#else
+#include "types.h".
+#endif
 #include "config.h"
 
 #ifdef __MINGW32__
 #include <windows.h>
-/* TODO get 'good' Windows CreateProcess stuff going on */
+/* TODO get 'good' Windows CreateProcess stuff going on? */
 #define getppid() 0
 #define fork() 0
 #define setsid() 0

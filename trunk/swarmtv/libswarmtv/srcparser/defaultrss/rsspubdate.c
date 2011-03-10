@@ -23,7 +23,11 @@
 #include <time.h>
 #include <stdlib.h>
 
+#ifdef __MINGW32__
+#include "../../types.h"  /* looks damn ugly! */
+#else
 #include "types.h"
+#endif
 #include "logfile.h"
 #include "disectdate.h"
 #include "disectdescription.h"

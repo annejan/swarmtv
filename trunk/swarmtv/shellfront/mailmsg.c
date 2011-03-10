@@ -35,7 +35,11 @@
 #include <libesmtp.h>
 #include <sqlite3.h>
 
-#include "types.h"
+#ifdef __MINGW32__
+#include "../libswarmtv/types.h"
+#else
+#include "types.h".
+#endif
 #include "config.h"
 #include "logfile.h"
 
@@ -147,7 +151,9 @@ static int rsstsendrssmail(sqlite3 *db, const char *subject, const char *msgtxt)
  */
 static int rsstsendmail(const char *host, const char *from, const char *to, const char *subject, const char *msgtxt)
 {
-	int						 retval=0;
+  int retval=0;
+  /* no mail on windows ATM! */
+#ifndef __MINGW32__
   smtp_session_t session;
   smtp_message_t message;
   smtp_recipient_t recipient;
@@ -252,6 +258,7 @@ static int rsstsendmail(const char *host, const char *from, const char *to, cons
   //auth_destroy_context (authctx);
   //fclose (fp);
   auth_client_exit ();
+#endif
   //exit (0);
   return retval;
 }

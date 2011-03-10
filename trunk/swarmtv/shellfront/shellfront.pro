@@ -8,9 +8,12 @@ DEPENDPATH += .
 INCLUDEPATH += . ../libswarmtv
 CONFIG += link_pkgconfig
 PKGCONFIG += xml2po dbus-1 glib-2.0 dbus-glib-1 sqlite3
-LIBS += -L../libswarmtv -lswarmtv -lcurl 
+LIBS += -L../libswarmtv -lswarmtv -lcurl -lpcre
 unix{
-LIBS += -lesmtp
+ LIBS += -lesmtp
+}
+win32{
+LIBS += -lxml2 -ldbus-1 -lglib-2.0 -ldbus-glib-1 -lwsock32 -lws2_32 -liconv
 }
 target.path = /usr/local/bin/
 INSTALLS += target

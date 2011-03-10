@@ -24,7 +24,11 @@
 #include <time.h>
 #include <sqlite3.h>
 
+#ifdef __MINGW32__
+#include "../../types.h"  /* looks damn ugly! */
+#else
 #include "types.h"
+#endif
 #include "logfile.h"
 #include "rssparse.h"
 #include "defaultrss.h"

@@ -73,15 +73,19 @@ void rsstcompletepath(const char *origpath, char **destpath)
      * and not check for 0 every step of the way
      */
 
-    SHGetFolderPath(NULL, CSIDL_COMMON_DOCUMENTS, NULL, 0, homedir);
+#ifdef UNICODE
     /* might need some UNICODE safety here !! */
-    //LPSTR homefolder=NULL;
-    //int cw=lstrlenW(homefolder);
-    //int cc=WideCharToMultiByte(CP_ACP, 0, homefolder, cw, NULL, 0, NULL, NULL);
+    LPWSTR homefolder=NULL;
+    SHGetFolderPath(NULL, CSIDL_COMMON_DOCUMENTS, NULL, 0, homefolder);
+    int cw=lstrlenW(homefolder);
+    int cc=WideCharToMultiByte(CP_ACP, 0, homefolder, cw, NULL, 0, NULL, NULL);
     /* now we know how many chars */
-    //cc=WideCharToMultiByte(CP_ACP, 0, homefolder, cw, homedir, cc, NULL, NULL);
-    //homedir[cc]='\0';
+    cc=WideCharToMultiByte(CP_ACP, 0, homefolder, cw, homedir, cc, NULL, NULL);
+    homedir[cc]='\0';
     //delete homefolder;
+#else
+    SHGetFolderPath(NULL, CSIDL_COMMON_DOCUMENTS, NULL, 0, homedir);
+#endif
 #else
     homedir = getenv("HOME");
 #endif
@@ -271,8 +275,15 @@ int rsstdiskusage(char *path, int *usage)
   }
 #else
   DWORD dwBytesPerSector, dwSectorsPerCluster, dwFreeClusters, dwTotalClusters; 
+  #ifdef UNICODE
+  wchar_t *wexppath=NULL;
+  mbstowcs(wexppath, exppath, MAX_PATH);
+  rc = GetDiskFreeSpace(wexppath, &dwBytesPerSector,
+    &dwSectorsPerCluster, &dwFreeClusters, &dwTotalClusters);
+  #else
   rc = GetDiskFreeSpace(exppath, &dwBytesPerSector,
     &dwSectorsPerCluster, &dwFreeClusters, &dwTotalClusters);
+  #endif
   if (rc < 0){
     retval = -1;
   } else {

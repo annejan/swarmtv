@@ -25,7 +25,11 @@
 #include <ctype.h>
 #include <math.h>
 
+#ifdef __MINGW32__
+#include "../../types.h"  /* looks damn ugly! */
+#else
 #include "types.h"
+#endif
 #include "logfile.h"
 #include "config.h"
 #include "regexp.h"
