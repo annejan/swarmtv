@@ -20,7 +20,8 @@ CONFIG += dll link_pkgconfig
 PKGCONFIG += xml2po dbus-1 sqlite3 
 
 target.path = /usr/local/lib/
-INSTALLS += target
+headers.path = /usr/local/include/
+INSTALLS += target headers
 
 # Input
 HEADERS += baretitle.h \
