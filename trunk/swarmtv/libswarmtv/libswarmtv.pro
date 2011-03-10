@@ -17,7 +17,10 @@ INCLUDEPATH += . \
                filehandler/torrent \
                filehandler/nzb
 CONFIG += dll link_pkgconfig
-PKGCONFIG += xml2po dbus-1 sqlite 
+PKGCONFIG += xml2po dbus-1 sqlite3 
+
+target.path = /usr/local/lib/
+INSTALLS += target
 
 # Input
 HEADERS += baretitle.h \

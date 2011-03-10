@@ -12,6 +12,8 @@ LIBS += -L../libswarmtv -lswarmtv -lcurl
 unix{
 LIBS += -lesmtp
 }
+target.path = /usr/local/bin/
+INSTALLS += target
 # Input
 HEADERS += daemonize.h \
            dbus.h \
