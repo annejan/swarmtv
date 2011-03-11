@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET =
+TARGET = swarmtvservice
 DEPENDPATH += . ../libswarmtv
 INCLUDEPATH += . ../libswarmtv
 LIBS += -L../libswarmtv -lswarmtv -lwsock32 -lws2_32

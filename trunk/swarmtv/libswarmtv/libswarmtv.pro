@@ -3,7 +3,12 @@
 ######################################################################
 
 TEMPLATE = lib 
+win32{
+TARGET = libswarmtv
+}
+unix {
 TARGET = swarmtv
+}
 DEPENDPATH += . \
               filehandler \
               filehandler/nzb \
@@ -18,7 +23,10 @@ INCLUDEPATH += . \
                filehandler/nzb
 CONFIG += dll link_pkgconfig
 PKGCONFIG += xml2po sqlite3 dbus-1 glib-2.0 dbus-glib-1
-LIBS += -lcurl -lpcre # -lesmtp
+LIBS += -lcurl -lpcre
+unix{
+LIBS += -lesmtp
+}
 win32{
 LIBS += -lsqlite3 -lxml2 -lcurldll -liconv -lwsock32
 }
