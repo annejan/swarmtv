@@ -38,7 +38,7 @@
 #ifdef __MINGW32__
 #include "../libswarmtv/types.h"
 #else
-#include "types.h".
+#include "types.h"
 #endif
 #include "config.h"
 #include "logfile.h"

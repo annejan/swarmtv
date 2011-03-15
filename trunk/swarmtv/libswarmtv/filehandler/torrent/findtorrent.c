@@ -458,8 +458,12 @@ static int rsstcalltorrenthandle(rsstor_handle *handle, char *torurl, char *name
   torrent.filtername = filtername;
   torrent.metatype = "torrent";
   torrent.url = torurl;
-  torrent.metadata = buffer->memory;
-  torrent.metasize = buffer->size;
+  if(buffer != NULL) {
+    torrent.metadata = buffer->memory;
+    torrent.metasize = buffer->size;
+  } else {
+    rsstwritelog(LOG_ERROR, "No torrent-content for '%s' %s:%d", torurl, __FILE__, __LINE__);
+  }
 
   /*
    * Call the handler 

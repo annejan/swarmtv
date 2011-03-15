@@ -213,8 +213,12 @@ static int rsstcallnzbhandle(rsstor_handle *handle, char *torurl, char *name, ch
   nzb.filtername = filtername;
   nzb.metatype = "torrent";
   nzb.url = torurl;
-  nzb.metadata = buffer->memory;
-  nzb.metasize = buffer->size;
+  if(buffer != NULL) {
+    nzb.metadata = buffer->memory;
+    nzb.metasize = buffer->size;
+  } else {
+    rsstwritelog(LOG_ERROR, "No torrent-content for '%s' %s:%d", torurl, __FILE__, __LINE__);
+  }
 
   /*
    * Call the handler 
