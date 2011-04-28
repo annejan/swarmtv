@@ -3,6 +3,7 @@
 #include <sqlite3.h>
 #include <stdlib.h>
 #include <swarmtv.h>
+#include <QMessageBox>
 
 #include "testfilterdialog.hpp"
 #include "ui_testfilterdialog.h"
@@ -42,6 +43,13 @@ void testFilterDialog::handleTest(simplefilter_struct &simple)
 
   // Do Filter test
   rc = rsstfindnewtorrents(&simple, &newtorrents, 150, 0);
+  if(rc != 0) {
+    QMessageBox::warning(this, tr("SwarmTv"),
+                         tr("Could not open the sandbox file."),
+                         QMessageBox::Ok);
+    this->close();
+    return;
+  }
 
   // Fill Table
   fillTable(newtorrents);
