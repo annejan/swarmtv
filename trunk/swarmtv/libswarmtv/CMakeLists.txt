@@ -69,6 +69,9 @@ SET_TARGET_PROPERTIES(swarmtv
 		VERSION 1.0.0
 		SOVERSION 1)
 
+# Generating pkg-config file
+EXEC_PROGRAM( libswarmtv/createpc.sh ARGS ${CMAKE_INSTALL_PREFIX} )
+
 # Installation of the library
 INSTALL(TARGETS swarmtv
 		DESTINATION lib
@@ -78,3 +81,4 @@ INSTALL(FILES swarmtv.h
 		DESTINATION include
 		PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
 
+INSTALL(FILES libswarmtv.pc DESTINATION lib/pkgconfig/ )
