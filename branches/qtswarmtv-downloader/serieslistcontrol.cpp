@@ -10,6 +10,7 @@ extern "C" {
 #include "singleton.h"
 #include "serieslistcontrol.hpp"
 #include "serieswidget.hpp"
+#include "singleton.h"
 #include "thetvdb.hpp"
 #include "simpleeditdialog.hpp"
 #include "getseriestask.hpp"
