@@ -89,7 +89,7 @@ int rsstdownloadtorrents(rsstor_handle *handle)
   /*
    * Prepare the sqlite statement
    */
-  rc = sqlite3_prepare_v2(
+  rc = rsst_sqlite3_prepare(
       handle->db,        /* Database handle */
       query,            /* SQL statement, UTF-8 encoded */
       strlen(query),    /* Maximum length of zSql in bytes. */
@@ -160,7 +160,7 @@ static int testdouble(sqlite3 *db, char *nodouble, char *titleregexp, downloaded
   /*
    * prepare query
    */
-  rc = sqlite3_prepare_v2(
+  rc = rsst_sqlite3_prepare(
       db,                 /* Database handle */
       nodouble,            /* SQL statement, UTF-8 encoded */
       strlen(nodouble),    /* Maximum length of zSql in bytes. */
@@ -444,7 +444,7 @@ void rsstapplyfilter(rsstor_handle *handle, char *name, FILTER_TYPE type, char* 
 	/*
 	 * Prepare the sqlite statement
 	 */
-	rc = sqlite3_prepare_v2(
+	rc = rsst_sqlite3_prepare(
 			handle->db,           /* Database handle */
 			filter,            		/* SQL statement, UTF-8 encoded */
 			strlen(filter),    		/* Maximum length of zSql in bytes. */

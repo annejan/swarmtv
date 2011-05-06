@@ -53,6 +53,39 @@
 #define SCRIPT_SYM "--"
 
 /*
+ * This is a fix for systems that use the old sqlite3 library without
+ * sqlite3_prepare_v2. Centos 5.6 is one of them.
+ */
+int rsst_sqlite3_prepare(  
+    sqlite3 *db,            /* Database handle */
+    const char *zSql,       /* SQL statement, UTF-8 encoded */
+    int nByte,              /* Maximum length of zSql in bytes. */
+    sqlite3_stmt **ppStmt,  /* OUT: Statement handle */
+    const char **pzTail     /* OUT: Pointer to unused portion of zSql */
+    )
+{
+  int rc=0;
+#if SQLITE_VERSION_NUMBER >= 3003009
+  rc = sqlite3_prepare_v2(
+      db,                 /* Database handle */
+      zSql,            /* SQL statement, UTF-8 encoded */
+      nByte,    /* Maximum length of zSql in bytes. */
+      ppStmt,             /* OUT: Statement handle */
+      pzTail              /* OUT: Pointer to unused portion of zSql */
+      );
+#else 
+  rc = sqlite3_prepare(
+      db,                 /* Database handle */
+      zSql,            /* SQL statement, UTF-8 encoded */
+      nByte,    /* Maximum length of zSql in bytes. */
+      ppStmt,             /* OUT: Statement handle */
+      pzTail              /* OUT: Pointer to unused portion of zSql */
+      );
+#endif
+  return rc;
+}
+
+/*
  * Executing script
  * This function executes a script.
  * Each line should be separated by a '\n' char.
@@ -159,7 +192,7 @@ int rsstdosingletextquery(sqlite3 *db, const unsigned char **text, const char *q
   /*
    * Prepare the Sqlite statement
    */
-  rc = sqlite3_prepare_v2(
+  rc = rsst_sqlite3_prepare(
       db,                 /* Database handle */
       query,            /* SQL statement, UTF-8 encoded */
       strlen(query),    /* Maximum length of zSql in bytes. */
@@ -293,6 +326,8 @@ int rsstexecutequery(sqlite3 *db, const char *query, char *fmt, ...)
   double       	f=0.0;
   int          	count=0;
   int          	changes=0;
+  int           errno=0;
+  const char   *errstring=NULL;
 
   /*
    * fmt pointer to NULL is do not substitutes
@@ -304,7 +339,7 @@ int rsstexecutequery(sqlite3 *db, const char *query, char *fmt, ...)
   /*
    * Prepare the Sqlite statement
    */
-  rc = sqlite3_prepare_v2(
+  rc = rsst_sqlite3_prepare(
       db,                 /* Database handle */
       query,            /* SQL statement, UTF-8 encoded */
       strlen(query),    /* Maximum length of zSql in bytes. */
@@ -382,8 +417,18 @@ int rsstexecutequery(sqlite3 *db, const char *query, char *fmt, ...)
         retval=ROWS_CONSTRAINT; 
         break;
       default:
-        rsstwritelog(LOG_ERROR, "sqlite3_step, %d %s:%d", step_rc, __FILE__, __LINE__);
+        errno = sqlite3_errcode(db);
+        errstring = sqlite3_errmsg(db);
+        /*
+         * Workaround for older sqlite3 libraries, I hope they will upgrade soon to v2 compatible versions of sqlite
+         */
+#ifndef sqlite_prepare_v2 
+        rsstwritelog(LOG_DEBUG, "sqlite3_step, %d %s:%d", step_rc, __FILE__, __LINE__);
+        rsstwritelog(LOG_DEBUG, "in statement : \'%s\'", query);
+#else
+        rsstwritelog(LOG_ERROR, "sqlite3_step, %s %d %s:%d", errstring, step_rc, __FILE__, __LINE__);
         rsstwritelog(LOG_ERROR, "in statement : \'%s\'", query);
+#endif
         retval=ROWS_ERROR;
     }
   }
@@ -473,7 +518,7 @@ int rsstexecqueryresultva(sqlite3 *db, sqlite3_stmt **ppstmt, const char *query,
   /*
    * Prepare the Sqlite statement
    */
-  rc = sqlite3_prepare_v2(
+  rc = rsst_sqlite3_prepare(
       db,                 /* Database handle */
       query,            /* SQL statement, UTF-8 encoded */
       strlen(query),    /* Maximum length of zSql in bytes. */

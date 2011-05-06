@@ -141,7 +141,7 @@ int rsstsetconfigitem(rsstor_handle *handle, const char *prop, const char *value
   /*
    * Prepare the Sqlite statement
    */
-  rc = sqlite3_prepare_v2(
+  rc = rsst_sqlite3_prepare(
       db,                 /* Database handle */
       query,            /* SQL statement, UTF-8 encoded */
       strlen(query),    /* Maximum length of SQL query in bytes. */

@@ -34,6 +34,7 @@
 #include "logfile.h"
 #include "torrentdb.h"
 #include "callback.h"
+#include "database.h"
 
 #ifdef __MINGW32__
 #include <windows.h>
@@ -144,7 +145,7 @@ static void dowork(rsstor_handle *handle){
   /*
    * Prepare the Sqlite statement
    */
-  rc = sqlite3_prepare_v2(
+  rc = rsst_sqlite3_prepare(
       handle->db,                 /* Database handle */
       query,            /* SQL statement, UTF-8 encoded */
       strlen(query),    /* Maximum length of zSql in bytes. */

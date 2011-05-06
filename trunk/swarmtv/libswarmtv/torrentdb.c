@@ -95,6 +95,8 @@ int rsstaddnewtorrent(rsstor_handle *handle, newtorrents_struct *newtor)
 {
   int           rc=0;
 	sqlite3      *db=NULL;
+  const char   *error=NULL;
+  int           errno=0;
 
 	/*
 	 * Get db pointer;
@@ -131,6 +133,7 @@ int rsstaddnewtorrent(rsstor_handle *handle, newtorrents_struct *newtor)
   rc = rsstexecutequery(db, query, "ssdssddddfs", 
 			newtor->title, newtor->link, newtor->pubdate, newtor->category, newtor->source, newtor->season, 
 			newtor->episode, newtor->seeds, newtor->peers, (double)(newtor->size), newtor->metatype);
+
   switch(rc) {
     case ROWS_EMPTY:
     case ROWS_CHANGED:
@@ -140,8 +143,22 @@ int rsstaddnewtorrent(rsstor_handle *handle, newtorrents_struct *newtor)
       rsstwritelog(LOG_DEBUG, "Torrent already in DB"); 
       break;
     default:
-      rsstwritelog(LOG_ERROR, "SQL statement failed %d! %s:%d", rc, __FILE__, __LINE__);
+      errno = sqlite3_errcode(db);
+      error = sqlite3_errmsg(db);
+/*
+ * Workaround for older sqlite3 libraries.
+ */
+#if SQLITE_VERSION_NUMBER >= 3003009
+      rsstwritelog(LOG_ERROR, "SQL statement failed '%d'! %s %s:%d", errno, error, __FILE__, __LINE__);
       exit(1);
+#else
+      if(errno == SQLITE_CONSTRAINT) {
+        rsstwritelog(LOG_DEBUG, "Torrent already in DB"); 
+      } else {
+        rsstwritelog(LOG_ERROR, "SQL statement failed '%d'! %s %s:%d", errno, error, __FILE__, __LINE__);
+        exit(1);
+      }
+#endif
   }
 
   /*
@@ -161,9 +178,9 @@ void rsstadddownloaded(rsstor_handle *handle, downloaded_struct *downed, SIM  si
 {
   int        rc=0;
   time_t     now=0;
-	sqlite3 	*db=NULL;
+  sqlite3 	*db=NULL;
 
-	db = handle->db;
+  db = handle->db;
 
   char *query = "INSERT INTO downloaded (title, link, pubdate, category, season, episode, metatype, date) "
                 "VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7,  datetime(?8, 'unixepoch', 'localtime'))";

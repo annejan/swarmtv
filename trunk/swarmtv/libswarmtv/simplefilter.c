@@ -467,7 +467,7 @@ int rsstdownloadsimple(rsstor_handle *handle, SIM simulate)
 	/*
 	 * Prepare the Sqlite statement
 	 */
-	rc = sqlite3_prepare_v2(
+	rc = rsst_sqlite3_prepare(
 			handle->db,         /* Database handle */
       query,            	/* SQL statement, UTF-8 encoded */
       strlen(query),    	/* Maximum length of zSql in bytes. */

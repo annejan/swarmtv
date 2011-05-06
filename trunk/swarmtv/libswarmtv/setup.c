@@ -150,12 +150,15 @@ void rsstfreecallbacks(struct_callbacks *callbacks)
  */
 static void rssfcheckthreadsafe()
 {
+#if SQLITE_VERSION_NUMBER >= 3003009
   int rc=0;
-
   rc = sqlite3_threadsafe();
   if(rc == 0){
     fprintf(stderr, "libSQLite3 was not built with thread support, make sure no instances of the library run at the same time.\n");
   }
+#else 
+  #warning SQlite3 library too old can not detect threadsafety
+#endif
 }
 
 

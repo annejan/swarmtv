@@ -24,6 +24,18 @@
 #define RSST_START_ELEMENTS 10
 
 /*
+ * This is a fix for systems that use the old sqlite3 library without
+ * sqlite3_prepare_v2. Centos 5.6 is one of them.
+ */
+int rsst_sqlite3_prepare(  
+    sqlite3 *db,            /* Database handle */
+    const char *zSql,       /* SQL statement, UTF-8 encoded */
+    int nByte,              /* Maximum length of zSql in bytes. */
+    sqlite3_stmt **ppStmt,  /* OUT: Statement handle */
+    const char **pzTail     /* OUT: Pointer to unused portion of zSql */
+    );
+
+/*
  * Do a query, and bind value's to the query in one step
  * This is a simplified version as it only returns 1 value.
  * that value is the first string of the first colomn.

@@ -195,7 +195,12 @@ static gboolean rssfglibcycle(rsstor_handle *handle)
      * Reschedule for a new cycle
      */
     rsstwritelog(LOG_NORMAL, "Sleeping %ds, cycle took %ds.", timeleft, runtime);
+#ifdef g_timeout_add_seconds
     g_timeout_add_seconds(timeleft, (GSourceFunc)rssfglibcycle, handle);
+#else
+    g_timeout_add(timeleft * 1000, (GSourceFunc)rssfglibcycle, handle);
+#endif
+
   }
   return FALSE;
 }
@@ -256,7 +261,12 @@ int rssfrunloop(rsstor_handle *handle, LOOPMODE onetime)
     /* 
      * Call the runcycle 
      */
+    
+#if (GLIB_MAJOR_VERSION >= 2 && GLIB_MINOR_VERSION >= 14) || GLIB_MAJOR_VERSION > 2
     g_timeout_add_seconds(1, (GSourceFunc)rssfglibcycle, handle);
+#else 
+    g_timeout_add(1*1000, (GSourceFunc)rssfglibcycle, handle);
+#endif
 
     /*
      * Run main loop
