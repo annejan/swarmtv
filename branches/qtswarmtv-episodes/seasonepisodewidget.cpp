@@ -57,9 +57,6 @@ void seasonEpisodeWidget::setSeriesId(int id)
 
 void seasonEpisodeWidget::retrieveEpisodeData()
 {
-  //int rc=0;
-  //tvdb_buffer_t buf;
-  //tvdb_list_front_t seriesInfo;
 
   // Disable the tree view to show we are searching
   ui->treeWidget->setDisabled(true);
@@ -76,31 +73,6 @@ void seasonEpisodeWidget::retrieveEpisodeData()
 
   // start taskqueue
   tc.start();
-
-#if 0
-  // Initialize structs
-  memset(&buf, 0, sizeof(tvdb_buffer_t));
-
-
-  // Execute query
-  rc = tvdb_series_info(tvdb, seriesId, "en", &buf);
-  if(rc != TVDB_OK){
-    qDebug() << "tvdb_series_info returned not okay.";
-    return;
-  }
-
-  // Parse the XML data
-  rc = tvdb_parse_series_info(&buf, "", &seriesInfo);
-  if(rc != TVDB_OK){
-    qDebug() << "tvdb_parse_series_info returned not okay.";
-  }
-
-  // Add the data to the ListView
-  fillListView(&seriesInfo);
-
-  // Detroy the tvdb instance
-  tvdb_list_remove(&seriesInfo);
-#endif
 }
 
 void seasonEpisodeWidget::seriesResults(tvdb_buffer_t *series_xml)

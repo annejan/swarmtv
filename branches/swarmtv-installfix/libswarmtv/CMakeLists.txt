@@ -75,7 +75,8 @@ SET_TARGET_PROPERTIES(swarmtv
 		SOVERSION 1)
 
 # Generating pkg-config file
-EXEC_PROGRAM( libswarmtv/createpc.sh ARGS ${CMAKE_INSTALL_PREFIX} )
+# create .pc file <install base path> <template path> <destination path>
+EXEC_PROGRAM( ${CMAKE_CURRENT_SOURCE_DIR}/createpc.sh ARGS ${CMAKE_INSTALL_PREFIX} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR})
 
 # Create libtool .la file
 CREATE_LIBTOOL_FILE(swarmtv /lib)

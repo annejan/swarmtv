@@ -46,10 +46,10 @@ endif (UNIX AND NOT WIN32)
 IF(DEBUG_ENABLE)
   add_definitions(-g)
 ENDIF()
-include_directories(. ${RSSTORRENT_BASE_DIR}/libswarmtv)
+include_directories(. ${CMAKE_CURRENT_SOURCE_DIR}/../libswarmtv)
 
 # Make sure the linker can find the Hello library once it is built.
-link_directories (${RSSTORRENT_BASE_DIR}/libswarmtv) 
+link_directories (${CMAKE_CURRENT_BINARY_DIR}/../libswarmtv) 
 
 # Add the sources to be build
 SET(SRC swarmtv handleopts present frontfuncts daemonize simplewizard runloop xmlencode)
@@ -65,13 +65,13 @@ IF(DBUSGLIB_FOUND)
 ENDIF(DBUSGLIB_FOUND)
 
 # Add manpage 
-SET(RSS_SRC man/swarmtv.1)
-SET(RSS_MAN man/swarmtv.1.gz)
+SET(RSS_SRC ${CMAKE_CURRENT_SOURCE_DIR}/man/swarmtv.1)
+SET(RSS_MAN ${CMAKE_CURRENT_SOURCE_DIR}/man/swarmtv.1.gz)
 
 # Compression of the manuals
 FOREACH(man ${RSS_SRC})
   ADD_CUSTOM_COMMAND(OUTPUT ${man}.gz
-      COMMAND gzip -c ${man} > ${man}.gz
+      COMMAND gzip --best -c ${man} > ${man}.gz
       DEPENDS ${man}
       COMMENT
       "Building
@@ -90,7 +90,7 @@ SET_TARGET_PROPERTIES(swarmtv_exec PROPERTIES OUTPUT_NAME "swarmtv")
 if (UNIX AND NOT WIN32)
 	TARGET_LINK_LIBRARIES(swarmtv_exec ${optionalLibs} libswarmtv.so )
 	# We install to /usr/local/bin
-	INSTALL(PROGRAMS swarmtv DESTINATION /usr/local/bin)
+	INSTALL(TARGETS swarmtv_exec DESTINATION bin)
 else (WIN32)
 	TARGET_LINK_LIBRARIES(swarmtv_exec ${optionalLibs} libswarmtv.dll )
 	INSTALL(PROGRAMS swarmtv.exe DESTINATION C:\\Program\ Files\\swarmtv)	
