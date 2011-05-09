@@ -60,9 +60,14 @@ endif (UNIX AND NOT WIN32)
 INCLUDE(srcparser/CMakeLists.txt)
 INCLUDE(filehandler/CMakeLists.txt)
 
+# Add static library
+add_library (swarmtv-static ${LIBSRC})
+TARGET_LINK_LIBRARIES(swarmtv-static ${optionalLibs} )
+
 # Add library
 add_library (swarmtv SHARED ${LIBSRC})
 TARGET_LINK_LIBRARIES(swarmtv ${optionalLibs} )
+
 # Set the build version (VERSION) and the API version (SOVERSION)
 SET_TARGET_PROPERTIES(swarmtv
 		PROPERTIES
@@ -70,10 +75,18 @@ SET_TARGET_PROPERTIES(swarmtv
 		SOVERSION 1)
 
 # Generating pkg-config file
-EXEC_PROGRAM( libswarmtv/createpc.sh ARGS ${CMAKE_INSTALL_PREFIX} )
+# create .pc file <install base path> <template path> <destination path>
+EXEC_PROGRAM( ${CMAKE_CURRENT_SOURCE_DIR}/createpc.sh ARGS ${CMAKE_INSTALL_PREFIX} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR})
+
+# Create libtool .la file
+CREATE_LIBTOOL_FILE(swarmtv /lib)
 
 # Installation of the library
 INSTALL(TARGETS swarmtv
+		DESTINATION lib
+		PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
+
+INSTALL(TARGETS swarmtv-static
 		DESTINATION lib
 		PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
 
@@ -82,3 +95,4 @@ INSTALL(FILES swarmtv.h
 		PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
 
 INSTALL(FILES ${CMAKE_SOURCE_DIR}/libswarmtv.pc DESTINATION lib/pkgconfig/ )
+INSTALL(FILES ${CMAKE_SOURCE_DIR}/libswarmtv.pc DESTINATION share/pkgconfig/ )

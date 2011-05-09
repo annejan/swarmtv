@@ -409,6 +409,14 @@ int rsstgetheadersvalue(char *name, char **value, MemoryStruct *chunk)
   memset(regexp, 0, REGEXPSIZE+1);
   *value=NULL;
 
+  /* 
+   * Sanity checks
+   */
+  if(chunk == NULL || chunk->header == NULL) {
+    *value = 0;
+    return -1;
+  }
+
   /*
    * Copy the input buffer to temp buffer.
    */

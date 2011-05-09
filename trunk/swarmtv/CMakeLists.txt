@@ -4,6 +4,9 @@
 cmake_minimum_required(VERSION 2.6)
 project (swarmtv C)
 
+# Include libtool macro to enable install files
+INCLUDE( cmake_modules/CMakeMacroLibtoolFile.cmake )
+
 # Handle build switches
 IF(NOT DEFINED ESMTP_ENABLE)
 	SET(ESMTP_ENABLE TRUE)
@@ -87,8 +90,7 @@ ADD_CUSTOM_TARGET(uninstall
 
 ADD_CUSTOM_TARGET(realclean
 		make clean
-		COMMAND find . -name CMakeCache.txt | xargs rm -r 
-		COMMAND find . -name CMakeFiles | xargs rm -r
+    COMMAND ./realclean.sh
     )
 
 # Make database and add examples script
