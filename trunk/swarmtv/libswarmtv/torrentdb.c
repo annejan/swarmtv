@@ -96,7 +96,7 @@ int rsstaddnewtorrent(rsstor_handle *handle, newtorrents_struct *newtor)
   int           rc=0;
 	sqlite3      *db=NULL;
   const char   *error=NULL;
-  int           errno=0;
+  int           errnum=0;
 
 	/*
 	 * Get db pointer;
@@ -143,19 +143,19 @@ int rsstaddnewtorrent(rsstor_handle *handle, newtorrents_struct *newtor)
       rsstwritelog(LOG_DEBUG, "Torrent already in DB"); 
       break;
     default:
-      errno = sqlite3_errcode(db);
+      errnum = sqlite3_errcode(db);
       error = sqlite3_errmsg(db);
 /*
  * Workaround for older sqlite3 libraries.
  */
 #if SQLITE_VERSION_NUMBER >= 3003009
-      rsstwritelog(LOG_ERROR, "SQL statement failed '%d'! %s %s:%d", errno, error, __FILE__, __LINE__);
+      rsstwritelog(LOG_ERROR, "SQL statement failed '%d'! %s %s:%d", errnum, error, __FILE__, __LINE__);
       exit(1);
 #else
-      if(errno == SQLITE_CONSTRAINT) {
+      if(errnum == SQLITE_CONSTRAINT) {
         rsstwritelog(LOG_DEBUG, "Torrent already in DB"); 
       } else {
-        rsstwritelog(LOG_ERROR, "SQL statement failed '%d'! %s %s:%d", errno, error, __FILE__, __LINE__);
+        rsstwritelog(LOG_ERROR, "SQL statement failed '%d'! %s %s:%d", errnum, error, __FILE__, __LINE__);
         exit(1);
       }
 #endif

@@ -326,7 +326,7 @@ int rsstexecutequery(sqlite3 *db, const char *query, char *fmt, ...)
   double       	f=0.0;
   int          	count=0;
   int          	changes=0;
-  int           errno=0;
+  int           errnum=0;
   const char   *errstring=NULL;
 
   /*
@@ -417,7 +417,7 @@ int rsstexecutequery(sqlite3 *db, const char *query, char *fmt, ...)
         retval=ROWS_CONSTRAINT; 
         break;
       default:
-        errno = sqlite3_errcode(db);
+        errnum = sqlite3_errcode(db);
         errstring = sqlite3_errmsg(db);
         /*
          * Workaround for older sqlite3 libraries, I hope they will upgrade soon to v2 compatible versions of sqlite
