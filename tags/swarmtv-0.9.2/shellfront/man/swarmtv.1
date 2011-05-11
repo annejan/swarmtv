@@ -1,0 +1,267 @@
+.TH swarmtv 1  "February 3, 2010" "version 0.9.2" "USER COMMANDS"
+.SH NAME
+swarmtv \- Forwards shows from RSS to your torrent program.
+.SH SYNOPSIS
+.B swarmtv
+[\-hnRrqvcSfJkw] [\-m text] [\-C name:value] [\-s name:url] [\-D name] [\-t type] [\-d name] [\-p name] 
+[\-F name:query] [\-T query] [\-P name] [\-j name] [\-e name] [\-E regexp] [\-N regexp] [\-O size] [\-o size] 
+[\-u type] [\-g value] [\-G value] [\-i id] [\-M id] [\-L] [\-a regexp]
+.SH DESCRIPTION
+Most bittorrent sites on the internet have RSS streams announcing
+the new content they provide. RSS\-torrent searches there announcements
+using user defined filters, and downloads the torrent for your
+favourite torrent program to pick up. When content matching the filters
+is found there is an option to send an email to a specified address.
+.PP
+RSS-torrent supports RSS feeds and Twitter time lines as sources.
+.SH OPTIONS
+.TP
+\-h, \-\-help
+display a help text.
+.TP
+\-n, \-\-nodetach
+When combined with \-r keeps RSS\-torrent from detaching.
+.TP
+\-R, \-\-once
+Runs the download cycle once.
+.TP
+\-r, \-\-run
+Without extra arguments, runs RSS\-torrent in daemon mode.
+.TP
+\-q, \-\-test
+When provided together with an add filter command, tests that filter.
+.TP
+\-m, \-\-test\-mail text
+Sends an email containing the text provided to the email address provided in the config.
+.TP
+\-v \-\-version
+Prints version of RSS\-torrent.
+.TP
+\-c \-\-list\-config
+List configuration items and their value.
+.TP
+\-C \-\-set\-config name:value
+Set configuration value.
+.TP
+\-s \-\-add\-source name
+Add RSS source.
+.TP
+\-I \-\-url 
+The URL of the RSS source to add
+.TP
+\-Z \-\-metatype
+The type of meta file expected in the RSS source (nzb/torrent).
+.TP
+\-D \-\-del\-source name
+Delete RSS source.
+.TP
+\-S \-\-list\-sources
+List RSS sources.
+.TP
+\-t \-\-source\-parser type
+Set RSS source parser type. 
+.TP
+\-d \-\-del\-filter name
+Delete a SQL filter, use name 'all' to delete all SQL filters.
+.TP
+\-f \-\-list\-filters
+List all SQL filters.
+.TP
+\-p \-\-print\-filter name
+Print SQL filter in shell format.
+.TP
+\-F \-\-add\-sql\-filter name:query
+Set SQL download filter. (use with \-T)
+.TP
+\-T \-\-nodup\-sql\-filter 
+Set SQL duplicate filter.
+.TP
+\-J \-\-list\-simple
+List all simple filters.
+.TP
+\-P \-\-print\-simple name
+Print simple filter in shell format.
+.TP
+\-A \-\-print\-all\-simple
+Print all simple filters in shell format.
+.TP
+\-j \-\-del\-simple name
+Delete a simple filter.
+.TP
+\-k \-\-del\-all\-simple
+Delete all simple filters.
+.TP
+\-K \-\-reinit\-database
+Drop all tables and reinitialize the empty database. (Warning all data stored in the database is lost)
+.TP
+\-i \-\-id\-download
+Download a torrent providing it's id.
+.TP
+\-M \-\-id\-del\-downed
+Delete a record in the downloaded table.
+.TP
+\-L \-\-find
+Find torrents. (use with simple options)
+.TP
+\-a \-\-find\-downed
+Find entries in the downloaded table.
+.TP
+\-Y \-\-print\-lastdowned
+Print the last downloaded content per filter.
+.TP
+\-e \-\-add\-simple name
+Add a new simple filter providing it's name.
+.TP
+\-w \-\-wizard\-simple
+Add a simple filter through a wizard dialog. (Filters can be added and modified)
+.TP
+\-E \-\-title regexp
+The regexp that must match the title of a torrent.
+.TP
+\-N \-\-exclude regexp
+The regexp that must NOT match the title of the torrent.
+.TP
+\-U \-\-category regexp
+The regexp that must match the category of the torrent.
+.TP
+\-l \-\-source regexp
+The regexp that must match the source of the torrent.
+.TP
+\-O \-\-max\-size size
+The maximal size the torrent contents must be. (human readable format)
+.TP
+\-o \-\-min\-size size
+The minimal size the torrent contents must be. (human readable format)
+.TP
+\-u \-\-nodup type
+Simple no duplicate filter type. (none, link, unique, unique-title, newer, newer-title)
+.br
+See the "NODUP Filters explained" section for an explanation.
+.TP
+\-g \-\-from\-season value
+Season number to start downloading from.
+.TP
+\-G \-\-from\-episode value
+Episode number to start downloading from.
+.TP
+\-z \-\-auto-avoid-old
+Auto set --from-season and --from-episode based on torrents already present in the database.
+.SH CONFIG SETTING
+.PP
+.TP 
+.B torrentdir
+The directory the downloaded torrents get stored.
+.TP
+.B logfile
+The path to the log file.
+.TP
+.B lockfile
+The path to the lock file.
+.TP
+.B refresh
+The time between RSS downloads.
+.TP
+.B retain 
+The amount of days records from the sources are being retained.
+.TP
+.B default_parser
+The default source parser to use when no parser is provided on the command line.
+.TP
+.B smtp_enable
+When a torrent is downloaded, send an email (set to value 'Y' to enable).
+.TP
+.B smtp_to
+The email address the email notification needs to be sent to.
+.TP
+.B smtp_from
+The from email-address in the mail headers.
+.TP
+.B smtp_host
+The STMP server and port used to send the notifications. (example: smtp.foobar.com:25)
+.TP
+.B min_size
+When the given size in the source is smaller then this number (in bytes), the torrent is downloaded to extract the size from there.
+.PP
+.SH EXAMPLES
+.TP
+Add a RSS source provided by Eztv.
+.B swarmtv 
+\-\-add\-source="Eztv" \-\-url="http://www.ezrss.it/feed/" \-\-source-parser="defaultrss" \-\-metatype="torrent"
+.TP
+Add a Twitter source using the Twitter API. (provide own account)
+.B swarmtv
+\-\-add\-source="Twitter" --url="https://<username>:<password>@twitter.com/statuses/friends_timeline.xml" \-\-metatype="torrent"
+\-\-source-parser="twitter"
+.TP
+Add a simple filter, matching newer house episodes, excluding "House hunters international".
+.B swarmtv
+\-\-add\-simple="House" \-\-title="^house" \-\-exclude="hunters international" \-\-min\-size="200mb" \-\-max\-size="700mb" \-\-nodup="newer"
+.TP
+Test a simple filter, showing the matches the filter yields on the current database, without downloading anything.
+.B swarmtv
+.B \-\-test
+\-\-add\-simple="House" \-\-title="^house" \-\-exclude="hunters international" \-\-min\-size="200mb" \-\-max\-size="700mb" \-\-nodup="newer"
+.TP
+Run RSS-torrent as daemon.
+.B swarmtv
+--run
+.TP 
+Show Config settings.
+.B swarmtv
+\-\-list\-config
+.TP
+Enable email notifications.
+.B swarmtv
+\-\-set\-config="smtp_enable:Y"
+.IP
+.B swarmtv
+\-\-set\-config="smtp_to:your@address"
+.IP
+.B swarmtv
+\-\-set\-config="smtp_from:server@address"
+.IP
+.B swarmtv
+\-\-set\-config="smtp_host:smtp.foo.bar:25"
+.TP
+Change Directory torrents are downloaded to.
+.B swarmtv
+\-\-set\-config="torrentdir:<path>"
+.TP
+Change RSS check frequency.
+.B swarmtv
+\-\-set\-config="refresh:<seconds>"
+.TP
+Create a SQL filter.
+.B swarmtv 
+\-F "DollHouse:select link, title, pubdate, category, season, episode from newtorrents where title REGEXP('^[Dd]ollhouse') AND size < '400000000' AND new = 'Y'" \\
+.IP  
+\-T "SELECT title FROM downloaded WHERE link=?1 OR (season>=?2 AND episode>=?3 AND title REGEXP('^[Dd]ollhouse'))"
+.PP
+.SH NOTES
+.SS NODUP Filters explained
+.B none
+No duplicate avoiding, download all that matches filter.
+.TP
+.B link
+Do not download content with the same meta file link.
+.TP
+.B unique
+Do not download content that matches the filter regexp and has the same season/episode numbers.
+.TP
+.B unique-title
+Same as above, but uses the matched title to avoid duplicate downloads.
+.TP
+.B newer
+Only download content when the content matches the filter regexp, and is newer than the previous download.
+.TP
+.B newer-title
+Same as above, but uses the matched title to avoid duplicate downloads.
+.PP
+.SH EXIT STATUS
+When RSS-torrent runs in the shell, 0 is returned on normal exit, otherwise 1.
+.SH AUTHOR
+Paul Honig (swarmtv (at) swarmtv.nl)
+.SH SEE ALSO
+rtorrent(1)
+curl(1)
+
