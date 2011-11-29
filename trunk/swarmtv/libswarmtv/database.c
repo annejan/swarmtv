@@ -326,8 +326,10 @@ int rsstexecutequery(sqlite3 *db, const char *query, char *fmt, ...)
   double       	f=0.0;
   int          	count=0;
   int          	changes=0;
-  int           errnum=0;
-  const char   *errstring=NULL;
+#ifndef sqlite_prepare_v2 
+  //int           errnum=0;
+  //const char   *errstring=NULL;
+#endif
 
   /*
    * fmt pointer to NULL is do not substitutes
@@ -417,12 +419,12 @@ int rsstexecutequery(sqlite3 *db, const char *query, char *fmt, ...)
         retval=ROWS_CONSTRAINT; 
         break;
       default:
-        errnum = sqlite3_errcode(db);
-        errstring = sqlite3_errmsg(db);
+#ifndef sqlite_prepare_v2 
+        //errnum = sqlite3_errcode(db);
+        //errstring = sqlite3_errmsg(db);
         /*
          * Workaround for older sqlite3 libraries, I hope they will upgrade soon to v2 compatible versions of sqlite
          */
-#ifndef sqlite_prepare_v2 
         rsstwritelog(LOG_DEBUG, "sqlite3_step, %d %s:%d", step_rc, __FILE__, __LINE__);
         rsstwritelog(LOG_DEBUG, "in statement : \'%s\'", query);
 #else

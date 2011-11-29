@@ -179,7 +179,7 @@ static int rssfasknumeric(int *answer, char *question)
  */
 static int rssfaskbool(int *answer, char *question, char *suggestion)
 {
-	int   rc=0;
+	//int   rc=0;
 	int   retval=0;
 	int   match=0;
 	char *ansbuf=NULL;
@@ -194,7 +194,8 @@ static int rssfaskbool(int *answer, char *question, char *suggestion)
 	/*
 	 * Get user input
 	 */
-	rc = rssfaskuser(&ansbuf, question, suggestion);
+	//rc = rssfaskuser(&ansbuf, question, suggestion);
+	rssfaskuser(&ansbuf, question, suggestion);
 	rssflowercase(ansbuf);
 
 	/*
@@ -538,7 +539,7 @@ static int rssfasksize(char *question, double *size)
  */
 static int rssfacceptsimple(simplefilter_struct *simple, int *answer, char *execname)
 {
-	int rc=0;
+	//int rc=0;
 
 	/*
 	 * Print current simple-filter
@@ -548,7 +549,8 @@ static int rssfacceptsimple(simplefilter_struct *simple, int *answer, char *exec
 	/*
 	 * Ask for conformation
 	 */
-	rc = rssfaskbool(answer, "Is this filter correct ?", "No");
+	//rc = rssfaskbool(answer, "Is this filter correct ?", "No");
+	rssfaskbool(answer, "Is this filter correct ?", "No");
 
 	/*
 	 * Done
@@ -569,7 +571,7 @@ static int rsstaskseasonepisode(simplefilter_struct *simple)
 	int   foundseason=0;
 	int   foundepisode=0;
 	int   loop=0;
-	int 	rc=0;
+	//int 	rc=0;
 	
 	/*
 	 * Ask if auto season/episode should be applied
@@ -581,7 +583,8 @@ static int rsstaskseasonepisode(simplefilter_struct *simple)
 			/*
 			 * Fill season/episode automatically
 			 */
-			rc = rsstgetnewestepisode(simple, &foundseason, &foundepisode);
+			//rc = rsstgetnewestepisode(simple, &foundseason, &foundepisode);
+			rsstgetnewestepisode(simple, &foundseason, &foundepisode);
 			simple->fromseason = foundseason;
 			simple->fromepisode = foundepisode;
 			printf("found Last season %d Last episode %d\n", foundseason, foundepisode);
@@ -589,8 +592,10 @@ static int rsstaskseasonepisode(simplefilter_struct *simple)
 			/*
 			 * Ask for last season/episode numbers.
 			 */
-			rc = rssfasknumeric(&(simple->fromseason), "Enter season number: ");
-			rc = rssfasknumeric(&(simple->fromepisode), "Enter episode number: ");
+			//rc = rssfasknumeric(&(simple->fromseason), "Enter season number: ");
+			//rc = rssfasknumeric(&(simple->fromepisode), "Enter episode number: ");
+			rssfasknumeric(&(simple->fromseason), "Enter season number: ");
+			rssfasknumeric(&(simple->fromepisode), "Enter episode number: ");
 		}
 		//printf("answer: '%d' '%d' '%s'\n", loop, ansval, ansval ? "yes" : "no");
 	}

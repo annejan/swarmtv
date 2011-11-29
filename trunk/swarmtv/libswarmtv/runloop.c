@@ -64,20 +64,22 @@ const char *query="select name, url, parser, metatype, id from sources";
  */
 static int parserdownload(rsstor_handle *handle, struct_download *downed, MemoryStruct *rssfile)
 {
-  int rc;
+  //int rc;
 	
   /*
    * compare the filter string and pass the downloaded file to the correct filtering routine.
    */
   if(strcmp(downed->parser, "defaultrss") == 0) {
     //printf("Found a file for filter %s\n", filter);
-    rc = defaultrss(handle, downed->name, downed->url, downed->parser, downed->metatype, rssfile); 
+    //rc = defaultrss(handle, downed->name, downed->url, downed->parser, downed->metatype, rssfile); 
+    defaultrss(handle, downed->name, downed->url, downed->parser, downed->metatype, rssfile); 
     return 0;
   }
 
   if(strcmp(downed->parser, "twitter") == 0) {
     //printf("Found a file for filter %s\n", filter);
-    rc = twitter(handle, downed->name, downed->url, downed->parser, downed->metatype, rssfile); 
+    //rc = twitter(handle, downed->name, downed->url, downed->parser, downed->metatype, rssfile); 
+    twitter(handle, downed->name, downed->url, downed->parser, downed->metatype, rssfile); 
 
     return 0;
   }

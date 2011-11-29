@@ -250,7 +250,7 @@ static int disectenclosure(xmlNode *encnode, rssparse_callback *call)
 int rssparse(rssparse_callback *call, char *url, MemoryStruct *buffer)
 {
   xmlDocPtr           doc=NULL; /* the resulting document tree */
-  xmlNode             *root_element=NULL;
+  //xmlNode             *root_element=NULL;
   xmlNode             *encnode;
   xmlXPathContextPtr  xpathCtx=NULL; 
   xmlXPathObjectPtr   xpathObj=NULL; 
@@ -269,7 +269,7 @@ int rssparse(rssparse_callback *call, char *url, MemoryStruct *buffer)
     rsstwritelog(LOG_ERROR, "Failed to parse RSS document: '%s' %s:%d", url, __FILE__, __LINE__);
     return -1;
   }
-  root_element = xmlDocGetRootElement(doc);
+  //root_element = xmlDocGetRootElement(doc);
 
   /* Create xpath evaluation context */
   xpathCtx = xmlXPathNewContext(doc);

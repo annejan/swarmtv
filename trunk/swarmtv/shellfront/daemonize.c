@@ -126,13 +126,13 @@ static void rssflockfile(rsstor_handle *handle, const char *lockpath)
  */
 void rssflock(rsstor_handle *handle)
 {
-	sqlite3 *db=NULL;
+	//sqlite3 *db=NULL;
 	char    *lockpath=NULL;
 
 	/*
 	 * Get db pointer
 	 */
-	db = handle->db;
+	//db = handle->db;
 
 	/*
 	 * Get the path the lock file is in

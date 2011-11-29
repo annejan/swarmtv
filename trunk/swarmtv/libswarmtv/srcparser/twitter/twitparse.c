@@ -111,7 +111,7 @@ static int getxpathstring(const xmlChar * str, xmlXPathContextPtr ctxt, unsigned
 int twitparse(twitparse_callback *call, char *url, MemoryStruct *buffer)
 {
   xmlDocPtr           doc = NULL; /* the resulting document tree */
-  xmlNode             *root_element = NULL;
+  //xmlNode             *root_element = NULL;
   //xmlNode *cur_node = NULL;
   xmlXPathContextPtr  xpathCtx; 
   xmlXPathObjectPtr   xpathObj; 
@@ -130,7 +130,7 @@ int twitparse(twitparse_callback *call, char *url, MemoryStruct *buffer)
     fprintf(stderr, "Failed to parse document %s:%d\n", __FILE__, __LINE__);
     return -1;
   }
-  root_element = xmlDocGetRootElement(doc);
+  //root_element = xmlDocGetRootElement(doc);
 
   /* Create xpath evaluation context */
   xpathCtx = xmlXPathNewContext(doc);

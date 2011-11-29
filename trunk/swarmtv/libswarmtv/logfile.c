@@ -133,17 +133,17 @@ int rsstinitlog(char *logpath)
 int rsstwritelog(int level, char *str,...)
 {
   char            s[30];
-  size_t          i=0;
-  struct tm       tim;
-  time_t          now=0;
+  //size_t          i=0;
+  //struct tm       tim;
+  //time_t          now=0;
 
   if(level > LOG_LEVEL) {
     /*
      * What time is now ?
      */
-    now = time(NULL);
-    tim = *(localtime(&now));
-    i = strftime(s,30,"%H:%M:%S",&tim);
+    //now = time(NULL);
+    //tim = *(localtime(&now));
+    //i = strftime(s,30,"%H:%M:%S",&tim);
 
     /*
      * Build string

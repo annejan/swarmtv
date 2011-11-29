@@ -92,7 +92,7 @@ static int rssfsenddbusmsg(DBusConnection *bus, char *name, char *msg)
 /*
  * @@Debug
  */
-static int rssfcallbackstartfnct(void *data, void *calldata)
+static int rssfcallbackstartfnct(void *data, void __attribute__ ((unused)) *calldata )
 {
   rsstor_handle   *handle=NULL;
   DBusConnection  *bus=NULL;
@@ -126,7 +126,7 @@ static int rssfcallbackstartfnct(void *data, void *calldata)
 /*
  * @@Debug
  */
-static int rssfcallbackendfnct(void *data, void *calldata)
+static int rssfcallbackendfnct(void *data, void __attribute__ ((unused)) *calldata)
 {
   rsstor_handle   *handle=NULL;
   DBusConnection  *bus=NULL;

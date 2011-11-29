@@ -142,7 +142,7 @@ int rssfrunloop(rsstor_handle *handle, LOOPMODE onetime)
  */
 static gboolean rssfglibcycle(rsstor_handle *handle)
 {
-  int            rc=0;
+  //int            rc=0;
   int            onetime=0;
   GMainLoop     *loop=NULL;
   time_t         after=0;
@@ -169,7 +169,8 @@ static gboolean rssfglibcycle(rsstor_handle *handle)
   /*
    * Call the routine to do the work
    */
-  rc = runcycle(handle);
+  //rc = runcycle(handle);
+  runcycle(handle);
 
   /*
    * Calculate sleep time left.

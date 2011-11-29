@@ -144,7 +144,7 @@ static int checkfilter(sqlite3 *db, const char *name)
 int rsstaddfilter(rsstor_handle *handle, const char *name, const char *filter, const char *doublefilter)
 {
 	int         rc=0;
-	const char *locdouble=NULL; // holds pointer to double filter or empty
+	//const char *locdouble=NULL; // holds pointer to double filter or empty
 	char        query[MAXLENGHT+1];
 	sqlite3 	 *db=NULL;
 
@@ -189,6 +189,7 @@ int rsstaddfilter(rsstor_handle *handle, const char *name, const char *filter, c
   rsstwritelog(LOG_NORMAL, "filter : %s", filter);
   rsstwritelog(LOG_NORMAL, "nodouble filter : %s", doublefilter);
 
+#if 0
   /*
    * if no 'no double' filter is provided insert an empty string
    */
@@ -197,6 +198,7 @@ int rsstaddfilter(rsstor_handle *handle, const char *name, const char *filter, c
   } else {
     locdouble = doublefilter;
   }
+#endif
 
   /*
    * Execute query to add filter

@@ -297,12 +297,12 @@ int rsstupdatelastdowned(rsstor_handle *handle, downloaded_struct *downed, FILTE
 static void rssthandlenewresults(rsstor_handle *handle, FILTER_TYPE type, downloaded_struct *downed, SIM simulate)
 {
 	int downsuccess=0;
-	char errorstr[MAXMSGLEN+1];
+	//char errorstr[MAXMSGLEN+1];
 
 	/*
 	 * Make sure the string is terminated
 	 */
-	errorstr[MAXMSGLEN] = '\0';
+	//errorstr[MAXMSGLEN] = '\0';
 
 	/*
 	 * call apply filter
@@ -849,12 +849,12 @@ int rssttestmetafiledir(rsstor_handle *handle)
 	char *torpath = NULL;
 	char *nzbpath = NULL;
 	char *fullpath = NULL;
-	sqlite3 *db=NULL;
+	//sqlite3 *db=NULL;
 
 	/*
 	 * Get database pointer
 	 */
-	db = handle->db;
+	//db = handle->db;
 
 	/*
 	 *  Get all the information into the variables

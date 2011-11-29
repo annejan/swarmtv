@@ -156,7 +156,7 @@ static int rsstsendmail(const char *host, const char *from, const char *to, cons
 #ifndef __MINGW32__
   smtp_session_t session;
   smtp_message_t message;
-  smtp_recipient_t recipient;
+  //smtp_recipient_t recipient;
   const smtp_status_t *status;
 
   /* This program sends only one message at a time.  Create an SMTP
@@ -220,7 +220,8 @@ static int rsstsendmail(const char *host, const char *from, const char *to, cons
   /*
    * Add recipient to email
    */
-  recipient = smtp_add_recipient (message, to);
+  //recipient = smtp_add_recipient (message, to);
+  smtp_add_recipient (message, to);
   //smtp_dsn_set_notify (recipient, notify);
 
   /*
