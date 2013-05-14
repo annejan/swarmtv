@@ -33,7 +33,7 @@ ENDIF(ESMTP_FOUND)
 
 # Compiler directives
 if (UNIX AND NOT WIN32)
-	add_definitions(-Wall -W -fPIC)
+	add_definitions(-Wall -W -fPIC -lm)
 else (WIN32)
 	add_definitions(-Wall -W -DPIC -DDLL_EXPORT)	
 endif (UNIX AND NOT WIN32)

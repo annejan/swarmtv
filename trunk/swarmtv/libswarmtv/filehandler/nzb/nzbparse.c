@@ -268,7 +268,11 @@ int rsstgetnzbinfo(rsstor_handle *handle, char *url, metafileprops **props)
      * Use them to calculate the pieces length.
      */
     rc = getnzbsize(doc, &((*props)->size), &((*props)->file_nr));
-    (*props)->pieces_length = (*props)->size/(*props)->file_nr;
+    if((*props)->size != 0.0) {
+      (*props)->pieces_length = (*props)->size/(*props)->file_nr;
+    } else {
+      (*props)->pieces_length = -1;
+    }
   }
 
   /*

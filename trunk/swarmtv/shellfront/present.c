@@ -31,7 +31,7 @@
 /*
  * Program version
  */
-#define PROGVERSION "0.8"
+#define PROGVERSION "0.9.2"
 
 /*
  * Buffer size used in present routines.
