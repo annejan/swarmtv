@@ -351,7 +351,7 @@ int rsstgetstats(rsstor_handle *handle, stats_struct *stats)
   /*
    * initialize the structure
    */
-  memset(stats, 0, sizeof(stats));
+  memset(stats, 0, sizeof(*stats));
 
   /*
    * Fill the variables 

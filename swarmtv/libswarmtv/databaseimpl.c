@@ -473,7 +473,7 @@ int rsstinitdatabase(const char *filename, rsstor_handle *handle)
   /* 
    * Add regexp function.
    */
-  typedef struct sqlite3_value sqlite3_value;
+  //typedef struct sqlite3_value sqlite3_value;
   rc = sqlite3_create_function(
       db,
       "regexp",       // name of the function
