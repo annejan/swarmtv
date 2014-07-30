@@ -39,7 +39,7 @@ ENDIF(DBUSGLIB_FOUND)
 
 # Compiler directives
 if (UNIX AND NOT WIN32)
-	add_definitions(-Wall -W -fPIC)
+	add_definitions(-Wall -Wl, -fPIC -lm)
 else (WIN32)
 	add_definitions(-Wall -W)	
 endif (UNIX AND NOT WIN32)
@@ -85,6 +85,7 @@ INSTALL(FILES man/swarmtv.1.gz
 
 # Add executables / manuals
 add_executable (swarmtv_exec ${SRC} ${RSS_MAN}) 
+target_link_libraries(swarmtv_exec m)
 SET_TARGET_PROPERTIES(swarmtv_exec PROPERTIES OUTPUT_NAME "swarmtv")
 
 if (UNIX AND NOT WIN32)
