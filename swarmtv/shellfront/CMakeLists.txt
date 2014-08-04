@@ -88,13 +88,16 @@ add_executable (swarmtv_exec ${SRC} ${RSS_MAN})
 target_link_libraries(swarmtv_exec m)
 SET_TARGET_PROPERTIES(swarmtv_exec PROPERTIES OUTPUT_NAME "swarmtv")
 
-if (UNIX AND NOT WIN32)
+if (UNIX AND NOT WIN32 AND NOT APPLE)
 	TARGET_LINK_LIBRARIES(swarmtv_exec ${optionalLibs} libswarmtv.so )
 	# We install to /usr/local/bin
+	INSTALL(TARGETS swarmtv_exec DESTINATION bin)
+else (APPLE)
+	TARGET_LINK_LIBRARIES(swarmtv_exec ${optionalLibs} libswarmtv.dylib )
 	INSTALL(TARGETS swarmtv_exec DESTINATION bin)
 else (WIN32)
 	TARGET_LINK_LIBRARIES(swarmtv_exec ${optionalLibs} libswarmtv.dll )
 	INSTALL(PROGRAMS swarmtv.exe DESTINATION C:\\Program\ Files\\swarmtv)	
-endif (UNIX AND NOT WIN32)
+endif (UNIX AND NOT WIN32 AND NOT APPLE)
 
 
