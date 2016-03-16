@@ -26,7 +26,7 @@ Libraries :
 
 Build command:
 ```
-$ cmake .
+$ qmake
 $ make
 $ make install
 ```
