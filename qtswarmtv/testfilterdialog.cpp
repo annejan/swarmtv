@@ -105,15 +105,31 @@ void testFilterDialog::initHeaders()
   }
 
   // Set title as filling
+#if QT_VERSION >= 0x050000
+  ui->testTableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+#else
   ui->testTableWidget->horizontalHeader()->setResizeMode(0, QHeaderView::Stretch);
+#endif
 
   // Set Size static
+#if QT_VERSION >= 0x050000
+  ui->testTableWidget->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+#else
   ui->testTableWidget->horizontalHeader()->setResizeMode(1, QHeaderView::ResizeToContents);
+#endif
 
   // Set source static
+#if QT_VERSION >= 0x050000
+  ui->testTableWidget->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+#else
   ui->testTableWidget->horizontalHeader()->setResizeMode(2, QHeaderView::ResizeToContents);
+#endif
 
   // Set metatype static
+#if QT_VERSION >= 0x050000
+  ui->testTableWidget->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeToContents);
+#else
   ui->testTableWidget->horizontalHeader()->setResizeMode(3, QHeaderView::ResizeToContents);
+#endif
 
 }

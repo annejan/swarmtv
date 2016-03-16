@@ -1,5 +1,5 @@
 #include <QtDBus/QtDBus>
-#include <QtGui/QApplication>
+#include <QApplication>
 #include <QSplashScreen>
 #include <QSettings>
 #include "singleapplication.h"

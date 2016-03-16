@@ -60,13 +60,25 @@ void simpleTableControl::initHeaders()
   }
 
   // Set name
+#if QT_VERSION >= 0x050000
+  table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+#else
   table->horizontalHeader()->setResizeMode(0, QHeaderView::ResizeToContents);
+#endif
 
   // Set Filter Type
+#if QT_VERSION >= 0x050000
+  table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+#else
   table->horizontalHeader()->setResizeMode(1, QHeaderView::ResizeToContents);
+#endif
 
   // Set Last downloaded Title
+#if QT_VERSION >= 0x050000
+  table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+#else
   table->horizontalHeader()->setResizeMode(2, QHeaderView::Stretch);
+#endif
 }
 
 void simpleTableControl::fillTable(lastdowned_container *container)

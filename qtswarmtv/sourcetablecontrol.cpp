@@ -63,16 +63,31 @@ void sourceTableControl::initHeaders()
   }
 
   // Name
+#if QT_VERSION >= 0x050000
+  table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+#else
   table->horizontalHeader()->setResizeMode(0, QHeaderView::ResizeToContents);
-
+#endif
   // Parser
+#if QT_VERSION >= 0x050000
+  table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+#else
   table->horizontalHeader()->setResizeMode(1, QHeaderView::ResizeToContents);
+#endif
 
   // Meta type
+#if QT_VERSION >= 0x050000
+  table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+#else
   table->horizontalHeader()->setResizeMode(2, QHeaderView::ResizeToContents);
+#endif
 
   // URL
+#if QT_VERSION >= 0x050000
+  table->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+#else
   table->horizontalHeader()->setResizeMode(3, QHeaderView::Stretch);
+#endif
 }
 
 void sourceTableControl::fillTable(source_container *container)
@@ -174,7 +189,11 @@ void sourceTableControl::delButtonClicked(void)
   switch(ret) {
         case QMessageBox::Ok:
     //@DEBUG
+#if QT_VERSION >= 0x050000
+    std::cout << "deleting source '" << name.toLatin1().data() << "." << std::endl;
+#else
     std::cout << "deleting source '" << name.toAscii().data() << "." << std::endl;
+#endif
     rc = rsstdelsourceid(swarm->getHandle(), id);
     if(rc != 0) {
       QMessageBox::warning(this, tr("SwarmTv"),

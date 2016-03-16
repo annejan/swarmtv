@@ -93,13 +93,25 @@ void downloadedTableControl::fillTable()
 void downloadedTableControl::initHeaders()
 {
   // Set title as filling
+#if QT_VERSION >= 0x050000
+  downtable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+#else
   downtable->horizontalHeader()->setResizeMode(0, QHeaderView::Stretch);
+#endif
 
   // Set Size static
+#if QT_VERSION >= 0x050000
+  downtable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+#else
   downtable->horizontalHeader()->setResizeMode(1, QHeaderView::ResizeToContents);
+#endif
 
   // Set source static
+#if QT_VERSION >= 0x050000
+  downtable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+#else
   downtable->horizontalHeader()->setResizeMode(2, QHeaderView::ResizeToContents);
+#endif
 }
 
 void downloadedTableControl::delClicked()

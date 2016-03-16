@@ -202,15 +202,27 @@ void simpleEditDialog::getFromUi(simplefilter_struct &simple)
   simple.category = value;
   value = strdup(ui->sourceSimpleLineEdit->text().toUtf8().data());
   simple.source = value;
+#if QT_VERSION >= 0x050000
+  value = strdup(ui->nodupSimpleComboBox->currentText().toLatin1().data());
+#else
   value = strdup(ui->nodupSimpleComboBox->currentText().toAscii().data());
+#endif
   simple.nodup = value;
 
   // Convert sizes back to size_t
+#if QT_VERSION >= 0x050000
+  uiSizeStr = ui->minSizeSimpleLineEdit->text().toLatin1().data();
+#else
   uiSizeStr = ui->minSizeSimpleLineEdit->text().toAscii().data();
+#endif
   sizeconv.setSize(uiSizeStr);
   sizeconv.getSize(uisize);
   simple.minsize=uisize;
+#if QT_VERSION >= 0x050000
+  uiSizeStr = ui->maxSizeSimpleLineEdit->text().toLatin1().data();
+#else
   uiSizeStr = ui->maxSizeSimpleLineEdit->text().toAscii().data();
+#endif
   sizeconv.setSize(uiSizeStr);
   sizeconv.getSize(uisize);
   simple.maxsize=uisize;
