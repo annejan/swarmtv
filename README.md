@@ -1,11 +1,17 @@
 ## Introduction
 
 SwarmTv is a broadcatching tool with a stable commandline interface.
+
 A QT interface is in the works at the moment, a development version can be found in the [GIT](https://github.com/annejan/swarmtv).
+
 Swarmtv handles RSS feeds and downloads using NZB and torrents.
+
 RSS data can be filtered using regexp driven filters that can be defined using many parameters.
+
 Swarmtv is tested on Ubuntu Linux on both 32 and 64-bit operating systems and currently being ported to [windows](http://swarmtv.nl/windows.html).
+
 Testing on FreeBSD worked like a charm, still need to test MacOsX!
+
 For Ubuntu Natty Narwhal users a ppa repository is available **ppa:ranzbak/ppaswarmtv**
 
 ## Build this program
@@ -116,7 +122,9 @@ $ swarmtv --add-simple='House' --nodup='newer' --title='^house' --source='(Eztv|
 ```
 
 This filter filters for all torrents with the name beginning with "house" and excludes "House hunters international" which we don't want.
+
 To avoid downloading the HD version of the House episodes I added a maximal size of 700Mb, a good quality episode should be at least 200Mb.
+
 The source options provides the user with a way to restrict the RSS sources the download originates from.
 
 The nodup filter states that we only want newer episodes, no reruns for us.
@@ -173,6 +181,6 @@ For bug reports and feature requests please contact me at swarmtv [at] swarmtv.n
 
 ## Disclaimer
 
-This program is free software: you can redistribute it and/or modify it under the terms of the [GNU General Public License](http://swarmtv.nl/gpl.html)as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+This program is free software: you can redistribute it and/or modify it under the terms of the [GNU General Public License](http://swarmtv.nl/gpl.html) as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, SOUL OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
