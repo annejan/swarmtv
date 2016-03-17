@@ -22,7 +22,7 @@ INCLUDEPATH += . \
                filehandler/torrent \
                filehandler/nzb
 CONFIG += dll link_pkgconfig
-PKGCONFIG += xml2po sqlite3 dbus-1 glib-2.0 dbus-glib-1
+PKGCONFIG += sqlite3 dbus-1 glib-2.0 dbus-glib-1
 LIBS += -lcurl -lpcre
 unix{
 LIBS += -lesmtp
