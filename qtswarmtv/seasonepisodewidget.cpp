@@ -59,7 +59,7 @@ void seasonEpisodeWidget::retrieveEpisodeData()
 {
   //int rc=0;
   //tvdb_buffer_t buf;
-  //tvdb_list_node_t seriesInfo;
+  //tvdb_list_front_t seriesInfo;
 
   // Disable the tree view to show we are searching
   ui->treeWidget->setDisabled(true);
@@ -106,10 +106,10 @@ void seasonEpisodeWidget::retrieveEpisodeData()
 void seasonEpisodeWidget::seriesResults(tvdb_buffer_t *series_xml)
 {
   int rc=0;
-  tvdb_list_node_t seriesInfo;
+  tvdb_list_front_t seriesInfo;
 
   // Initialize structs
-  memset(&seriesInfo, 0, sizeof(tvdb_list_node_t));
+  memset(&seriesInfo, 0, sizeof(tvdb_list_front_t));
 
   // Parse the XML data
   rc = tvdb_parse_series_info(series_xml, "", &seriesInfo);
@@ -237,10 +237,10 @@ void seasonEpisodeWidget::addEpisodeEntry(QTreeWidgetItem *seasonItem, tvdb_seri
   ui->treeWidget->setItemWidget(overviewItem, 0, overviewWidget);
 }
 
-void seasonEpisodeWidget::fillListView(tvdb_list_node_t *seriesInfo)
+void seasonEpisodeWidget::fillListView(tvdb_list_front_t *seriesInfo)
 {
   tvdb_list_reset(seriesInfo);
-  const tvdb_list_node_t *n=NULL;
+  const tvdb_list_front_t *n=NULL;
   tvdb_series_info_t *s=NULL;
   int widgetSeason=0;
   int curSeason=0;

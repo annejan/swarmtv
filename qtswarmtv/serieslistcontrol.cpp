@@ -72,10 +72,10 @@ void seriesListControl::addWidget(int count, tvdb_series_t *series)
   myItem->show();
 }
 
-void seriesListControl::handleSeries(tvdb_list_node_t *series)
+void seriesListControl::handleSeries(tvdb_list_front_t *series)
 {
   int count=0;
-  tvdb_list_node_t *n=NULL;
+  tvdb_list_front_t *n=NULL;
   tvdb_series_t *m=NULL;
 
   table->setRowCount(series->count);
@@ -115,7 +115,7 @@ void seriesListControl::findSeries()
 void seriesListControl::searchResults(tvdb_buffer_t *series_xml)
 {
   int rc=0;
-  tvdb_list_node_t series;
+  tvdb_list_front_t series;
 
   // Parse results
   tvdb_list_init(&series);

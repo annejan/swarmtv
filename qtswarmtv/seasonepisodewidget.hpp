@@ -24,7 +24,7 @@ public:
     void setSeriesTitle(QString &name);
     void setSeriesId(int id);
     void setrieveEpisodeData();
-    void fillListView(tvdb_list_node_t *);
+    void fillListView(tvdb_list_front_t *);
     void retrieveEpisodeData();
 
 public slots:
