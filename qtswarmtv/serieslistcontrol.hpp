@@ -32,7 +32,7 @@ public slots:
     void showContextMenu(const QPoint&);
 
 private:
-    void handleSeries(tvdb_list_front_t *series);
+    void handleSeries(tvdb_list_node_t *series);
     void addWidget(int count, tvdb_series_t *series);
     void openSimpleEditDialog(seriesWidget *series);
     void createFilter();

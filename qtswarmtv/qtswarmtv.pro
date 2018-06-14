@@ -80,6 +80,11 @@ FORMS    += mainwindow.ui \
     seasonepisodewidget.ui
 
 LIBS 	 += -lswarmtv -ltvdb
+INCLUDEPATH	+= ../swarmtv/libswarmtv
+
+mac{
+INCLUDEPATH += /usr/local/include
+}
 
 # install
 target.path = /usr/local/bin/

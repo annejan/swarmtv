@@ -7,16 +7,22 @@ TARGET = swarmtv
 DEPENDPATH += .
 INCLUDEPATH += . ../libswarmtv
 CONFIG += link_pkgconfig
-PKGCONFIG += xml2po dbus-1 glib-2.0 dbus-glib-1 sqlite3
+PKGCONFIG += dbus-1 glib-2.0 dbus-glib-1 sqlite3 libxml-2.0 
 LIBS += -L../libswarmtv -lswarmtv -lcurl -lpcre
 unix{
- LIBS += -lesmtp -ldbus-1 -lglib-2.0 -ldbus-glib-1
+LIBS += -lesmtp -ldbus-1 -lglib-2.0 -ldbus-glib-1
 }
 win32{
 LIBS += -lxml2 -lwsock32 -lws2_32 -liconv
 }
+mac {
+INCLUDEPATH += /usr/local/include
+LIBS += -L/usr/local/lib
+}
+
 target.path = /usr/local/bin/
 INSTALLS += target
+
 # Input
 HEADERS += daemonize.h \
            dbus.h \

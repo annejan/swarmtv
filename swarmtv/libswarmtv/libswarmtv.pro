@@ -22,7 +22,7 @@ INCLUDEPATH += . \
                filehandler/torrent \
                filehandler/nzb
 CONFIG += dll link_pkgconfig
-PKGCONFIG += sqlite3 dbus-1 glib-2.0 dbus-glib-1
+PKGCONFIG += sqlite3 dbus-1 glib-2.0 dbus-glib-1 libxml-2.0
 LIBS += -lcurl -lpcre
 unix{
 LIBS += -lesmtp
@@ -30,6 +30,10 @@ LIBS += -lesmtp
 win32{
 LIBS += -lsqlite3 -lxml2 -lcurldll -liconv -lwsock32
 }
+mac{
+LIBS += -L/usr/local/lib
+}
+
 target.path = /usr/local/lib/
 headers.path = /usr/local/include/
 INSTALLS += target headers
